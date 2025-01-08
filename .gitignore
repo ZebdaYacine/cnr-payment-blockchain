@@ -1,5 +1,4 @@
 # Gitignore for Go (backend)
-/backend/
 /backend/*.exe
 /backend/*.test
 /backend/*.out
@@ -17,7 +16,6 @@
 /backend/node_modules/
 
 # Gitignore for ReactJS (frontend)
-/frontend/
 /frontend/cnr/
 /frontend/cnr/node_modules/
 /frontend/cnr/*.env
