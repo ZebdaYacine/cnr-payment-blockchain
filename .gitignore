@@ -11,12 +11,8 @@
 /backend/*.key
 /backend/*.cert
 
-# Dependency directories
-/backend/vendor/
-/backend/node_modules/
 
 # Gitignore for ReactJS (frontend)
-/frontend/cnr/
 /frontend/cnr/node_modules/
 /frontend/cnr/*.env
 /frontend/cnr/.build/
