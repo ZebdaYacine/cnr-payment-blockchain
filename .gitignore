@@ -27,10 +27,10 @@ Thumbs.db
 
 # Gitignore for ReactJS (frontend)
 /frontend/
-node_modules/
-*.env
-.build/
-*.log
+cnr/node_modules/
+cnr/*.env
+cnr/.build/
+cnr/*.log
 
 # Build directories
 dist/
