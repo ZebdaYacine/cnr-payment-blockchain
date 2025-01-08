@@ -1,31 +1,23 @@
 # Gitignore for Go (backend)
 /backend/
-*.exe
-*.test
-*.out
-*.log
-*.env
-*.db
-*.sqlite
-*.sqlite3
-*.pem
-*.key
-*.cert
+/backend/*.exe
+/backend/*.test
+/backend/*.out
+/backend/*.log
+/backend/*.env
+/backend/*.db
+/backend/*.sqlite
+/backend/*.sqlite3
+/backend/*.pem
+/backend/*.key
+/backend/*.cert
 
 # Dependency directories
-vendor/
-node_modules/
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# IDEs
-.idea/
-.vscode/
-*.swp
+/backend/vendor/
+/backend/node_modules/
 
 # Gitignore for ReactJS (frontend)
+/frontend/
 /frontend/cnr/
 /frontend/cnr/node_modules/
 /frontend/cnr/*.env
