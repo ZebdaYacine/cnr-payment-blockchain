@@ -1,0 +1,47 @@
+# Gitignore for Go (backend)
+/backend/
+*.exe
+*.test
+*.out
+*.log
+*.env
+*.db
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+*.cert
+
+# Dependency directories
+vendor/
+node_modules/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+
+# Gitignore for ReactJS (frontend)
+/frontend/
+node_modules/
+*.env
+.build/
+*.log
+
+# Build directories
+dist/
+public/build/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+
