@@ -1,21 +1,29 @@
 import { FaShoppingCart } from "react-icons/fa";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { MdOutlineDarkMode } from "react-icons/md";
-import { useDarkMode } from "../state/DarkModeContext";
+import { useThme } from "../state/ThemeContext";
+import { useUserId } from "../state/UserContext";
+import { useNavigate } from "react-router-dom";
 
 function NavBarComponent() {
-  const { isDarkMode, toggleDarkMode } = useDarkMode(); // Use context to get and toggle dark mode
+  const { isDarkMode, toggleDarkMode } = useThme();
+  const navigate = useNavigate();
+  const { userName } = useUserId();
 
+  const logoutEvent = () => {
+    navigate("/");
+  };
   return (
     <div
       className={
         isDarkMode
-          ? "navbar bg-gray-800 text-white"
-          : "navbar bg-slate-200 text-black"
+          ? "navbar bg-slate-400 text-white"
+          : "navbar bg-blue-700 texe-black"
       }
     >
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">CNR-ACCOUNT</a>
+        <a className="btn btn-ghost text-xl">{userName}</a>{" "}
+        {/* Display userName */}
       </div>
       <div className="flex-none">
         <div className="dropdown dropdown-end">
@@ -27,7 +35,7 @@ function NavBarComponent() {
           </div>
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
             <div className="indicator">
-              <IoNotificationsSharp className="h-5 w-5" />
+              <IoNotificationsSharp className="h-5 w-5 " />
               <span className="badge badge-sm indicator-item">8</span>
             </div>
           </div>
@@ -80,7 +88,7 @@ function NavBarComponent() {
               <a>Settings</a>
             </li>
             <li>
-              <a>Logout</a>
+              <a onClick={logoutEvent}>Logout</a>
             </li>
           </ul>
         </div>
