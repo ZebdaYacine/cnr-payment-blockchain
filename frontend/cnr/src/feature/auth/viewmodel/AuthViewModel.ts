@@ -7,8 +7,6 @@ export const useAuthViewModel = (loginUseCase: LoginUseCase) => {
       loginUseCase.execute(username, password),
   });
 
-  
- 
   return {
     login: mutate,
     token: data,
@@ -16,4 +14,5 @@ export const useAuthViewModel = (loginUseCase: LoginUseCase) => {
     isError,
     isSuccess,
   };
+  
 };
