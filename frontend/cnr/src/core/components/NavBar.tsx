@@ -11,7 +11,7 @@ import { useEffect } from "react";
 function NavBarComponent() {
   const { isDarkMode, toggleDarkMode } = useThme();
   const navigate = useNavigate();
-  const { userName } = useUserId();
+  const { username: userName } = useUserId();
   const { isAuthentificated, Userlogout } = useAuth();
   const { debug, info } = useLogger();
 

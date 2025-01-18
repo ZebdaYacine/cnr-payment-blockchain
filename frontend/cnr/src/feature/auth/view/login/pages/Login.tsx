@@ -24,7 +24,14 @@ function LoginPage() {
   const { login, isPending, isSuccess } = useAuthViewModel(loginUseCase);
   const navigate = useNavigate();
   const { toggleLightMode } = useThme();
-  const { userName, SetUserName } = useUserId();
+
+  const {
+    username: userName,
+    SetUsername: SetUserName,
+    password: password,
+    SetPassWord: SetPassWord,
+  } = useUserId();
+
   const { isAuthentificated } = useAuth();
   const { info } = useLogger();
   useEffect(() => {
@@ -33,8 +40,7 @@ function LoginPage() {
 
   const loginEvent = async (event: FormEvent) => {
     event.preventDefault();
-    login({ username: userName, password: "admin" });
-
+    login({ username: userName, password: password });
     if (isPending) {
       ref.current?.continuousStart();
     } else {
@@ -63,7 +69,7 @@ function LoginPage() {
             value={userName}
             onChange={(e) => SetUserName(e.target.value)}
           />
-          <PasswordInput />
+          <PasswordInput onChange={(e) => SetPassWord(e.target.value)} />
           <div className="flex justify-center">
             <LoginButton loginEvent={loginEvent} />
           </div>

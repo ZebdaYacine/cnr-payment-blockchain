@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { FaKey } from "react-icons/fa6";
-function PasswordInput({ hidden = false }) {
+
+interface PasswordInputProps {
+  hidden?: boolean;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+function PasswordInput({ hidden = false, onChange }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -9,6 +15,7 @@ function PasswordInput({ hidden = false }) {
         <label className="input input-bordered flex items-center gap-2">
           <FaKey />
           <input
+            onChange={onChange}
             type={showPassword ? "text" : "password"}
             className="grow p-2 focus:outline-none"
             placeholder="Enter your password"
