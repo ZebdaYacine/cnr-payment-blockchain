@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { Http } from "../../../../services/Http";
 import {  ErrorResponse, LoginResponse } from "../../../../services/model/login";
 
@@ -14,9 +15,14 @@ export class AuthDataSourceImpl implements AuthDataSource {
       });
       return response.data;
     } catch (error) {
-      console.log("Network error", error); 
+      if (error instanceof AxiosError) {
+        const err=error.response?.data?.message as string 
+        return {
+          message: err,
+        };
+      }
       return {
-        message: "Network error"+error,
+        message: "An unexpected error occurred",
       };
     }
   }

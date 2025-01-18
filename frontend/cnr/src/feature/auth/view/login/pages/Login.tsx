@@ -13,18 +13,15 @@ import { useAuthViewModel } from "../../../viewmodel/AuthViewModel";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
-import { useNotification } from "../../../../../services/useNotification";
 import { useAuth } from "../../../../../core/state/AuthContext";
 import { useLogger } from "../../../../../services/useLogger";
-// import { useLogger } from "../../../../../services/useLogger";
 
 const dataSource = new AuthDataSourceImpl();
 const repository = new AuthRepositoryImpl(dataSource);
 const loginUseCase = new LoginUseCase(repository);
 
 function LoginPage() {
-  const { login, isSuccess, isPending, isError } =
-    useAuthViewModel(loginUseCase);
+  const { login, isPending, isSuccess } = useAuthViewModel(loginUseCase);
   const navigate = useNavigate();
   const { toggleLightMode } = useThme();
   const { userName, SetUserName } = useUserId();
@@ -42,20 +39,13 @@ function LoginPage() {
       ref.current?.continuousStart();
     } else {
       ref.current?.complete();
-      if (isError) {
-        error("Error", "colored");
-      } else if (isSuccess) {
+      if (isSuccess) {
         if (isAuthentificated) {
-          console.log("Login successful, token saved");
           navigate("home");
         }
-      } else {
-        information("username or pwd incorrect..!", "colored");
       }
     }
   };
-
-  const { error, information } = useNotification();
 
   useEffect(() => {
     toggleLightMode();
