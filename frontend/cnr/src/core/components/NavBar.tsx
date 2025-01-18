@@ -4,15 +4,27 @@ import { MdOutlineDarkMode } from "react-icons/md";
 import { useThme } from "../state/ThemeContext";
 import { useUserId } from "../state/UserContext";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../state/AuthContext";
+import { useLogger } from "../../services/useLogger";
+import { useEffect } from "react";
 
 function NavBarComponent() {
   const { isDarkMode, toggleDarkMode } = useThme();
   const navigate = useNavigate();
   const { userName } = useUserId();
+  const { isAuthentificated, Userlogout } = useAuth();
+  const { debug, info } = useLogger();
+
+  useEffect(() => {
+    info("USER IS AUTHENTIFICATED : " + isAuthentificated);
+  }, [info, isAuthentificated]);
 
   const logoutEvent = () => {
-    navigate("/");
+    Userlogout();
+    debug("USER IS AUTHENTIFICATED : " + isAuthentificated);
+    if (!isAuthentificated) navigate("/");
   };
+
   return (
     <div
       className={

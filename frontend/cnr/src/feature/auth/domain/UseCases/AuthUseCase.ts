@@ -1,3 +1,4 @@
+import { ErrorResponse, LoginResponse } from "../../../../services/model/login";
 import { AuthRepository } from "../Repositories/AuthRepository";
 
 export class LoginUseCase {
@@ -7,7 +8,7 @@ export class LoginUseCase {
     this.repository = repository;
   }
 
-  async execute(username: string, password: string): Promise<string> {
+  async execute(username: string, password: string): Promise<LoginResponse|ErrorResponse> {
     return await this.repository.Login(username, password);
   }
 }

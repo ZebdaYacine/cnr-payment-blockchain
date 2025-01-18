@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: scps-api
+    container_name: scps-api
+    env_file: .env
+    ports:
+      - "8000:$SERVER_PORT"
+    
+    

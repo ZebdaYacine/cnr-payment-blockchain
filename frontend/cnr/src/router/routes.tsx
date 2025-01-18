@@ -1,41 +1,24 @@
-import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
-import { ThemeProvider } from "../core/state/ThemeContext";
-import { UserProvider } from "../core/state/UserContext";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../core/state/AuthContext";
 import LoginPage from "../feature/auth/view/login/pages/Login";
 import HomePage from "../feature/profile/view/home/pages/Home";
-import ProtectedRoute from "./protected";
 
 function AppRouter() {
-  const token = localStorage.getItem("authToken");
-  const isAuthenticated = !!token;
+  const { isAuthentificated } = useAuth();
 
   return (
-    <BrowserRouter>
-      <ThemeProvider>
-        <UserProvider>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/home" replace />
-                ) : (
-                  <LoginPage />
-                )
-              }
-            />
-            <Route
-              path="home"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <HomePage />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </UserProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          isAuthentificated ? <Navigate to="home" replace /> : <LoginPage />
+        }
+      />
+      <Route
+        path="home"
+        element={isAuthentificated ? <HomePage /> : <Navigate to="/" replace />}
+      />
+    </Routes>
   );
 }
 

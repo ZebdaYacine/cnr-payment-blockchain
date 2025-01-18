@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 interface ThemeContextType {
   isDarkMode: boolean;
@@ -14,9 +20,19 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     if (isDarkMode) {
+      localStorage.setItem("isDarkMode", "");
       document.documentElement.setAttribute("data-theme", "light");
     } else document.documentElement.setAttribute("data-theme", "dark");
   };
+
+  useEffect(() => {
+    const storedMode = localStorage.getItem("isDarkMode");
+    if (storedMode === "") {
+      document.documentElement.setAttribute("data-theme", "light");
+    } else {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  }, []);
 
   const toggleLightMode = () => {
     setIsDarkMode(false);

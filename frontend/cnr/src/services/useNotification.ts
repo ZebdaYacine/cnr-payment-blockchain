@@ -67,7 +67,7 @@ export const useNotification = () => {
         });
       }
     },
-    info: (message: string, theme: string) => {
+    information: (message: string, theme: string) => {
       if (!toastId) {
         toastId = toast.info(message, {
           position: "bottom-center",

@@ -11,7 +11,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userName, setUserName] = useState<string>("");
 
   const SetUserName = (username: string) => {
-    setUserName(username); // Update with the new username
+    setUserName(username);
   };
 
   return (

@@ -1,13 +1,11 @@
+import CNARLogo from "../../../../../assets/CNAR_logo.png";
 function AvatarCnr() {
   return (
     <>
       <div className="flex flex-col items-center justify-center mb-6">
         <div className="flex  justify-center avatar mb-4">
           <div className="w-30" style={{ width: "50%" }}>
-            <img
-              src="https://upload.wikimedia.org/wikipedia/fr/0/0c/CNAR_logo.png"
-              alt="Logo"
-            />
+            <img src={CNARLogo} alt="Logo" />
           </div>
         </div>
         <h1 className="text-4xl font-bold text-center">

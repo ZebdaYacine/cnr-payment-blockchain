@@ -12,42 +12,50 @@ import { LoginUseCase } from "../../../domain/UseCases/AuthUseCase";
 import { useAuthViewModel } from "../../../viewmodel/AuthViewModel";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNotification } from "../../../../../Services/useNotification";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
+import { useNotification } from "../../../../../services/useNotification";
+import { useAuth } from "../../../../../core/state/AuthContext";
+import { useLogger } from "../../../../../services/useLogger";
+// import { useLogger } from "../../../../../services/useLogger";
 
 const dataSource = new AuthDataSourceImpl();
 const repository = new AuthRepositoryImpl(dataSource);
 const loginUseCase = new LoginUseCase(repository);
 
 function LoginPage() {
-  const { login, token, isSuccess, isPending, isError } =
+  const { login, isSuccess, isPending, isError } =
     useAuthViewModel(loginUseCase);
   const navigate = useNavigate();
   const { toggleLightMode } = useThme();
   const { userName, SetUserName } = useUserId();
+  const { isAuthentificated } = useAuth();
+  const { info } = useLogger();
+  useEffect(() => {
+    info("USER IS AUTHENTIFICATED : " + isAuthentificated);
+  }, [info, isAuthentificated]);
 
-  const loginEvent = (event: FormEvent) => {
+  const loginEvent = async (event: FormEvent) => {
     event.preventDefault();
     login({ username: userName, password: "admin" });
-    SetUserName(userName); // Set the user name when the form is submitted
+
     if (isPending) {
       ref.current?.continuousStart();
     } else {
       ref.current?.complete();
       if (isError) {
-        error("No connection to the server", "colored");
+        error("Error", "colored");
       } else if (isSuccess) {
-        ref.current?.complete();
-        localStorage.setItem("authToken", token as string);
-        console.log("Login successful, token saved");
-        navigate("home");
+        if (isAuthentificated) {
+          console.log("Login successful, token saved");
+          navigate("home");
+        }
       } else {
-        info("Invalid username or password. Please try again.", "colored");
+        information("username or pwd incorrect..!", "colored");
       }
     }
   };
 
-  const { error, info } = useNotification();
+  const { error, information } = useNotification();
 
   useEffect(() => {
     toggleLightMode();
