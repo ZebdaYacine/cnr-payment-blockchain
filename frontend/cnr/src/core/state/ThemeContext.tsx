@@ -22,7 +22,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     if (isDarkMode) {
       localStorage.setItem("isDarkMode", "");
       document.documentElement.setAttribute("data-theme", "light");
-    } else document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      localStorage.setItem("isDarkMode", "true");
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
   };
 
   useEffect(() => {
