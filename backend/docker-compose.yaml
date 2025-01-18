@@ -4,8 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: scps-api
-    container_name: scps-api
+    image: cnr-api
+    container_name: cnr-api
     env_file: .env
     ports:
       - "8000:$SERVER_PORT"
