@@ -4,15 +4,16 @@ import {  UploadResponse } from "../../../../services/model/auth";
 import { ErrorResponse } from "../../../../services/model/commun";
 
 export interface ProfileDataSource {
-  UploadFileApi(file:string): Promise<UploadResponse|ErrorResponse>;
+  UploadFileApi(filename: string,codebase64: string): Promise<UploadResponse|ErrorResponse>;
 }
 
 export class ProfileDataSourceImpl implements ProfileDataSource {
-  async UploadFileApi(file: string): Promise<UploadResponse|ErrorResponse> {
+  async UploadFileApi(filename: string,codebase64: string): Promise<UploadResponse|ErrorResponse> {
     try {
-      const response = await Http.post<UploadResponse>("/upload", 
+      const response = await Http.post<UploadResponse>("/user/upload-file", 
         {
-        file: file,
+        filename: filename,
+        codebase64:codebase64
       },
       {
           headers: {

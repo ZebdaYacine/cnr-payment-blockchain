@@ -9,7 +9,7 @@ export class PofileUseCase {
     this.repository = repository;
   }
 
-  async execute(file: string): Promise<UploadResponse|ErrorResponse> {
-    return await this.repository.UploadFile(file);
+  async execute(filename: string,codebase64: string): Promise<UploadResponse|ErrorResponse> {
+    return await this.repository.UploadFile(filename,codebase64);
   }
 }

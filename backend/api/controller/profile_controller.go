@@ -36,6 +36,28 @@ func (ic *ProfileController) GetProfileRequest(c *gin.Context) {
 	})
 }
 
+func (ic *ProfileController) UploadFileRequestt(c *gin.Context) {
+	log.Println("************************ UPLOAD FILE REQUEST ************************")
+	var uploadFile entities.UploadFile
+	if !core.IsDataRequestSupported(&uploadFile, c) {
+		return
+	}
+	// log.Println("FILE UPLOADED :", uploadFile)
+	profileParams := &usecase.ProfileParams{}
+	profileParams.Data = uploadFile
+	resulat := ic.ProfileUsecase.UploadFile(c, profileParams)
+	if err := resulat.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "UPLOAD FILE SUCCESSFULY",
+		Data:    resulat.Data,
+	})
+}
+
 func (ic *ProfileController) SendDemandRequest(c *gin.Context) {
 	log.Println("************************ SEND DEMAND REQUEST ************************")
 	var likn entities.Link

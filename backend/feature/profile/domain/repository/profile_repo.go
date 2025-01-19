@@ -6,6 +6,7 @@ import (
 	"log"
 	"scps-backend/feature"
 	"scps-backend/pkg/database"
+	"scps-backend/util"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,7 +20,7 @@ type profileRepository struct {
 // GetAllDemand implements ProfileRepository.
 
 type ProfileRepository interface {
-	UploadFile(c context.Context, file string) (string, error)
+	UploadFile(c context.Context, filename string, codebase64 string) (string, error)
 	UpdateDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetProfile(c context.Context, userId string) (*feature.User, error)
 	GetInformationCard(c context.Context, userId string) (*feature.User, error)
@@ -33,8 +34,12 @@ func NewProfileRepository(db database.Database) ProfileRepository {
 	}
 }
 
-func (s *profileRepository) UploadFile(c context.Context, file string) (string, error) {
-	return "", nil
+func (s *profileRepository) UploadFile(c context.Context, filename string, codebase64 string) (string, error) {
+	err := util.Base64ToFile(codebase64, "output.txt")
+	if err != nil {
+		return "", err
+	}
+	return "OK", nil
 }
 
 func (s *profileRepository) ReciveDemand(c context.Context, user *feature.User) (*feature.User, error) {

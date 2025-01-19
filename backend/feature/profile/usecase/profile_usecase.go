@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"scps-backend/feature"
+	"scps-backend/feature/profile/domain/entities"
 	profileE "scps-backend/feature/profile/domain/entities"
 	profileRepo "scps-backend/feature/profile/domain/repository"
 )
@@ -17,6 +18,7 @@ type ProfileResult struct {
 }
 
 type ProfileUsecase interface {
+	UploadFile(c context.Context, data *ProfileParams) *ProfileResult
 	GetProfile(c context.Context, data *ProfileParams) *ProfileResult
 	UpdateDemand(c context.Context, data *ProfileParams) *ProfileResult
 	GetInformationCard(c context.Context, data *ProfileParams) *ProfileResult
@@ -35,6 +37,16 @@ func NewProfileUsecase(repo profileRepo.ProfileRepository, collection string) Pr
 		repo:       repo,
 		collection: collection,
 	}
+}
+
+// UploadFile implements ProfileUsecase.
+func (p *profileUsecase) UploadFile(c context.Context, data *ProfileParams) *ProfileResult {
+	file_uploaded := data.Data.(entities.UploadFile)
+	profileResult, err := p.repo.UploadFile(c, file_uploaded.FileName, file_uploaded.CodeBase64)
+	if err != nil {
+		return &ProfileResult{Err: err}
+	}
+	return &ProfileResult{Data: profileResult}
 }
 
 // GetAllDemands implements ProfileUsecase.

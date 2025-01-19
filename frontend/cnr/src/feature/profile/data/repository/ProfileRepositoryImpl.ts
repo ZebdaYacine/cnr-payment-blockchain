@@ -10,7 +10,7 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     this.datasource = datasource;
   }
 
-  async UploadFile(file: string): Promise<UploadResponse|ErrorResponse> {
-    return await this.datasource.UploadFileApi(file);
+  async UploadFile(filename: string,codebase64: string): Promise<UploadResponse|ErrorResponse> {
+    return await this.datasource.UploadFileApi(filename,codebase64);
   }
 }

@@ -13,3 +13,8 @@ type UpdateProfile struct {
 	Request   bool   `json:"request"`
 	Status    string `json:"status"`
 }
+
+type UploadFile struct {
+	FileName   string `json:"filename"`
+	CodeBase64 string `json:"codebase64"`
+}

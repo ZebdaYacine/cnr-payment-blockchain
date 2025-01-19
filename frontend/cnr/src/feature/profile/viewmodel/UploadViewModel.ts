@@ -14,7 +14,8 @@ export function useUplaodViewModel(pofileUseCase: PofileUseCase) {
   const { mutate, isPending, isSuccess, isError } = useMutation({
     mutationFn: async ({ file }: { file: File }) => {
       const base64File = await convertFileToBase64(file);
-      return pofileUseCase.execute(base64File);
+      const filename=file.name
+      return pofileUseCase.execute(filename,base64File);
     },
   });
 

@@ -17,6 +17,16 @@ func NewGetProfileSuRouter(db database.Database, group *gin.RouterGroup) {
 	}
 	group.GET("get-profile", ic.GetProfileRequest)
 }
+
+func NewUploadFileRouter(db database.Database, group *gin.RouterGroup) {
+	ir := repository.NewProfileRepository(db)
+	uc := usecase.NewProfileUsecase(ir, "")
+	ic := &controller.ProfileController{
+		ProfileUsecase: uc,
+	}
+	group.POST("upload-file", ic.UploadFileRequestt)
+}
+
 func NewGetProfileRouter(db database.Database, group *gin.RouterGroup) {
 	ir := repository.NewProfileRepository(db)
 	uc := usecase.NewProfileUsecase(ir, "")
