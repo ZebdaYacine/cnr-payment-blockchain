@@ -1,4 +1,5 @@
-import { ErrorResponse, LoginResponse } from "../../../../services/model/login";
+import { LoginResponse } from "../../../../services/model/auth";
+import { ErrorResponse } from "../../../../services/model/commun";
 import { AuthRepository } from "../Repositories/AuthRepository";
 
 export class LoginUseCase {

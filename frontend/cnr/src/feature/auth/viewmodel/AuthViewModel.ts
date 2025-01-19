@@ -1,4 +1,4 @@
-import { LoginResponse } from '../../../services/model/login';
+import { LoginResponse } from '../../../services/model/auth';
 import { useMutation } from "@tanstack/react-query";
 import { LoginUseCase } from "../domain/UseCases/AuthUseCase";
 import { useAuth } from '../../../core/state/AuthContext';

@@ -1,19 +1,18 @@
 import { AxiosError } from "axios";
 import { Http } from "../../../../services/Http";
-import {  LoginResponse } from "../../../../services/model/auth";
+import {  UploadResponse } from "../../../../services/model/auth";
 import { ErrorResponse } from "../../../../services/model/commun";
 
-export interface AuthDataSource {
-  Login(username: string, password: string): Promise<LoginResponse|ErrorResponse>;
+export interface ProfileDataSource {
+  UploadFileApi(file:string): Promise<UploadResponse|ErrorResponse>;
 }
 
-export class AuthDataSourceImpl implements AuthDataSource {
-  async Login(username: string, password: string): Promise<LoginResponse|ErrorResponse> {
+export class ProfileDataSourceImpl implements ProfileDataSource {
+  async UploadFileApi(file: string): Promise<UploadResponse|ErrorResponse> {
     try {
-      const response = await Http.post<LoginResponse>("/login", 
+      const response = await Http.post<UploadResponse>("/upload", 
         {
-        username: username,
-        password: password,
+        file: file,
       },
       {
           headers: {

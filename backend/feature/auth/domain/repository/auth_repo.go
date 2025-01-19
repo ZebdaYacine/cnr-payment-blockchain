@@ -82,7 +82,6 @@ func (s *authRepository) CreateAccount(c context.Context, user *feature.User) (*
 		}
 		return nil, err
 	}
-
 	return new_user, nil
 }
 

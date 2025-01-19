@@ -19,6 +19,7 @@ type profileRepository struct {
 // GetAllDemand implements ProfileRepository.
 
 type ProfileRepository interface {
+	UploadFile(c context.Context, file string) (string, error)
 	UpdateDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetProfile(c context.Context, userId string) (*feature.User, error)
 	GetInformationCard(c context.Context, userId string) (*feature.User, error)
@@ -30,6 +31,10 @@ func NewProfileRepository(db database.Database) ProfileRepository {
 	return &profileRepository{
 		database: db,
 	}
+}
+
+func (s *profileRepository) UploadFile(c context.Context, file string) (string, error) {
+	return "", nil
 }
 
 func (s *profileRepository) ReciveDemand(c context.Context, user *feature.User) (*feature.User, error) {

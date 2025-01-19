@@ -19,6 +19,11 @@ export interface LoginResponse {
   data: Data ;
 }
 
-export interface ErrorResponse {
-  message: string;
+
+
+export interface UploadResponse {
+  filename: string;
+  url: string;
 }
+
+

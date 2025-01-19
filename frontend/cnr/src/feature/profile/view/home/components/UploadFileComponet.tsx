@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { useThme } from "../../../../../core/state/ThemeContext";
 import { FaUpload } from "react-icons/fa"; // Import the upload icon
+import { useUplaodViewModel } from "../../../viewmodel/UploadViewModel";
+import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
+import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
+import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
 
+const dataSource = new ProfileDataSourceImpl();
+const repository = new ProfileRepositoryImpl(dataSource);
+const profileUseCase = new PofileUseCase(repository);
 function UploadFileComponet() {
-  const { isDarkMode } = useThme(); // Use context to get and toggle dark mode
-  const [file, setFileName] = useState(""); // Declare a state variable
-
+  const { isDarkMode } = useThme();
+  const [file, setFileName] = useState("");
+  const { upload } = useUplaodViewModel(profileUseCase);
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0]; // Access the first file
+    const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      setFileName(selectedFile.name); // Update the state with the file name
+      upload({ file: selectedFile });
+      setFileName(selectedFile.name);
     } else {
       setFileName("No file selected");
     }
