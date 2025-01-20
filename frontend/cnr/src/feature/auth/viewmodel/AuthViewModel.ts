@@ -20,6 +20,9 @@ export function useAuthViewModel(loginUseCase: LoginUseCase) {
           console.log("User Data:", resp.data.userdata);
           Userlogged(resp.data.token);
         } else {
+          if(data.message==""){
+            error("Network error", "colored");
+          }else
           error(data.message, "colored");
         }
       }

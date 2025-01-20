@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-func SdkProvider(function string) {
+func SdkProvider(function string, file ...*FileMetadata) {
 	var SETTING = pkg.GET_BLOCKCHAIN_SETTIN()
 	chainCode := SETTING.CHAIN_CODE
 	channelName := SETTING.CHANNEL_NAME
@@ -50,9 +50,10 @@ func SdkProvider(function string) {
 	case "init":
 		initLedger(contract)
 	case "getAll":
-		getAllMetaData(contract)
+		getAllFileMetadata(contract)
+	case "add":
+		createFileMetadata(contract, file[0])
 	}
-
 }
 
 // newGrpcConnection creates a gRPC connection to the Gateway server.

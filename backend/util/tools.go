@@ -2,9 +2,13 @@ package util
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -42,4 +46,21 @@ func Base64ToFile(base64Str, outputPath string) error {
 	}
 
 	return nil
+}
+
+
+func CalculateChecksum(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, file); err != nil {
+		return "", err
+	}
+
+	checksum := hasher.Sum(nil)
+	return hex.EncodeToString(checksum), nil
 }

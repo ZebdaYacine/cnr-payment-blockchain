@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"scps-backend/fabric"
 	"scps-backend/feature"
 	"scps-backend/pkg/database"
 	"scps-backend/util"
@@ -35,10 +36,22 @@ func NewProfileRepository(db database.Database) ProfileRepository {
 }
 
 func (s *profileRepository) UploadFile(c context.Context, filename string, codebase64 string) (string, error) {
-	err := util.Base64ToFile(codebase64, "output.txt")
+	output := "../../file/" + filename
+	err := util.Base64ToFile(codebase64, output)
 	if err != nil {
 		return "", err
 	}
+	checksum, err := util.CalculateChecksum(output)
+	if err != nil {
+		fmt.Printf("Error calculating checksum: %v\n", err)
+	}
+	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
+	fabric.SdkProvider("add", &fabric.FileMetadata{
+		ID:           "95794857",
+		HashFile:     checksum,
+		Action:       "upload",
+		Organisation: "DG",
+	})
 	return "OK", nil
 }
 
