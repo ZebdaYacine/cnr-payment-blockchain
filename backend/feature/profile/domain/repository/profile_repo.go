@@ -8,6 +8,8 @@ import (
 	"scps-backend/feature"
 	"scps-backend/pkg/database"
 	"scps-backend/util"
+	"strconv"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -21,7 +23,7 @@ type profileRepository struct {
 // GetAllDemand implements ProfileRepository.
 
 type ProfileRepository interface {
-	UploadFile(c context.Context, filename string, codebase64 string) (string, error)
+	UploadFile(c context.Context, filename string, codebase64 string, userid string) (*fabric.FileMetadata, error)
 	UpdateDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetProfile(c context.Context, userId string) (*feature.User, error)
 	GetInformationCard(c context.Context, userId string) (*feature.User, error)
@@ -35,24 +37,30 @@ func NewProfileRepository(db database.Database) ProfileRepository {
 	}
 }
 
-func (s *profileRepository) UploadFile(c context.Context, filename string, codebase64 string) (string, error) {
+func (s *profileRepository) UploadFile(c context.Context, filename string, codebase64 string, userid string) (*fabric.FileMetadata, error) {
 	output := "../../file/" + filename
 	err := util.Base64ToFile(codebase64, output)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	checksum, err := util.CalculateChecksum(output)
 	if err != nil {
 		fmt.Printf("Error calculating checksum: %v\n", err)
 	}
 	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
-	fabric.SdkProvider("add", &fabric.FileMetadata{
-		ID:           "95794857",
+	fmt.Printf("USER ID: %s\n", userid)
+
+	id := time.Now().UnixMilli()
+	metadata := &fabric.FileMetadata{
+		ID:           strconv.FormatInt(id, 10),
 		HashFile:     checksum,
+		UserID:       userid,
 		Action:       "upload",
 		Organisation: "DG",
-	})
-	return "OK", nil
+	}
+	log.Println(metadata)
+	fabric.SdkProvider("add", metadata)
+	return metadata, nil
 }
 
 func (s *profileRepository) ReciveDemand(c context.Context, user *feature.User) (*feature.User, error) {

@@ -6,6 +6,8 @@ import (
 	"scps-backend/api/controller/model"
 	"scps-backend/core"
 	"scps-backend/feature"
+	"scps-backend/pkg"
+	util "scps-backend/util/token"
 
 	"scps-backend/feature/profile/domain/entities"
 	"scps-backend/feature/profile/usecase"
@@ -42,7 +44,16 @@ func (ic *ProfileController) UploadFileRequestt(c *gin.Context) {
 	if !core.IsDataRequestSupported(&uploadFile, c) {
 		return
 	}
-	// log.Println("FILE UPLOADED :", uploadFile)
+	token := util.GetToken(c)
+	userid, err := util.ExtractIDFromToken(token, pkg.GET_ROOT_SERVER_SEETING().SECRET_KEY)
+	if err != nil {
+		c.JSON(http.StatusNonAuthoritativeInfo, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+	uploadFile.UserId = userid
+	log.Println("FILE UPLOADED :", uploadFile)
 	profileParams := &usecase.ProfileParams{}
 	profileParams.Data = uploadFile
 	resulat := ic.ProfileUsecase.UploadFile(c, profileParams)

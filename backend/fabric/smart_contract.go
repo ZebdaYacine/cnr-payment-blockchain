@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path"
 
@@ -101,13 +102,27 @@ func getAllFileMetadata(contract *client.Contract) {
 	fmt.Printf("*** Result:%s\n", result)
 }
 
+// Evaluate a transaction to query ledger state.
+func getFileMetadata(contract *client.Contract, id string) string {
+	fmt.Println("\n--> Evaluate Transaction: GetMetadata, function returns   file on the ledger with id :" + id)
+
+	evaluateResult, err := contract.EvaluateTransaction("ReadFileMetadata", id)
+	if err != nil {
+		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+	}
+	result := formatJSON(evaluateResult)
+
+	fmt.Printf("*** Result:%s\n", result)
+	return result
+}
+
 func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMetadata, error) {
 	fmt.Println("\n--> Evaluate Transaction: CreateFileFileMetadata, function creates metadata for a file on the ledger")
 
 	// Replace these with the actual values you want to pass
 	id := file.ID
 	hashFile := file.HashFile
-	userID := file.Action
+	userID := file.UserID
 	action := file.Action
 	organisation := file.Organisation
 
@@ -117,10 +132,13 @@ func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMet
 		panic(fmt.Errorf("failed to submit transaction: %w", err))
 		return nil, err
 	}
-
 	// Since no result is expected, just confirm success
 	fmt.Printf("*** Transaction committed successfully. Result: %s\n", string(submitResult))
-	getAllFileMetadata(contract)
+	result := getFileMetadata(contract, file.ID)
+	err1 := json.Unmarshal([]byte(result), &file)
+	if err != nil {
+		log.Fatalf("Error parsing JSON: %v", err1)
+	}
 	return file, nil
 }
 

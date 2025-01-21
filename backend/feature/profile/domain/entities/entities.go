@@ -1,7 +1,5 @@
 package entities
 
-
-
 type InformationsCard struct {
 	SecurityId string `json:"securityId"`
 }
@@ -19,4 +17,5 @@ type UpdateProfile struct {
 type UploadFile struct {
 	FileName   string `json:"filename"`
 	CodeBase64 string `json:"codebase64"`
+	UserId     string
 }

@@ -3,8 +3,10 @@ package util
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v4"
 )
 
@@ -12,6 +14,12 @@ type JwtCustomClaims struct {
 	ID     string `json:"id"`
 	Action string `json:"action"`
 	jwt.RegisteredClaims
+}
+
+func GetToken(c *gin.Context) string {
+	authHeader := c.Request.Header.Get("Authorization")
+	t := strings.Split(authHeader, " ")
+	return t[1]
 }
 
 func CreateAccessToken(id string, secret string, expiry int, action string) (accessToken string, err error) {

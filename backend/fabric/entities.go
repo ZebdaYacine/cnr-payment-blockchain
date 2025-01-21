@@ -1,9 +1,9 @@
 package fabric
 
 type FileMetadata struct {
-	ID           string
-	HashFile     string
-	UserID       string
-	Action       string
-	Organisation string
+	ID           string `json:"id"`
+	HashFile     string `json:"hashFile"`
+	UserID       string `json:"userId"`
+	Action       string `json:"action"`
+	Organisation string `json:"organisation"`
 }

@@ -4,11 +4,11 @@ import {  UploadResponse } from "../../../../services/model/auth";
 import { ErrorResponse } from "../../../../services/model/commun";
 
 export interface ProfileDataSource {
-  UploadFileApi(filename: string,codebase64: string): Promise<UploadResponse|ErrorResponse>;
+  UploadFileApi(filename: string,codebase64: string,token:string): Promise<UploadResponse|ErrorResponse>;
 }
 
 export class ProfileDataSourceImpl implements ProfileDataSource {
-  async UploadFileApi(filename: string,codebase64: string): Promise<UploadResponse|ErrorResponse> {
+  async UploadFileApi(filename: string,codebase64: string,token:string): Promise<UploadResponse|ErrorResponse> {
     try {
       const response = await Http.post<UploadResponse>("/user/upload-file", 
         {
@@ -18,6 +18,7 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
       {
           headers: {
             'Content-Type': 'application/json',
+            'Authorization':'Bearer ' +token
           }
         }
     );

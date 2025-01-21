@@ -22,7 +22,6 @@ func JwtAuthMiddleware(secret string, action string) gin.HandlerFunc {
 		t := strings.Split(authHeader, " ")
 		if len(t) == 2 {
 			authToken := t[1]
-			log.Println(authToken)
 			authorized, _ := util.IsAuthorized(authToken, secret)
 			if !authorized {
 				c.JSON(http.StatusUnauthorized, "unauthorized access")

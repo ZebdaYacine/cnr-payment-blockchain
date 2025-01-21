@@ -18,14 +18,11 @@ func SdkProvider(function string, file ...*FileMetadata) {
 	var SETTING = pkg.GET_BLOCKCHAIN_SETTIN()
 	chainCode := SETTING.CHAIN_CODE
 	channelName := SETTING.CHANNEL_NAME
-
 	// The gRPC client connection should be shared by all Gateway connections to this endpoint
 	clientConnection := newGrpcConnection()
 	defer clientConnection.Close()
-
 	id := newIdentity()
 	sign := newSign()
-
 	// Create a Gateway connection for a specific client identity
 	gw, err := client.Connect(
 		id,
@@ -42,10 +39,8 @@ func SdkProvider(function string, file ...*FileMetadata) {
 		panic(err)
 	}
 	defer gw.Close()
-
 	network := gw.GetNetwork(channelName)
 	contract := network.GetContract(chainCode)
-
 	switch function {
 	case "init":
 		initLedger(contract)
