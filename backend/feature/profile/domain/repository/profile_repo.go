@@ -6,6 +6,7 @@ import (
 	"log"
 	"scps-backend/fabric"
 	"scps-backend/feature"
+	"scps-backend/feature/profile/domain/entities"
 	"scps-backend/pkg/database"
 	"scps-backend/util"
 	"strconv"
@@ -23,7 +24,8 @@ type profileRepository struct {
 // GetAllDemand implements ProfileRepository.
 
 type ProfileRepository interface {
-	UploadFile(c context.Context, filename string, codebase64 string, userid string) (*fabric.FileMetadata, error)
+	SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error)
+	UploadFile(c context.Context, file entities.UploadFile) (*[]fabric.FileMetadata, error)
 	UpdateDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetProfile(c context.Context, userId string) (*feature.User, error)
 	GetInformationCard(c context.Context, userId string) (*feature.User, error)
@@ -37,9 +39,9 @@ func NewProfileRepository(db database.Database) ProfileRepository {
 	}
 }
 
-func (s *profileRepository) UploadFile(c context.Context, filename string, codebase64 string, userid string) (*fabric.FileMetadata, error) {
-	output := "../../file/" + filename
-	err := util.Base64ToFile(codebase64, output)
+func (s *profileRepository) UploadFile(c context.Context, file entities.UploadFile) (*[]fabric.FileMetadata, error) {
+	output := "../../ftp/" + file.Name
+	err := util.Base64ToFile(file.CodeBase64, output)
 	if err != nil {
 		return nil, err
 	}
@@ -48,19 +50,46 @@ func (s *profileRepository) UploadFile(c context.Context, filename string, codeb
 		fmt.Printf("Error calculating checksum: %v\n", err)
 	}
 	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
-	fmt.Printf("USER ID: %s\n", userid)
+	fmt.Printf("USER ID: %s\n", file.UserId)
 
 	id := time.Now().UnixMilli()
 	metadata := &fabric.FileMetadata{
 		ID:           strconv.FormatInt(id, 10),
 		HashFile:     checksum,
-		UserID:       userid,
-		Action:       "upload",
-		Organisation: "DG",
+		UserID:       file.UserId,
+		FileName:     file.Name,
+		Parent:       file.Parent,
+		Version:      strconv.Itoa(file.Version),
+		Time:         time.Now().Format(time.RFC3339),
+		Action:       file.Action,
+		Organisation: file.Organisation,
 	}
-	log.Println(metadata)
-	fabric.SdkProvider("add", metadata)
-	return metadata, nil
+	log.Println(metadata.Action)
+	log.Println(metadata.Organisation)
+	log.Println(metadata.Parent)
+	log.Println(metadata.Version)
+
+	// fabric.SdkProvider("deleteAll", metadata)
+	result, err := fabric.SdkProvider("add", metadata)
+	if err != nil {
+		return nil, err
+	}
+	files, ok := result.(*[]fabric.FileMetadata)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
+	}
+	return files, nil
+
+}
+
+func (s *profileRepository) SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error) {
+	// collection := s.database.Collection("metadata-file")
+	// resulat, err := collection.InsertOne(c, &metadata)
+	// if err != nil {
+	// 	log.Printf("Failed to create metadata-file: %v", err)
+	// 	return nil, err
+	// }
+	return nil, nil
 }
 
 func (s *profileRepository) ReciveDemand(c context.Context, user *feature.User) (*feature.User, error) {

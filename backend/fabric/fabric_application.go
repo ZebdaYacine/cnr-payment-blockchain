@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-func SdkProvider(function string, file ...*FileMetadata) {
+func SdkProvider(function string, file *FileMetadata) (interface{}, error) {
 	var SETTING = pkg.GET_BLOCKCHAIN_SETTIN()
 	chainCode := SETTING.CHAIN_CODE
 	channelName := SETTING.CHANNEL_NAME
@@ -41,13 +41,16 @@ func SdkProvider(function string, file ...*FileMetadata) {
 	defer gw.Close()
 	network := gw.GetNetwork(channelName)
 	contract := network.GetContract(chainCode)
+	// initLedger(contract)
 	switch function {
-	case "init":
-		initLedger(contract)
 	case "getAll":
-		getAllFileMetadata(contract)
+		return getAllFileMetadata(contract)
 	case "add":
-		createFileMetadata(contract, file[0])
+		return createFileMetadata(contract, file)
+	case "deleteAll":
+		return nil, deleteAllFileMetadata(contract)
+	default:
+		return nil, fmt.Errorf("unknown function: %s", function)
 	}
 }
 

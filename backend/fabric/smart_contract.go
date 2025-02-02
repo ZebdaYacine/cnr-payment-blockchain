@@ -81,65 +81,102 @@ func readFirstFile(dirPath string) ([]byte, error) {
 func initLedger(contract *client.Contract) {
 	fmt.Printf("\n--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger \n")
 
-	_, err := contract.SubmitTransaction("InitLedger")
+	r, err := contract.SubmitTransaction("InitLedger")
 	if err != nil {
 		panic(fmt.Errorf("failed to submit transaction: %w", err))
 	}
+	log.Println(r)
 
 	fmt.Printf("*** Transaction committed successfully\n")
 }
 
 // Evaluate a transaction to query ledger state.
-func getAllFileMetadata(contract *client.Contract) {
-	fmt.Println("\n--> Evaluate Transaction: GetAllMetadata, function returns all the current assets on the ledger")
+func getAllFileMetadata(contract *client.Contract) (*[]FileMetadata, error) {
+	fmt.Println("\n--> Evaluate Transaction: GetAllFileMetadata, function returns all the current assets on the ledger")
 
 	evaluateResult, err := contract.EvaluateTransaction("GetAllFileMetadata")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
+	if len(evaluateResult) == 0 {
+		return nil, fmt.Errorf("❌ no metadata in blockchain network") // Return error instead of panicking
+	}
 	result := formatJSON(evaluateResult)
 
 	fmt.Printf("*** Result:%s\n", result)
+	var files *[]FileMetadata
+	err1 := json.Unmarshal([]byte(result), &files)
+	if err1 != nil {
+		log.Fatalf("Error parsing JSON: %v", err1)
+	}
+	return files, nil
 }
 
 // Evaluate a transaction to query ledger state.
-func getFileMetadata(contract *client.Contract, id string) string {
-	fmt.Println("\n--> Evaluate Transaction: GetMetadata, function returns   file on the ledger with id :" + id)
+func getFileMetadata(contract *client.Contract, id string) (*FileMetadata, error) {
+	fmt.Println("\n--> Evaluate Transaction: GetFileMetadata, function returns   file on the ledger with id :" + id)
 
 	evaluateResult, err := contract.EvaluateTransaction("ReadFileMetadata", id)
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
+	if len(evaluateResult) == 0 {
+		fmt.Println("❌ no metadata in blockchain network")
+		return nil, fmt.Errorf("❌ no metadata in blockchain network") // Return error instead of panicking
+	}
 	result := formatJSON(evaluateResult)
 
 	fmt.Printf("*** Result:%s\n", result)
-	return result
+	var file *FileMetadata
+	err1 := json.Unmarshal([]byte(result), &file)
+	if err1 != nil {
+		log.Fatalf("Error parsing JSON: %v", err1)
+		return nil, err1
+	}
+	return file, nil
 }
 
-func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMetadata, error) {
-	fmt.Println("\n--> Evaluate Transaction: CreateFileFileMetadata, function creates metadata for a file on the ledger")
+func deleteAllFileMetadata(contract *client.Contract) error {
+	fmt.Println("\n--> Submitting Transaction: DeleteAllFileMetadata - deleting all file metadata from the ledger")
+
+	// Submit transaction
+	submitResult, err := contract.SubmitTransaction("DeleteAllFileMetadata")
+	if err != nil {
+		log.Println("❌ Transaction failed:", err)
+		return fmt.Errorf("failed to submit transaction: %w", err) // Return error instead of panicking
+	}
+
+	// Confirm transaction success
+	fmt.Println("*** ✅ Transaction committed successfully.")
+	if len(submitResult) > 0 { // Only print result if there is one
+		fmt.Printf("Result: %s\n", string(submitResult))
+	}
+
+	return nil
+}
+
+func createFileMetadata(contract *client.Contract, file *FileMetadata) (*[]FileMetadata, error) {
+	fmt.Println("\n--> Evaluate Transaction: CreateFileMetadata, function creates metadata for a file on the ledger")
 
 	// Replace these with the actual values you want to pass
 	id := file.ID
 	hashFile := file.HashFile
 	userID := file.UserID
 	action := file.Action
-	organisation := file.Organisation
+	// organisation := file.Organisation
+	fileName := file.FileName
+	parent := file.Parent
+	version := file.Version
 
 	// Submit transaction
-	submitResult, err := contract.SubmitTransaction("CreateFileFileMetadata", id, hashFile, userID, action, organisation)
+	submitResult, err := contract.SubmitTransaction("CreateFileMetadata", id, hashFile, userID, fileName, parent, version, action, "DG")
 	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
-		return nil, err
+		panic(fmt.Errorf("❌ failed to submit transaction: %w", err))
 	}
+
 	// Since no result is expected, just confirm success
-	fmt.Printf("*** Transaction committed successfully. Result: %s\n", string(submitResult))
-	result := getFileMetadata(contract, file.ID)
-	err1 := json.Unmarshal([]byte(result), &file)
-	if err != nil {
-		log.Fatalf("Error parsing JSON: %v", err1)
-	}
-	return file, nil
+	fmt.Printf("*** ✅  Transaction committed successfully. Result: %s\n", string(submitResult))
+	return getAllFileMetadata(contract)
 }
 
 func formatJSON(data []byte) string {

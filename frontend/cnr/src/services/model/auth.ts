@@ -5,8 +5,9 @@ export interface LoginRequest {
 
 interface UserData {
   id: number;
-  name: string;
+  username: string;
   email: string;
+  permission: string;
 }
 
 export interface Data {
@@ -20,10 +21,5 @@ export interface LoginResponse {
 }
 
 
-
-export interface UploadResponse {
-  filename: string;
-  url: string;
-}
 
 

@@ -42,7 +42,7 @@ func NewProfileUsecase(repo profileRepo.ProfileRepository, collection string) Pr
 // UploadFile implements ProfileUsecase.
 func (p *profileUsecase) UploadFile(c context.Context, data *ProfileParams) *ProfileResult {
 	file_uploaded := data.Data.(entities.UploadFile)
-	profileResult, err := p.repo.UploadFile(c, file_uploaded.FileName, file_uploaded.CodeBase64, file_uploaded.UserId)
+	profileResult, err := p.repo.UploadFile(c, file_uploaded)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}

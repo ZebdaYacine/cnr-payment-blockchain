@@ -15,7 +15,11 @@ type UpdateProfile struct {
 }
 
 type UploadFile struct {
-	FileName   string `json:"filename"`
-	CodeBase64 string `json:"codebase64"`
-	UserId     string
+	Name         string `json:"filename"`
+	CodeBase64   string `json:"codebase64"`
+	Action       string `json:"action"`
+	Version      int    `json:"version"`
+	Parent       string `json:"parent"`
+	Organisation string `json:"organisation"`
+	UserId       string
 }
