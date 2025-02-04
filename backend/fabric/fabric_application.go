@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-func SdkProvider(function string, file *FileMetadata) (interface{}, error) {
+func SdkProvider(function string, file ...*FileMetadata) (interface{}, error) {
 	var SETTING = pkg.GET_BLOCKCHAIN_SETTIN()
 	chainCode := SETTING.CHAIN_CODE
 	channelName := SETTING.CHANNEL_NAME
@@ -46,7 +46,7 @@ func SdkProvider(function string, file *FileMetadata) (interface{}, error) {
 	case "getAll":
 		return getAllFileMetadata(contract)
 	case "add":
-		return createFileMetadata(contract, file)
+		return createFileMetadata(contract, file[0])
 	case "deleteAll":
 		return nil, deleteAllFileMetadata(contract)
 	default:

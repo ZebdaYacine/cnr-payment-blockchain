@@ -30,7 +30,7 @@ type ProfileRepository interface {
 	GetProfile(c context.Context, userId string) (*feature.User, error)
 	GetInformationCard(c context.Context, userId string) (*feature.User, error)
 	ReciveDemand(c context.Context, user *feature.User) (*feature.User, error)
-	GetAllDemand(c context.Context) ([]*feature.User, error)
+	GetMetadataFile(c context.Context) (*[]fabric.FileMetadata, error)
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -121,34 +121,16 @@ func (s *profileRepository) ReciveDemand(c context.Context, user *feature.User) 
 	println(new_user)
 	return new_user, nil
 }
-func (s *profileRepository) GetAllDemand(c context.Context) ([]*feature.User, error) {
-
-	collection := s.database.Collection("user")
-	filter := bson.D{{Key: "request", Value: true}, {Key: "permission", Value: "USER"}}
-
-	cursor, err := collection.Find(c, filter)
+func (s *profileRepository) GetMetadataFile(c context.Context) (*[]fabric.FileMetadata, error) {
+	result, err := fabric.SdkProvider("getAll")
 	if err != nil {
-		return nil, fmt.Errorf("failed to find documents: %w", err)
+		return nil, err
 	}
-	defer cursor.Close(c)
-
-	var users []*feature.User
-	for cursor.Next(c) {
-		var result bson.M
-		if err := cursor.Decode(&result); err != nil {
-			log.Printf("failed to decode document: %v", err)
-			continue
-		}
-		if result["status"].(string) != "accepted" {
-			user := feature.User{
-				Id:     result["_id"].(primitive.ObjectID).Hex(),
-				Email:  result["email"].(string),
-				Status: result["status"].(string),
-			}
-			users = append(users, &user)
-		}
+	files, ok := result.(*[]fabric.FileMetadata)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
 	}
-	return users, nil
+	return files, nil
 }
 
 func (s *profileRepository) UpdateDemand(c context.Context, user *feature.User) (*feature.User, error) {
@@ -192,8 +174,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 	user := feature.User{
 		Permission: result["permission"].(string),
 		Email:      result["email"].(string),
-		Request:    result["request"].(bool),
-		Status:     result["status"].(string),
+		UserName:   result["username"].(string),
 	}
 
 	return &user, nil

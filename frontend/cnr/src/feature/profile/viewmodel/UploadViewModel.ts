@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { PofileUseCase } from "../domain/usecase/ProfileUseCase";
-import { UploadResponse } from "../data/dtos/ProfileDtos";
+import { FilesResponse } from "../data/dtos/ProfileDtos";
 
 // Helper function to convert file to Base64
 function convertFileToBase64(file: File): Promise<string> {
@@ -17,7 +17,7 @@ function convertFileToBase64(file: File): Promise<string> {
 export function useUploadViewModel(profileUseCase: PofileUseCase) {
   const { error } = useNotification();
 
-  const { mutate, data: metadata, isPending: isPending, isSuccess, isError } = useMutation({
+  const { mutate:uploadFile, data: metadata, isPending: isPending, isSuccess, isError } = useMutation({
     mutationFn: async ({ file,parent,version }: { file: File,parent:string,version:number }) => {
       const base64File = await convertFileToBase64(file);
       const filename = file.name;
@@ -26,11 +26,11 @@ export function useUploadViewModel(profileUseCase: PofileUseCase) {
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.execute(filename, base64File, storedToken,action,parent,version);
+      return profileUseCase.UploadFile(filename, base64File, storedToken,action,parent,version);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
-        const resp = data as UploadResponse;
+        const resp = data as FilesResponse;
         console.log("File uploaded successfully:", resp.data.at(-1)?.ID);
         console.log("File URL:", resp.data.at(-1)?.HashFile);
       } else {
@@ -45,8 +45,8 @@ export function useUploadViewModel(profileUseCase: PofileUseCase) {
   });
 
   return {
-    upload: mutate,
-    metadata:metadata,
+    upload: uploadFile,
+    metadata,
     isPending,
     isSuccess,
     isError,

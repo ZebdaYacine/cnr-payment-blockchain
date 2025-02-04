@@ -7,7 +7,7 @@ import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSo
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { ToastContainer } from "react-toastify";
 import { useUploadViewModel } from "../../../viewmodel/UploadViewModel";
-import { UploadResponse } from "../../../data/dtos/ProfileDtos";
+import { FilesResponse } from "../../../data/dtos/ProfileDtos";
 import { useFileMetaData } from "../../../../../core/state/FileContext";
 
 const dataSource = new ProfileDataSourceImpl();
@@ -42,7 +42,7 @@ function UploadFileComponet() {
     } else {
       ref.current?.complete();
       if (isSuccess) {
-        const d = metadata as UploadResponse;
+        const d = metadata as FilesResponse;
         const file = d.data;
         if (file) {
           setFilesList(file);

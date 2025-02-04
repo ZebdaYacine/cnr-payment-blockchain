@@ -1,4 +1,4 @@
-export interface UploadResponse {
+export interface FilesResponse {
   message: string;
   data: Data[] ;
 }

@@ -54,13 +54,13 @@ func NewSendDemandRouter(db database.Database, group *gin.RouterGroup) {
 	group.POST("send-demand", ic.SendDemandRequest)
 }
 
-func NewGetAllDemandsRouter(db database.Database, group *gin.RouterGroup) {
+func NewGetAllMetaDataFileRouter(db database.Database, group *gin.RouterGroup) {
 	ir := repository.NewProfileRepository(db)
 	uc := usecase.NewProfileUsecase(ir, "")
 	ic := &controller.ProfileController{
 		ProfileUsecase: uc,
 	}
-	group.GET("get-All-demands", ic.GetAllDemandRequest)
+	group.GET("get-all-files-metadata", ic.GetAllFilesMetaDataRequest)
 }
 
 func NewUpdateDemandRouter(db database.Database, group *gin.RouterGroup) {

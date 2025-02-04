@@ -158,7 +158,6 @@ func deleteAllFileMetadata(contract *client.Contract) error {
 func createFileMetadata(contract *client.Contract, file *FileMetadata) (*[]FileMetadata, error) {
 	fmt.Println("\n--> Evaluate Transaction: CreateFileMetadata, function creates metadata for a file on the ledger")
 
-	// Replace these with the actual values you want to pass
 	id := file.ID
 	hashFile := file.HashFile
 	userID := file.UserID

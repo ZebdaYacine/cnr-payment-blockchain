@@ -114,9 +114,9 @@ func (ic *ProfileController) GetInformationProfileRequest(c *gin.Context) {
 	})
 }
 
-func (ic *ProfileController) GetAllDemandRequest(c *gin.Context) {
-	log.Println("************************ GET ALL PENDING DEMNADS REQUEST ************************")
-	resulat := ic.ProfileUsecase.GetAllDemands(c)
+func (ic *ProfileController) GetAllFilesMetaDataRequest(c *gin.Context) {
+	log.Println("************************ GET ALL META DATA FILES REQUEST ************************")
+	resulat := ic.ProfileUsecase.GetMetaDataFile(c)
 	if err := resulat.Err; err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Message: err.Error(),
@@ -124,7 +124,7 @@ func (ic *ProfileController) GetAllDemandRequest(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, model.SuccessResponse{
-		Message: "GET ALL PENDING DEMNADS SUCCESSFULY",
+		Message: "GET ALL META DATA FILES WAS SUCCESSFULY",
 		Data:    resulat.Data,
 	})
 }

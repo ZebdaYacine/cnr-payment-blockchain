@@ -23,7 +23,7 @@ type ProfileUsecase interface {
 	UpdateDemand(c context.Context, data *ProfileParams) *ProfileResult
 	GetInformationCard(c context.Context, data *ProfileParams) *ProfileResult
 	ReciveDemand(c context.Context, user *ProfileParams) *ProfileResult
-	GetAllDemands(c context.Context) *ProfileResult
+	GetMetaDataFile(c context.Context) *ProfileResult
 }
 
 type profileUsecase struct {
@@ -49,9 +49,9 @@ func (p *profileUsecase) UploadFile(c context.Context, data *ProfileParams) *Pro
 	return &ProfileResult{Data: profileResult}
 }
 
-// GetAllDemands implements ProfileUsecase.
-func (p *profileUsecase) GetAllDemands(c context.Context) *ProfileResult {
-	profileResult, err := p.repo.GetAllDemand(c)
+// GetMetaDataFile implements ProfileUsecase.
+func (p *profileUsecase) GetMetaDataFile(c context.Context) *ProfileResult {
+	profileResult, err := p.repo.GetMetadataFile(c)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}
