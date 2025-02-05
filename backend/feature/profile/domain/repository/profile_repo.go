@@ -77,8 +77,12 @@ func (s *profileRepository) UploadFile(c context.Context, file entities.UploadFi
 	if !ok {
 		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
 	}
-	return files, nil
-
+	for i := range *files {
+		file := &(*files)[i]
+		file.Status = "Valid"
+		(*files)[i] = *file
+	}
+	return files, err
 }
 
 func (s *profileRepository) SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error) {
@@ -127,12 +131,10 @@ func (s *profileRepository) GetMetadataFile(c context.Context) (*[]fabric.FileMe
 	if err != nil {
 		return nil, err
 	}
-
 	files, ok := result.(*[]fabric.FileMetadata)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
 	}
-
 	location := "../../ftp/"
 	for i := range *files {
 		file := &(*files)[i]

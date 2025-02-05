@@ -48,6 +48,13 @@ function HomePage() {
   }, []);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      getFiles();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     console.log(">>> Fetch profile status:", isProfileSuccess);
     console.log(">>> Fetch file status:", isFetchSuccess);
     if (isFetchingFiles) {
