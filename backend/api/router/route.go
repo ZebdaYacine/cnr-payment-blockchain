@@ -36,6 +36,7 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewGetProfileRouter(db, userRouter)
 	private.NewSendDemandRouter(db, userRouter)
 	private.NewUploadFileRouter(db, userRouter)
+	private.NewGetAllMetaDataFileRouter(db, userRouter)
 
 	// Superuser-specific routes with middleware
 	superuserRouter := gin.Group("/super-user")
@@ -44,7 +45,6 @@ func Setup(db database.Database, gin *gin.Engine) {
 		"SUPER-USER"))
 	private.NewGetProfileSuRouter(db, superuserRouter)
 	private.NewGetInformationsCardRouter(db, superuserRouter)
-	private.NewGetAllMetaDataFileRouter(db, superuserRouter)
 	private.NewUpdateDemandRouter(db, superuserRouter)
 
 }

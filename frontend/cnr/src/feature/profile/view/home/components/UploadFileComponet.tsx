@@ -1,55 +1,61 @@
 import { useEffect, useRef, useState } from "react";
-import { useThme } from "../../../../../core/state/ThemeContext";
 import { FaUpload } from "react-icons/fa";
 import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
 import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
 import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { ToastContainer } from "react-toastify";
-import { useUploadViewModel } from "../../../viewmodel/UploadViewModel";
+import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 import { FilesResponse } from "../../../data/dtos/ProfileDtos";
 import { useFileMetaData } from "../../../../../core/state/FileContext";
+import { useTheme } from "../../../../../core/state/ThemeContext";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
 const profileUseCase = new PofileUseCase(repository);
 
-function UploadFileComponet() {
+function UploadFileComponent() {
   const ref = useRef<LoadingBarRef>(null);
-  const { isDarkMode } = useThme();
+  const { isDarkMode } = useTheme();
   const { setFilesList } = useFileMetaData();
   const [file, setFileName] = useState("No file selected");
   const [badgecolor, setBadge] = useState("badge badge-warning");
   const [meta, setMeta] = useState("");
 
-  const { upload, metadata, isPending, isSuccess } =
-    useUploadViewModel(profileUseCase);
+  const { uploadFile, uploadMetadata, isUploading, uploadSuccess } =
+    useProfileViewModel(profileUseCase);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      upload({ file: selectedFile, parent: "root", version: 2 });
+      uploadFile({ file: selectedFile, parent: "", version: 1 });
     } else {
       setFileName("No file selected");
     }
   };
 
+  const close = () => {
+    setFileName("No file selected");
+    setBadge("badge badge-warning");
+  };
+
   useEffect(() => {
-    if (isPending) {
+    if (isUploading) {
       ref.current?.continuousStart();
       setBadge("badge badge-warning");
       setFileName("Uploading...");
     } else {
       ref.current?.complete();
-      if (isSuccess) {
-        const d = metadata as FilesResponse;
-        const file = d.data;
+      if (uploadSuccess) {
+        const d = uploadMetadata as FilesResponse;
+        const file = d?.data;
         if (file) {
           setFilesList(file);
           const str = file.at(-1)?.HashFile;
           if (str) setMeta(str);
           setFileName("File upload success");
           setBadge("badge badge-accent");
+
           const modal = document.getElementById("modal") as HTMLDialogElement;
           if (modal) {
             modal.showModal();
@@ -60,7 +66,7 @@ function UploadFileComponet() {
         }
       }
     }
-  }, [isPending, isSuccess, metadata]);
+  }, [isUploading, uploadSuccess, uploadMetadata]);
 
   return (
     <>
@@ -91,15 +97,16 @@ function UploadFileComponet() {
       </div>
       <ToastContainer />
       <dialog id="modal" className="modal">
-        <div className="modal-box p-8  shadow-lg">
+        <div className="modal-box p-8 shadow-lg">
           <h3 className="font-bold text-lg">File MetaData!</h3>
           <p className="mt-8 text-center text-xl text-fuchsia-700">
-            <span className="font-bold text-lg">checksum</span>:{meta}
+            <span className="font-bold text-lg">Checksum:</span> {meta}
           </p>
           <div className="modal-action mt-6">
-            {/* Form with method="dialog" automatically closes the modal */}
             <form method="dialog">
-              <button className="btn btn-primary">Close</button>
+              <button className="btn btn-primary" onClick={close}>
+                Close
+              </button>
             </form>
           </div>
         </div>
@@ -108,4 +115,4 @@ function UploadFileComponet() {
   );
 }
 
-export default UploadFileComponet;
+export default UploadFileComponent;

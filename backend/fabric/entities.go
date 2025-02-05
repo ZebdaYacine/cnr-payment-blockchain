@@ -10,4 +10,5 @@ type FileMetadata struct {
 	Action       string `json:"Action"`
 	Time         string `json:"Time"`
 	Organisation string `json:"Organisation"`
+	Status       string `json:"Status",omitempty"`
 }

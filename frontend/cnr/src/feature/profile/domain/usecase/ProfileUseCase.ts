@@ -1,5 +1,5 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import { FilesResponse } from "../../data/dtos/ProfileDtos";
+import { FilesResponse, ProfileResponse } from "../../data/dtos/ProfileDtos";
 import { ProfileRepository } from "../repository/ProfileRepository";
 
 export class PofileUseCase {
@@ -25,5 +25,9 @@ export class PofileUseCase {
 
   async GetFiles(token:string): Promise<FilesResponse|ErrorResponse> {
       return await  this.repository.GetFiles(token);
+  }
+
+  async GetProfile(token:string): Promise<ProfileResponse|ErrorResponse> {
+      return await  this.repository.GetProfile(token);
   }
 }

@@ -25,6 +25,20 @@ func GenerateDigit() (string, error) {
 	return string(digits), nil
 }
 
+func FileExists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
+func ConvertFileToBase64(file string) (string, error) {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return "", fmt.Errorf("failed to read file: %v", err)
+	}
+	base64Str := base64.StdEncoding.EncodeToString(data)
+	return base64Str, nil
+}
+
 func Base64ToFile(base64Str, outputPath string) error {
 	parts := strings.Split(base64Str, ",")
 	codebase64 := ""
@@ -47,7 +61,6 @@ func Base64ToFile(base64Str, outputPath string) error {
 
 	return nil
 }
-
 
 func CalculateChecksum(filePath string) (string, error) {
 	file, err := os.Open(filePath)

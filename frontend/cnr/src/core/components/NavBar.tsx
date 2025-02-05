@@ -1,21 +1,24 @@
 import { FaShoppingCart } from "react-icons/fa";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { MdOutlineDarkMode } from "react-icons/md";
-import { useThme } from "../state/ThemeContext";
-import { useUserId } from "../state/UserContext";
+import { useTheme } from "../state/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
 import { useLogger } from "../../services/useLogger";
 import { useEffect } from "react";
 
-function NavBarComponent() {
-  const { isDarkMode, toggleDarkMode } = useThme();
+interface NavBarProps {
+  user: { username?: string; email?: string; permission?: string };
+}
+
+function NavBarComponent({ user }: NavBarProps) {
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
-  const { username: userName } = useUserId();
   const { isAuthentificated, Userlogout } = useAuth();
   const { debug, info } = useLogger();
 
   useEffect(() => {
+    console.log(user.username);
     info("USER IS AUTHENTIFICATED : " + isAuthentificated);
   }, [info, isAuthentificated]);
 
@@ -34,8 +37,7 @@ function NavBarComponent() {
       }
     >
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">{userName}</a>{" "}
-        {/* Display userName */}
+        <a className="btn btn-ghost text-xl">{user.username}</a>{" "}
       </div>
       <div className="flex-none">
         <div className="dropdown dropdown-end">
@@ -81,7 +83,7 @@ function NavBarComponent() {
           >
             <div className="w-10 rounded-full">
               <img
-                alt="Tailwind CSS Navbar component"
+                alt="User Profile"
                 src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
               />
             </div>

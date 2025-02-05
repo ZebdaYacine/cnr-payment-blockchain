@@ -3,6 +3,17 @@ export interface FilesResponse {
   data: Data[] ;
 }
 
+export interface ProfileResponse {
+  message: string;
+  data: User ;
+}
+
+export interface User {
+  username: string;
+  email: string;
+  permission: string;
+}
+
 export interface Data {
   ID: string;
   HashFile: string;

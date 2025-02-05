@@ -22,7 +22,6 @@ type profileRepository struct {
 }
 
 // GetAllDemand implements ProfileRepository.
-
 type ProfileRepository interface {
 	SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error)
 	UploadFile(c context.Context, file entities.UploadFile) (*[]fabric.FileMetadata, error)
@@ -121,14 +120,43 @@ func (s *profileRepository) ReciveDemand(c context.Context, user *feature.User) 
 	println(new_user)
 	return new_user, nil
 }
+
 func (s *profileRepository) GetMetadataFile(c context.Context) (*[]fabric.FileMetadata, error) {
 	result, err := fabric.SdkProvider("getAll")
 	if err != nil {
 		return nil, err
 	}
+
 	files, ok := result.(*[]fabric.FileMetadata)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
+	}
+
+	location := "../../ftp/"
+	for i := range *files {
+		file := &(*files)[i]
+		filePath := location + file.FileName
+		if !util.FileExists(filePath) {
+			log.Printf("File not found: %s", filePath)
+			file.Status = "Deleted"
+			continue
+		}
+		checksum, err := util.CalculateChecksum(filePath)
+		if err != nil {
+			log.Printf("Error calculating checksum for %s: %v\n", file.FileName, err)
+			file.Status = "ChecksumError"
+			continue
+		}
+		fmt.Printf("(Recalculation)  Checksum: %s\n", checksum)
+		fmt.Printf("(Blockchain) Checksum: %s\n", file.HashFile)
+		if file.HashFile == checksum {
+			file.Status = "Valid"
+		} else {
+			file.Status = "Invalid"
+		}
+		log.Println(*file)
+		(*files)[i] = *file
+
 	}
 	return files, nil
 }

@@ -5,7 +5,7 @@ import { FormEvent, useEffect, useRef } from "react";
 import { useUserId } from "../../../../../core/state/UserContext";
 import UserNameInput from "../../../../../core/components/UserNameInput";
 import PasswordInput from "../../../../../core/components/PassWordInput";
-import { useThme } from "../../../../../core/state/ThemeContext";
+import { useTheme } from "../../../../../core/state/ThemeContext";
 import { AuthDataSourceImpl } from "../../../data/dataSource/AuthAPIDataSource";
 import { AuthRepositoryImpl } from "../../../data/repository/AuthRepositoryImpl";
 import { LoginUseCase } from "../../../domain/UseCases/AuthUseCase";
@@ -23,7 +23,7 @@ const loginUseCase = new LoginUseCase(repository);
 function LoginPage() {
   const { login, isPending, isSuccess } = useAuthViewModel(loginUseCase);
   const navigate = useNavigate();
-  const { toggleLightMode } = useThme();
+  const { toggleLightMode } = useTheme();
 
   const {
     username: userName,
