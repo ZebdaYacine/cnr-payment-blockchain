@@ -3,6 +3,7 @@ import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { PofileUseCase } from "../domain/usecase/ProfileUseCase";
 import { FilesResponse, ProfileResponse } from "../data/dtos/ProfileDtos";
+import { useFileMetaData } from "../../../core/state/FileContext";
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -15,6 +16,8 @@ function convertFileToBase64(file: File): Promise<string> {
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const { error } = useNotification();
+    const {  setFilesList } = useFileMetaData();
+  
   const { mutate: getProfile, data: Profile, isPending: isProfileLoading, isSuccess: isProfileSuccess} = useMutation({
     mutationFn: async () => {
       const storedToken = localStorage.getItem("authToken");
@@ -79,6 +82,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         console.log("Files retrieved successfully:", resp.data);
       } else {
         const errorResponse = data as ErrorResponse;
+        setFilesList([]);
         error(errorResponse.message || "Network error occurred while fetching files", "colored");
       }
     },
