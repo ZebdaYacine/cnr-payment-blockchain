@@ -24,4 +24,5 @@ export interface Data {
   Action: string;
   Time: string;
   Organisation: string;
+  Status: string;
 }

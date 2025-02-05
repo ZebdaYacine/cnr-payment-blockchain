@@ -23,6 +23,7 @@ function ListOfFiles({ files }: ListOfFilesProps) {
                 <th className="p-3 border border-gray-500">File</th>
                 <th className="p-3 border border-gray-500">User</th>
                 <th className="p-3 border border-gray-500">Time</th>
+                <th className="p-3 border border-gray-500">Status</th>
                 <th className="p-3 border border-gray-500">Version</th>
               </tr>
             </thead>
@@ -45,6 +46,17 @@ function ListOfFiles({ files }: ListOfFilesProps) {
                   </td>
                   <td className="p-3 border border-gray-500 text-center">
                     {file.Time}
+                  </td>
+                  <td className="p-3 border border-gray-500 text-center">
+                    <div
+                      className={`badge ${
+                        file.Status === "Valid"
+                          ? "badge-accent"
+                          : "badge-secondary"
+                      }`}
+                    >
+                      {file.Status}
+                    </div>
                   </td>
                   <td className="p-3 border border-gray-500 text-center">
                     <div
