@@ -2,8 +2,11 @@ import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { PofileUseCase } from "../domain/usecase/ProfileUseCase";
-import { FilesResponse, ProfileResponse } from "../data/dtos/ProfileDtos";
+import { FilesResponse, ProfileResponse, User } from "../data/dtos/ProfileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../../core/state/AuthContext";
+import { useUserId } from "../../../core/state/UserContext";
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -15,8 +18,11 @@ function convertFileToBase64(file: File): Promise<string> {
 }
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
+  const { isAuthentificated, Userlogout } = useAuth();
+  const navigate = useNavigate();
   const { error } = useNotification();
-    const {  setFilesList } = useFileMetaData();
+  const { setFilesList } = useFileMetaData();
+  const {SetUsername,SetEmail,SetPermission } = useUserId();
   
   const { mutate: getProfile, data: Profile, isPending: isProfileLoading, isSuccess: isProfileSuccess} = useMutation({
     mutationFn: async () => {
@@ -30,9 +36,18 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       if (data && "data" in data) {
         const resp = data as ProfileResponse;
         console.log("Get Profile successfully:", resp.data);
+        const userData = resp.data as User;
+        if (userData) {
+          console.log("Profile fetched:", userData);
+           SetUsername(userData?.username)
+           SetEmail(userData?.email)
+           SetPermission(userData?.permission)
+        }
       } else {
-        const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during upload", "colored");
+         const errorResponse = data as ErrorResponse;
+         error(errorResponse.message || "Network error occurred during upload", "colored");
+         Userlogout();
+        if (!isAuthentificated) navigate("/");
       }
     },
     onError: (err: unknown) => {
@@ -57,6 +72,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const resp = data as FilesResponse;
         console.log("File uploaded successfully:", resp.data.at(-1)?.ID);
         console.log("File URL:", resp.data.at(-1)?.HashFile);
+        setFilesList(resp.data);
       } else {
         const errorResponse = data as ErrorResponse;
         error(errorResponse.message || "Network error occurred during upload", "colored");
@@ -80,6 +96,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       if (data && "data" in data) {
         const resp = data as FilesResponse;
         console.log("Files retrieved successfully:", resp.data);
+        setFilesList(resp.data);
       } else {
         const errorResponse = data as ErrorResponse;
         setFilesList([]);
@@ -108,7 +125,5 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isProfileLoading,
     isProfileSuccess,
     Profile,
-    
-    
   };
 }
