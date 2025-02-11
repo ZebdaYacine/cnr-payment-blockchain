@@ -99,8 +99,8 @@ function UploadFileComponent() {
       <dialog id="modal" className="modal">
         <div className="modal-box p-8 shadow-lg">
           <h3 className="font-bold text-lg">File MetaData!</h3>
-          <p className="mt-8 text-center text-xl text-fuchsia-700">
-            <span className="font-bold text-lg">Checksum:</span> {meta}
+          <p className="mt-8 text-center text-xl text-blue-700 break-words font-bold">
+            Checksum: <span className="block">{meta}</span>
           </p>
           <div className="modal-action mt-6">
             <form method="dialog">

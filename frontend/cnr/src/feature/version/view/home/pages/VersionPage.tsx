@@ -1,32 +1,26 @@
 import { useEffect } from "react";
-import NavBarComponent from "../../../../../core/components/NavBar";
-import { useFileMetaData } from "../../../../../core/state/FileContext";
 import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
-import ListOfFiles from "../components/ListOfFiles";
-import UploadFileComponet from "../components/UploadFileComponet";
+import NavBarComponent from "../../../../../core/components/NavBar";
 import { useUserId } from "../../../../../core/state/UserContext";
+import ListOfVersion from "../components/ListOfVersion";
 
-function HomePage() {
+function VersionPage() {
   const dataSource = new ProfileDataSourceImpl();
   const repository = new ProfileRepositoryImpl(dataSource);
   const profileUseCase = new PofileUseCase(repository);
 
-  const { getFilesList } = useFileMetaData();
-  const { getFiles, getProfile } = useProfileViewModel(profileUseCase);
+  const { getProfile } = useProfileViewModel(profileUseCase);
   const { username, email, permission } = useUserId();
 
   useEffect(() => {
-    getFiles();
     getProfile();
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      getFiles();
-    }, 10000);
+    const interval = setInterval(() => {}, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -39,13 +33,11 @@ function HomePage() {
           permission: permission,
         }}
       />
-
       <div className="flex flex-col items-center  m-10">
-        <UploadFileComponet />
-        <ListOfFiles files={getFilesList()} />
+        <ListOfVersion files={[]} />
       </div>
     </>
   );
 }
 
-export default HomePage;
+export default VersionPage;

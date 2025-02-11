@@ -1,22 +1,35 @@
-import { useNavigate } from "react-router";
+import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { Data } from "../../../data/dtos/ProfileDtos";
+import { useRef } from "react";
+import { FaUpload } from "react-icons/fa6";
 
 interface ListOfFilesProps {
   files: Data[];
 }
 
-function ListOfFiles({ files }: ListOfFilesProps) {
-  const navigate = useNavigate();
-  const handleRowClick = (file: Data) => {
-    console.log("File clicked:", file);
-    navigate("/versions-file");
+function handleRowClick(file: Data) {
+  console.log("File clicked:", file);
+}
+
+function ListOfVersion({ files }: ListOfFilesProps) {
+  const displayVersionModal = () => {
+    const modal = document.getElementById("version") as HTMLDialogElement;
+    if (modal) {
+      modal.showModal();
+    }
   };
+  const ref = useRef<LoadingBarRef>(null);
   return (
     <>
-      <div className="mt-4">
-        <div className="card bg-base-300 shadow-xl ">
+      <>
+        <div className="card bg-base-300 shadow-xl w-3/5">
           <div className="card-body">
-            <h2 className="card-title text-center">List of Uploaded Files</h2>
+            <div className="flex flex-row justify-between">
+              <h2 className="card-title text-center">List of Uploaded Files</h2>
+              <button className="btn btn-accent" onClick={displayVersionModal}>
+                Add new Version
+              </button>
+            </div>
             <div className="overflow-x-auto">
               <table className="table w-full">
                 <thead>
@@ -69,9 +82,34 @@ function ListOfFiles({ files }: ListOfFilesProps) {
             </div>
           </div>
         </div>
-      </div>
+        <dialog id="version" className="modal">
+          <div className="modal-box p-8 shadow-lg">
+            <h3 className="font-bold text-lg">Insert new Verion:</h3>
+            <LoadingBar color="#f11946" ref={ref} shadow={true} />
+            <div className="flex flex-col items-center justify-center">
+              <form className="form-control mt-4 w-full max-w-md text-center">
+                <input
+                  type="file"
+                  className="mt-5 file-input file-input-bordered file-input-primary "
+                />
+                <textarea
+                  className="mt-5 textarea textarea-bordered"
+                  placeholder="Description of transactions..."
+                />
+                <div className="mt-5 card-actions flex flex-col items-center gap-4">
+                  <label className="btn btn-primary flex items-center gap-2 cursor-pointer">
+                    <FaUpload />
+                    Upload File
+                    <input type="input" className="hidden" />
+                  </label>
+                </div>
+              </form>
+            </div>
+          </div>
+        </dialog>
+      </>
     </>
   );
 }
 
-export default ListOfFiles;
+export default ListOfVersion;

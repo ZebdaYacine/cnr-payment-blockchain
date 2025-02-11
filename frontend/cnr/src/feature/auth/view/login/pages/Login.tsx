@@ -47,7 +47,7 @@ function LoginPage() {
       ref.current?.complete();
       if (isSuccess) {
         if (isAuthentificated) {
-          navigate("home");
+          navigate("/home");
         }
       }
     }

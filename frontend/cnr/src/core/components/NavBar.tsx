@@ -32,7 +32,7 @@ function NavBarComponent({ user }: NavBarProps) {
     <div
       className={
         isDarkMode
-          ? "navbar bg-slate-400 text-white"
+          ? "navbar bg-zinc-800 text-white"
           : "navbar bg-blue-700 texe-black"
       }
     >
