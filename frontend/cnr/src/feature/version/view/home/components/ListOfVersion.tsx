@@ -1,5 +1,5 @@
-import { VersionData } from "../../../data/dtos/ProfileDtos";
-import FileUploadModal from "./FileUploadModal";
+import { VersionData } from "../../../data/dtos/VersionsDtos";
+import VersionUploadModal from "./VersionUploadModal";
 
 interface ListOfVersionProps {
   version: VersionData[];
@@ -30,7 +30,7 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
                   <th className="text-center">User</th>
                   <th className="text-center">Time</th>
                   <th className="text-center">Status</th>
-                  <th className="text-center">Notes</th>
+                  <th className="text-center">Version</th>
                 </tr>
               </thead>
               <tbody>
@@ -59,7 +59,7 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
           </div>
         </div>
       </div>
-      <FileUploadModal />
+      <VersionUploadModal />
     </>
   );
 }

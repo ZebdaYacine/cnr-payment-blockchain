@@ -1,124 +1,30 @@
 import { useEffect } from "react";
-import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
-import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
-import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
-import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
+
 import NavBarComponent from "../../../../../core/components/NavBar";
 import { useUserId } from "../../../../../core/state/UserContext";
 import ListOfVersion from "../components/ListOfVersion";
 import ListOfCommits from "../components/ListOfCommits";
-import { VersionData } from "../../../data/dtos/ProfileDtos";
+import { VersionData } from "../../../data/dtos/VersionsDtos";
 
 function VersionPage() {
-  const dataSource = new ProfileDataSourceImpl();
-  const repository = new ProfileRepositoryImpl(dataSource);
-  const profileUseCase = new PofileUseCase(repository);
-
-  const { getProfile } = useProfileViewModel(profileUseCase);
   const { username, email, permission } = useUserId();
 
   const sampleVersions: VersionData[] = [
-    {
-      ID: "1",
-      HashFile: "abc123",
-      UserID: "user001",
-      FileName: "report.pdf",
-      Parent: "root",
-      Note: 5,
-      Action: "Created",
-      Time: "2024-02-12 10:30",
-      Organisation: "Tech Corp",
-      Status: "Approved",
-    },
-    {
-      ID: "2",
-      HashFile: "xyz789",
-      UserID: "user002",
-      FileName: "document.docx",
-      Parent: "root",
-      Note: 4,
-      Action: "Updated",
-      Time: "2024-02-13 15:45",
-      Organisation: "Finance Ltd",
-      Status: "Pending",
-    },
-    {
-      ID: "2",
-      HashFile: "xyz789",
-      UserID: "user002",
-      FileName: "document.docx",
-      Parent: "root",
-      Note: 4,
-      Action: "Updated",
-      Time: "2024-02-13 15:45",
-      Organisation: "Finance Ltd",
-      Status: "Pending",
-    },
-    {
-      ID: "2",
-      HashFile: "xyz789",
-      UserID: "user002",
-      FileName: "document.docx",
-      Parent: "root",
-      Note: 4,
-      Action: "Updated",
-      Time: "2024-02-13 15:45",
-      Organisation: "Finance Ltd",
-      Status: "Pending",
-    },
-    {
-      ID: "2",
-      HashFile: "xyz789",
-      UserID: "user002",
-      FileName: "document.docx",
-      Parent: "root",
-      Note: 4,
-      Action: "Updated",
-      Time: "2024-02-13 15:45",
-      Organisation: "Finance Ltd",
-      Status: "Pending",
-    },
-    {
-      ID: "2",
-      HashFile: "xyz789",
-      UserID: "user002",
-      FileName: "document.docx",
-      Parent: "root",
-      Note: 4,
-      Action: "Updated",
-      Time: "2024-02-13 15:45",
-      Organisation: "Finance Ltd",
-      Status: "Pending",
-    },
-    {
-      ID: "2",
-      HashFile: "xyz789",
-      UserID: "user002",
-      FileName: "document.docx",
-      Parent: "root",
-      Note: 4,
-      Action: "Updated",
-      Time: "2024-02-13 15:45",
-      Organisation: "Finance Ltd",
-      Status: "Pending",
-    },
-    {
-      ID: "2",
-      HashFile: "xyz789",
-      UserID: "user002",
-      FileName: "document.docx",
-      Parent: "root",
-      Note: 4,
-      Action: "Updated",
-      Time: "2024-02-13 15:45",
-      Organisation: "Finance Ltd",
-      Status: "Pending",
-    },
+    // {
+    //   ID: "1",
+    //   HashFile: "abc123",
+    //   UserID: "user001",
+    //   FileName: "report.pdf",
+    //   Parent: "root",
+    //   Note: 5,
+    //   Action: "Created",
+    //   Time: "2024-02-12 10:30",
+    //   Organisation: "Tech Corp",
+    //   Status: "Approved",
+    // },
   ];
 
-  useEffect(() => {
-    getProfile();
-  }, []);
+  
 
   useEffect(() => {
     const interval = setInterval(() => {}, 10000);
@@ -134,9 +40,8 @@ function VersionPage() {
           permission: permission,
         }}
       />
-
       <div className="flex  space-y-2">
-        <div className="flex flex-col w-1/4  border-r border-gray-300 p-3 overflow-scroll">
+        <div className="flex flex-col w-1/4  border-r border-gray-300 p-3 overflow-scroll h-screen">
           <ListOfCommits />
         </div>
         <div className="flex flex-col w-3/4 ">

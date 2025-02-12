@@ -1,20 +1,59 @@
-import { useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { BsXLg } from "react-icons/bs";
-function FileUploadModal() {
-  const [fileName, setFileName] = useState("");
+import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
+import { useVersionViewModel } from "../../../viewmodel/VersionViewModel";
+import { ProfileDataSourceImpl } from "../../../data/dataSource/VersionsDataSource";
+import { VersionRepositoryImpl } from "../../../data/repository/VersionRepositoryImpl";
+import { VersionUseCase } from "../../../domain/usecase/ProfileUseCase";
+import { VersionsResponse } from "../../../data/dtos/VersionsDtos";
+
+const dataSource = new ProfileDataSourceImpl();
+const repository = new VersionRepositoryImpl(dataSource);
+const versionUseCase = new VersionUseCase(repository);
+function VersionUploadModal() {
+  const ref = useRef<LoadingBarRef>(null);
+  const [versionName, setVersionName] = useState("");
   const [commitSize, setCommitSize] = useState(100);
   const [commitText, setCommitText] = useState("");
+  const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
+
+  const { uploadVersion, uploadMetadata, isUploading, uploadSuccess } =
+    useVersionViewModel(versionUseCase);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-      //setFileName(event.target.files[0].name);
+      const file = event.target.files[0];
+      if (file) {
+        setVersionName(file.name);
+        setSelectedVersion(file);
+      }
     }
   };
+
+  useEffect(() => {
+    if (isUploading) {
+      ref.current?.continuousStart();
+    } else {
+      ref.current?.complete();
+      if (uploadSuccess) {
+        const d = uploadMetadata as VersionsResponse;
+        const file = d?.data;
+        if (file) {
+          close();
+        } else {
+          // setFileName("Error occurred during upload");
+          // setBadge("badge badge-danger");
+        }
+      } else {
+        console.log("Error occurred during upload");
+      }
+    }
+  }, [isUploading, uploadSuccess, uploadMetadata]);
 
   const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
     if (event.dataTransfer.files.length > 0) {
-      setFileName(event.dataTransfer.files[0].name);
+      setVersionName(event.dataTransfer.files[0].name);
     }
   };
 
@@ -28,7 +67,6 @@ function FileUploadModal() {
       setCommitSize(100 - size);
     } else {
       const limitedText = newText.slice(0, 100);
-      console.log(limitedText);
       setCommitText(limitedText);
       setCommitSize(0);
     }
@@ -41,9 +79,17 @@ function FileUploadModal() {
     }
   };
 
+  const addNewVersion = async (event: FormEvent) => {
+    event.preventDefault();
+    if (selectedVersion) {
+      uploadVersion({ version: selectedVersion, parent: "", version_seq: 1 });
+    }
+  };
+
   return (
     <dialog id="version" className="modal">
       <div className="modal-box p-8 shadow-lg">
+        <LoadingBar color="#f11946" ref={ref} shadow={true} />
         <div className="flex flex-row justify-between">
           <h3 className="font-bold text-lg">Insert new Version:</h3>
           <BsXLg className="cursor-pointer" onClick={close} />
@@ -57,7 +103,7 @@ function FileUploadModal() {
             >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <p className="mt-2 text-sm text-gray-600">
-                  {fileName || "Drag & Drop File or Click to Upload"}
+                  {versionName || "Drag & Drop File or Click to Upload"}
                 </p>
               </div>
               <input
@@ -71,7 +117,6 @@ function FileUploadModal() {
               className="mt-3 input input-bordered w-full"
               placeholder="Commit transactions..."
             />
-
             <div className="flex flex-col mt-3">
               <textarea
                 className="textarea textarea-bordered"
@@ -96,6 +141,7 @@ function FileUploadModal() {
               <button
                 className="btn btn-accent flex items-center"
                 disabled={commitText.length === 0}
+                onClick={addNewVersion}
               >
                 Add Version
               </button>
@@ -107,4 +153,4 @@ function FileUploadModal() {
   );
 }
 
-export default FileUploadModal;
+export default VersionUploadModal;

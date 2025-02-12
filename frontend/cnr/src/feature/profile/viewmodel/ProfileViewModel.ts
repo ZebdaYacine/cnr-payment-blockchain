@@ -2,11 +2,12 @@ import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { PofileUseCase } from "../domain/usecase/ProfileUseCase";
-import { FilesResponse, ProfileResponse, User } from "../data/dtos/ProfileDtos";
+import { FilesResponse, ProfileResponse } from "../data/dtos/ProfileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../../core/state/AuthContext";
 import { useUserId } from "../../../core/state/UserContext";
+import { User } from "../../../core/dtos/data";
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {

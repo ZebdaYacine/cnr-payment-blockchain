@@ -1,21 +1,21 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import { FilesResponse, ProfileResponse } from "../../data/dtos/ProfileDtos";
-import { ProfileRepository } from "../repository/ProfileRepository";
+import { VersionsResponse } from "../../data/dtos/VersionsDtos";
+import { VersionRepository } from "../repository/ProfileRepository";
 
-export class PofileUseCase {
-  repository: ProfileRepository;
+export class VersionUseCase {
+  repository: VersionRepository;
 
-  constructor(repository: ProfileRepository) {
+  constructor(repository: VersionRepository) {
     this.repository = repository;
   }
 
-  async UploadFile(
+  async UploadVersion(
     filename: string,
     codebase64: string,
     token:string,action :string,
     parent:string,version:number): 
-    Promise<FilesResponse|ErrorResponse> {
-    return await this.repository.UploadFile(
+    Promise<VersionsResponse|ErrorResponse> {
+    return await this.repository.UploadVersions(
       filename,
       codebase64,
       token,action,
@@ -23,11 +23,9 @@ export class PofileUseCase {
       version);
   }
 
-  async GetFiles(token:string): Promise<FilesResponse|ErrorResponse> {
-      return await  this.repository.GetFiles(token);
+  async GetVersions(token:string): Promise<VersionsResponse|ErrorResponse> {
+      return await  this.repository.GetVersions(token);
   }
 
-  async GetProfile(token:string): Promise<ProfileResponse|ErrorResponse> {
-      return await  this.repository.GetProfile(token);
-  }
+
 }

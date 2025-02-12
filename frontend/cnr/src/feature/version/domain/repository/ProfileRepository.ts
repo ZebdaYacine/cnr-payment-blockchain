@@ -1,8 +1,8 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import { FilesResponse, ProfileResponse } from "../../data/dtos/ProfileDtos";
+import { VersionsResponse } from "../../data/dtos/VersionsDtos";
 
-export interface ProfileRepository {
-  GetFiles(token:string): Promise<FilesResponse|ErrorResponse>;
-  GetProfile(token:string): Promise<ProfileResponse|ErrorResponse>;
-  UploadFile(filename: string,codebase64: string,token:string,action :string,parent:string,version:number): Promise<FilesResponse|ErrorResponse>;
+export interface VersionRepository {
+  GetVersions(token:string): Promise<VersionsResponse|ErrorResponse>;
+  // GetProfile(token:string): Promise<ProfileResponse|ErrorResponse>;
+  UploadVersions(filename: string,codebase64: string,token:string,action :string,parent:string,version:number): Promise<VersionsResponse|ErrorResponse>;
 }

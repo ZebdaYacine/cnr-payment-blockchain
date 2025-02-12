@@ -92,6 +92,7 @@ func initLedger(contract *client.Contract) {
 
 // Evaluate a transaction to query ledger state.
 func getAllFileMetadata(contract *client.Contract) (*[]FileMetadata, error) {
+	//deleteAllFileMetadata(contract)
 	fmt.Println("\n--> Evaluate Transaction: GetAllFileMetadata, function returns all the current assets on the ledger")
 
 	evaluateResult, err := contract.EvaluateTransaction("GetAllFileMetadata")

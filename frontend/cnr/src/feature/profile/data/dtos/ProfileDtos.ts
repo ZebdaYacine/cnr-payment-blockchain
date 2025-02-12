@@ -1,3 +1,5 @@
+import { User } from "../../../../core/dtos/data";
+
 export interface FilesResponse {
   message: string;
   data: Data[] ;
@@ -6,12 +8,6 @@ export interface FilesResponse {
 export interface ProfileResponse {
   message: string;
   data: User ;
-}
-
-export interface User {
-  username: string;
-  email: string;
-  permission: string;
 }
 
 export interface Data {

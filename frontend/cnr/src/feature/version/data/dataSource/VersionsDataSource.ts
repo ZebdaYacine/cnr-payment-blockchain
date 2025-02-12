@@ -1,22 +1,22 @@
 import { AxiosError } from "axios";
 import { Http } from "../../../../services/Http";
 import { ErrorResponse } from "../../../../services/model/commun";
-import { FilesResponse, ProfileResponse } from "../dtos/ProfileDtos";
+import { VersionsResponse } from "../dtos/VersionsDtos";
 
-export interface ProfileDataSource {
-  GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse>;
-  GetFilesApi(token: string): Promise<FilesResponse | ErrorResponse>;
-  UploadFileApi(
+export interface VersionsDataSource {
+  // GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse>;
+  GetVersionsApi(token: string): Promise<VersionsResponse | ErrorResponse>;
+  UploadVersionsApi(
     filename: string,
     codebase64: string,
     token: string,
     action: string,
     parent: string,
     version: number
-  ): Promise<FilesResponse | ErrorResponse>;
+  ): Promise<VersionsResponse | ErrorResponse>;
 }
 
-export class ProfileDataSourceImpl implements ProfileDataSource {
+export class ProfileDataSourceImpl implements VersionsDataSource {
   private getAuthHeaders(token: string) {
     return {
       headers: {
@@ -67,23 +67,23 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     }
   }
 
-  async GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse> {
-    return this.makeRequest<ProfileResponse>("get", "/user/get-profile", token);
+  // async GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse> {
+  //   return this.makeRequest<ProfileResponse>("get", "/user/get-profile", token);
+  // }
+
+  async GetVersionsApi(token: string): Promise<VersionsResponse | ErrorResponse> {
+    return this.makeRequest<VersionsResponse>("get", "/user/get-all-files-metadata", token);
   }
 
-  async GetFilesApi(token: string): Promise<FilesResponse | ErrorResponse> {
-    return this.makeRequest<FilesResponse>("get", "/user/get-all-files-metadata", token);
-  }
-
-  async UploadFileApi(
+  async UploadVersionsApi(
     filename: string,
     codebase64: string,
     token: string,
     action: string,
     parent: string,
     version: number
-  ): Promise<FilesResponse | ErrorResponse> {
-    return this.makeRequest<FilesResponse>("post", "/user/upload-file", token, {
+  ): Promise<VersionsResponse | ErrorResponse> {
+    return this.makeRequest<VersionsResponse>("post", "/user/upload-veriosn", token, {
       filename,
       codebase64,
       action,

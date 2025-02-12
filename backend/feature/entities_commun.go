@@ -3,6 +3,7 @@ package feature
 import (
 	"scps-backend/feature/auth/domain/entities"
 	profileEntities "scps-backend/feature/profile/domain/entities"
+	versionEntities "scps-backend/feature/version/domain/entities"
 )
 
 type User struct {
@@ -34,5 +35,5 @@ type Account interface {
 	User | entities.Login | entities.SetEmail |
 		entities.ReciveOTP | entities.SetPwd |
 		profileEntities.InformationsCard | profileEntities.Link |
-		entities.Register | profileEntities.UpdateProfile | profileEntities.UploadFile
+		entities.Register | profileEntities.UpdateProfile | profileEntities.UploadFile | versionEntities.UploadVersion
 }
