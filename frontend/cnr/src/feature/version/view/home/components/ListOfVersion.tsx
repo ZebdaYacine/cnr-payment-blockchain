@@ -13,7 +13,7 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
   };
   return (
     <>
-      <div className="card bg-base-300 shadow-xl w-full m-4">
+      <div className="card bg-base-300 shadow-xl m-2">
         <div className="card-body">
           <div className="flex flex-row justify-between">
             <h2 className="card-title text-center">List of Versions:</h2>
@@ -21,8 +21,8 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
               Add new Version
             </button>
           </div>
-          <div className="overflow-x-auto">
-            <table className="table w-full">
+          <div className="">
+            <table className="table  ">
               <thead>
                 <tr>
                   <th className="text-center">ID</th>

@@ -8,7 +8,7 @@ import {
 
 interface AuthContextType {
   isAuthentificated: boolean;
-  token: string;
+  token: string | null;
   Userlogged: (token: string) => void;
   Userlogout: () => void;
 }
@@ -16,25 +16,27 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthentificated, setAuthentification] = useState<boolean>(false);
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("authToken")
+  );
+  const isAuthentificated = !!token;
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    if (storedToken) {
-      setAuthentification(true);
-      setToken(storedToken);
-    }
+    const handleStorageChange = () => {
+      setToken(localStorage.getItem("authToken"));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  const Userlogged = (token: string) => {
-    setAuthentification(true);
-    setToken(token);
-    localStorage.setItem("authToken", token);
+  const Userlogged = (newToken: string) => {
+    setToken(newToken);
+    localStorage.setItem("authToken", newToken);
   };
 
   const Userlogout = () => {
-    setAuthentification(false);
+    setToken(null);
     localStorage.removeItem("authToken");
   };
 
@@ -50,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within a AuthProvider");
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

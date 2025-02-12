@@ -6,6 +6,8 @@ import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 import NavBarComponent from "../../../../../core/components/NavBar";
 import { useUserId } from "../../../../../core/state/UserContext";
 import ListOfVersion from "../components/ListOfVersion";
+import ListOfCommits from "../components/ListOfCommits";
+import { VersionData } from "../../../data/dtos/ProfileDtos";
 
 function VersionPage() {
   const dataSource = new ProfileDataSourceImpl();
@@ -14,6 +16,105 @@ function VersionPage() {
 
   const { getProfile } = useProfileViewModel(profileUseCase);
   const { username, email, permission } = useUserId();
+
+  const sampleVersions: VersionData[] = [
+    {
+      ID: "1",
+      HashFile: "abc123",
+      UserID: "user001",
+      FileName: "report.pdf",
+      Parent: "root",
+      Note: 5,
+      Action: "Created",
+      Time: "2024-02-12 10:30",
+      Organisation: "Tech Corp",
+      Status: "Approved",
+    },
+    {
+      ID: "2",
+      HashFile: "xyz789",
+      UserID: "user002",
+      FileName: "document.docx",
+      Parent: "root",
+      Note: 4,
+      Action: "Updated",
+      Time: "2024-02-13 15:45",
+      Organisation: "Finance Ltd",
+      Status: "Pending",
+    },
+    {
+      ID: "2",
+      HashFile: "xyz789",
+      UserID: "user002",
+      FileName: "document.docx",
+      Parent: "root",
+      Note: 4,
+      Action: "Updated",
+      Time: "2024-02-13 15:45",
+      Organisation: "Finance Ltd",
+      Status: "Pending",
+    },
+    {
+      ID: "2",
+      HashFile: "xyz789",
+      UserID: "user002",
+      FileName: "document.docx",
+      Parent: "root",
+      Note: 4,
+      Action: "Updated",
+      Time: "2024-02-13 15:45",
+      Organisation: "Finance Ltd",
+      Status: "Pending",
+    },
+    {
+      ID: "2",
+      HashFile: "xyz789",
+      UserID: "user002",
+      FileName: "document.docx",
+      Parent: "root",
+      Note: 4,
+      Action: "Updated",
+      Time: "2024-02-13 15:45",
+      Organisation: "Finance Ltd",
+      Status: "Pending",
+    },
+    {
+      ID: "2",
+      HashFile: "xyz789",
+      UserID: "user002",
+      FileName: "document.docx",
+      Parent: "root",
+      Note: 4,
+      Action: "Updated",
+      Time: "2024-02-13 15:45",
+      Organisation: "Finance Ltd",
+      Status: "Pending",
+    },
+    {
+      ID: "2",
+      HashFile: "xyz789",
+      UserID: "user002",
+      FileName: "document.docx",
+      Parent: "root",
+      Note: 4,
+      Action: "Updated",
+      Time: "2024-02-13 15:45",
+      Organisation: "Finance Ltd",
+      Status: "Pending",
+    },
+    {
+      ID: "2",
+      HashFile: "xyz789",
+      UserID: "user002",
+      FileName: "document.docx",
+      Parent: "root",
+      Note: 4,
+      Action: "Updated",
+      Time: "2024-02-13 15:45",
+      Organisation: "Finance Ltd",
+      Status: "Pending",
+    },
+  ];
 
   useEffect(() => {
     getProfile();
@@ -34,36 +135,25 @@ function VersionPage() {
         }}
       />
 
-      <div className="flex mt-10">
-        <div className="flex flex-none   justify-center items-center w-1/4   ">
-          <div className="flex w-full flex-col border-opacity-50 m-3">
-            <h1 className="text-3xl font-bold">Commits:</h1>
-            <div className="divider divider-primary" />
-            <div className="mt-1 card border border-gray-500 h-50 p-1">
-              <div className="flex flex-col">
-                <p className="text-black text-lg font-bold">
-                  Adding new version for CCR Tipaza
-                </p>
-                <div className="flex flex-row">
-                  <div className="avatar">
-                    <div className="w-8 rounded-full">
-                      <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                    </div>
-                  </div>
-                  <div className="flex flex-grow  p-1">
-                    <p className="text-black text-sm">
-                      <span className="font-bold">ZebdaYacine </span>
-                      committed on
-                      <span className="font-bold"> 24-12-2024</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="flex  space-y-2">
+        <div className="flex flex-col w-1/4  border-r border-gray-300 p-3 overflow-scroll">
+          <ListOfCommits />
         </div>
-        <div className="flex flex-none justify-center w-3/4 ">
-          <ListOfVersion version={[]} />
+        <div className="flex flex-col w-3/4 ">
+          <div className="h-3/4 border shadow overflow-scroll">
+            <ListOfVersion version={sampleVersions} />
+          </div>
+          <div className=" h-1/4  p-3 space-y-2">
+            <span className="font-bold ">
+              {" "}
+              Checksum: 23972987498399502319092183426593246343432434
+            </span>
+            <textarea
+              className="textarea textarea-success w-full h-full"
+              placeholder="Details about operation..."
+              readOnly
+            />
+          </div>
         </div>
       </div>
     </>

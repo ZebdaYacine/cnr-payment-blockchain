@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { BsXLg } from "react-icons/bs";
 function FileUploadModal() {
   const [fileName, setFileName] = useState("");
   const [commitSize, setCommitSize] = useState(100);
@@ -7,7 +7,7 @@ function FileUploadModal() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-      setFileName(event.target.files[0].name);
+      //setFileName(event.target.files[0].name);
     }
   };
 
@@ -34,10 +34,20 @@ function FileUploadModal() {
     }
   };
 
+  const close = () => {
+    const modal = document.getElementById("version") as HTMLDialogElement;
+    if (modal) {
+      modal.close();
+    }
+  };
+
   return (
     <dialog id="version" className="modal">
       <div className="modal-box p-8 shadow-lg">
-        <h3 className="font-bold text-lg">Insert new Version:</h3>
+        <div className="flex flex-row justify-between">
+          <h3 className="font-bold text-lg">Insert new Version:</h3>
+          <BsXLg className="cursor-pointer" onClick={close} />
+        </div>
         <div className="flex flex-col items-center justify-center">
           <form className="form-control mt-4 w-full max-w-md text-center">
             <label
@@ -59,9 +69,7 @@ function FileUploadModal() {
             <input
               type="text"
               className="mt-3 input input-bordered w-full"
-              value={fileName}
               placeholder="Commit transactions..."
-              readOnly
             />
 
             <div className="flex flex-col mt-3">
