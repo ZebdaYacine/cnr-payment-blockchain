@@ -1,7 +1,9 @@
 import { useState } from "react";
 
-function FileUpload() {
+function FileUploadModal() {
   const [fileName, setFileName] = useState("");
+  const [commitSize, setCommitSize] = useState(100);
+  const [commitText, setCommitText] = useState("");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -13,6 +15,22 @@ function FileUpload() {
     event.preventDefault();
     if (event.dataTransfer.files.length > 0) {
       setFileName(event.dataTransfer.files[0].name);
+    }
+  };
+
+  const handleCommitSizeChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const newText = event.target.value;
+    const size = newText.length;
+    if (size <= 100) {
+      setCommitText(newText);
+      setCommitSize(100 - size);
+    } else {
+      const limitedText = newText.slice(0, 100);
+      console.log(limitedText);
+      setCommitText(limitedText);
+      setCommitSize(0);
     }
   };
 
@@ -42,15 +60,37 @@ function FileUpload() {
               type="text"
               className="mt-3 input input-bordered w-full"
               value={fileName}
-              placeholder="Selected file name..."
+              placeholder="Commit transactions..."
               readOnly
             />
-            <textarea
-              className="mt-5 textarea textarea-bordered"
-              placeholder="Description of transactions..."
-            />
+
+            <div className="flex flex-col mt-3">
+              <textarea
+                className="textarea textarea-bordered"
+                placeholder="Details about transactions..."
+                onChange={handleCommitSizeChange}
+                value={commitText}
+              />
+              <div className="mt-2 flex flex-row-reverse">
+                <div
+                  className={`badge badge-lg ${
+                    commitText.length == 100
+                      ? "badge-secondary"
+                      : "badge-accent"
+                  }`}
+                >
+                  {commitSize}
+                </div>
+              </div>
+            </div>
+
             <div className="mt-5 flex justify-center">
-              <button className="btn btn-secondary flex items-center"></button>
+              <button
+                className="btn btn-accent flex items-center"
+                disabled={commitText.length === 0}
+              >
+                Add Version
+              </button>
             </div>
           </form>
         </div>
@@ -59,4 +99,4 @@ function FileUpload() {
   );
 }
 
-export default FileUpload;
+export default FileUploadModal;

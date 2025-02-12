@@ -1,6 +1,6 @@
 export interface FilesResponse {
   message: string;
-  data: Data[] ;
+  data: FileData[] ;
 }
 
 export interface ProfileResponse {
@@ -14,7 +14,7 @@ export interface User {
   permission: string;
 }
 
-export interface Data {
+export interface FileData {
   ID: string;
   HashFile: string;
   UserID: string;
@@ -26,3 +26,17 @@ export interface Data {
   Organisation: string;
   Status: string;
 }
+
+export interface VersionData {
+  ID: string;
+  HashFile: string;
+  UserID: string;
+  FileName: string;
+  Parent: string;
+  Note: number;
+  Action: string;
+  Time: string;
+  Organisation: string;
+  Status: string;
+}
+

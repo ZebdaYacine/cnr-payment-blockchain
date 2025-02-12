@@ -1,10 +1,10 @@
-import { Data } from "../../../data/dtos/ProfileDtos";
-import FileUpload from "./FileUpload";
+import { VersionData } from "../../../data/dtos/ProfileDtos";
+import FileUploadModal from "./FileUploadModal";
 
-interface ListOfFilesProps {
-  files: Data[];
+interface ListOfVersionProps {
+  version: VersionData[];
 }
-function ListOfVersion({ files }: ListOfFilesProps) {
+function ListOfVersion({ version: version }: ListOfVersionProps) {
   const displayVersionModal = () => {
     const modal = document.getElementById("version") as HTMLDialogElement;
     if (modal) {
@@ -13,10 +13,10 @@ function ListOfVersion({ files }: ListOfFilesProps) {
   };
   return (
     <>
-      <div className="card bg-base-200 shadow-xl w-3/5">
+      <div className="card bg-base-300 shadow-xl w-full m-4">
         <div className="card-body">
           <div className="flex flex-row justify-between">
-            <h2 className="card-title text-center">List of Uploaded Files</h2>
+            <h2 className="card-title text-center">List of Versions:</h2>
             <button className="btn btn-accent" onClick={displayVersionModal}>
               Add new Version
             </button>
@@ -30,36 +30,28 @@ function ListOfVersion({ files }: ListOfFilesProps) {
                   <th className="text-center">User</th>
                   <th className="text-center">Time</th>
                   <th className="text-center">Status</th>
-                  <th className="text-center">Version</th>
+                  <th className="text-center">Notes</th>
                 </tr>
               </thead>
               <tbody>
-                {files.map((file) => (
-                  <tr key={file.ID} className="cursor-pointer hover">
-                    <td className="text-center">{file.ID}</td>
-                    <td className="text-center">{file.FileName}</td>
-                    <td className="text-center">{file.UserID}</td>
-                    <td className="text-center">{file.Time}</td>
+                {version.map((version) => (
+                  <tr key={version.ID} className="cursor-pointer hover">
+                    <td className="text-center">{version.ID}</td>
+                    <td className="text-center">{version.FileName}</td>
+                    <td className="text-center">{version.UserID}</td>
+                    <td className="text-center">{version.Time}</td>
                     <td className="text-center">
                       <div
                         className={`badge ${
-                          file.Status === "Valid"
+                          version.Status === "Valid"
                             ? "badge-accent"
                             : "badge-secondary"
                         }`}
                       >
-                        {file.Status}
+                        {version.Status}
                       </div>
                     </td>
-                    <td className="text-center">
-                      <div
-                        className={`badge ${
-                          file.Version > 1 ? "badge-secondary" : "badge-accent"
-                        }`}
-                      >
-                        {file.Version} version
-                      </div>
-                    </td>
+                    <td className="text-center">{version.Note}</td>
                   </tr>
                 ))}
               </tbody>
@@ -67,7 +59,7 @@ function ListOfVersion({ files }: ListOfFilesProps) {
           </div>
         </div>
       </div>
-      <FileUpload />
+      <FileUploadModal />
     </>
   );
 }
