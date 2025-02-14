@@ -13,12 +13,12 @@ function ListOfFiles({ files }: ListOfFilesProps) {
   };
   return (
     <>
-      <div className="mt-4">
-        <div className="card bg-base-300 shadow-xl ">
+      <div className="mt-4 w-full">
+        <div className="card bg-base-300 shadow-xl w-full">
           <div className="card-body">
             <h2 className="card-title text-center">List of Uploaded Files</h2>
             <div className="overflow-x-auto">
-              <table className="table w-full">
+              <table className="table table-auto">
                 <thead>
                   <tr>
                     <th className="text-center">ID</th>
@@ -36,7 +36,7 @@ function ListOfFiles({ files }: ListOfFilesProps) {
                       className="cursor-pointer hover"
                       onClick={() => handleRowClick(file)}
                     >
-                      <td className="text-center">{file.ID}</td>
+                      <td className="text-center ">{file.ID}</td>
                       <td className="text-center">{file.FileName}</td>
                       <td className="text-center">{file.UserID}</td>
                       <td className="text-center">{file.Time}</td>

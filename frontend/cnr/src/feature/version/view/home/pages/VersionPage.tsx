@@ -9,22 +9,7 @@ import { VersionData } from "../../../data/dtos/VersionsDtos";
 function VersionPage() {
   const { username, email, permission } = useUserId();
 
-  const sampleVersions: VersionData[] = [
-    // {
-    //   ID: "1",
-    //   HashFile: "abc123",
-    //   UserID: "user001",
-    //   FileName: "report.pdf",
-    //   Parent: "root",
-    //   Note: 5,
-    //   Action: "Created",
-    //   Time: "2024-02-12 10:30",
-    //   Organisation: "Tech Corp",
-    //   Status: "Approved",
-    // },
-  ];
-
-  
+  const sampleVersions: VersionData[] = [];
 
   useEffect(() => {
     const interval = setInterval(() => {}, 10000);
@@ -40,17 +25,16 @@ function VersionPage() {
           permission: permission,
         }}
       />
-      <div className="flex  space-y-2">
-        <div className="flex flex-col w-1/4  border-r border-gray-300 p-3 overflow-scroll h-screen">
+      <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 p-3">
+        <div className="flex flex-col md:w-1/4 border-r border-gray-300 p-3 overflow-auto h-64 md:h-screen">
           <ListOfCommits />
         </div>
-        <div className="flex flex-col w-3/4 ">
-          <div className="h-3/4 border shadow overflow-scroll">
+        <div className="flex flex-col md:w-3/4 w-full">
+          <div className="h-64 md:h-3/4 border shadow overflow-auto">
             <ListOfVersion version={sampleVersions} />
           </div>
-          <div className=" h-1/4  p-3 space-y-2">
-            <span className="font-bold ">
-              {" "}
+          <div className="h-1/4 p-3 space-y-2 overflow-x-auto">
+            <span className="font-bold block">
               Checksum: 23972987498399502319092183426593246343432434
             </span>
             <textarea

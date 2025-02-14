@@ -21,8 +21,8 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
               Add new Version
             </button>
           </div>
-          <div className="">
-            <table className="table  ">
+          <div className="overflow-x-auto">
+            <table className="table  sm:table-sm">
               <thead>
                 <tr>
                   <th className="text-center">ID</th>
