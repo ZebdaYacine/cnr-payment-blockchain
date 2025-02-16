@@ -3,9 +3,9 @@ package usecase
 import (
 	"context"
 	"scps-backend/feature"
-	"scps-backend/feature/profile/domain/entities"
-	profileE "scps-backend/feature/profile/domain/entities"
-	profileRepo "scps-backend/feature/profile/domain/repository"
+	"scps-backend/feature/home/profile/domain/entities"
+	profileE "scps-backend/feature/home/profile/domain/entities"
+	profileRepo "scps-backend/feature/home/profile/domain/repository"
 )
 
 type ProfileParams struct {

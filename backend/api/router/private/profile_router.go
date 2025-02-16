@@ -2,8 +2,8 @@ package private
 
 import (
 	"scps-backend/api/controller"
-	"scps-backend/feature/profile/domain/repository"
-	"scps-backend/feature/profile/usecase"
+	"scps-backend/feature/home/profile/domain/repository"
+	"scps-backend/feature/home/profile/usecase"
 
 	"scps-backend/pkg/database"
 

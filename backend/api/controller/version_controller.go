@@ -8,8 +8,8 @@ import (
 	"scps-backend/pkg"
 	util "scps-backend/util/token"
 
-	"scps-backend/feature/version/domain/entities"
-	"scps-backend/feature/version/usecase"
+	"scps-backend/feature/home/version/domain/entities"
+	"scps-backend/feature/home/version/usecase"
 
 	"github.com/gin-gonic/gin"
 )

@@ -5,6 +5,16 @@ export interface FilesResponse {
   data: Data[] ;
 }
 
+export interface ChildResponse {
+  message: string;
+  data: Child[] ;
+}
+
+export interface InstitutionResponse {
+  message: string;
+  data: Institution[] ;
+}
+
 export interface ProfileResponse {
   message: string;
   data: User ;
@@ -21,4 +31,15 @@ export interface Data {
   Time: string;
   Organisation: string;
   Status: string;
+}
+
+export interface Institution {
+  ID: string;
+  Name: string;
+}
+
+export interface Child {
+  ID: string;
+  Name: string;
+  Parent:Institution;
 }

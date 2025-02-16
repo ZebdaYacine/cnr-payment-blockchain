@@ -2,8 +2,10 @@ package feature
 
 import (
 	"scps-backend/feature/auth/domain/entities"
-	profileEntities "scps-backend/feature/profile/domain/entities"
-	versionEntities "scps-backend/feature/version/domain/entities"
+	institutionsEntities "scps-backend/feature/home/institutions/domain/entities"
+	profileEntities "scps-backend/feature/home/profile/domain/entities"
+
+	versionEntities "scps-backend/feature/home/version/domain/entities"
 )
 
 type User struct {
@@ -17,6 +19,17 @@ type User struct {
 	// Son        []Son   `json:"son,omitempty" bson:"son,omitempty"`
 	Request bool   `json:"request,omitempty" bson:"request"`
 	Status  string `json:"status,omitempty" bson:"status"`
+}
+
+type Instiutiont struct {
+	ID   string `json:"ID" bson:"ID"`
+	Name string `json:"Name" bson:"name"`
+}
+
+type Child struct {
+	ID     string       `json:"ID" bson:"ID"`
+	Name   string       `json:"Name" bson:"name"`
+	Parent *Instiutiont `json:"Parent" bson:"Parent"`
 }
 
 type Son struct {
@@ -34,6 +47,6 @@ type Visit struct {
 type Account interface {
 	User | entities.Login | entities.SetEmail |
 		entities.ReciveOTP | entities.SetPwd |
-		profileEntities.InformationsCard | profileEntities.Link |
+		profileEntities.InformationsCard | profileEntities.Link | institutionsEntities.Institution |
 		entities.Register | profileEntities.UpdateProfile | profileEntities.UploadFile | versionEntities.UploadVersion
 }

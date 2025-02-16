@@ -1,3 +1,4 @@
+import { ChildResponse, InstitutionResponse } from './../data/dtos/ProfileDtos';
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
@@ -73,7 +74,6 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const resp = data as FilesResponse;
         console.log("File uploaded successfully:", resp.data.at(-1)?.ID);
         console.log("File URL:", resp.data.at(-1)?.HashFile);
-        setFilesList(resp.data);
       } else {
         const errorResponse = data as ErrorResponse;
         error(errorResponse.message || "Network error occurred during upload", "colored");
@@ -110,6 +110,52 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
+  const { mutate: GetInstituations, data: institutionData, isPending: isInstituaionsLoading, isSuccess: isInstituaionsSuccss} = useMutation({
+    mutationFn: async () => {
+      const storedToken = localStorage.getItem("authToken");
+      if (!storedToken) {
+        throw new Error("Authentication token not found");
+      }
+      return profileUseCase.GetInstitutions(storedToken);
+    },
+    onSuccess: (data) => {
+      if (data && "data" in data) {
+        const resp = data as InstitutionResponse;
+        console.log("Get Institutions successfully:", resp.data.at(-1)?.ID);
+      } else {
+        const errorResponse = data as ErrorResponse;
+        error(errorResponse.message || "Network error occurred during upload", "colored");
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("Upload error:", err);
+      error("An error occurred during the upload. Please try again.", "colored");
+    },
+  });
+
+   const { mutate: GetChildInstituations, data: childInstitutionData, isPending: isChildInstituaionsLoading, isSuccess: isChildInstituaionsSuccss} = useMutation({
+    mutationFn: async ({id}: { id: string}) => {
+      const storedToken = localStorage.getItem("authToken");
+      if (!storedToken) {
+        throw new Error("Authentication token not found");
+      }
+      return profileUseCase.GetChildOfInstitutions(id,storedToken);
+    },
+    onSuccess: (data) => {
+      if (data && "data" in data) {
+        const resp = data as ChildResponse;
+        console.log("Get Institutions successfully:", resp.data.at(-1)?.ID);
+      } else {
+        const errorResponse = data as ErrorResponse;
+        error(errorResponse.message || "Network error occurred during upload", "colored");
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("Upload error:", err);
+      error("An error occurred during the upload. Please try again.", "colored");
+    },
+  });
+
   return {
     uploadFile,
     uploadMetadata,
@@ -126,5 +172,16 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isProfileLoading,
     isProfileSuccess,
     Profile,
+
+    GetInstituations,
+    institutionData,
+    isInstituaionsLoading,
+    isInstituaionsSuccss,
+
+    GetChildInstituations,
+    childInstitutionData,
+    isChildInstituaionsLoading,
+    isChildInstituaionsSuccss,
+
   };
 }

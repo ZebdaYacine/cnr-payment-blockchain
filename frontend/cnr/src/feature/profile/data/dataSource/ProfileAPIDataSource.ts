@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
 import { Http } from "../../../../services/Http";
 import { ErrorResponse } from "../../../../services/model/commun";
-import { FilesResponse, ProfileResponse } from "../dtos/ProfileDtos";
+import { ChildResponse, FilesResponse, InstitutionResponse, ProfileResponse } from "../dtos/ProfileDtos";
 
 export interface ProfileDataSource {
   GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse>;
@@ -14,9 +14,14 @@ export interface ProfileDataSource {
     parent: string,
     version: number
   ): Promise<FilesResponse | ErrorResponse>;
+  GetInstituaionApi(token: string): Promise<InstitutionResponse | ErrorResponse>;
+  GetChildOfInstitutionsApi(id:string,token: string): Promise<ChildResponse | ErrorResponse>;
+
+
 }
 
 export class ProfileDataSourceImpl implements ProfileDataSource {
+ 
   private getAuthHeaders(token: string) {
     return {
       headers: {
@@ -74,6 +79,17 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
   async GetFilesApi(token: string): Promise<FilesResponse | ErrorResponse> {
     return this.makeRequest<FilesResponse>("get", "/user/get-all-files-metadata", token);
   }
+
+  GetInstituaionApi(token: string): Promise<InstitutionResponse | ErrorResponse> {
+    return this.makeRequest<InstitutionResponse>("get", "/user/get-institutions", token);
+  }
+
+  GetChildOfInstitutionsApi(id:string,token: string): Promise<ChildResponse | ErrorResponse> {
+    return this.makeRequest<ChildResponse>("get", "/user/get-child-institutions?id="+id,token,{
+      id
+    }); 
+  }
+  
 
   async UploadFileApi(
     filename: string,

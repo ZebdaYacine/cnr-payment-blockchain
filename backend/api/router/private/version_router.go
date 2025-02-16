@@ -2,8 +2,8 @@ package private
 
 import (
 	"scps-backend/api/controller"
-	versionRepo "scps-backend/feature/version/domain/repository"
-	versionUsecase "scps-backend/feature/version/usecase"
+	versionRepo "scps-backend/feature/home/version/domain/repository"
+	versionUsecase "scps-backend/feature/home/version/usecase"
 	"scps-backend/pkg/database"
 
 	"github.com/gin-gonic/gin"

@@ -1,13 +1,19 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import { ProfileRepository } from "../../domain/repository/ProfileRepository";
 import { ProfileDataSource } from "../dataSource/ProfileAPIDataSource";
-import { FilesResponse, ProfileResponse } from "../dtos/ProfileDtos";
+import { ChildResponse, FilesResponse, InstitutionResponse, ProfileResponse } from "../dtos/ProfileDtos";
 
 export class ProfileRepositoryImpl implements ProfileRepository {
   datasource: ProfileDataSource;
 
   constructor(datasource: ProfileDataSource) {
     this.datasource = datasource;
+  }
+  async GetChildOfInstitutions(id:string,token: string): Promise<ChildResponse | ErrorResponse> {
+     return await this.datasource.GetChildOfInstitutionsApi(id,token);
+  }
+  async GetInstituations(token: string): Promise<InstitutionResponse | ErrorResponse> {
+    return await this.datasource.GetInstituaionApi(token);
   }
   async GetProfile(token: string): Promise<ProfileResponse | ErrorResponse> {
     return await this.datasource.GetProfileApi(token);

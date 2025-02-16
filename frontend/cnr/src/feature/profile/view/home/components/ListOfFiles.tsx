@@ -1,22 +1,67 @@
 import { useNavigate } from "react-router";
-import { Data } from "../../../data/dtos/ProfileDtos";
-
+import {
+  Data,
+  Institution,
+  InstitutionResponse,
+} from "../../../data/dtos/ProfileDtos";
+import SelectedInstitution from "./SelectedInstitution";
+import ListOfChildern from "./ListOfInstitutions";
+import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
+import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
+import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
+import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
+import { useEffect, useState } from "react";
 interface ListOfFilesProps {
   files: Data[];
 }
 
+const dataSource = new ProfileDataSourceImpl();
+const repository = new ProfileRepositoryImpl(dataSource);
+const profileUseCase = new PofileUseCase(repository);
+
 function ListOfFiles({ files }: ListOfFilesProps) {
   const navigate = useNavigate();
+
   const handleRowClick = (file: Data) => {
     console.log("File clicked:", file);
     navigate("/versions-file");
   };
+
+  const [listOfInstituations, setlistOfInstituations] = useState<Institution[]>(
+    []
+  );
+
+  const { GetInstituations, institutionData, isInstituaionsSuccss } =
+    useProfileViewModel(profileUseCase);
+
+  useEffect(() => {
+    GetInstituations();
+  }, []);
+
+  useEffect(() => {
+    if (isInstituaionsSuccss && institutionData) {
+      const d = institutionData as InstitutionResponse;
+      setlistOfInstituations(d.data || []);
+    }
+  }, [institutionData, isInstituaionsSuccss]);
+
   return (
     <>
       <div className="mt-4 w-full">
         <div className="card bg-base-300 shadow-xl w-full">
           <div className="card-body">
-            <h2 className="card-title text-center">List of Uploaded Files</h2>
+            <div className="flex flex-col">
+              <div className="flex flex-row justify-between">
+                <h2 className="card-title text-center">
+                  List of Uploaded Files
+                </h2>
+                <SelectedInstitution institutions={listOfInstituations} />
+              </div>
+              <div className="divider divider-primary" />
+              <ListOfChildern />
+            </div>
+            <div className="divider divider-primary" />
+
             <div className="overflow-x-auto">
               <table className="table table-auto">
                 <thead>

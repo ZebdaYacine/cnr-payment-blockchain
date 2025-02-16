@@ -89,6 +89,7 @@ function UploadFileComponent() {
               <input
                 type="file"
                 onChange={handleFileUpload}
+                multiple
                 className="hidden"
               />
             </label>

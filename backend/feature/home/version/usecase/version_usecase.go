@@ -2,8 +2,8 @@ package usecase
 
 import (
 	"context"
-	"scps-backend/feature/profile/domain/entities"
-	versionRepo "scps-backend/feature/version/domain/repository"
+	"scps-backend/feature/home/profile/domain/entities"
+	versionRepo "scps-backend/feature/home/version/domain/repository"
 )
 
 type VersionParams struct {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"scps-backend/fabric"
-	"scps-backend/feature/profile/domain/entities"
+	"scps-backend/feature/home/profile/domain/entities"
 	"scps-backend/pkg/database"
 	"scps-backend/util"
 	"strconv"

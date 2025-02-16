@@ -9,8 +9,8 @@ import (
 	"scps-backend/pkg"
 	util "scps-backend/util/token"
 
-	"scps-backend/feature/profile/domain/entities"
-	"scps-backend/feature/profile/usecase"
+	"scps-backend/feature/home/profile/domain/entities"
+	"scps-backend/feature/home/profile/usecase"
 
 	"github.com/gin-gonic/gin"
 )
