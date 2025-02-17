@@ -14,6 +14,7 @@ function FileUploadModal() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setListFiles(undefined);
+      setGroupInFOlder(false);
       const list = event.target.files;
       setListFiles(list);
       // if (file) {
@@ -25,6 +26,8 @@ function FileUploadModal() {
   const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
     setListFiles(undefined);
+    setGroupInFOlder(false);
+
     // if (event.dataTransfer.files.length > 0) {
     //   setVersionName(event.dataTransfer.files[0].name);
     // }
@@ -160,16 +163,17 @@ function FileUploadModal() {
                 </div>
               </>
             )}
-            <label className="btn btn-primary flex items-center gap-2 cursor-pointer ">
-              <FaUpload />
-              Upload Files
-              <input
-                type="button"
-                onClick={addNewVersion}
-                multiple
-                className="hidden"
-              />
-            </label>
+            {listFiles && listFiles.length > 0 && (
+              <label className="btn btn-primary flex items-center gap-2 cursor-pointer ">
+                <FaUpload />
+                Upload Files
+                <input
+                  type="button"
+                  onClick={addNewVersion}
+                  className="hidden"
+                />
+              </label>
+            )}
           </form>
         </div>
       </div>
