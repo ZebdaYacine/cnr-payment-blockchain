@@ -16,12 +16,14 @@ function HomePage() {
   );
 
   const { getFilesList } = useFileMetaData();
-  const { getFiles, getProfile } = useProfileViewModel(profileUseCase);
-  const { username, email, permission } = useUserId();
+  const { getFiles, getProfile, GetChildInstituations } =
+    useProfileViewModel(profileUseCase);
+  const { username, email, permission, workAt, idInstituion } = useUserId();
 
   useEffect(() => {
     getFiles();
     getProfile();
+    GetChildInstituations({ name: workAt, id: idInstituion });
   }, [getFiles, getProfile]);
   useEffect(() => {
     const interval = setInterval(() => getFiles(), 10000);

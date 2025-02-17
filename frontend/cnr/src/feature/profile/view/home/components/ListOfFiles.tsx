@@ -12,7 +12,8 @@ import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 import { useEffect } from "react";
 import { useUserId } from "../../../../../core/state/UserContext";
-import UploadFileComponent from "./UploadFileComponet";
+import SelectFilesComponent from "./SelectFilesComponet";
+import FileUploadModal from "./FileUploadModal";
 interface ListOfFilesProps {
   files: Data[];
   type: string;
@@ -67,6 +68,7 @@ function ListOfFiles({ files, type }: ListOfFilesProps) {
 
   return (
     <>
+      <FileUploadModal />
       <div className="mt-4 w-full">
         <div className="card bg-base-300 shadow-xl w-full">
           <div className="card-body">
@@ -75,7 +77,7 @@ function ListOfFiles({ files, type }: ListOfFilesProps) {
                 <h2 className="card-title text-center">{type}</h2>
                 {type === "OUT" && (
                   <div className="flex flex-row justify-center items-center">
-                    <UploadFileComponent />
+                    <SelectFilesComponent />
                   </div>
                 )}
 
