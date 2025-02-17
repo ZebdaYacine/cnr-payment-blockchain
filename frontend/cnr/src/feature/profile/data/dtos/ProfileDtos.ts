@@ -1,5 +1,10 @@
 import { User } from "../../../../core/dtos/data";
 
+export interface FileResponse {
+  message: string;
+  data: Data ;
+}
+
 export interface FilesResponse {
   message: string;
   data: Data[] ;

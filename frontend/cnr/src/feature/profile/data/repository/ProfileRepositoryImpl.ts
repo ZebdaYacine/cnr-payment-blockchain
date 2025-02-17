@@ -1,7 +1,7 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import { ProfileRepository } from "../../domain/repository/ProfileRepository";
 import { ProfileDataSource } from "../dataSource/ProfileAPIDataSource";
-import { ChildResponse, FilesResponse, InstitutionResponse, ProfileResponse } from "../dtos/ProfileDtos";
+import { ChildResponse, FileResponse, FilesResponse, InstitutionResponse, ProfileResponse } from "../dtos/ProfileDtos";
 
 export class ProfileRepositoryImpl implements ProfileRepository {
   datasource: ProfileDataSource;
@@ -22,7 +22,7 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     return await this.datasource.GetFilesApi(token);
   }
 
-  async UploadFile(filename: string,codebase64: string,token:string,action :string,parent:string,version:number): Promise<FilesResponse|ErrorResponse> {
+  async UploadFile(filename: string,codebase64: string,token:string,action :string,parent:string,version:number): Promise<FileResponse|ErrorResponse> {
     return await this.datasource.UploadFileApi(filename,codebase64,token,action,parent,version);
   }
 }

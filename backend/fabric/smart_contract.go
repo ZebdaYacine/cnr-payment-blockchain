@@ -156,7 +156,7 @@ func deleteAllFileMetadata(contract *client.Contract) error {
 	return nil
 }
 
-func createFileMetadata(contract *client.Contract, file *FileMetadata) (*[]FileMetadata, error) {
+func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMetadata, error) {
 	fmt.Println("\n--> Evaluate Transaction: CreateFileMetadata, function creates metadata for a file on the ledger")
 
 	id := file.ID
@@ -176,7 +176,7 @@ func createFileMetadata(contract *client.Contract, file *FileMetadata) (*[]FileM
 
 	// Since no result is expected, just confirm success
 	fmt.Printf("*** ✅  Transaction committed successfully. Result: %s\n", string(submitResult))
-	return getAllFileMetadata(contract)
+	return file, nil
 }
 
 func formatJSON(data []byte) string {

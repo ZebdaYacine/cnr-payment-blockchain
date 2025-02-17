@@ -24,7 +24,7 @@ type profileRepository struct {
 // GetAllDemand implements ProfileRepository.
 type ProfileRepository interface {
 	SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error)
-	UploadFile(c context.Context, file entities.UploadFile) (*[]fabric.FileMetadata, error)
+	UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error)
 	UpdateDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetProfile(c context.Context, userId string) (*feature.User, error)
 	GetInformationCard(c context.Context, userId string) (*feature.User, error)
@@ -38,7 +38,7 @@ func NewProfileRepository(db database.Database) ProfileRepository {
 	}
 }
 
-func (s *profileRepository) UploadFile(c context.Context, file entities.UploadFile) (*[]fabric.FileMetadata, error) {
+func (s *profileRepository) UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error) {
 	output := "../../ftp/" + file.Name
 	err := util.Base64ToFile(file.CodeBase64, output)
 	if err != nil {
@@ -63,26 +63,13 @@ func (s *profileRepository) UploadFile(c context.Context, file entities.UploadFi
 		Action:       file.Action,
 		Organisation: file.Organisation,
 	}
-	log.Println(metadata.Action)
-	log.Println(metadata.Organisation)
-	log.Println(metadata.Parent)
-	log.Println(metadata.Version)
 
 	// fabric.SdkProvider("deleteAll", metadata)
-	result, err := fabric.SdkProvider("add", metadata)
+	_, err = fabric.SdkProvider("add", metadata)
 	if err != nil {
 		return nil, err
 	}
-	files, ok := result.(*[]fabric.FileMetadata)
-	if !ok {
-		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
-	}
-	for i := range *files {
-		file := &(*files)[i]
-		file.Status = "Valid"
-		(*files)[i] = *file
-	}
-	return files, err
+	return metadata, err
 }
 
 func (s *profileRepository) SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error) {

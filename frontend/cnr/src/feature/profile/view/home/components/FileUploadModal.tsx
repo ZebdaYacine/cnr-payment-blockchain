@@ -1,8 +1,16 @@
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { BsXLg } from "react-icons/bs";
 import { FaUpload } from "react-icons/fa6";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
+import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
+import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
+import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
+import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
+import { FileResponse } from "../../../data/dtos/ProfileDtos";
 
+const dataSource = new ProfileDataSourceImpl();
+const repository = new ProfileRepositoryImpl(dataSource);
+const profileUseCase = new PofileUseCase(repository);
 function FileUploadModal() {
   const ref = useRef<LoadingBarRef>(null);
   // const [versionName, setVersionName] = useState("");
@@ -10,6 +18,27 @@ function FileUploadModal() {
   const [commitText, setCommitText] = useState("");
   const [listFiles, setListFiles] = useState<FileList>();
   const [groupInFOlder, setGroupInFOlder] = useState<boolean>(false);
+
+  const { uploadFile, uploadMetadata, isUploading, uploadSuccess } =
+    useProfileViewModel(profileUseCase);
+
+  useEffect(() => {
+    if (isUploading) {
+      ref.current?.continuousStart();
+    } else {
+      ref.current?.complete();
+      if (uploadSuccess) {
+        const d = uploadMetadata as FileResponse;
+        const file = d?.data;
+        const div = document.getElementById(file.FileName) as HTMLDialogElement;
+        console.log(div);
+        if (div) {
+          div.classList.remove("badge-secondary");
+          div.classList.add("badge-accent");
+        }
+      }
+    }
+  }, [isUploading, uploadSuccess, uploadMetadata]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -48,8 +77,15 @@ function FileUploadModal() {
     }
   };
 
-  const addNewVersion = async (event: FormEvent) => {
+  const uploadFiles = async (event: FormEvent) => {
     event.preventDefault();
+    if (listFiles) {
+      for (let i = 0; i < listFiles.length; i++) {
+        // console.log(listFiles[i]);
+        const file = listFiles[i];
+        uploadFile({ file, parent: "", version: 1 });
+      }
+    }
   };
 
   const close = () => {
@@ -65,8 +101,6 @@ function FileUploadModal() {
       const filteredFiles = Array.from(listFiles).filter(
         (file) => file.name !== fileName
       );
-
-      // Create a new FileList from the filtered files
       const dataTransfer = new DataTransfer();
       filteredFiles.forEach((file) => dataTransfer.items.add(file));
 
@@ -76,6 +110,7 @@ function FileUploadModal() {
 
   return (
     <dialog id="files" className="modal">
+      <LoadingBar color="#f11946" ref={ref} shadow={true} />
       <div className="modal-box p-8 shadow-lg">
         <LoadingBar color="#f11946" ref={ref} shadow={true} />
         <div className="flex flex-row justify-between">
@@ -110,6 +145,7 @@ function FileUploadModal() {
                     {listFiles &&
                       Array.from(listFiles).map((file) => (
                         <div
+                          id={file.name}
                           key={file.name}
                           className="badge badge-secondary flex items-center gap-2 p-2"
                         >
@@ -135,7 +171,7 @@ function FileUploadModal() {
                     Group files on single folder
                   </span>
                 </label>
-                {!groupInFOlder && (
+                {groupInFOlder && (
                   <input
                     type="text"
                     className="mt-3 input input-bordered w-full"
@@ -167,11 +203,7 @@ function FileUploadModal() {
               <label className="btn btn-primary flex items-center gap-2 cursor-pointer ">
                 <FaUpload />
                 Upload Files
-                <input
-                  type="button"
-                  onClick={addNewVersion}
-                  className="hidden"
-                />
+                <input type="button" onClick={uploadFiles} className="hidden" />
               </label>
             )}
           </form>

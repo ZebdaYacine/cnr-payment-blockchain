@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
 import { Http } from "../../../../services/Http";
 import { ErrorResponse } from "../../../../services/model/commun";
-import { ChildResponse, FilesResponse, InstitutionResponse, ProfileResponse } from "../dtos/ProfileDtos";
+import { ChildResponse, FileResponse, FilesResponse, InstitutionResponse, ProfileResponse } from "../dtos/ProfileDtos";
 
 export interface ProfileDataSource {
   GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse>;
@@ -13,7 +13,7 @@ export interface ProfileDataSource {
     action: string,
     parent: string,
     version: number
-  ): Promise<FilesResponse | ErrorResponse>;
+  ): Promise<FileResponse | ErrorResponse>;
   GetInstituaionApi(token: string): Promise<InstitutionResponse | ErrorResponse>;
   GetChildOfInstitutionsApi(id:string,name:string,token: string): Promise<ChildResponse | ErrorResponse>;
 
@@ -96,8 +96,8 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     action: string,
     parent: string,
     version: number
-  ): Promise<FilesResponse | ErrorResponse> {
-    return this.makeRequest<FilesResponse>("post", "/user/upload-file", token, {
+  ): Promise<FileResponse | ErrorResponse> {
+    return this.makeRequest<FileResponse>("post", "/user/upload-file", token, {
       filename,
       codebase64,
       action,

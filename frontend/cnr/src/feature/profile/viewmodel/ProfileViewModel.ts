@@ -1,4 +1,4 @@
-import { Child, ChildResponse, Elements, InstitutionResponse } from './../data/dtos/ProfileDtos';
+import { Child, ChildResponse, Elements, FileResponse, InstitutionResponse } from './../data/dtos/ProfileDtos';
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
@@ -75,9 +75,9 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
-        const resp = data as FilesResponse;
-        console.log("File uploaded successfully:", resp.data.at(-1)?.ID);
-        console.log("File URL:", resp.data.at(-1)?.HashFile);
+        const resp = data as FileResponse;
+        console.log("File uploaded successfully:", resp.data?.ID);
+        console.log("File URL:", resp.data?.HashFile);
       } else {
         const errorResponse = data as ErrorResponse;
         error(errorResponse.message || "Network error occurred during upload", "colored");

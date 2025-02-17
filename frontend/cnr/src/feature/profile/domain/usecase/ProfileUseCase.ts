@@ -1,4 +1,4 @@
-import { ChildResponse, InstitutionResponse } from './../../data/dtos/ProfileDtos';
+import { ChildResponse, FileResponse, InstitutionResponse } from './../../data/dtos/ProfileDtos';
 import { ErrorResponse } from "../../../../services/model/commun";
 import { FilesResponse, ProfileResponse } from "../../data/dtos/ProfileDtos";
 import { ProfileRepository } from "../repository/ProfileRepository";
@@ -15,7 +15,7 @@ export class PofileUseCase {
     codebase64: string,
     token:string,action :string,
     parent:string,version:number): 
-    Promise<FilesResponse|ErrorResponse> {
+    Promise<FileResponse|ErrorResponse> {
     return await this.repository.UploadFile(
       filename,
       codebase64,
