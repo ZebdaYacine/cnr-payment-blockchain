@@ -15,8 +15,8 @@ type ProfileResult struct {
 }
 
 type InstituationsUsecase interface {
-	GetInstitutions(c context.Context) *ProfileResult
-	GetChildOfInstitutions(c context.Context, nameInstitutions string, idInstitutions string) *ProfileResult
+	// GetInstitutions(c context.Context) *ProfileResult
+	GetPeers(c context.Context, nameInstitutions string, idInstitutions string) *ProfileResult
 }
 
 type institutionsUsecase struct {
@@ -32,19 +32,19 @@ func NewInstitutionsUsecase(repo institutionsRepo.InstitutionsRepository, collec
 	}
 }
 
-// GetChildOfInstitutions implements InstituationsUsecase.
-func (p *institutionsUsecase) GetChildOfInstitutions(c context.Context, nameInstitutions string, idInstitutions string) *ProfileResult {
-	profileResult, err := p.repo.GetChildOfInstitutions(c, nameInstitutions, idInstitutions)
+// GetPeers implements InstituationsUsecase.
+func (p *institutionsUsecase) GetPeers(c context.Context, nameInstitutions string, idInstitutions string) *ProfileResult {
+	profileResult, err := p.repo.GetPeers(c, nameInstitutions, idInstitutions)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}
 	return &ProfileResult{Data: profileResult}
 }
 
-func (p *institutionsUsecase) GetInstitutions(c context.Context) *ProfileResult {
-	profileResult, err := p.repo.GetInstitutions(c)
-	if err != nil {
-		return &ProfileResult{Err: err}
-	}
-	return &ProfileResult{Data: profileResult}
-}
+// func (p *institutionsUsecase) GetInstitutions(c context.Context) *ProfileResult {
+// 	profileResult, err := p.repo.GetInstitutions(c)
+// 	if err != nil {
+// 		return &ProfileResult{Err: err}
+// 	}
+// 	return &ProfileResult{Data: profileResult}
+// }

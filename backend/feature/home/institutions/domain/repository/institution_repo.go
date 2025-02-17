@@ -15,8 +15,8 @@ type institutionsRepository struct {
 }
 
 type InstitutionsRepository interface {
-	GetInstitutions(c context.Context) (*[]feature.Instiutiont, error)
-	GetChildOfInstitutions(c context.Context, nameInstitutions, idInstitutions string) (*feature.Elements, error)
+	// GetInstitutions(c context.Context) (*[]feature.Instiutiont, error)
+	GetPeers(c context.Context, nameInstitutions, idInstitutions string) (*feature.Elements, error)
 }
 
 func NewInstitutionsRepository(db database.Database) InstitutionsRepository {
@@ -32,7 +32,7 @@ func (s *institutionsRepository) GetInstitutions(c context.Context) (*[]feature.
 	}, nil
 }
 
-func (s *institutionsRepository) GetChildOfInstitutions(c context.Context, nameInstitutions, idInstitutions string) (*feature.Elements, error) {
+func (s *institutionsRepository) GetPeers(c context.Context, nameInstitutions, idInstitutions string) (*feature.Elements, error) {
 	col := nameInstitutions
 	if nameInstitutions == "POST" || nameInstitutions == "DG" {
 		col = "INSTITUTUION"

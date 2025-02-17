@@ -16,18 +16,18 @@ type InstitutionsController struct {
 
 // HANDLE WITH LOGIN ACCOUNT REQUEST
 func (ic *InstitutionsController) GetInstitutionsRequest(c *gin.Context) {
-	log.Println("************************ GET INSTITUTIONS REQUEST ************************")
-	resulat := ic.InstituationsUsecase.GetInstitutions(c)
-	if err := resulat.Err; err != nil {
-		c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, model.SuccessResponse{
-		Message: "GET INSTITUTIONS SUCCESSFULY",
-		Data:    resulat.Data,
-	})
+	// log.Println("************************ GET INSTITUTIONS REQUEST ************************")
+	// resulat := ic.InstituationsUsecase.GetInstitutions(c)
+	// if err := resulat.Err; err != nil {
+	// 	c.JSON(http.StatusBadRequest, model.ErrorResponse{
+	// 		Message: err.Error(),
+	// 	})
+	// 	return
+	// }
+	// c.JSON(http.StatusOK, model.SuccessResponse{
+	// 	Message: "GET INSTITUTIONS SUCCESSFULY",
+	// 	Data:    resulat.Data,
+	// })
 }
 
 func (ic *InstitutionsController) GetChildInstitutionsRequest(c *gin.Context) {
@@ -52,7 +52,7 @@ func (ic *InstitutionsController) GetChildInstitutionsRequest(c *gin.Context) {
 		})
 		return
 	}
-	result := ic.InstituationsUsecase.GetChildOfInstitutions(c, institutionName, institutionID)
+	result := ic.InstituationsUsecase.GetPeers(c, institutionName, institutionID)
 	if err := result.Err; err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Message: err.Error(),
