@@ -1,7 +1,7 @@
 import { useChild } from "../../../../../core/state/InstitutionContext";
 import { Child } from "../../../data/dtos/ProfileDtos";
 
-function ListOfChildren() {
+function ListOfPeers() {
   const { child } = useChild();
 
   if (!child || child.length === 0) {
@@ -32,4 +32,4 @@ function ListOfChildren() {
   );
 }
 
-export default ListOfChildren;
+export default ListOfPeers;

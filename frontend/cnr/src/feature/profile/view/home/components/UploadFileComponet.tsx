@@ -8,7 +8,6 @@ import { ToastContainer } from "react-toastify";
 import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 import { FilesResponse } from "../../../data/dtos/ProfileDtos";
 import { useFileMetaData } from "../../../../../core/state/FileContext";
-import { useTheme } from "../../../../../core/state/ThemeContext";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
@@ -16,7 +15,6 @@ const profileUseCase = new PofileUseCase(repository);
 
 function UploadFileComponent() {
   const ref = useRef<LoadingBarRef>(null);
-  const { isDarkMode } = useTheme();
   const { setFilesList } = useFileMetaData();
   const [file, setFileName] = useState("No file selected");
   const [badgecolor, setBadge] = useState("badge badge-warning");
@@ -71,29 +69,22 @@ function UploadFileComponent() {
   return (
     <>
       <LoadingBar color="#f11946" ref={ref} shadow={true} />
-      <div
-        className={
-          isDarkMode
-            ? "card w-96 shadow-xl text-white"
-            : "card bg-base-300 w-96 shadow-xl"
-        }
-      >
-        <div className="card-body items-center text-center">
-          <h2 className="card-title">
-            <div className={badgecolor}>{file}</div>
-          </h2>
-          <div className="card-actions flex flex-col items-center gap-4">
-            <label className="btn btn-primary flex items-center gap-2 cursor-pointer">
-              <FaUpload />
-              Upload File
-              <input
-                type="file"
-                onChange={handleFileUpload}
-                multiple
-                className="hidden"
-              />
-            </label>
-          </div>
+
+      <div className="card-body items-center text-center">
+        <h2 className="card-title">
+          <div className={badgecolor}>{file}</div>
+        </h2>
+        <div className="card-actions flex flex-col items-center gap-4">
+          <label className="btn btn-primary flex items-center gap-2 cursor-pointer ">
+            <FaUpload />
+            Upload File
+            <input
+              type="file"
+              onChange={handleFileUpload}
+              multiple
+              className="hidden"
+            />
+          </label>
         </div>
       </div>
       <ToastContainer />

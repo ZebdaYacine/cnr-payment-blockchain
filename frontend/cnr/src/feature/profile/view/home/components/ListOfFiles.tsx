@@ -6,22 +6,23 @@ import {
   // InstitutionResponse,
 } from "../../../data/dtos/ProfileDtos";
 // import SelectedInstitution from "./SelectedInstitution";
-import ListOfChildern from "./ListOfInstitutions";
 import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 import { useEffect } from "react";
 import { useUserId } from "../../../../../core/state/UserContext";
+import UploadFileComponent from "./UploadFileComponet";
 interface ListOfFilesProps {
   files: Data[];
+  type: string;
 }
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
 const profileUseCase = new PofileUseCase(repository);
 
-function ListOfFiles({ files }: ListOfFilesProps) {
+function ListOfFiles({ files, type }: ListOfFilesProps) {
   const navigate = useNavigate();
 
   const handleRowClick = (file: Data) => {
@@ -71,16 +72,17 @@ function ListOfFiles({ files }: ListOfFilesProps) {
           <div className="card-body">
             <div className="flex flex-col">
               <div className="flex flex-row justify-between">
-                <h2 className="card-title text-center">
-                  List of Uploaded Files
-                </h2>
+                <h2 className="card-title text-center">{type}</h2>
+                {type === "OUT" && (
+                  <div className="flex flex-row justify-center items-center">
+                    <UploadFileComponent />
+                  </div>
+                )}
+
                 {/* <SelectedInstitution institutions={listOfInstituations} /> */}
               </div>
-              <div className="divider divider-primary" />
-              <ListOfChildern />
+              {/* <ListOfPeers /> */}
             </div>
-            <div className="divider divider-primary" />
-
             <div className="overflow-x-auto">
               <table className="table table-auto">
                 <thead>
