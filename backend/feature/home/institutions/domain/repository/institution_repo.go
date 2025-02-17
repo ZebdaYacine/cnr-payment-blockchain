@@ -63,7 +63,7 @@ func (s *institutionsRepository) GetChildOfInstitutions(c context.Context, nameI
 			elems.Institutiont.Type = "DG"
 			collection := s.database.Collection(col)
 			var result bson.M
-			if err := collection.FindOne(c, bson.M{"Parent.id": id.Hex()}).Decode(&result); err != nil {
+			if err := collection.FindOne(c, bson.M{"parent.id": id.Hex()}).Decode(&result); err != nil {
 				log.Print("Error fetching institution:", err)
 				return nil, err
 			}
@@ -94,7 +94,7 @@ func (s *institutionsRepository) GetChildOfInstitutions(c context.Context, nameI
 	case "CCR":
 		{
 			elems.Institutiont.Obj = parseCCR(result)
-			elems.Institutiont.Obj = "CCR"
+			elems.Institutiont.Type = "CCR"
 			children, err := s.getChildren(c, "AGENCE", "ccr.id", id, result)
 			if err != nil {
 				log.Print("Error fetching child institutions:", err)
@@ -120,50 +120,95 @@ func (s *institutionsRepository) GetChildOfInstitutions(c context.Context, nameI
 }
 
 func parsePost(result bson.M) feature.Instiutiont {
+	var id string
+	if objID, ok := result["_id"].(primitive.ObjectID); ok {
+		id = objID.Hex()
+	}
+	name, _ := result["name"].(string)
+	var parent *feature.Instiutiont
+	if parentData, ok := result["parent"].(bson.M); ok {
+		parentID, _ := parentData["id"].(string)
+		parentName, _ := parentData["name"].(string)
+
+		parent = &feature.Instiutiont{
+			ID:   parentID,
+			Name: parentName,
+		}
+	}
 	return feature.Instiutiont{
-		ID:   result["_id"].(primitive.ObjectID).Hex(),
-		Name: result["Name"].(string),
-		Parent: &feature.Instiutiont{
-			ID:   result["id"].(string),
-			Name: result["Name"].(string),
-		},
+		ID:     id,
+		Name:   name,
+		Parent: parent,
 	}
 }
 
 func parseDG(result bson.M) feature.Instiutiont {
 	return feature.Instiutiont{
 		ID:     result["_id"].(primitive.ObjectID).Hex(),
-		Name:   result["Name"].(string),
+		Name:   result["name"].(string),
 		Parent: nil,
 	}
 }
 
 func parseAgence(result bson.M) feature.Agence {
-	return feature.Agence{
-		ID:   result["_id"].(primitive.ObjectID).Hex(),
-		Name: result["name"].(string),
-		Code: result["code"].(string),
-		CCR: &feature.CCR{
-			ID:     result["id"].(string),
-			Name:   result["name"].(string),
-			Code:   result["code"].(string),
+	var id string
+	if objID, ok := result["_id"].(primitive.ObjectID); ok {
+		id = objID.Hex()
+	}
+
+	name, _ := result["name"].(string)
+	code, _ := result["code"].(string)
+
+	var ccr *feature.CCR
+	if ccrData, ok := result["ccr"].(bson.M); ok {
+		ccrID, _ := ccrData["id"].(string)
+		ccrName, _ := ccrData["name"].(string)
+		ccrCode, _ := ccrData["code"].(string)
+		ccr = &feature.CCR{
+			ID:     ccrID,
+			Name:   ccrName,
+			Code:   ccrCode,
 			Parent: nil,
-		},
+		}
+	}
+	return feature.Agence{
+		ID:   id,
+		Name: name,
+		Code: code,
+		CCR:  ccr,
 	}
 }
 
 func parseCCR(result bson.M) feature.CCR {
+	var id string
+	if objID, ok := result["_id"].(primitive.ObjectID); ok {
+		id = objID.Hex()
+	}
+	name, _ := result["name"].(string)
+	code, _ := result["code"].(string)
+
+	var dg *feature.Instiutiont
+	if parentData, ok := result["parent"].(bson.M); ok {
+		parentID, _ := parentData["id"].(string)
+		parentName, _ := parentData["name"].(string)
+		log.Println(parentName)
+		dg = &feature.Instiutiont{
+			ID:     parentID,
+			Name:   parentName,
+			Parent: nil,
+		}
+	}
 	return feature.CCR{
-		ID:     result["_id"].(primitive.ObjectID).Hex(),
-		Name:   result["name"].(string),
-		Code:   result["code"].(string),
-		Parent: nil,
+		ID:     id,
+		Name:   name,
+		Code:   code,
+		Parent: dg,
 	}
 }
 
 func (s *institutionsRepository) getChildren(c context.Context, collectionName, parentField string, id primitive.ObjectID, parentResult bson.M) ([]bson.M, error) {
 	collection := s.database.Collection(collectionName)
-	cursor, err := collection.Find(c, bson.M{parentField: id})
+	cursor, err := collection.Find(c, bson.M{parentField: id.Hex()})
 	if err != nil {
 		log.Print("Error fetching child institutions:", err)
 		return nil, err

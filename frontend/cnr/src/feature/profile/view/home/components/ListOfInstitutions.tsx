@@ -1,4 +1,5 @@
 import { useChild } from "../../../../../core/state/InstitutionContext";
+import { Child } from "../../../data/dtos/ProfileDtos";
 
 function ListOfChildren() {
   const { child } = useChild();
@@ -9,32 +10,21 @@ function ListOfChildren() {
     );
   }
 
-  const cancel = () => {
-    console.log("Cancel clicked");
-  };
-
-  const check = (str: string): string => {
-    if (str === "DG") {
-      return "CCR";
-    } else if (str === "CCR") {
-      return "AGENCE";
-    }
-    return "";
+  const show = (c: Child) => {
+    console.log(c);
   };
 
   return (
     <div className="flex flex-col space-y-3">
-      <p className="text-xl font-bold text-gray-400">
-        List of {check(child[0]?.Parent?.Name || "")}
-      </p>
+      <p className="text-xl font-bold text-gray-400">Peers</p>
       <div className="flex flex-wrap gap-2">
         {child.map((c) => (
           <div
-            key={c.ID}
+            key={c.id}
             className="badge badge-primary hover:badge-outline cursor-pointer px-4 py-2 whitespace-nowrap"
-            onClick={cancel}
+            onClick={() => show(c)}
           >
-            {c.Name}
+            {c.name}
           </div>
         ))}
       </div>

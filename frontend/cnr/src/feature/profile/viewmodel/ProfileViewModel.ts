@@ -1,4 +1,4 @@
-import { ChildResponse, Elements, Institution, InstitutionResponse, Peer } from './../data/dtos/ProfileDtos';
+import { Child, ChildResponse, Elements, InstitutionResponse } from './../data/dtos/ProfileDtos';
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../../../core/state/AuthContext";
 import { User } from "../../../core/dtos/data";
 import { useUserId } from '../../../core/state/UserContext';
+import { useChild } from '../../../core/state/InstitutionContext';
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -20,6 +21,8 @@ function convertFileToBase64(file: File): Promise<string> {
 }
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
+  const { SetChild } = useChild();
+  
   const { isAuthentificated, Userlogout } = useAuth();
   const navigate = useNavigate();
   const { error } = useNotification();
@@ -121,7 +124,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     onSuccess: (data) => {
       if (data && "data" in data) {
         const resp = data as InstitutionResponse;
-        console.log("Get Institutions successfully:", resp.data.at(-1)?.ID);
+        console.log("Get Institutions successfully:", resp.data.at(-1)?.id);
       } else {
         const errorResponse = data as ErrorResponse;
         error(errorResponse.message || "Network error occurred during upload", "colored");
@@ -145,23 +148,24 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       if (data && "data" in data) {
         const resp = data as ChildResponse;
         const element = resp.data as Elements;
-        const p=element.institutiont as Peer
-        if (!resp.data) {
-          console.error("Error: resp.data is undefined");
-          } else {
-          const element = resp.data as Elements;
-          console.log("Elements after casting:", element);
-          if (!element.institutiont) {
-              console.error("Error: element.institutiont is undefined");
-          } else {
-              const p = element.institutiont as Peer;
-              console.log("Get Institutions successfully:", p);
+        const listOfChildren: Child[] = new Array<Child>();
+        listOfChildren[0]=element.institutiont.obj as Child
+        const parent=listOfChildren[0].parent
+        if(parent){
+          listOfChildren[1]=parent as Child
+          if(element.child){
+            element.child.map((value, key) => {
+              listOfChildren[key+2]=value.obj as Child
+          });
           }
+        }else{
+          if(element.child){
+            element.child.map((value, key) => {
+              listOfChildren[key+1]=value.obj as Child
+          });
         }
-        if(p.type==="CCR"){
-          const ele=element.institutiont.obj as Institution
-          console.log("Get Institutions successfully:", ele);
         }
+        SetChild(listOfChildren)
       } else {
         const errorResponse = data as ErrorResponse;
         error(errorResponse.message || "Network error occurred during upload", "colored");

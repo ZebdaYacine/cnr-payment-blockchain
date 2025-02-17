@@ -25,22 +25,22 @@ type User struct {
 
 type Agence struct {
 	ID   string `json:"ID" bson:"ID"`
-	Name string `json:"Name" bson:"name"`
+	Name string `json:"name" bson:"name"`
 	Code string `json:"code" bson:"code"`
 	CCR  *CCR   `json:"ccr,omitempty" bson:"ccr,omitempty"`
 }
 
 type CCR struct {
 	ID     string       `json:"ID" bson:"ID"`
-	Name   string       `json:"Name" bson:"name"`
+	Name   string       `json:"name" bson:"name"`
 	Code   string       `json:"code" bson:"code"`
-	Parent *Instiutiont `json:"Parent,omitempty" bson:"Parent,omitempty"`
+	Parent *Instiutiont `json:"parent,omitempty" bson:"parent,omitempty"`
 }
 
 type Instiutiont struct {
 	ID     string       `json:"ID" bson:"ID"`
-	Name   string       `json:"Name" bson:"name"`
-	Parent *Instiutiont `json:"Parent,omitempty" bson:"Parent,omitempty"`
+	Name   string       `json:"name" bson:"name"`
+	Parent *Instiutiont `json:"parent,omitempty" bson:"parent,omitempty"`
 }
 
 type Peer struct {

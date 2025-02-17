@@ -19,8 +19,8 @@ function SelectedInstitution({ institutions }: ListOfInstitutionProps) {
   const { workAt, idInstituion } = useUserId();
   const { SetChild } = useChild();
   const [institution, setInstitution] = useState<Institution>({
-    ID: "",
-    Name: "",
+    id: "",
+    name: "",
   });
 
   const {
@@ -36,13 +36,13 @@ function SelectedInstitution({ institutions }: ListOfInstitutionProps) {
     // );
 
     setInstitution({
-      ID: idInstituion,
-      Name: workAt,
+      id: idInstituion,
+      name: workAt,
     });
     console.log("idInstituion:", idInstituion);
     console.log("Selected Institution:", institution);
 
-    GetChildInstituations({ id: institution.ID, name: workAt });
+    GetChildInstituations({ id: institution.id, name: workAt });
   };
 
   useEffect(() => {
@@ -56,14 +56,14 @@ function SelectedInstitution({ institutions }: ListOfInstitutionProps) {
     <select
       className="select select-primary w-full max-w-xs"
       onChange={handleInstitutionSelect}
-      value={institution.ID}
+      value={institution.id}
     >
       <option value="" disabled>
         Select Institution
       </option>
       {institutions.map((inst) => (
-        <option key={inst.ID} value={inst.ID}>
-          {inst.Name}
+        <option key={inst.id} value={inst.id}>
+          {inst.name}
         </option>
       ))}
     </select>

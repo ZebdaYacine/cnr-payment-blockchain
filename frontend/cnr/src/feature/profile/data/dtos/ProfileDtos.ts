@@ -43,14 +43,14 @@ export interface Data {
 }
 
 export interface Institution {
-  ID: string;
-  Name: string;
+  id: string;
+  name: string;
 }
 
 export interface Child {
-  ID: string;
-  Name: string;
-  Parent:Institution;
+  id: string;
+  name: string;
+  parent:Institution;
 }
 
 
