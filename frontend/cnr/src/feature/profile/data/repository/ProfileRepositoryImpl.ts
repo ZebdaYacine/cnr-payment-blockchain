@@ -9,8 +9,8 @@ export class ProfileRepositoryImpl implements ProfileRepository {
   constructor(datasource: ProfileDataSource) {
     this.datasource = datasource;
   }
-  async GetChildOfInstitutions(id:string,token: string): Promise<ChildResponse | ErrorResponse> {
-     return await this.datasource.GetChildOfInstitutionsApi(id,token);
+  async GetChildOfInstitutions(id:string,name:string,token: string): Promise<ChildResponse | ErrorResponse> {
+     return await this.datasource.GetChildOfInstitutionsApi(id,name,token);
   }
   async GetInstituations(token: string): Promise<InstitutionResponse | ErrorResponse> {
     return await this.datasource.GetInstituaionApi(token);

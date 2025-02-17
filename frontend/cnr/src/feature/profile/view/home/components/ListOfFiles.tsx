@@ -1,16 +1,18 @@
 import { useNavigate } from "react-router";
 import {
+  ChildResponse,
   Data,
-  Institution,
-  InstitutionResponse,
+  // Institution,
+  // InstitutionResponse,
 } from "../../../data/dtos/ProfileDtos";
-import SelectedInstitution from "./SelectedInstitution";
+// import SelectedInstitution from "./SelectedInstitution";
 import ListOfChildern from "./ListOfInstitutions";
 import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useUserId } from "../../../../../core/state/UserContext";
 interface ListOfFilesProps {
   files: Data[];
 }
@@ -26,24 +28,41 @@ function ListOfFiles({ files }: ListOfFilesProps) {
     console.log("File clicked:", file);
     navigate("/versions-file");
   };
+  const { workAt, idInstituion } = useUserId();
 
-  const [listOfInstituations, setlistOfInstituations] = useState<Institution[]>(
-    []
-  );
+  // const [listOfInstituations, setlistOfInstituations] = useState<Institution[]>(
+  //   []
+  // );
 
-  const { GetInstituations, institutionData, isInstituaionsSuccss } =
-    useProfileViewModel(profileUseCase);
+  const {
+    // GetInstituations,
+    // institutionData,
+    // isInstituaionsSuccss,
+    GetChildInstituations,
+    childInstitutionData,
+    isChildInstituaionsSuccss,
+  } = useProfileViewModel(profileUseCase);
 
   useEffect(() => {
-    GetInstituations();
-  }, []);
-
-  useEffect(() => {
-    if (isInstituaionsSuccss && institutionData) {
-      const d = institutionData as InstitutionResponse;
-      setlistOfInstituations(d.data || []);
+    if (workAt && idInstituion) {
+      console.log({ id: idInstituion, name: workAt });
+      GetChildInstituations({ id: idInstituion, name: workAt });
     }
-  }, [institutionData, isInstituaionsSuccss]);
+  }, [workAt, idInstituion]);
+
+  useEffect(() => {
+    if (childInstitutionData && isChildInstituaionsSuccss) {
+      const d = childInstitutionData as ChildResponse;
+      console.log(d.data || []);
+    }
+  }, [childInstitutionData, isChildInstituaionsSuccss]);
+
+  // useEffect(() => {
+  //   if (isInstituaionsSuccss && institutionData) {
+  //     const d = institutionData as InstitutionResponse;
+  //     setlistOfInstituations(d.data || []);
+  //   }
+  // }, [institutionData, isInstituaionsSuccss]);
 
   return (
     <>
@@ -55,7 +74,7 @@ function ListOfFiles({ files }: ListOfFilesProps) {
                 <h2 className="card-title text-center">
                   List of Uploaded Files
                 </h2>
-                <SelectedInstitution institutions={listOfInstituations} />
+                {/* <SelectedInstitution institutions={listOfInstituations} /> */}
               </div>
               <div className="divider divider-primary" />
               <ListOfChildern />

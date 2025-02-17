@@ -32,33 +32,33 @@ func (ic *InstitutionsController) GetInstitutionsRequest(c *gin.Context) {
 
 func (ic *InstitutionsController) GetChildInstitutionsRequest(c *gin.Context) {
 	log.Println("************************ GET CHILD OF INSTITUTIONS REQUEST ************************")
-
-	// Extract `id` from query parameters (GET /institutions/children?id=123)
 	institutionID := c.Query("id")
-
-	// If not found in query, try extracting from URL parameters (GET /institutions/:id/children)
+	institutionName := c.Query("workAt")
 	if institutionID == "" {
 		institutionID = c.Param("id")
 	}
-
-	// Ensure institution ID is provided
+	if institutionName == "" {
+		institutionName = c.Param("workAt")
+	}
 	if institutionID == "" {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Message: "Missing institution ID",
 		})
 		return
 	}
-
-	// Fetch child institutions
-	result := ic.InstituationsUsecase.GetChildOfInstitutions(c, institutionID)
+	if institutionName == "" {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: "Missing institution Name",
+		})
+		return
+	}
+	result := ic.InstituationsUsecase.GetChildOfInstitutions(c, institutionName, institutionID)
 	if err := result.Err; err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Message: err.Error(),
 		})
 		return
 	}
-
-	// Return success response
 	c.JSON(http.StatusOK, model.SuccessResponse{
 		Message: "GET CHILD OF INSTITUTIONS SUCCESSFULY",
 		Data:    result.Data,

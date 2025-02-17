@@ -35,7 +35,7 @@ export class PofileUseCase {
   async GetInstitutions(token:string): Promise<InstitutionResponse|ErrorResponse> {
       return await  this.repository.GetInstituations(token);
   }
-  async GetChildOfInstitutions(id:string,token:string): Promise<ChildResponse|ErrorResponse> {
-      return await  this.repository.GetChildOfInstitutions(id,token);
+  async GetChildOfInstitutions(id:string,name:string,token:string): Promise<ChildResponse|ErrorResponse> {
+      return await  this.repository.GetChildOfInstitutions(id,name,token);
   }
 }

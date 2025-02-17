@@ -8,6 +8,8 @@ interface UserData {
   username: string;
   email: string;
   permission: string;
+  WorkAt: string;
+  idInstituion: string;
 }
 
 export interface Data {

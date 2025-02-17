@@ -4,7 +4,11 @@ interface UserContextType {
   username: string;
   email: string;
   permission: string;
+  idInstituion: string;
+  workAt: string;
   SetUsername: (username: string) => void;
+  SetWorkAt: (workAt: string) => void;
+  SetidInstituion: (idInstituion: string) => void;
   SetEmail: (email: string) => void;
   SetPermission: (permission: string) => void;
   password: string;
@@ -18,6 +22,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [password, setPassWord] = useState<string>("");
   const [email, SetEmail] = useState<string>("");
   const [permission, SetPermission] = useState<string>("");
+  const [idInstituion, setidInstituion] = useState<string>("");
+  const [workAt, setWorkAt] = useState<string>("");
 
   const SetUserName = (username: string) => {
     setUserName(username);
@@ -27,6 +33,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setPassWord(password);
   };
 
+  const SetWorkAt = (workAt: string) => {
+    setWorkAt(workAt);
+  };
+
+  const SetidInstituion = (idInstituion: string) => {
+    setidInstituion(idInstituion);
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -34,6 +48,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         email: email,
         permission: permission,
         password: password,
+        idInstituion: idInstituion,
+        workAt: workAt,
+        SetidInstituion: SetidInstituion,
+        SetWorkAt: SetWorkAt,
         SetUsername: SetUserName,
         SetPassWord: SetPassWord,
         SetEmail: SetEmail,

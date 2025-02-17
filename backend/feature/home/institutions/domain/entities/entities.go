@@ -1,5 +1,5 @@
 package entities
 
-type Institution struct {
+type GetInstitution struct {
 	Id string `json:"id"`
 }

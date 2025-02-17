@@ -1,4 +1,4 @@
-import { ChildResponse, InstitutionResponse } from './../data/dtos/ProfileDtos';
+import { ChildResponse, Elements, Institution, InstitutionResponse, Peer } from './../data/dtos/ProfileDtos';
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
@@ -7,8 +7,8 @@ import { FilesResponse, ProfileResponse } from "../data/dtos/ProfileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../../core/state/AuthContext";
-import { useUserId } from "../../../core/state/UserContext";
 import { User } from "../../../core/dtos/data";
+import { useUserId } from '../../../core/state/UserContext';
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -24,7 +24,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const navigate = useNavigate();
   const { error } = useNotification();
   const { setFilesList } = useFileMetaData();
-  const {SetUsername,SetEmail,SetPermission } = useUserId();
+  const {SetUsername,SetEmail,SetPermission ,SetWorkAt,SetidInstituion} = useUserId();
   
   const { mutate: getProfile, data: Profile, isPending: isProfileLoading, isSuccess: isProfileSuccess} = useMutation({
     mutationFn: async () => {
@@ -37,13 +37,14 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     onSuccess: (data) => {
       if (data && "data" in data) {
         const resp = data as ProfileResponse;
-        console.log("Get Profile successfully:", resp.data);
         const userData = resp.data as User;
         if (userData) {
           console.log("Profile fetched:", userData);
            SetUsername(userData?.username)
            SetEmail(userData?.email)
            SetPermission(userData?.permission)
+           SetWorkAt(userData?.WorkAt)
+           SetidInstituion(userData?.idInstituion)
         }
       } else {
          const errorResponse = data as ErrorResponse;
@@ -96,7 +97,6 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     onSuccess: (data) => {
       if (data && "data" in data) {
         const resp = data as FilesResponse;
-        console.log("Files retrieved successfully:", resp.data);
         setFilesList(resp.data);
       } else {
         const errorResponse = data as ErrorResponse;
@@ -134,17 +134,34 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   });
 
    const { mutate: GetChildInstituations, data: childInstitutionData, isPending: isChildInstituaionsLoading, isSuccess: isChildInstituaionsSuccss} = useMutation({
-    mutationFn: async ({id}: { id: string}) => {
+    mutationFn: async ({id,name}: { id: string,name: string}) => {
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetChildOfInstitutions(id,storedToken);
+      return profileUseCase.GetChildOfInstitutions(id,name,storedToken);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
         const resp = data as ChildResponse;
-        console.log("Get Institutions successfully:", resp.data.at(-1)?.ID);
+        const element = resp.data as Elements;
+        const p=element.institutiont as Peer
+        if (!resp.data) {
+          console.error("Error: resp.data is undefined");
+          } else {
+          const element = resp.data as Elements;
+          console.log("Elements after casting:", element);
+          if (!element.institutiont) {
+              console.error("Error: element.institutiont is undefined");
+          } else {
+              const p = element.institutiont as Peer;
+              console.log("Get Institutions successfully:", p);
+          }
+        }
+        if(p.type==="CCR"){
+          const ele=element.institutiont.obj as Institution
+          console.log("Get Institutions successfully:", ele);
+        }
       } else {
         const errorResponse = data as ErrorResponse;
         error(errorResponse.message || "Network error occurred during upload", "colored");

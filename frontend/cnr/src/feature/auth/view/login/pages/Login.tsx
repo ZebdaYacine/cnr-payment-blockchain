@@ -14,7 +14,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { useAuth } from "../../../../../core/state/AuthContext";
-import { useLogger } from "../../../../../services/useLogger";
 
 const dataSource = new AuthDataSourceImpl();
 const repository = new AuthRepositoryImpl(dataSource);
@@ -33,10 +32,6 @@ function LoginPage() {
   } = useUserId();
 
   const { isAuthentificated } = useAuth();
-  const { info } = useLogger();
-  useEffect(() => {
-    info("USER IS AUTHENTIFICATED : " + isAuthentificated);
-  }, [info, isAuthentificated]);
 
   const loginEvent = async (event: FormEvent) => {
     event.preventDefault();

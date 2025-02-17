@@ -5,6 +5,7 @@ import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 import { useEffect, useState } from "react";
 import { useChild } from "../../../../../core/state/InstitutionContext";
+import { useUserId } from "../../../../../core/state/UserContext";
 
 interface ListOfInstitutionProps {
   institutions: Institution[];
@@ -15,6 +16,7 @@ const repository = new ProfileRepositoryImpl(dataSource);
 const profileUseCase = new PofileUseCase(repository);
 
 function SelectedInstitution({ institutions }: ListOfInstitutionProps) {
+  const { workAt, idInstituion } = useUserId();
   const { SetChild } = useChild();
   const [institution, setInstitution] = useState<Institution>({
     ID: "",
@@ -27,24 +29,20 @@ function SelectedInstitution({ institutions }: ListOfInstitutionProps) {
     isChildInstituaionsSuccss,
   } = useProfileViewModel(profileUseCase);
 
-  const handleInstitutionSelect = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const selectedId = event.target.value;
-    const selectedInstitution = institutions.find(
-      (inst) => inst.ID === selectedId
-    );
+  const handleInstitutionSelect = () => {
+    // const selectedId = event.target.value;
+    // const selectedInstitution = institutions.find(
+    //   (inst) => inst.ID === selectedId
+    // );
 
-    if (selectedInstitution) {
-      setInstitution({
-        ID: selectedInstitution.ID,
-        Name: selectedInstitution.Name,
-      });
+    setInstitution({
+      ID: idInstituion,
+      Name: workAt,
+    });
+    console.log("idInstituion:", idInstituion);
+    console.log("Selected Institution:", institution);
 
-      console.log("Selected Institution:", selectedInstitution);
-
-      GetChildInstituations({ id: selectedInstitution.ID });
-    }
+    GetChildInstituations({ id: institution.ID, name: workAt });
   };
 
   useEffect(() => {

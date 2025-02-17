@@ -16,7 +16,7 @@ type ProfileResult struct {
 
 type InstituationsUsecase interface {
 	GetInstitutions(c context.Context) *ProfileResult
-	GetChildOfInstitutions(c context.Context, idInstitutions string) *ProfileResult
+	GetChildOfInstitutions(c context.Context, nameInstitutions string, idInstitutions string) *ProfileResult
 }
 
 type institutionsUsecase struct {
@@ -33,8 +33,8 @@ func NewInstitutionsUsecase(repo institutionsRepo.InstitutionsRepository, collec
 }
 
 // GetChildOfInstitutions implements InstituationsUsecase.
-func (p *institutionsUsecase) GetChildOfInstitutions(c context.Context, idInstitutions string) *ProfileResult {
-	profileResult, err := p.repo.GetChildOfInstitutions(c, idInstitutions)
+func (p *institutionsUsecase) GetChildOfInstitutions(c context.Context, nameInstitutions string, idInstitutions string) *ProfileResult {
+	profileResult, err := p.repo.GetChildOfInstitutions(c, nameInstitutions, idInstitutions)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}

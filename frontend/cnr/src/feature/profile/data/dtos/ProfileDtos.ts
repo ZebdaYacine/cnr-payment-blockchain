@@ -7,7 +7,16 @@ export interface FilesResponse {
 
 export interface ChildResponse {
   message: string;
-  data: Child[] ;
+  data: Elements ;
+}
+
+export interface Peer {
+  obj: unknown; 
+  type: string; 
+}
+export interface Elements {
+  institutiont: Peer; 
+  child: Peer[]; 
 }
 
 export interface InstitutionResponse {
@@ -43,3 +52,5 @@ export interface Child {
   Name: string;
   Parent:Institution;
 }
+
+

@@ -15,7 +15,7 @@ export interface ProfileDataSource {
     version: number
   ): Promise<FilesResponse | ErrorResponse>;
   GetInstituaionApi(token: string): Promise<InstitutionResponse | ErrorResponse>;
-  GetChildOfInstitutionsApi(id:string,token: string): Promise<ChildResponse | ErrorResponse>;
+  GetChildOfInstitutionsApi(id:string,name:string,token: string): Promise<ChildResponse | ErrorResponse>;
 
 
 }
@@ -84,10 +84,8 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     return this.makeRequest<InstitutionResponse>("get", "/user/get-institutions", token);
   }
 
-  GetChildOfInstitutionsApi(id:string,token: string): Promise<ChildResponse | ErrorResponse> {
-    return this.makeRequest<ChildResponse>("get", "/user/get-child-institutions?id="+id,token,{
-      id
-    }); 
+  GetChildOfInstitutionsApi(id:string,name:string,token: string): Promise<ChildResponse | ErrorResponse> {
+    return this.makeRequest<ChildResponse>("get", "/user/get-child-institutions?id="+id+"&workAt="+name,token); 
   }
   
 

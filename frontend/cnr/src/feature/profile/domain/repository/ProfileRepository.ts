@@ -6,7 +6,5 @@ export interface ProfileRepository {
   GetProfile(token:string): Promise<ProfileResponse|ErrorResponse>;
   UploadFile(filename: string,codebase64: string,token:string,action :string,parent:string,version:number): Promise<FilesResponse|ErrorResponse>;
   GetInstituations(token:string): Promise<InstitutionResponse|ErrorResponse>;
-  GetChildOfInstitutions(id:string,token:string): Promise<ChildResponse|ErrorResponse>;
-
-
+  GetChildOfInstitutions(id:string,name:string,token:string): Promise<ChildResponse|ErrorResponse>;
 }

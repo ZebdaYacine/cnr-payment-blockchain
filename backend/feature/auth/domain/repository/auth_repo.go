@@ -40,10 +40,12 @@ func getUser(filter any, collection database.Collection, c context.Context) (*fe
 	}
 	user := feature.User{}
 	user = feature.User{
-		Id:         result["_id"].(primitive.ObjectID).Hex(),
-		Email:      result["email"].(string),
-		UserName:   result["username"].(string),
-		Permission: result["permission"].(string),
+		Id:           result["_id"].(primitive.ObjectID).Hex(),
+		Email:        result["email"].(string),
+		UserName:     result["username"].(string),
+		Permission:   result["permission"].(string),
+		WorkAt:       result["WorkAt"].(string),
+		IdInstituion: result["idInstituion"].(string),
 	}
 	return &user, nil
 }

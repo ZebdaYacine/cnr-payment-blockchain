@@ -9,10 +9,12 @@ import (
 )
 
 type User struct {
-	Id       string `json:"id" bson:"id"`
-	Email    string `json:"email" bson:"email"`
-	Password string `json:"password" bson:"password"`
-	UserName string `json:"username" bson:"username"`
+	Id           string `json:"id" bson:"id"`
+	Email        string `json:"email" bson:"email"`
+	Password     string `json:"password" bson:"password"`
+	UserName     string `json:"username" bson:"username"`
+	IdInstituion string `json:"idInstituion" bson:"idInstituion"`
+	WorkAt       string `json:"WorkAt" bson:"WorkAt"`
 
 	// Phone      string `json:"phone" bson:"phone"`
 	Permission string `json:"permission" bson:"permission"`
@@ -21,15 +23,34 @@ type User struct {
 	Status  string `json:"status,omitempty" bson:"status"`
 }
 
-type Instiutiont struct {
+type Agence struct {
 	ID   string `json:"ID" bson:"ID"`
 	Name string `json:"Name" bson:"name"`
+	Code string `json:"code" bson:"code"`
+	CCR  *CCR   `json:"ccr,omitempty" bson:"ccr,omitempty"`
 }
 
-type Child struct {
+type CCR struct {
 	ID     string       `json:"ID" bson:"ID"`
 	Name   string       `json:"Name" bson:"name"`
-	Parent *Instiutiont `json:"Parent" bson:"Parent"`
+	Code   string       `json:"code" bson:"code"`
+	Parent *Instiutiont `json:"Parent,omitempty" bson:"Parent,omitempty"`
+}
+
+type Instiutiont struct {
+	ID     string       `json:"ID" bson:"ID"`
+	Name   string       `json:"Name" bson:"name"`
+	Parent *Instiutiont `json:"Parent,omitempty" bson:"Parent,omitempty"`
+}
+
+type Peer struct {
+	Obj  interface{} `json:"obj"`
+	Type string      `json:"type"`
+}
+
+type Elements struct {
+	Institutiont Peer   `json:"institutiont"`
+	Child        []Peer `json:"child"`
 }
 
 type Son struct {
@@ -45,8 +66,11 @@ type Visit struct {
 }
 
 type Account interface {
-	User | entities.Login | entities.SetEmail |
+	User | entities.Login | entities.SetEmail | CCR |
+		Agence | Instiutiont |
 		entities.ReciveOTP | entities.SetPwd |
-		profileEntities.InformationsCard | profileEntities.Link | institutionsEntities.Institution |
-		entities.Register | profileEntities.UpdateProfile | profileEntities.UploadFile | versionEntities.UploadVersion
+		profileEntities.InformationsCard |
+		profileEntities.Link | institutionsEntities.GetInstitution |
+		entities.Register | profileEntities.UpdateProfile |
+		profileEntities.UploadFile | versionEntities.UploadVersion
 }

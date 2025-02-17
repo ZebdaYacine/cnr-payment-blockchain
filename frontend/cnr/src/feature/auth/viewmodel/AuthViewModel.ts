@@ -9,7 +9,7 @@ import { useUserId } from '../../../core/state/UserContext';
 export function useAuthViewModel(loginUseCase: LoginUseCase) {
   const { Userlogged } = useAuth();
   const { error } = useNotification();
-  const {SetUsername,SetEmail,SetPermission } = useUserId();
+  const {SetUsername,SetEmail,SetPermission ,SetWorkAt,SetidInstituion} = useUserId();
   
 
   const { mutate,isPending, isSuccess, isError } = useMutation({
@@ -28,6 +28,8 @@ export function useAuthViewModel(loginUseCase: LoginUseCase) {
            SetUsername(userData?.username)
            SetEmail(userData?.email)
            SetPermission(userData?.permission)
+           SetWorkAt(userData?.WorkAt)
+           SetidInstituion(userData?.idInstituion)
           }
         } else {
           const errorResponse = data as ErrorResponse;

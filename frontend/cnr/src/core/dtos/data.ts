@@ -1,5 +1,9 @@
 export interface User {
-  username: string;
+  id: string;
   email: string;
-  permission: string;
+  password: string;
+  username: string;
+  idInstituion: string;
+  WorkAt: string;
+  permission: string,
 }

@@ -5,7 +5,6 @@ import { useTheme } from "../state/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
 import { useLogger } from "../../services/useLogger";
-import { useEffect } from "react";
 
 interface NavBarProps {
   user: { username?: string; email?: string; permission?: string };
@@ -15,12 +14,7 @@ function NavBarComponent({ user }: NavBarProps) {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
   const { isAuthentificated, Userlogout } = useAuth();
-  const { debug, info } = useLogger();
-
-  useEffect(() => {
-    console.log(user.username);
-    info("USER IS AUTHENTIFICATED : " + isAuthentificated);
-  }, [info, isAuthentificated]);
+  const { debug } = useLogger();
 
   const logoutEvent = () => {
     Userlogout();

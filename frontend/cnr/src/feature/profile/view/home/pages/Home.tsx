@@ -19,13 +19,13 @@ function HomePage() {
   const { username, email, permission } = useUserId();
 
   useEffect(() => {
-    getFiles();
+    //getFiles();
     getProfile();
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      getFiles();
+      //getFiles();
     }, 10000);
     return () => clearInterval(interval);
   }, []);

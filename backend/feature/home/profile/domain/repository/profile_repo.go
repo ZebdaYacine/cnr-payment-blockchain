@@ -203,9 +203,11 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		return nil, err
 	}
 	user := feature.User{
-		Permission: result["permission"].(string),
-		Email:      result["email"].(string),
-		UserName:   result["username"].(string),
+		Permission:   result["permission"].(string),
+		Email:        result["email"].(string),
+		UserName:     result["username"].(string),
+		WorkAt:       result["WorkAt"].(string),
+		IdInstituion: result["idInstituion"].(string),
 	}
 
 	return &user, nil
