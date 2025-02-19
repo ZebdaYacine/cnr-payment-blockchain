@@ -62,6 +62,18 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
+  const uploadFileAsync = (file: File, parent: string, version: number): Promise<FileResponse> => {
+  return new Promise((resolve, reject) => {
+    uploadFile(
+      { file, parent, version },
+      {
+        onSuccess: (data) => resolve(data as FileResponse),
+        onError: (err) => reject(err),
+      }
+    );
+  });
+};
+
   const { mutate: uploadFile, data: uploadMetadata, isPending: isUploading, isSuccess: uploadSuccess, isError: uploadError } = useMutation({
     mutationFn: async ({ file, parent, version }: { file: File; parent: string; version: number }) => {
       const base64File = await convertFileToBase64(file);
@@ -150,9 +162,11 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const element = resp.data as Elements;
         const listOfChildren: Child[] = new Array<Child>();
         listOfChildren[0]=element.institutiont.obj as Child
+        console.log(listOfChildren[0])
         const parent=listOfChildren[0].parent
         if(parent){
           listOfChildren[1]=parent as Child
+          console.log(listOfChildren[1])
           if(element.child){
             element.child.map((value, key) => {
               listOfChildren[key+2]=value.obj as Child
@@ -203,6 +217,8 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     childInstitutionData,
     isChildInstituaionsLoading,
     isChildInstituaionsSuccss,
+
+    uploadFileAsync
 
   };
 }

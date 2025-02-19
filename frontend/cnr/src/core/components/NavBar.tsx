@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { MdOutlineDarkMode } from "react-icons/md";
@@ -7,7 +8,13 @@ import { useAuth } from "../state/AuthContext";
 import { useLogger } from "../../services/useLogger";
 
 interface NavBarProps {
-  user: { username?: string; email?: string; permission?: string };
+  user: {
+    username?: string;
+    email?: string;
+    permission?: string;
+    workAt?: string;
+    idInstituion?: string;
+  };
 }
 
 function NavBarComponent({ user }: NavBarProps) {
@@ -15,6 +22,7 @@ function NavBarComponent({ user }: NavBarProps) {
   const navigate = useNavigate();
   const { isAuthentificated, Userlogout } = useAuth();
   const { debug } = useLogger();
+  const profileDialogRef = useRef<HTMLDialogElement>(null);
 
   const logoutEvent = () => {
     Userlogout();
@@ -23,85 +31,138 @@ function NavBarComponent({ user }: NavBarProps) {
   };
 
   return (
-    <div
-      className={
-        isDarkMode
-          ? "navbar bg-zinc-800 text-white"
-          : "navbar bg-blue-700 texe-black"
-      }
-    >
-      <div className="flex-1">
-        <a className="btn btn-ghost text-xl">{user.username}</a>{" "}
-      </div>
-      <div className="flex-none">
-        <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-            <div className="indicator">
-              <FaShoppingCart className="h-5 w-5" />
-              <span className="badge badge-sm indicator-item">8</span>
+    <>
+      <div
+        className={
+          isDarkMode
+            ? "navbar bg-zinc-800 text-white"
+            : "navbar bg-blue-700 text-black"
+        }
+      >
+        <div className="flex-1">
+          <a className="btn btn-ghost text-xl">{user.workAt || "My Company"}</a>
+        </div>
+        <div className="flex-none">
+          <div className="dropdown dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost btn-circle"
+            >
+              <div className="indicator">
+                <FaShoppingCart className="h-5 w-5" />
+                <span className="badge badge-sm indicator-item">8</span>
+              </div>
             </div>
-          </div>
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-            <div className="indicator">
-              <IoNotificationsSharp className="h-5 w-5 " />
-              <span className="badge badge-sm indicator-item">8</span>
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost btn-circle"
+            >
+              <div className="indicator">
+                <IoNotificationsSharp className="h-5 w-5 " />
+                <span className="badge badge-sm indicator-item">8</span>
+              </div>
             </div>
-          </div>
-          <div
-            role="button"
-            className="btn btn-ghost btn-circle"
-            onClick={toggleDarkMode}
-          >
-            <div className="indicator">
-              <MdOutlineDarkMode className="h-5 w-5" />
-            </div>
-          </div>
-          <div
-            tabIndex={0}
-            className="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-52 shadow"
-          >
-            <div className="card-body">
-              <span className="text-lg font-bold">8 Items</span>
-              <span className="text-info">Subtotal: $999</span>
-              <div className="card-actions">
-                <button className="btn btn-primary btn-block">View cart</button>
+            <div
+              role="button"
+              className="btn btn-ghost btn-circle"
+              onClick={toggleDarkMode}
+            >
+              <div className="indicator">
+                <MdOutlineDarkMode className="h-5 w-5" />
               </div>
             </div>
           </div>
-        </div>
-        <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn btn-ghost btn-circle avatar"
-          >
-            <div className="w-10 rounded-full">
-              <img
-                alt="User Profile"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              />
+
+          {/* Profile Dropdown */}
+          <div className="dropdown dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost btn-circle avatar"
+            >
+              <div className="w-10 rounded-full">
+                <img
+                  alt="User Profile"
+                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                />
+              </div>
             </div>
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            >
+              <li onClick={() => profileDialogRef.current?.showModal()}>
+                <a className="justify-between">
+                  Profile
+                  <span className="badge">New</span>
+                </a>
+              </li>
+              <li>
+                <a>Settings</a>
+              </li>
+              <li>
+                <a onClick={logoutEvent}>Logout</a>
+              </li>
+            </ul>
           </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-          >
-            <li>
-              <a className="justify-between">
-                Profile
-                <span className="badge">New</span>
-              </a>
-            </li>
-            <li>
-              <a>Settings</a>
-            </li>
-            <li>
-              <a onClick={logoutEvent}>Logout</a>
-            </li>
-          </ul>
         </div>
       </div>
-    </div>
+
+      {/* Profile Modal */}
+      <dialog ref={profileDialogRef} id="Profile" className="modal">
+        <div className="modal-box">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg">User Profile</h3>
+          <div className="py-4">
+            <div className="flex items-center space-x-3">
+              <img
+                className="w-16 h-16 rounded-full border"
+                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                alt="Profile"
+              />
+              <div>
+                <p className="text-lg font-semibold">
+                  {user.username || "Unknown User"}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {user.email || "No email provided"}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <p>
+                <span className="font-semibold">Permission:</span>{" "}
+                {user.permission || "N/A"}
+              </p>
+              <p>
+                <span className="font-semibold">Work At:</span>{" "}
+                {user.workAt || "Not Assigned"}
+              </p>
+              <p>
+                <span className="font-semibold">Institution ID:</span>{" "}
+                {user.idInstituion || "None"}
+              </p>
+            </div>
+          </div>
+
+          <div className="modal-action">
+            <button
+              className="btn"
+              onClick={() => profileDialogRef.current?.close()}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </dialog>
+    </>
   );
 }
 

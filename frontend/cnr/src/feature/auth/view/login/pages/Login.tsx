@@ -66,7 +66,8 @@ function LoginPage() {
           />
           <PasswordInput onChange={(e) => SetPassWord(e.target.value)} />
           <div className="flex justify-center">
-            <LoginButton loginEvent={loginEvent} />
+            <LoginButton loginEvent={loginEvent} name={"Login"} />
+            {/* <LoginButton loginEvent={loginEvent} name={"Cree"} /> */}
           </div>
         </form>
         <ToastContainer />

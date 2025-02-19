@@ -8,6 +8,7 @@ import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 import ListOfFiles from "../components/ListOfFiles";
 import { useUserId } from "../../../../../core/state/UserContext";
 import ListOfPeers from "../components/ListOfPeers";
+import { usePeer } from "../../../../../core/state/PeerContext";
 
 function HomePage() {
   // Dependency Injection
@@ -30,25 +31,29 @@ function HomePage() {
     return () => clearInterval(interval);
   }, [getFiles]);
 
+  const { Peer } = usePeer();
+
   return (
     <>
-      <NavBarComponent user={{ username, email, permission }} />
+      <NavBarComponent
+        user={{ username, email, permission, workAt, idInstituion }}
+      />
 
       {/* <div className="flex items-center justify-center  m-10 p-4">
         <UploadFileComponent />
       </div> */}
 
       <div className=" flex flex-col p-10">
-        <div className="divider divider-primary" />
+        {/* <div className="divider divider-primary" /> */}
         <ListOfPeers />
-        <div className="divider divider-primary" />
+        {/* <div className="divider divider-primary" /> */}
         <div className="flex flex-col md:flex-row   m-2 p-2 space-y-4 md:space-y-0 md:space-x-4">
-          <div className="w-full md:w-1/2 ">
-            <ListOfFiles files={getFilesList()} type="OUT" />
+          <div className="w-full ">
+            <ListOfFiles files={getFilesList()} peer={Peer} />
           </div>
-          <div className="w-full md:w-1/2 ">
+          {/* <div className="w-full md:w-1/2 ">
             <ListOfFiles files={getFilesList()} type="IN" />
-          </div>
+          </div> */}
         </div>
       </div>
     </>

@@ -113,7 +113,7 @@ func (s *profileRepository) ReciveDemand(c context.Context, user *feature.User) 
 }
 
 func (s *profileRepository) GetMetadataFile(c context.Context) (*[]fabric.FileMetadata, error) {
-	//fabric.SdkProvider("deleteAll")
+	// fabric.SdkProvider("deleteAll")
 	result, err := fabric.SdkProvider("getAll")
 	if err != nil {
 		return nil, err

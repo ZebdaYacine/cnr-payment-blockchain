@@ -33,6 +33,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     if (storedMode === "") {
       document.documentElement.setAttribute("data-theme", "light");
     } else {
+      document.documentElement.classList.add("dark");
       document.documentElement.setAttribute("data-theme", "dark");
     }
   }, []);

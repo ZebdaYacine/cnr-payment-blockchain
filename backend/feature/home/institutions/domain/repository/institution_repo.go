@@ -111,7 +111,7 @@ func (s *institutionsRepository) GetPeers(c context.Context, nameInstitutions, i
 	case "AGENCE":
 		{
 			elems.Institutiont.Obj = parseAgence(result)
-			elems.Institutiont.Obj = "AGENCE"
+			elems.Institutiont.Type = "AGENCE"
 			elems.Child = nil
 		}
 	}
@@ -160,7 +160,7 @@ func parseAgence(result bson.M) feature.Agence {
 	code, _ := result["code"].(string)
 
 	var ccr *feature.CCR
-	if ccrData, ok := result["ccr"].(bson.M); ok {
+	if ccrData, ok := result["parent"].(bson.M); ok {
 		ccrID, _ := ccrData["id"].(string)
 		ccrName, _ := ccrData["name"].(string)
 		ccrCode, _ := ccrData["code"].(string)
