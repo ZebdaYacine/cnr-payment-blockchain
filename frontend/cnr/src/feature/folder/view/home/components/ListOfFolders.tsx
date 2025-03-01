@@ -1,63 +1,37 @@
 import { useNavigate } from "react-router";
-import { useEffect, useState } from "react";
-import { Child, ChildResponse, Data } from "../../../data/dtos/ProfileDtos";
-import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
-import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
-import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
-import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
-import { useUserId } from "../../../../../core/state/UserContext";
-// import SelectFilesComponent from "./SelectFilesComponet";
+import { useState } from "react";
+import { Folder } from "../../../data/dtos/FolderDtos";
 import FileUploadModal from "./FileUploadModal";
-import SelectFilesComponent from "./SelectFilesComponet";
-import { MdErrorOutline } from "react-icons/md";
+import { FaFolder } from "react-icons/fa6";
+import { Child } from "../../../../profile/data/dtos/ProfileDtos";
+import Warning from "../../../../../core/components/Warning";
+import ByUser from "./ByUser";
+import AtTime from "./AtTime";
+import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
 
-interface ListOfFilesProps {
-  files: Data[];
+interface ListOfFoldersProps {
+  folders: Folder[];
   peer: Child;
 }
 
 const ITEMS_PER_PAGE = 5; // Adjust this value as needed
 
-const dataSource = new ProfileDataSourceImpl();
-const repository = new ProfileRepositoryImpl(dataSource);
-const profileUseCase = new PofileUseCase(repository);
-
-function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
+function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
   const navigate = useNavigate();
-  const { workAt, idInstituion } = useUserId();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRadio, setSelectedRadio] = useState("");
 
-  const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
-  const paginatedFiles = files.slice(
+  const safeFolders = Array.isArray(folders) ? folders : [];
+  const totalPages = Math.ceil(safeFolders.length / ITEMS_PER_PAGE);
+  const paginatedFiles = safeFolders.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleRowClick = (file: Data) => {
+  const handleRowClick = (file: string) => {
     console.log("File clicked:", file);
     navigate("/versions-file");
   };
-
-  const {
-    GetChildInstituations,
-    childInstitutionData,
-    isChildInstituaionsSuccss,
-  } = useProfileViewModel(profileUseCase);
-
-  useEffect(() => {
-    if (workAt && idInstituion) {
-      console.log({ id: idInstituion, name: workAt });
-      GetChildInstituations({ id: idInstituion, name: workAt });
-    }
-  }, [workAt, idInstituion]);
-
-  useEffect(() => {
-    if (childInstitutionData && isChildInstituaionsSuccss) {
-      const d = childInstitutionData as ChildResponse;
-      console.log(d.data || []);
-    }
-  }, [childInstitutionData, isChildInstituaionsSuccss]);
 
   return (
     <>
@@ -102,56 +76,36 @@ function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
             </div>
             <div className="divider"></div>
 
-            {files.length === 0 ? (
-              <div className="flex flex-col justify-center items-center p-4 bg-red-100 rounded-lg shadow-md">
-                <MdErrorOutline className="text-red-500 w-12 h-12 mb-2" />
-                <p className="font-bold text-red-600 text-lg">No file found</p>
-              </div>
+            {folders.length === 0 ? (
+              Warning({ message: "No Folder Found" })
             ) : (
               <div className="overflow-x-auto">
                 <table className="table table-auto">
-                  <thead>
-                    <tr>
-                      <th className="text-center">ID</th>
-                      <th className="text-center">File</th>
-                      <th className="text-center">User</th>
-                      <th className="text-center">Time</th>
-                      <th className="text-center">Status</th>
-                      <th className="text-center">Version</th>
-                    </tr>
-                  </thead>
                   <tbody>
-                    {paginatedFiles.map((file) => (
+                    {paginatedFiles.map((folder) => (
                       <tr
-                        key={file.ID}
-                        className="cursor-pointer hover"
-                        onClick={() => handleRowClick(file)}
+                        key={folder.name}
+                        className="cursor-pointer hover:bg-gray-100 transition-all duration-200"
+                        onClick={() => handleRowClick(folder.name)}
                       >
-                        <td className="text-center">{file.ID}</td>
-                        <td className="text-center">{file.FileName}</td>
-                        <td className="text-center">{file.UserID}</td>
-                        <td className="text-center">{file.Time}</td>
-                        <td className="text-center">
-                          <div
-                            className={`badge ${
-                              file.Status === "Valid"
-                                ? "badge-accent"
-                                : "badge-secondary"
-                            }`}
-                          >
-                            {file.Status}
+                        <td className="text-left p-4">
+                          <div className="flex items-center gap-3">
+                            <FaFolder className=" text-xl" />
+                            <span className="font-medium text-lg ">
+                              {folder.name}
+                            </span>
                           </div>
                         </td>
-                        <td className="text-center">
-                          <div
-                            className={`badge ${
-                              file.Version > 1
-                                ? "badge-secondary"
-                                : "badge-accent"
-                            }`}
-                          >
-                            {file.Version} version
-                          </div>
+
+                        <td className="text-center text-gray-600 p-4">
+                          <ByUser
+                            name="Zebda Yassine"
+                            avatar="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                          />
+                        </td>
+
+                        <td className="text-center p-4">
+                          <AtTime value="12-12-2000" />
                         </td>
                       </tr>
                     ))}
@@ -199,4 +153,4 @@ function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
   );
 }
 
-export default ListOfFiles;
+export default ListOfFolders;

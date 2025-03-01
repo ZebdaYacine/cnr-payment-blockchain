@@ -2,13 +2,14 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { BsXLg } from "react-icons/bs";
 import { FaUpload } from "react-icons/fa6";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
-import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
-import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
-import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
-import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
-import { FileResponse } from "../../../data/dtos/ProfileDtos";
+import { useFolderViewModel } from "../../../viewmodel/FolderViewModel";
 import { motion } from "framer-motion"; // Import animation library
 import { MdCheckCircle } from "react-icons/md";
+import { FileResponse } from "../../../../profile/data/dtos/ProfileDtos";
+import { useProfileViewModel } from "../../../../profile/viewmodel/ProfileViewModel";
+import { PofileUseCase } from "../../../../profile/domain/usecase/ProfileUseCase";
+import { ProfileRepositoryImpl } from "../../../../profile/data/repository/ProfileRepositoryImpl";
+import { ProfileDataSourceImpl } from "../../../../profile/data/dataSource/ProfileAPIDataSource";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
@@ -23,7 +24,7 @@ function FileUploadModal() {
   const [groupInFOlder, setGroupInFOlder] = useState(false);
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
   const [isFinishUploading, SetFinishUploading] = useState(false);
-  const { getFolders } = useProfileViewModel(profileUseCase);
+  const { getFolders } = useFolderViewModel(profileUseCase);
 
   const { uploadFileAsync, uploadMetadata, isUploading, uploadSuccess } =
     useProfileViewModel(profileUseCase);

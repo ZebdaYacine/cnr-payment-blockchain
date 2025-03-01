@@ -1,7 +1,7 @@
-import { useChild } from "../../../../../core/state/InstitutionContext";
-import { usePeer } from "../../../../../core/state/PeerContext";
-import { useUserId } from "../../../../../core/state/UserContext";
-import { Child } from "../../../data/dtos/ProfileDtos";
+import { useChild } from "../../../../core/state/InstitutionContext";
+import { usePeer } from "../../../../core/state/PeerContext";
+import { useUserId } from "../../../../core/state/UserContext";
+import { Child } from "../../data/dtos/ProfileDtos";
 
 function ListOfPeers() {
   const { child } = useChild();

@@ -40,7 +40,7 @@ function NavBarComponent({ user }: NavBarProps) {
         }
       >
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">{user.workAt || "My Company"}</a>
+          <a className="btn btn-ghost text-xl">{user.workAt || ""}</a>
         </div>
         <div className="flex-none">
           <div className="dropdown dropdown-end">

@@ -1,65 +1,34 @@
 import { useNavigate } from "react-router";
-import { useEffect, useState } from "react";
-import { Child, ChildResponse, Folder } from "../../../data/dtos/ProfileDtos";
-import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
-import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
-import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
-import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
-import { useUserId } from "../../../../../core/state/UserContext";
-// import SelectFilesComponent from "./SelectFilesComponet";
-import FileUploadModal from "./FileUploadModal";
-import SelectFilesComponent from "./SelectFilesComponet";
-import { MdErrorOutline, MdOutlineAccessTime } from "react-icons/md";
-import { FaFolder } from "react-icons/fa6";
+import { useState } from "react";
+import { Child, Data } from "../../../data/dtos/ProfileDtos";
 
-interface ListOfFoldersProps {
-  folders: Folder[];
+// import SelectFilesComponent from "./SelectFilesComponet";
+import { MdErrorOutline } from "react-icons/md";
+import FileUploadModal from "../../../../folder/view/home/components/FileUploadModal";
+import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
+
+interface ListOfFilesProps {
+  files: Data[];
   peer: Child;
 }
 
 const ITEMS_PER_PAGE = 5; // Adjust this value as needed
 
-const dataSource = new ProfileDataSourceImpl();
-const repository = new ProfileRepositoryImpl(dataSource);
-const profileUseCase = new PofileUseCase(repository);
-
-function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
+function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
   const navigate = useNavigate();
-  const { workAt, idInstituion } = useUserId();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRadio, setSelectedRadio] = useState("");
 
-  const safeFolders = Array.isArray(folders) ? folders : [];
-  const totalPages = Math.ceil(safeFolders.length / ITEMS_PER_PAGE);
-  const paginatedFiles = safeFolders.slice(
+  const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
+  const paginatedFiles = files.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleRowClick = (file: string) => {
+  const handleRowClick = (file: Data) => {
     console.log("File clicked:", file);
     navigate("/versions-file");
   };
-
-  const {
-    GetChildInstituations,
-    childInstitutionData,
-    isChildInstituaionsSuccss,
-  } = useProfileViewModel(profileUseCase);
-
-  useEffect(() => {
-    if (workAt && idInstituion) {
-      console.log({ id: idInstituion, name: workAt });
-      GetChildInstituations({ id: idInstituion, name: workAt });
-    }
-  }, [workAt, idInstituion]);
-
-  useEffect(() => {
-    if (childInstitutionData && isChildInstituaionsSuccss) {
-      const d = childInstitutionData as ChildResponse;
-      console.log(d.data || []);
-    }
-  }, [childInstitutionData, isChildInstituaionsSuccss]);
 
   return (
     <>
@@ -104,7 +73,7 @@ function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
             </div>
             <div className="divider"></div>
 
-            {folders.length === 0 ? (
+            {files.length === 0 ? (
               <div className="flex flex-col justify-center items-center p-4 bg-red-100 rounded-lg shadow-md">
                 <MdErrorOutline className="text-red-500 w-12 h-12 mb-2" />
                 <p className="font-bold text-red-600 text-lg">No file found</p>
@@ -112,49 +81,47 @@ function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
             ) : (
               <div className="overflow-x-auto">
                 <table className="table table-auto">
-                  {/* <thead>
+                  <thead>
                     <tr>
-                      <th className="text-center">Folder</th>
+                      <th className="text-center">ID</th>
+                      <th className="text-center">File</th>
+                      <th className="text-center">User</th>
+                      <th className="text-center">Time</th>
+                      <th className="text-center">Status</th>
+                      <th className="text-center">Version</th>
                     </tr>
-                  </thead> */}
+                  </thead>
                   <tbody>
-                    {paginatedFiles.map((folder) => (
+                    {paginatedFiles.map((file) => (
                       <tr
-                        key={folder.name}
-                        className="cursor-pointer hover:bg-gray-100 transition-all duration-200"
-                        onClick={() => handleRowClick(folder.name)}
+                        key={file.ID}
+                        className="cursor-pointer hover"
+                        onClick={() => handleRowClick(file)}
                       >
-                        {/* Folder Name Column */}
-                        <td className="text-left p-4">
-                          <div className="flex items-center gap-3">
-                            <FaFolder className=" text-xl" />
-                            <span className="font-medium text-lg ">
-                              {folder.name}
-                            </span>
+                        <td className="text-center">{file.ID}</td>
+                        <td className="text-center">{file.FileName}</td>
+                        <td className="text-center">{file.UserID}</td>
+                        <td className="text-center">{file.Time}</td>
+                        <td className="text-center">
+                          <div
+                            className={`badge ${
+                              file.Status === "Valid"
+                                ? "badge-accent"
+                                : "badge-secondary"
+                            }`}
+                          >
+                            {file.Status}
                           </div>
                         </td>
-
-                        {/* Author Column */}
-                        <td className="text-center text-gray-600 p-4">
-                          <div className="flex items-center justify-center gap-3">
-                            <div className="avatar">
-                              <div className="w-8 h-8 rounded-full">
-                                <img
-                                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                                  alt="User Avatar"
-                                />
-                              </div>
-                            </div>
-                            <span className="font-semibold text-blue-500">
-                              by Zebda Yssine
-                            </span>
-                          </div>
-                        </td>
-
-                        <td className="text-center p-4">
-                          <div className="badge badge-soft badge-secondary gap-2">
-                            <MdOutlineAccessTime />
-                            12-02-2-25
+                        <td className="text-center">
+                          <div
+                            className={`badge ${
+                              file.Version > 1
+                                ? "badge-secondary"
+                                : "badge-accent"
+                            }`}
+                          >
+                            {file.Version} version
                           </div>
                         </td>
                       </tr>
@@ -203,4 +170,4 @@ function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
   );
 }
 
-export default ListOfFolders;
+export default ListOfFiles;
