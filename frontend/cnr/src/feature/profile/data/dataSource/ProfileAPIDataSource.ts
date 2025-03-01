@@ -1,17 +1,20 @@
 import { AxiosError } from "axios";
 import { Http } from "../../../../services/Http";
 import { ErrorResponse } from "../../../../services/model/commun";
-import { ChildResponse, FileResponse, FilesResponse, InstitutionResponse, ProfileResponse } from "../dtos/ProfileDtos";
+import { ChildResponse, FileResponse, FilesResponse, FolderResponse, InstitutionResponse, ProfileResponse } from "../dtos/ProfileDtos";
 
 export interface ProfileDataSource {
   GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse>;
   GetFilesApi(token: string): Promise<FilesResponse | ErrorResponse>;
+  GetFolderApi(token: string): Promise<FolderResponse | ErrorResponse>;
   UploadFileApi(
     filename: string,
     codebase64: string,
     token: string,
     action: string,
     parent: string,
+    folder:string,
+    description:string,
     version: number
   ): Promise<FileResponse | ErrorResponse>;
   GetInstituaionApi(token: string): Promise<InstitutionResponse | ErrorResponse>;
@@ -76,6 +79,10 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     return this.makeRequest<ProfileResponse>("get", "/user/get-profile", token);
   }
 
+  async GetFolderApi(token: string): Promise<FolderResponse | ErrorResponse> {
+    return this.makeRequest<FolderResponse>("get", "/user/get-folders", token);
+  }
+
   async GetFilesApi(token: string): Promise<FilesResponse | ErrorResponse> {
     return this.makeRequest<FilesResponse>("get", "/user/get-all-files-metadata", token);
   }
@@ -95,6 +102,8 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     token: string,
     action: string,
     parent: string,
+    folder:string,
+    description:string,
     version: number
   ): Promise<FileResponse | ErrorResponse> {
     return this.makeRequest<FileResponse>("post", "/user/upload-file", token, {
@@ -102,6 +111,8 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
       codebase64,
       action,
       parent,
+      folder,
+      description,
       version,
     });
   }

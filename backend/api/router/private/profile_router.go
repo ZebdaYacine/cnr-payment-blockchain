@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewGetProfileSuRouter(db database.Database, group *gin.RouterGroup) {
+func NewGetProfileuRouter(db database.Database, group *gin.RouterGroup) {
 	ir := repository.NewProfileRepository(db)
 	uc := usecase.NewProfileUsecase(ir, "")
 	ic := &controller.ProfileController{
@@ -28,31 +28,13 @@ func NewUploadFileRouter(db database.Database, group *gin.RouterGroup) {
 	group.POST("upload-file", ic.UploadFileRequestt)
 }
 
-func NewGetProfileRouter(db database.Database, group *gin.RouterGroup) {
+func NewGetFoldersRouter(db database.Database, group *gin.RouterGroup) {
 	ir := repository.NewProfileRepository(db)
 	uc := usecase.NewProfileUsecase(ir, "")
 	ic := &controller.ProfileController{
 		ProfileUsecase: uc,
 	}
-	group.GET("get-profile", ic.GetProfileRequest)
-}
-
-func NewGetInformationsCardRouter(db database.Database, group *gin.RouterGroup) {
-	ir := repository.NewProfileRepository(db)
-	uc := usecase.NewProfileUsecase(ir, "")
-	ic := &controller.ProfileController{
-		ProfileUsecase: uc,
-	}
-	group.POST("get-information-card", ic.GetInformationProfileRequest)
-}
-
-func NewSendDemandRouter(db database.Database, group *gin.RouterGroup) {
-	ir := repository.NewProfileRepository(db)
-	uc := usecase.NewProfileUsecase(ir, "")
-	ic := &controller.ProfileController{
-		ProfileUsecase: uc,
-	}
-	group.POST("send-demand", ic.SendDemandRequest)
+	group.GET("get-folders", ic.GetFoldersRequest)
 }
 
 func NewGetAllMetaDataFileRouter(db database.Database, group *gin.RouterGroup) {
@@ -62,13 +44,4 @@ func NewGetAllMetaDataFileRouter(db database.Database, group *gin.RouterGroup) {
 		ProfileUsecase: uc,
 	}
 	group.GET("get-all-files-metadata", ic.GetAllFilesMetaDataRequest)
-}
-
-func NewUpdateDemandRouter(db database.Database, group *gin.RouterGroup) {
-	ir := repository.NewProfileRepository(db)
-	uc := usecase.NewProfileUsecase(ir, "")
-	ic := &controller.ProfileController{
-		ProfileUsecase: uc,
-	}
-	group.POST("update-demand", ic.UpdateDemandRequestt)
 }

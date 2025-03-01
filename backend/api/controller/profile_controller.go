@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"scps-backend/api/controller/model"
 	"scps-backend/core"
-	"scps-backend/feature"
 	"scps-backend/pkg"
 	util "scps-backend/util/token"
 
@@ -19,7 +18,6 @@ type ProfileController struct {
 	ProfileUsecase usecase.ProfileUsecase
 }
 
-// HANDLE WITH LOGIN ACCOUNT REQUEST
 func (ic *ProfileController) GetProfileRequest(c *gin.Context) {
 	log.Println("************************ GET PROFILE REQUEST ************************")
 	userId := core.GetIdUser(c)
@@ -69,51 +67,6 @@ func (ic *ProfileController) UploadFileRequestt(c *gin.Context) {
 	})
 }
 
-func (ic *ProfileController) SendDemandRequest(c *gin.Context) {
-	log.Println("************************ SEND DEMAND REQUEST ************************")
-	var likn entities.Link
-	if !core.IsDataRequestSupported(&likn, c) {
-		return
-	}
-	userId := core.GetIdUser(c)
-	user := &feature.User{}
-	user.Id = userId
-	profileParams := &usecase.ProfileParams{}
-	profileParams.Data = user
-	resulat := ic.ProfileUsecase.ReciveDemand(c, profileParams)
-	if err := resulat.Err; err != nil {
-		c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, model.SuccessResponse{
-		Message: "DEMAND  RECORDED  SUCCESSFULY",
-		Data:    resulat.Data,
-	})
-}
-
-func (ic *ProfileController) GetInformationProfileRequest(c *gin.Context) {
-	log.Println("************************ GET INFORMATIONS CARD REQUEST ************************")
-	var informationsParms entities.InformationsCard
-	if !core.IsDataRequestSupported(&informationsParms, c) {
-		return
-	}
-	profileParams := &usecase.ProfileParams{}
-	profileParams.Data = informationsParms.SecurityId
-	resulat := ic.ProfileUsecase.GetInformationCard(c, profileParams)
-	if err := resulat.Err; err != nil {
-		c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, model.SuccessResponse{
-		Message: "INFORMATION PROFILE SUCCESSFULY",
-		Data:    resulat.Data,
-	})
-}
-
 func (ic *ProfileController) GetAllFilesMetaDataRequest(c *gin.Context) {
 	log.Println("************************ GET ALL META DATA FILES REQUEST ************************")
 	resulat := ic.ProfileUsecase.GetMetaDataFile(c)
@@ -129,16 +82,9 @@ func (ic *ProfileController) GetAllFilesMetaDataRequest(c *gin.Context) {
 	})
 }
 
-func (ic *ProfileController) UpdateDemandRequestt(c *gin.Context) {
-	log.Println("************************ UPDATE PROFILE REQUEST ************************")
-	var updateProfile entities.UpdateProfile
-	if !core.IsDataRequestSupported(&updateProfile, c) {
-		return
-	}
-	log.Println("**************", updateProfile)
-	profileParams := &usecase.ProfileParams{}
-	profileParams.Data = updateProfile
-	resulat := ic.ProfileUsecase.UpdateDemand(c, profileParams)
+func (ic *ProfileController) GetFoldersRequest(c *gin.Context) {
+	log.Println("************************ GET FOLDERS REQUEST ************************")
+	resulat := ic.ProfileUsecase.GetFolders(c)
 	if err := resulat.Err; err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Message: err.Error(),
@@ -146,7 +92,7 @@ func (ic *ProfileController) UpdateDemandRequestt(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, model.SuccessResponse{
-		Message: "UPDATE PROFILE SUCCESSFULY",
+		Message: "GET FOLDERS SUCCESSFULY",
 		Data:    resulat.Data,
 	})
 }

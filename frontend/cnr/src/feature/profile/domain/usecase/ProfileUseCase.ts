@@ -1,4 +1,4 @@
-import { ChildResponse, FileResponse, InstitutionResponse } from './../../data/dtos/ProfileDtos';
+import { ChildResponse, FileResponse, FolderResponse, InstitutionResponse } from './../../data/dtos/ProfileDtos';
 import { ErrorResponse } from "../../../../services/model/commun";
 import { FilesResponse, ProfileResponse } from "../../data/dtos/ProfileDtos";
 import { ProfileRepository } from "../repository/ProfileRepository";
@@ -14,13 +14,18 @@ export class PofileUseCase {
     filename: string,
     codebase64: string,
     token:string,action :string,
-    parent:string,version:number): 
+    parent:string,
+    folder:string,
+    description:string,
+    version:number): 
     Promise<FileResponse|ErrorResponse> {
     return await this.repository.UploadFile(
       filename,
       codebase64,
       token,action,
       parent,
+      folder,
+      description,
       version);
   }
 
@@ -30,6 +35,10 @@ export class PofileUseCase {
 
   async GetProfile(token:string): Promise<ProfileResponse|ErrorResponse> {
       return await  this.repository.GetProfile(token);
+  }
+
+  async GetFolder(token:string): Promise<FolderResponse|ErrorResponse> {
+      return await  this.repository.GetFolder(token);
   }
 
   async GetInstitutions(token:string): Promise<InstitutionResponse|ErrorResponse> {

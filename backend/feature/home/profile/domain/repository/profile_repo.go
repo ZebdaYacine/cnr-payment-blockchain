@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"scps-backend/fabric"
 	"scps-backend/feature"
 	"scps-backend/feature/home/profile/domain/entities"
@@ -14,7 +15,6 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type profileRepository struct {
@@ -25,11 +25,9 @@ type profileRepository struct {
 type ProfileRepository interface {
 	SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error)
 	UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error)
-	UpdateDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetProfile(c context.Context, userId string) (*feature.User, error)
-	GetInformationCard(c context.Context, userId string) (*feature.User, error)
-	ReciveDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetMetadataFile(c context.Context) (*[]fabric.FileMetadata, error)
+	GetFolders(c context.Context) (*[]entities.Folder, error)
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -39,8 +37,19 @@ func NewProfileRepository(db database.Database) ProfileRepository {
 }
 
 func (s *profileRepository) UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error) {
-	output := "../../ftp/" + file.Name
-	err := util.Base64ToFile(file.CodeBase64, output)
+	currentTime := time.Now()
+	formattedTime := currentTime.Format("2006-01-02 15:04:05") // YYYY-MM-DD HH:MM:SS format
+	fmt.Println("Formatted Date and Time:", formattedTime)
+	if file.Folder == "" {
+		file.Folder = fmt.Sprintf("%02d-%02d", currentTime.Month(), currentTime.Day())
+	}
+	folderPath := "../../ftp/" + file.Folder
+	err := os.MkdirAll(folderPath, os.ModePerm)
+	if err != nil {
+		fmt.Println("Error creating folder:", err)
+	}
+	output := folderPath + "/" + file.Name
+	err = util.Base64ToFile(file.CodeBase64, output)
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +68,10 @@ func (s *profileRepository) UploadFile(c context.Context, file entities.UploadFi
 		FileName:     file.Name,
 		Parent:       file.Parent,
 		Version:      strconv.Itoa(file.Version),
-		Time:         time.Now().Format(time.RFC3339),
+		Time:         currentTime.GoString(),
 		Action:       file.Action,
+		Folder:       file.Folder,
+		Description:  file.Description,
 		Organisation: file.Organisation,
 	}
 
@@ -82,36 +93,6 @@ func (s *profileRepository) SaveMetaDataFile(c context.Context, metadata *fabric
 	return nil, nil
 }
 
-func (s *profileRepository) ReciveDemand(c context.Context, user *feature.User) (*feature.User, error) {
-	collection := s.database.Collection("user")
-	id, err := primitive.ObjectIDFromHex(user.Id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	filterUpdate := bson.D{{Key: "_id", Value: id}}
-	update := bson.M{
-		"$set": bson.M{
-			"request": user.Request,
-			"status":  user.Status,
-		},
-	}
-	_, err = collection.UpdateOne(c, filterUpdate, update)
-	if err != nil {
-		log.Panic(err)
-		return nil, err
-	}
-	new_user := &feature.User{}
-	err = collection.FindOne(c, filterUpdate).Decode(new_user)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("user not found")
-		}
-		return nil, err
-	}
-	println(new_user)
-	return new_user, nil
-}
-
 func (s *profileRepository) GetMetadataFile(c context.Context) (*[]fabric.FileMetadata, error) {
 	// fabric.SdkProvider("deleteAll")
 	result, err := fabric.SdkProvider("getAll")
@@ -125,13 +106,13 @@ func (s *profileRepository) GetMetadataFile(c context.Context) (*[]fabric.FileMe
 	location := "../../ftp/"
 	for i := range *files {
 		file := &(*files)[i]
-		filePath := location + file.FileName
-		if !util.FileExists(filePath) {
-			log.Printf("File not found: %s", filePath)
+		filesPath := location + file.Folder + "/" + file.FileName
+		if !util.FileExists(filesPath) {
+			log.Printf("File not found: %s", filesPath)
 			file.Status = "Deleted"
 			continue
 		}
-		checksum, err := util.CalculateChecksum(filePath)
+		checksum, err := util.CalculateChecksum(filesPath)
 		if err != nil {
 			log.Printf("Error calculating checksum for %s: %v\n", file.FileName, err)
 			file.Status = "ChecksumError"
@@ -149,31 +130,6 @@ func (s *profileRepository) GetMetadataFile(c context.Context) (*[]fabric.FileMe
 
 	}
 	return files, nil
-}
-
-func (s *profileRepository) UpdateDemand(c context.Context, user *feature.User) (*feature.User, error) {
-	collection := s.database.Collection("user")
-	filterUpdate := bson.D{{Key: "insurdNbr", Value: ""}}
-	update := bson.M{
-		"$set": bson.M{
-			"request": user.Request,
-			"status":  user.Status,
-		},
-	}
-	_, err := collection.UpdateOne(c, filterUpdate, update)
-	if err != nil {
-		log.Panic(err)
-		return nil, err
-	}
-	new_user := &feature.User{}
-	err = collection.FindOne(c, filterUpdate).Decode(new_user)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("user not found")
-		}
-		return nil, err
-	}
-	return new_user, nil
 }
 
 func (r *profileRepository) GetProfile(c context.Context, userId string) (*feature.User, error) {
@@ -200,60 +156,22 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 	return &user, nil
 }
 
-func (r *profileRepository) GetInformationCard(c context.Context, userId string) (*feature.User, error) {
-	var result bson.M
-	id, err := primitive.ObjectIDFromHex(userId)
+func (s *profileRepository) GetFolders(c context.Context) (*[]entities.Folder, error) {
+	location := "../../ftp/"
+	folderList := []entities.Folder{}
+	files, err := os.ReadDir(location)
 	if err != nil {
-		log.Fatal(err)
-	}
-	filter := bson.D{{Key: "_id", Value: id}}
-	collection := r.database.Collection("user")
-	err = collection.FindOne(c, filter).Decode(&result)
-	if err != nil {
-		log.Print(err)
-		return nil, err
+		fmt.Println("Error reading directory:", err)
+		return &folderList, err
 	}
 
-	user := feature.User{
-		Permission: result["permission"].(string),
-		Email:      result["email"].(string),
-	}
-	return &user, nil
-}
-
-func convertObject(data interface{}) []feature.Visit {
-	var visits []feature.Visit
-	for _, visitItem := range data.(bson.A) {
-		visitMap := visitItem.(primitive.M)
-
-		nbr := visitMap["nbr"]
-		trimester := visitMap["trimester"]
-
-		var visitNbr int
-		var visitTrimester int
-
-		switch v := nbr.(type) {
-		case int32:
-			visitNbr = int(v)
-		case int64:
-			visitNbr = int(v)
-		default:
-			visitNbr = nbr.(int)
+	fmt.Println("Files in", err)
+	for _, file := range files {
+		if file.IsDir() {
+			folderList = append(folderList, entities.Folder{
+				Name: file.Name(),
+			})
 		}
-
-		switch v := trimester.(type) {
-		case int32:
-			visitTrimester = int(v)
-		case int64:
-			visitTrimester = int(v)
-		default:
-			visitTrimester = trimester.(int) // fall back to int
-		}
-
-		visits = append(visits, feature.Visit{
-			Nbr:       visitNbr,
-			Trimester: visitTrimester,
-		})
 	}
-	return visits
+	return &folderList, nil
 }

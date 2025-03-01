@@ -33,8 +33,8 @@ func Setup(db database.Database, gin *gin.Engine) {
 	userRouter.Use(middleware.JwtAuthMiddleware(
 		pkg.GET_ROOT_SERVER_SEETING().SECRET_KEY,
 		"USER"))
-	private.NewGetProfileRouter(db, userRouter)
-	private.NewSendDemandRouter(db, userRouter)
+	private.NewGetProfileuRouter(db, userRouter)
+	private.NewGetFoldersRouter(db, userRouter)
 	private.NewUploadFileRouter(db, userRouter)
 	private.NewGetAllMetaDataFileRouter(db, userRouter)
 	private.NewUploadVersionRouter(db, userRouter)
@@ -46,8 +46,6 @@ func Setup(db database.Database, gin *gin.Engine) {
 	superuserRouter.Use(middleware.JwtAuthMiddleware(
 		pkg.GET_ROOT_SERVER_SEETING().SECRET_KEY,
 		"SUPER-USER"))
-	private.NewGetProfileSuRouter(db, superuserRouter)
-	private.NewGetInformationsCardRouter(db, superuserRouter)
-	private.NewUpdateDemandRouter(db, superuserRouter)
+	private.NewGetProfileuRouter(db, superuserRouter)
 
 }

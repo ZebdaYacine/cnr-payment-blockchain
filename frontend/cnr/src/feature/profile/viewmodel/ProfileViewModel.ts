@@ -1,4 +1,4 @@
-import { Child, ChildResponse, Elements, FileResponse, InstitutionResponse } from './../data/dtos/ProfileDtos';
+import { Child, ChildResponse, Elements, FileResponse, FolderResponse, InstitutionResponse } from './../data/dtos/ProfileDtos';
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
@@ -10,6 +10,7 @@ import { useAuth } from "../../../core/state/AuthContext";
 import { User } from "../../../core/dtos/data";
 import { useUserId } from '../../../core/state/UserContext';
 import { useChild } from '../../../core/state/InstitutionContext';
+import { useFoldersMetaData } from '../../../core/state/FolderContext';
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -27,7 +28,36 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const navigate = useNavigate();
   const { error } = useNotification();
   const { setFilesList } = useFileMetaData();
+    const { setFoldersList } = useFoldersMetaData();
+
   const {SetUsername,SetEmail,SetPermission ,SetWorkAt,SetidInstituion} = useUserId();
+
+
+  const { mutate: getFolders, data: Folders, isPending: isFolderLoading, isSuccess: isFolderSuccess} = useMutation({
+    mutationFn: async () => {
+      console.log("Folders")
+      const storedToken = localStorage.getItem("authToken");
+      if (!storedToken) {
+        throw new Error("Authentication token not found");
+      }
+      return profileUseCase.GetFolder(storedToken);
+    },
+    onSuccess: (data) => {
+      if (data && "data" in data ) {
+        const resp = data as FolderResponse;
+        setFoldersList(resp.data);
+      } else {
+         const errorResponse = data as ErrorResponse;
+         error(errorResponse.message || "Network error occurred during upload", "colored");
+         Userlogout();
+        if (!isAuthentificated) navigate("/");
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("Upload error:", err);
+      error("An error occurred during the upload. Please try again.", "colored");
+    },
+  });
   
   const { mutate: getProfile, data: Profile, isPending: isProfileLoading, isSuccess: isProfileSuccess} = useMutation({
     mutationFn: async () => {
@@ -62,10 +92,10 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
-  const uploadFileAsync = (file: File, parent: string, version: number): Promise<FileResponse> => {
+  const uploadFileAsync = (file: File, parent: string,folder: string,description :string, version: number): Promise<FileResponse> => {
   return new Promise((resolve, reject) => {
     uploadFile(
-      { file, parent, version },
+      { file, parent,folder,description,version },
       {
         onSuccess: (data) => resolve(data as FileResponse),
         onError: (err) => reject(err),
@@ -75,7 +105,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
 };
 
   const { mutate: uploadFile, data: uploadMetadata, isPending: isUploading, isSuccess: uploadSuccess, isError: uploadError } = useMutation({
-    mutationFn: async ({ file, parent, version }: { file: File; parent: string; version: number }) => {
+    mutationFn: async ({ file, parent,folder,description, version }: { file: File; parent: string;folder: string;description :string; version: number }) => {
       const base64File = await convertFileToBase64(file);
       const filename = file.name;
       const action = "upload";
@@ -83,7 +113,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.UploadFile(filename, base64File, storedToken, action, parent, version);
+      return profileUseCase.UploadFile(filename, base64File, storedToken, action, parent,folder,description, version);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -202,6 +232,11 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     filesMetadata,
     isFetchingFiles,
     isFetchSuccess,
+
+    getFolders,
+    isFolderLoading,
+    isFolderSuccess,
+    Folders,
 
     getProfile,
     isProfileLoading,

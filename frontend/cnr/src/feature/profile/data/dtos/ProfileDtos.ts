@@ -29,6 +29,11 @@ export interface InstitutionResponse {
   data: Institution[] ;
 }
 
+export interface FolderResponse {
+  message: string;
+  data: Folder[] ;
+}
+
 export interface ProfileResponse {
   message: string;
   data: User ;
@@ -49,6 +54,10 @@ export interface Data {
 
 export interface Institution {
   id: string;
+  name: string;
+}
+
+export interface Folder {
   name: string;
 }
 

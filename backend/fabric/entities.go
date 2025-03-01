@@ -8,6 +8,8 @@ type FileMetadata struct {
 	Parent       string `json:"Parent"`
 	Version      string `json:"Version"`
 	Action       string `json:"Action"`
+	Folder       string `json:"Folder",omitempty"`
+	Description  string `json:"Description",omitempty"`
 	Time         string `json:"Time"`
 	Organisation string `json:"Organisation"`
 	Status       string `json:"Status",omitempty"`

@@ -17,11 +17,13 @@ const profileUseCase = new PofileUseCase(repository);
 function FileUploadModal() {
   const ref = useRef<LoadingBarRef>(null);
   const [commitText, setCommitText] = useState("");
+  const [folder, setFolder] = useState("");
   const [commitSize, setCommitSize] = useState(100);
   const [listFiles, setListFiles] = useState<File[]>([]);
   const [groupInFOlder, setGroupInFOlder] = useState(false);
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
   const [isFinishUploading, SetFinishUploading] = useState(false);
+  const { getFolders } = useProfileViewModel(profileUseCase);
 
   const { uploadFileAsync, uploadMetadata, isUploading, uploadSuccess } =
     useProfileViewModel(profileUseCase);
@@ -63,7 +65,7 @@ function FileUploadModal() {
     let i = 0;
     for (const file of listFiles) {
       try {
-        await uploadFileAsync(file, "", 1);
+        await uploadFileAsync(file, "", folder, commitText, 1);
         const fileElement = document.getElementById(file.name);
         const btn = document.getElementById(i.toString());
         if (fileElement) {
@@ -72,6 +74,7 @@ function FileUploadModal() {
         }
         if (btn) {
           btn.remove();
+          getFolders();
         }
       } catch (error) {
         console.error(`Error uploading file ${file.name}:`, error);
@@ -169,6 +172,9 @@ function FileUploadModal() {
                   type="text"
                   className="mt-3 input input-bordered w-full"
                   placeholder="Folder name..."
+                  onChange={(event) => {
+                    setFolder(event.target.value);
+                  }}
                 />
               )}
               <div className="flex flex-col mt-3">

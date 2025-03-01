@@ -20,6 +20,12 @@ type UploadFile struct {
 	Action       string `json:"action"`
 	Version      int    `json:"version"`
 	Parent       string `json:"parent"`
+	Folder       string `json:"folder"`
+	Description  string `json:"description"`
 	Organisation string `json:"organisation"`
 	UserId       string
+}
+
+type Folder struct {
+	Name string `json:"name"`
 }
