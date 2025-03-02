@@ -7,8 +7,10 @@ import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 import ListOfFiles from "../components/ListOfFiles";
 import { usePeer } from "../../../../../core/state/PeerContext";
 import { useFileMetaData } from "../../../../../core/state/FileContext";
+import { Outlet, useParams } from "react-router";
 
 function FilesPage() {
+  const { fileName } = useParams();
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
@@ -27,7 +29,8 @@ function FilesPage() {
 
   return (
     <>
-      <ListOfFiles files={getFilesList()} peer={Peer} />{" "}
+      {!fileName && <ListOfFiles files={getFilesList()} peer={Peer} />}
+      <Outlet />
     </>
   );
 }

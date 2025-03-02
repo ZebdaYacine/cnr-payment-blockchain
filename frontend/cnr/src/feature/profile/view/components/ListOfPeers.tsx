@@ -20,7 +20,7 @@ function ListOfPeers() {
   };
 
   return (
-    <div className="card  shadow-xl w-full">
+    <div className="card shadow-2xl w-full ">
       <div className="card-body">
         <div className="flex flex-col space-y-3">
           <p className="text-xl font-bold text-gray-400">Peers</p>

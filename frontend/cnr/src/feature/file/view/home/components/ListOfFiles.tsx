@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useState } from "react";
 import { Child, Data } from "../../../data/dtos/ProfileDtos";
 
@@ -25,9 +25,11 @@ function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleRowClick = (file: Data) => {
-    console.log("File clicked:", file);
-    navigate("/versions-file");
+  const { folderName } = useParams();
+
+  const handleRowClick = (fileName: string) => {
+    console.log("Navigating to file version :", fileName);
+    navigate(`/home/${folderName}/${fileName}`);
   };
 
   return (
@@ -96,7 +98,7 @@ function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
                       <tr
                         key={file.ID}
                         className="cursor-pointer hover"
-                        onClick={() => handleRowClick(file)}
+                        onClick={() => handleRowClick(file.FileName)}
                       >
                         <td className="text-center">{file.ID}</td>
                         <td className="text-center">{file.FileName}</td>
