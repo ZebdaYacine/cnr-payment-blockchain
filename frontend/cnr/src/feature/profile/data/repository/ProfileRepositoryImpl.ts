@@ -21,7 +21,7 @@ export class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   async GetUsers(token: string): Promise<UsersResponse | ErrorResponse> {
-    return await this.datasource.GetProfileApi(token);
+    return await this.datasource.GetUsersApi(token);
   }
 
   async GetFolder(token: string): Promise<FolderResponse | ErrorResponse> {

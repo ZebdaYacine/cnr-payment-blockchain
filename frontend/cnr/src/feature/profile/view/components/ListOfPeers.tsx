@@ -1,4 +1,5 @@
 import { useChildren } from "../../../../core/state/InstitutionContext";
+import { useListUsers } from "../../../../core/state/ListOfUsersContext";
 // import { useListUsers } from "../../../../core/state/ListOfUsersContext";
 import { usePeer } from "../../../../core/state/PeerContext";
 import { useUserId } from "../../../../core/state/UserContext";
@@ -6,7 +7,7 @@ import { Child } from "../../data/dtos/ProfileDtos";
 
 function ListOfPeers() {
   const { children: child } = useChildren();
-  // const { users } = useListUsers();
+  const { users } = useListUsers();
   const { SetChild } = usePeer();
   const { idInstituion } = useUserId();
 
@@ -28,7 +29,6 @@ function ListOfPeers() {
           <p className="text-xl font-bold text-gray-400">Participants</p>
           <div className="divider" />
 
-          {/* Peers */}
           <div className="flex flex-wrap gap-2">
             {child
               .filter((c) => c.id !== undefined && c.id !== idInstituion)
@@ -41,23 +41,27 @@ function ListOfPeers() {
                   {c.name}
                 </div>
               ))}
-          </div>
-
-          {/* Users Section */}
-          <div className="divider" />
-          <p className="text-xl font-bold text-gray-400">Calculateurs</p>
-          {/* <div className="flex flex-wrap gap-2">
             {users
               .filter((c) => c.id !== undefined && c.id !== idInstituion)
               .map((user) => (
                 <div
                   key={user.id}
+                  onClick={() =>
+                    show({
+                      id: user.id,
+                      name: `${user.username} - ${user.workAt} / ${user.wilaya}`,
+                      parent: {
+                        id: user.idInstituion,
+                        name: user.username,
+                      },
+                    })
+                  }
                   className="badge badge-secondary hover:badge-outline cursor-pointer px-4 py-2 whitespace-nowrap"
                 >
                   {user.username} - {user.workAt} / {user.wilaya}
                 </div>
               ))}
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

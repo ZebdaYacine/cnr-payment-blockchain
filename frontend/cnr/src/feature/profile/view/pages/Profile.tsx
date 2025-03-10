@@ -26,9 +26,11 @@ function ProfilePage() {
   }, [getProfile]);
 
   useEffect(() => {
-    console.log("Fetching users...");
-    GetUsers();
-  }, [GetUsers]);
+    console.log("Fetching users...", workAt);
+    if (workAt === "DG" || workAt === "CCR") {
+      GetUsers();
+    }
+  }, [GetUsers, workAt]);
 
   useEffect(() => {
     if (workAt && idInstituion) {

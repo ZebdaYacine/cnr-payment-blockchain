@@ -232,8 +232,8 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       }
       return profileUseCase.GetUsers(storedToken);
     },
+    
     onSuccess: (data) => {
-      console.log("Raw API response:", data);
       if (data && "data" in data) {
         const resp = data as UsersResponse;
         const users = resp.data as User[];
