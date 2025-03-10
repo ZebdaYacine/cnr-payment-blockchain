@@ -30,6 +30,7 @@ type ProfileRepository interface {
 	GetInformationCard(c context.Context, userId string) (*feature.User, error)
 	ReciveDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetMetadataFile(c context.Context) (*[]fabric.FileMetadata, error)
+	
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {

@@ -9,4 +9,6 @@ import (
 func main() {
 	db := database.ConnectionDb()
 	servers.InitServer(db, core.GIN)
+	// db := database.ConnectionDb()
+	// servers.InitServer(db, core.GIN)
 }
