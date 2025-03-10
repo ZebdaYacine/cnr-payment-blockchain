@@ -1,3 +1,4 @@
+import { UsersResponse } from './../dtos/ProfileDtos';
 import { ErrorResponse } from "../../../../services/model/commun";
 import { ProfileRepository } from "../../domain/repository/ProfileRepository";
 import { ProfileDataSource } from "../dataSource/ProfileAPIDataSource";
@@ -16,6 +17,10 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     return await this.datasource.GetInstituaionApi(token);
   }
   async GetProfile(token: string): Promise<ProfileResponse | ErrorResponse> {
+    return await this.datasource.GetProfileApi(token);
+  }
+
+  async GetUsers(token: string): Promise<UsersResponse | ErrorResponse> {
     return await this.datasource.GetProfileApi(token);
   }
 

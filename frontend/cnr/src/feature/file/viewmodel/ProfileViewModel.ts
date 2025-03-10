@@ -9,7 +9,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../../../core/state/AuthContext";
 import { User } from "../../../core/dtos/data";
 import { useUserId } from '../../../core/state/UserContext';
-import { useChild } from '../../../core/state/InstitutionContext';
+import { useChildren } from '../../../core/state/InstitutionContext';
 import { useFoldersMetaData } from '../../../core/state/FolderContext';
 
 function convertFileToBase64(file: File): Promise<string> {
@@ -22,7 +22,7 @@ function convertFileToBase64(file: File): Promise<string> {
 }
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
-  const { SetChild } = useChild();
+  const { SetChildren: SetChild } = useChildren();
   
   const { isAuthentificated, Userlogout } = useAuth();
   const navigate = useNavigate();

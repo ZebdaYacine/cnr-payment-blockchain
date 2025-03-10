@@ -1,4 +1,4 @@
-import { Child, ChildResponse, Elements, FileResponse, FolderResponse, InstitutionResponse } from './../data/dtos/ProfileDtos';
+import { Child, ChildResponse, Elements, FileResponse, FolderResponse, InstitutionResponse, UsersResponse } from './../data/dtos/ProfileDtos';
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
@@ -9,8 +9,9 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../../../core/state/AuthContext";
 import { User } from "../../../core/dtos/data";
 import { useUserId } from '../../../core/state/UserContext';
-import { useChild } from '../../../core/state/InstitutionContext';
+import { useChildren } from '../../../core/state/InstitutionContext';
 import { useFoldersMetaData } from '../../../core/state/FolderContext';
+import { useListUsers } from '../../../core/state/ListOfUsersContext';
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -22,12 +23,14 @@ function convertFileToBase64(file: File): Promise<string> {
 }
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
-  const { SetChild } = useChild();
+  const { SetChildren: SetChild } = useChildren();
   
   const { isAuthentificated, Userlogout } = useAuth();
   const navigate = useNavigate();
   const { error } = useNotification();
   const { setFilesList } = useFileMetaData();
+    const { setUsersList } = useListUsers();
+
     const { setFoldersList } = useFoldersMetaData();
 
   const {SetUsername,SetEmail,SetPermission ,SetWorkAt,SetidInstituion} = useUserId();
@@ -221,6 +224,31 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
+  const { mutate: GetUsers, data: users, isPending: isUserLoading, isSuccess: isUsersSuccss} = useMutation({
+    mutationFn: async () => {
+      const storedToken = localStorage.getItem("authToken");
+      if (!storedToken) {
+        throw new Error("Authentication token not found");
+      }
+      return profileUseCase.GetUsers(storedToken);
+    },
+    onSuccess: (data) => {
+      console.log("Raw API response:", data);
+      if (data && "data" in data) {
+        const resp = data as UsersResponse;
+        const users = resp.data as User[];
+        setUsersList(users)
+      } else {
+        const errorResponse = data as ErrorResponse;
+        error(errorResponse.message || "Network error occurred during get users", "colored");
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("Upload error:", err);
+      error("An error occurred during get users. Please try again.", "colored");
+    },
+  });
+
   return {
     uploadFile,
     uploadMetadata,
@@ -252,6 +280,11 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     childInstitutionData,
     isChildInstituaionsLoading,
     isChildInstituaionsSuccss,
+
+    GetUsers,
+    users,
+    isUserLoading,
+    isUsersSuccss,
 
     uploadFileAsync
 

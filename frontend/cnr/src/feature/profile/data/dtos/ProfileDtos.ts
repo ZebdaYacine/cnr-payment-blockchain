@@ -39,6 +39,11 @@ export interface ProfileResponse {
   data: User ;
 }
 
+export interface UsersResponse {
+  message: string;
+  data: User[] ;
+}
+
 export interface Data {
   ID: string;
   HashFile: string;

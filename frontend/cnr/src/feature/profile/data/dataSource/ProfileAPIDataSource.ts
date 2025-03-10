@@ -1,9 +1,10 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import { ChildResponse, FileResponse, FilesResponse, FolderResponse, InstitutionResponse, ProfileResponse } from "../dtos/ProfileDtos";
+import { ChildResponse, FileResponse, FilesResponse, FolderResponse, InstitutionResponse, ProfileResponse, UsersResponse } from "../dtos/ProfileDtos";
 import { ApiService } from "../../../../core/service/ApiService";
 
 export interface ProfileDataSource {
   GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse>;
+  GetUsersApi(token: string): Promise<UsersResponse | ErrorResponse>;
   GetFilesApi(token: string): Promise<FilesResponse | ErrorResponse>;
   GetFolderApi(token: string): Promise<FolderResponse | ErrorResponse>;
   UploadFileApi(
@@ -25,6 +26,10 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
   
   async GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse> {
     return ApiService.makeRequest<ProfileResponse>("get", "/user/get-profile", token);
+  }
+
+  async GetUsersApi(token: string): Promise<ProfileResponse | ErrorResponse> {
+    return ApiService.makeRequest<ProfileResponse>("get", "/user/bring-users", token);
   }
 
   async GetFolderApi(token: string): Promise<FolderResponse | ErrorResponse> {
