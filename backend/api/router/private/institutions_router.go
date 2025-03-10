@@ -27,3 +27,12 @@ func NewGetChildOfInstitutiosRouter(db database.Database, group *gin.RouterGroup
 	}
 	group.GET("get-child-institutions", ic.GetChildInstitutionsRequest)
 }
+
+func NewBringsUsersRouter(db database.Database, group *gin.RouterGroup) {
+	ir := repository.NewInstitutionsRepository(db)
+	uc := usecase.NewInstitutionsUsecase(ir, "")
+	ic := &controller.InstitutionsController{
+		InstituationsUsecase: uc,
+	}
+	group.GET("bring-users", ic.GetUsersRequest)
+}

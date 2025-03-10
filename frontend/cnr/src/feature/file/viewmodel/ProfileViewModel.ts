@@ -76,7 +76,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
            SetUsername(userData?.username)
            SetEmail(userData?.email)
            SetPermission(userData?.permission)
-           SetWorkAt(userData?.WorkAt)
+           SetWorkAt(userData?.workAt)
            SetidInstituion(userData?.idInstituion)
         }
       } else {

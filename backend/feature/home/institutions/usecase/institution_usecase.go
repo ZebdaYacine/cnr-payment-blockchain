@@ -15,8 +15,8 @@ type ProfileResult struct {
 }
 
 type InstituationsUsecase interface {
-	// GetInstitutions(c context.Context) *ProfileResult
-	GetPeers(c context.Context, nameInstitutions string, idInstitutions string) *ProfileResult
+	BringCalandVal(c context.Context, userid string) *ProfileResult
+	GetPeers(c context.Context, nameInstitutions string, idInstitutions string, userid string) *ProfileResult
 }
 
 type institutionsUsecase struct {
@@ -24,7 +24,6 @@ type institutionsUsecase struct {
 	collection string
 }
 
-// SearchIfEamilExiste implements ProfileUsecase.
 func NewInstitutionsUsecase(repo institutionsRepo.InstitutionsRepository, collection string) InstituationsUsecase {
 	return &institutionsUsecase{
 		repo:       repo,
@@ -33,18 +32,18 @@ func NewInstitutionsUsecase(repo institutionsRepo.InstitutionsRepository, collec
 }
 
 // GetPeers implements InstituationsUsecase.
-func (p *institutionsUsecase) GetPeers(c context.Context, nameInstitutions string, idInstitutions string) *ProfileResult {
-	profileResult, err := p.repo.GetPeers(c, nameInstitutions, idInstitutions)
+func (p *institutionsUsecase) GetPeers(c context.Context, nameInstitutions string, idInstitutions string, userid string) *ProfileResult {
+	profileResult, err := p.repo.GetPeers(c, nameInstitutions, idInstitutions, userid)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}
 	return &ProfileResult{Data: profileResult}
 }
 
-// func (p *institutionsUsecase) GetInstitutions(c context.Context) *ProfileResult {
-// 	profileResult, err := p.repo.GetInstitutions(c)
-// 	if err != nil {
-// 		return &ProfileResult{Err: err}
-// 	}
-// 	return &ProfileResult{Data: profileResult}
-// }
+func (p *institutionsUsecase) BringCalandVal(c context.Context, userid string) *ProfileResult {
+	profileResult, err := p.repo.BringCalandVal(c, userid)
+	if err != nil {
+		return &ProfileResult{Err: err}
+	}
+	return &ProfileResult{Data: profileResult}
+}

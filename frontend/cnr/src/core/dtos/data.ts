@@ -4,6 +4,7 @@ export interface User {
   password: string;
   username: string;
   idInstituion: string;
-  WorkAt: string;
+  workAt: string;
   permission: string,
+  wilaya: string,
 }

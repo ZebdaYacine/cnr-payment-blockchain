@@ -40,6 +40,7 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewUploadVersionRouter(db, userRouter)
 	private.NewGetInstitutionRouter(db, userRouter)
 	private.NewGetChildOfInstitutiosRouter(db, userRouter)
+	private.NewBringsUsersRouter(db, userRouter)
 
 	// Superuser-specific routes with middleware
 	superuserRouter := gin.Group("/super-user")

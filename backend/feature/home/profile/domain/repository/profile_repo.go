@@ -149,7 +149,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		Permission:   result["permission"].(string),
 		Email:        result["email"].(string),
 		UserName:     result["username"].(string),
-		WorkAt:       result["WorkAt"].(string),
+		WorkAt:       result["workAt"].(string),
 		IdInstituion: result["idInstituion"].(string),
 	}
 

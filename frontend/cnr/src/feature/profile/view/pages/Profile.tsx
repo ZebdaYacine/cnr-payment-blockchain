@@ -26,6 +26,7 @@ function ProfilePage() {
   }, [getProfile]);
 
   useEffect(() => {
+    console.log(workAt, idInstituion);
     if (workAt && idInstituion) {
       console.log("Fetching institutions with:", {
         name: workAt,
@@ -39,16 +40,16 @@ function ProfilePage() {
 
   return (
     <>
-      <NavBarComponent
+      {/* <NavBarComponent
         user={{ username, email, permission, workAt, idInstituion }}
-      />
+      /> */}
 
       <div className=" flex flex-col">
         <div className="m-5">{!fileName && <ListOfPeers />}</div>
         {/* <div className="flex flex-col md:flex-row  space-y-4 md:space-y-0 md:space-x-4 p-6 bg-black"> */}
-        <div className="m-5">
+        {/* <div className="m-5">
           {!folderName && <FolderPage />} <Outlet />
-        </div>
+        </div> */}
         {/* </div> */}
       </div>
     </>

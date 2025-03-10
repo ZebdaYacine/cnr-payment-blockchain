@@ -15,27 +15,78 @@ type institutionsRepository struct {
 }
 
 type InstitutionsRepository interface {
-	// GetInstitutions(c context.Context) (*[]feature.Instiutiont, error)
-	GetPeers(c context.Context, nameInstitutions, idInstitutions string) (*feature.Elements, error)
+	GetPeers(c context.Context, nameInstitutions, idInstitutions string, userid string) (*feature.Elements, error)
+	BringCalandVal(c context.Context, userid string) ([]*feature.User, error)
 }
 
 func NewInstitutionsRepository(db database.Database) InstitutionsRepository {
 	return &institutionsRepository{database: db}
 }
 
-func (s *institutionsRepository) GetInstitutions(c context.Context) (*[]feature.Instiutiont, error) {
-	return &[]feature.Instiutiont{
-		{ID: "1", Name: "POST"},
-		{ID: "2", Name: "DG"},
-		{ID: "3", Name: "CCR"},
-		{ID: "4", Name: "AGENCE"},
-	}, nil
+func (s *institutionsRepository) BringCalandVal(c context.Context, userid string) ([]*feature.User, error) {
+	var children []bson.M
+	objID, err := primitive.ObjectIDFromHex(userid)
+	if err != nil {
+		log.Print("Invalid user ID:", err)
+		return nil, err
+	}
+	collection := s.database.Collection(database.USER.String())
+	users := []*feature.User{}
+	cursor, err := collection.Find(c, bson.M{
+		"_id":  bson.M{"$ne": objID},
+		"type": bson.M{"$in": []string{"VAL", "CAL"}},
+	})
+	if err != nil {
+		log.Print("Error fetching child institutions:", err)
+		return nil, err
+	}
+	defer cursor.Close(c)
+	if err := cursor.All(c, &children); err != nil {
+		log.Print("Error decoding child institutions:", err)
+		return nil, err
+	}
+	for _, child := range children {
+		log.Println(child)
+		user := feature.User{
+			Id:           child["_id"].(primitive.ObjectID).Hex(),
+			UserName:     child["username"].(string),
+			WorkAt:       child["workAt"].(string),
+			IdInstituion: child["idInstituion"].(string),
+			Type:         child["type"].(string),
+			Wilaya:       child["wilaya"].(string),
+		}
+		users = append(users, &user)
+	}
+	return users, nil
 }
 
-func (s *institutionsRepository) GetPeers(c context.Context, nameInstitutions, idInstitutions string) (*feature.Elements, error) {
+func (s *institutionsRepository) GetUsers(c context.Context, userid string, elems *feature.Elements) {
+	users, err := s.BringCalandVal(c, userid)
+	if err != nil {
+		log.Print("Error fetching Users :", err)
+	}
+	for _, user := range users {
+		elems.Child = append(elems.Child, feature.Peer{
+			Obj:  user,
+			Type: user.Type,
+		})
+	}
+}
+
+func (s *institutionsRepository) GetPeers(c context.Context, nameInstitutions, idInstitutions string, userid string) (*feature.Elements, error) {
 	col := nameInstitutions
-	if nameInstitutions == "POST" || nameInstitutions == "DG" {
-		col = "INSTITUTUION"
+	if nameInstitutions == "POST" || nameInstitutions == "DOF" || nameInstitutions == "DG" {
+		col = database.INSTITUTIONS.String()
+	}
+	switch nameInstitutions {
+	case "AGENCE":
+		{
+			col = database.AGENCE.String()
+		}
+	case "CCR":
+		{
+			col = database.CCR.String()
+		}
 	}
 	id, err := primitive.ObjectIDFromHex(idInstitutions)
 	if err != nil {
@@ -48,13 +99,18 @@ func (s *institutionsRepository) GetPeers(c context.Context, nameInstitutions, i
 		log.Print("Error fetching institution:", err)
 		return nil, err
 	}
-
 	elems := &feature.Elements{}
 	switch nameInstitutions {
 	case "POST":
 		{
-			elems.Institutiont.Obj = parsePost(result)
+			elems.Institutiont.Obj = parse(result)
 			elems.Institutiont.Type = "POST"
+			elems.Child = nil
+		}
+	case "DOF":
+		{
+			elems.Institutiont.Obj = parse(result)
+			elems.Institutiont.Type = "DOF"
 			elems.Child = nil
 		}
 	case "DG":
@@ -62,24 +118,25 @@ func (s *institutionsRepository) GetPeers(c context.Context, nameInstitutions, i
 			elems.Institutiont.Obj = parseDG(result)
 			elems.Institutiont.Type = "DG"
 			collection := s.database.Collection(col)
-			var result bson.M
-			if err := collection.FindOne(c, bson.M{"parent.id": id.Hex()}).Decode(&result); err != nil {
-				log.Print("Error fetching institution:", err)
+
+			var children []bson.M
+			cursor, _ := collection.Find(c, bson.M{"parent.id": id.Hex()})
+			if err = cursor.All(c, &children); err != nil {
+				log.Print("Error decoding child institutions:", err)
 				return nil, err
 			}
-
-			elems.Child = append(elems.Child, feature.Peer{
-				Obj:  parsePost(result),
-				Type: "POST",
-			})
-			collection = s.database.Collection("CCR")
-
-			cursor, err := collection.Find(c, bson.M{"parent.id": id.Hex()})
+			for _, child := range children {
+				elems.Child = append(elems.Child, feature.Peer{
+					Obj:  parse(child),
+					Type: result["name"].(string),
+				})
+			}
+			collection = s.database.Collection(database.CCR.String())
+			cursor, err = collection.Find(c, bson.M{"parent.id": id.Hex()})
 			if err != nil {
 				log.Print("Error fetching child institutions:", err)
 				return nil, err
 			}
-			var children []bson.M
 			if err := cursor.All(c, &children); err != nil {
 				log.Print("Error decoding child institutions:", err)
 				return nil, err
@@ -90,12 +147,13 @@ func (s *institutionsRepository) GetPeers(c context.Context, nameInstitutions, i
 					Type: "CCR",
 				})
 			}
+			// s.GetUsers(c, userid, elems)
 		}
 	case "CCR":
 		{
 			elems.Institutiont.Obj = parseCCR(result)
 			elems.Institutiont.Type = "CCR"
-			children, err := s.getChildren(c, "AGENCE", "ccr.id", id, result)
+			children, err := s.getChildren(c, database.AGENCE.String(), "parent.id", id, result)
 			if err != nil {
 				log.Print("Error fetching child institutions:", err)
 				return nil, err
@@ -106,6 +164,7 @@ func (s *institutionsRepository) GetPeers(c context.Context, nameInstitutions, i
 					Type: "CCR",
 				})
 			}
+			// s.GetUsers(c, userid, elems)
 		}
 
 	case "AGENCE":
@@ -119,7 +178,7 @@ func (s *institutionsRepository) GetPeers(c context.Context, nameInstitutions, i
 	return elems, nil
 }
 
-func parsePost(result bson.M) feature.Instiutiont {
+func parse(result bson.M) feature.Instiutiont {
 	var id string
 	if objID, ok := result["_id"].(primitive.ObjectID); ok {
 		id = objID.Hex()
@@ -163,11 +222,9 @@ func parseAgence(result bson.M) feature.Agence {
 	if ccrData, ok := result["parent"].(bson.M); ok {
 		ccrID, _ := ccrData["id"].(string)
 		ccrName, _ := ccrData["name"].(string)
-		ccrCode, _ := ccrData["code"].(string)
 		ccr = &feature.CCR{
 			ID:     ccrID,
 			Name:   ccrName,
-			Code:   ccrCode,
 			Parent: nil,
 		}
 	}
@@ -191,7 +248,6 @@ func parseCCR(result bson.M) feature.CCR {
 	if parentData, ok := result["parent"].(bson.M); ok {
 		parentID, _ := parentData["id"].(string)
 		parentName, _ := parentData["name"].(string)
-		log.Println(parentName)
 		dg = &feature.Instiutiont{
 			ID:     parentID,
 			Name:   parentName,

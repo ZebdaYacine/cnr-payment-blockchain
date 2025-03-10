@@ -14,7 +14,6 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type profileRepository struct {
@@ -25,12 +24,9 @@ type profileRepository struct {
 type ProfileRepository interface {
 	SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error)
 	UploadFile(c context.Context, file entities.UploadFile) (*[]fabric.FileMetadata, error)
-	UpdateDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetProfile(c context.Context, userId string) (*feature.User, error)
 	GetInformationCard(c context.Context, userId string) (*feature.User, error)
-	ReciveDemand(c context.Context, user *feature.User) (*feature.User, error)
 	GetMetadataFile(c context.Context) (*[]fabric.FileMetadata, error)
-	
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -96,36 +92,6 @@ func (s *profileRepository) SaveMetaDataFile(c context.Context, metadata *fabric
 	return nil, nil
 }
 
-func (s *profileRepository) ReciveDemand(c context.Context, user *feature.User) (*feature.User, error) {
-	collection := s.database.Collection("user")
-	id, err := primitive.ObjectIDFromHex(user.Id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	filterUpdate := bson.D{{Key: "_id", Value: id}}
-	update := bson.M{
-		"$set": bson.M{
-			"request": user.Request,
-			"status":  user.Status,
-		},
-	}
-	_, err = collection.UpdateOne(c, filterUpdate, update)
-	if err != nil {
-		log.Panic(err)
-		return nil, err
-	}
-	new_user := &feature.User{}
-	err = collection.FindOne(c, filterUpdate).Decode(new_user)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("user not found")
-		}
-		return nil, err
-	}
-	println(new_user)
-	return new_user, nil
-}
-
 func (s *profileRepository) GetMetadataFile(c context.Context) (*[]fabric.FileMetadata, error) {
 	//fabric.SdkProvider("deleteAll")
 	result, err := fabric.SdkProvider("getAll")
@@ -163,31 +129,6 @@ func (s *profileRepository) GetMetadataFile(c context.Context) (*[]fabric.FileMe
 
 	}
 	return files, nil
-}
-
-func (s *profileRepository) UpdateDemand(c context.Context, user *feature.User) (*feature.User, error) {
-	collection := s.database.Collection("user")
-	filterUpdate := bson.D{{Key: "insurdNbr", Value: ""}}
-	update := bson.M{
-		"$set": bson.M{
-			"request": user.Request,
-			"status":  user.Status,
-		},
-	}
-	_, err := collection.UpdateOne(c, filterUpdate, update)
-	if err != nil {
-		log.Panic(err)
-		return nil, err
-	}
-	new_user := &feature.User{}
-	err = collection.FindOne(c, filterUpdate).Decode(new_user)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("user not found")
-		}
-		return nil, err
-	}
-	return new_user, nil
 }
 
 func (r *profileRepository) GetProfile(c context.Context, userId string) (*feature.User, error) {

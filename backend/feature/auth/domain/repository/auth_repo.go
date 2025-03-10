@@ -44,7 +44,7 @@ func getUser(filter any, collection database.Collection, c context.Context) (*fe
 		Email:        result["email"].(string),
 		UserName:     result["username"].(string),
 		Permission:   result["permission"].(string),
-		WorkAt:       result["WorkAt"].(string),
+		WorkAt:       result["workAt"].(string),
 		IdInstituion: result["idInstituion"].(string),
 	}
 	return &user, nil
@@ -53,9 +53,6 @@ func getUser(filter any, collection database.Collection, c context.Context) (*fe
 // CreateProfile implements ProfileRepository.
 func (s *authRepository) CreateAccount(c context.Context, user *feature.User) (*feature.User, error) {
 	collection := s.database.Collection("user")
-	user.Request = false
-	user.Status = ""
-	log.Println(user)
 	resulat, err := collection.InsertOne(c, &user)
 	if err != nil {
 		log.Printf("Failed to create user: %v", err)

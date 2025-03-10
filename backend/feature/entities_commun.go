@@ -14,26 +14,23 @@ type User struct {
 	Password     string `json:"password" bson:"password"`
 	UserName     string `json:"username" bson:"username"`
 	IdInstituion string `json:"idInstituion" bson:"idInstituion"`
-	WorkAt       string `json:"WorkAt" bson:"WorkAt"`
-
-	// Phone      string `json:"phone" bson:"phone"`
-	Permission string `json:"permission" bson:"permission"`
-	// Son        []Son   `json:"son,omitempty" bson:"son,omitempty"`
-	Request bool   `json:"request,omitempty" bson:"request"`
-	Status  string `json:"status,omitempty" bson:"status"`
+	WorkAt       string `json:"workAt" bson:"workAt"`
+	Type         string `json:"type" bson:"type"`
+	Permission   string `json:"permission" bson:"permission"`
+	Wilaya       string `json:"wilaya" bson:"wilaya"`
 }
 
 type Agence struct {
 	ID   string `json:"id" bson:"id"`
 	Name string `json:"name" bson:"name"`
-	Code string `json:"code" bson:"code"`
+	Code string `json:"code,omitempty" bson:"code,omitempty"`
 	CCR  *CCR   `json:"parent,omitempty" bson:"parent,omitempty"`
 }
 
 type CCR struct {
 	ID     string       `json:"id" bson:"id"`
 	Name   string       `json:"name" bson:"name"`
-	Code   string       `json:"code" bson:"code"`
+	Code   string       `json:"code,omitempty" bson:"code,omitempty"`
 	Parent *Instiutiont `json:"parent,omitempty" bson:"parent,omitempty"`
 }
 

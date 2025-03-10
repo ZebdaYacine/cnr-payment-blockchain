@@ -17,7 +17,6 @@ type Database interface {
 	Collection(string) Collection
 	Client() Client
 }
-
 type Collection interface {
 	InsertOne(context.Context, interface{}) (interface{}, error)
 	DeleteOne(context.Context, interface{}) (*mongo.DeleteResult, error)
