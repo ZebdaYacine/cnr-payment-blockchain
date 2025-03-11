@@ -22,7 +22,7 @@ func (ic *InstitutionsController) GetInstitutionsRequest(c *gin.Context) {
 func (ic *InstitutionsController) GetUsersRequest(c *gin.Context) {
 	log.Println("************************ GET USERS REQUEST ************************")
 	userId := core.GetIdUser(c)
-	resulat := ic.InstituationsUsecase.BringCalandVal(c, userId)
+	resulat := ic.InstituationsUsecase.BringUsers(c, userId)
 	if err := resulat.Err; err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Message: err.Error(),

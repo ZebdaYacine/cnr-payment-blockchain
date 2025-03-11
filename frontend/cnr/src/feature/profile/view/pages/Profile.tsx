@@ -27,7 +27,7 @@ function ProfilePage() {
 
   useEffect(() => {
     console.log("Fetching users...", workAt);
-    if (workAt === "DG" || workAt === "CCR") {
+    if (workAt === "DIO" || workAt === "CCR" || workAt === "POST") {
       GetUsers();
     }
   }, [GetUsers, workAt]);

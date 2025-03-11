@@ -15,7 +15,7 @@ type ProfileResult struct {
 }
 
 type InstituationsUsecase interface {
-	BringCalandVal(c context.Context, userid string) *ProfileResult
+	BringUsers(c context.Context, userid string) *ProfileResult
 	GetPeers(c context.Context, nameInstitutions string, idInstitutions string, userid string) *ProfileResult
 }
 
@@ -40,8 +40,8 @@ func (p *institutionsUsecase) GetPeers(c context.Context, nameInstitutions strin
 	return &ProfileResult{Data: profileResult}
 }
 
-func (p *institutionsUsecase) BringCalandVal(c context.Context, userid string) *ProfileResult {
-	profileResult, err := p.repo.BringCalandVal(c, userid)
+func (p *institutionsUsecase) BringUsers(c context.Context, userid string) *ProfileResult {
+	profileResult, err := p.repo.BringUsers(c, userid)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}
