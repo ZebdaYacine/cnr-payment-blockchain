@@ -1,23 +1,24 @@
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useState } from "react";
 import { Child, Data } from "../../../data/dtos/ProfileDtos";
 
-// import SelectFilesComponent from "./SelectFilesComponet";
 import { MdErrorOutline } from "react-icons/md";
 import FileUploadModal from "../../../../folder/view/home/components/FileUploadModal";
 import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
+import { FaFolderTree } from "react-icons/fa6";
 
 interface ListOfFilesProps {
   files: Data[];
   peer: Child;
 }
 
-const ITEMS_PER_PAGE = 5; // Adjust this value as needed
+const ITEMS_PER_PAGE = 5;
 
-function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
+function ListOfFiles({ files }: ListOfFilesProps) {
   const navigate = useNavigate();
+  const { folderName } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRadio, setSelectedRadio] = useState("");
+  const [selectedRadio] = useState("");
 
   const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
   const paginatedFiles = files.slice(
@@ -25,10 +26,14 @@ function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const { folderName } = useParams();
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [files, totalPages, currentPage]);
 
   const handleRowClick = (fileName: string) => {
-    console.log("Navigating to file version :", fileName);
+    console.log("Navigating to file version:", fileName);
     navigate(`/home/${folderName}/${fileName}`);
   };
 
@@ -36,34 +41,16 @@ function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
     <>
       <FileUploadModal />
       <div className="mt-4 w-full">
-        <div className="card  shadow-xl w-full">
+        <div className="card shadow-2xl w-full">
           <div className="card-body">
             <div className="flex flex-col">
               <div className="flex flex-wrap justify-between">
                 <div className="flex flex-col space-y-3">
-                  <h2 className="card-title text-center text-3xl">
-                    {peer ? peer.name : "No Peer Selected"}
-                  </h2>
-                  <div className="flex items-center space-x-4">
-                    <label className="flex items-center cursor-pointer gap-2 p-2   ">
-                      <input
-                        type="radio"
-                        name="radio-2"
-                        className="radio radio-primary"
-                        onClick={() => setSelectedRadio("IN")}
-                      />
-                      <span className="font-semibold">IN</span>
-                    </label>
-
-                    <label className="flex items-center cursor-pointer gap-2 p-2  ">
-                      <input
-                        type="radio"
-                        name="radio-2"
-                        className="radio radio-primary"
-                        onClick={() => setSelectedRadio("OUT")}
-                      />
-                      <span className="font-semibold">OUT</span>
-                    </label>
+                  <div className="flex items-center gap-3">
+                    <FaFolderTree className="text-3xl" />
+                    <span className="font-medium text-3xl">
+                      {folderName ?? "Unknown"}
+                    </span>
                   </div>
                 </div>
                 {selectedRadio === "OUT" && (
@@ -132,39 +119,42 @@ function ListOfFiles({ files, peer: peer }: ListOfFilesProps) {
                 </table>
               </div>
             )}
-            <div className="flex justify-center mt-4">
-              <div className="join">
-                <button
-                  className="join-item btn"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                >
-                  «
-                </button>
-                {Array.from({ length: totalPages }, (_, index) => (
+
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-4">
+                <div className="join">
                   <button
-                    key={index}
-                    className={`join-item btn ${
-                      currentPage === index + 1 ? "btn-active" : ""
-                    }`}
-                    onClick={() => setCurrentPage(index + 1)}
+                    className="join-item btn"
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
                   >
-                    {index + 1}
+                    «
                   </button>
-                ))}
-                <button
-                  className="join-item btn"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  »
-                </button>
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                      key={index}
+                      className={`join-item btn ${
+                        currentPage === index + 1 ? "btn-active" : ""
+                      }`}
+                      onClick={() => setCurrentPage(index + 1)}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                  <button
+                    className="join-item btn"
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                  >
+                    »
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

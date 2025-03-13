@@ -43,29 +43,31 @@ function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
                 <h2 className="card-title text-center text-3xl">
                   {peer ? peer.name : "No Peer Selected"}
                 </h2>
-                <div className="flex items-center space-x-4">
-                  <label className="flex items-center cursor-pointer gap-2 p-2   ">
-                    <input
-                      type="radio"
-                      name="radio-2"
-                      className="radio radio-primary"
-                      onClick={() => setSelectedRadio("IN")}
-                    />
-                    <span className="font-semibold">IN</span>
-                  </label>
+                {peer && (
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center cursor-pointer gap-2 p-2   ">
+                      <input
+                        type="radio"
+                        name="radio-2"
+                        className="radio radio-primary"
+                        onClick={() => setSelectedRadio("OUT")}
+                      />
+                      <span className="font-semibold">OUT</span>
+                    </label>
 
-                  <label className="flex items-center cursor-pointer gap-2 p-2  ">
-                    <input
-                      type="radio"
-                      name="radio-2"
-                      className="radio radio-primary"
-                      onClick={() => setSelectedRadio("OUT")}
-                    />
-                    <span className="font-semibold">OUT</span>
-                  </label>
-                </div>
+                    <label className="flex items-center cursor-pointer gap-2 p-2  ">
+                      <input
+                        type="radio"
+                        name="radio-2"
+                        className="radio radio-primary"
+                        onClick={() => setSelectedRadio("IN")}
+                      />
+                      <span className="font-semibold">IN</span>
+                    </label>
+                  </div>
+                )}
               </div>
-              {selectedRadio === "OUT" && (
+              {selectedRadio === "IN" && (
                 <div className="flex flex-row justify-center items-center">
                   <SelectFilesComponent />
                 </div>
@@ -101,7 +103,11 @@ function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
                           avatar="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
                         />
                       </td>
-
+                      <td className="text-center p-4">
+                        <span className=" font-bold text-wrap text-gray-500 ">
+                          {`il y a ${folder.nbrItems.toString()} Fichiers`}{" "}
+                        </span>
+                      </td>
                       <td className="text-center p-4">
                         <AtTime value={folder.createAt} />
                       </td>

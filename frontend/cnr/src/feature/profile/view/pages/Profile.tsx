@@ -10,37 +10,29 @@ import FolderPage from "../../../folder/view/home/pages/Folder";
 import { Outlet, useParams } from "react-router";
 
 function ProfilePage() {
+  const { folderName, fileName } = useParams();
+
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
-  const { folderName } = useParams();
-  const { fileName } = useParams();
 
   const { getProfile, GetChildInstituations, GetUsers } =
     useProfileViewModel(profileUseCase);
   const { username, email, permission, workAt, idInstituion } = useUserId();
 
   useEffect(() => {
-    console.log(folderName);
     getProfile();
   }, [getProfile]);
 
   useEffect(() => {
-    console.log("Fetching users...", workAt);
-    if (workAt === "DIO" || workAt === "CCR" || workAt === "POST") {
+    if (["DIO", "CCR", "POST"].includes(workAt)) {
       GetUsers();
     }
   }, [GetUsers, workAt]);
 
   useEffect(() => {
     if (workAt && idInstituion) {
-      console.log("Fetching institutions with:", {
-        name: workAt,
-        id: idInstituion,
-      });
       GetChildInstituations({ name: workAt, id: idInstituion });
-    } else {
-      console.warn("Skipping API request: Missing workAt or idInstituion.");
     }
   }, [workAt, idInstituion, GetChildInstituations]);
 
@@ -50,13 +42,13 @@ function ProfilePage() {
         user={{ username, email, permission, workAt, idInstituion }}
       />
 
-      <div className=" flex flex-col">
-        <div className="m-5">{!fileName && <ListOfPeers />}</div>
-        {/* <div className="flex flex-col md:flex-row  space-y-4 md:space-y-0 md:space-x-4 p-6 bg-black"> */}
+      <div className="flex flex-col">
+        <div className="m-5">{!folderName && !fileName && <ListOfPeers />}</div>
+
         <div className="m-5">
-          {!folderName && <FolderPage />} <Outlet />
+          {!folderName && <FolderPage />}
+          <Outlet />
         </div>
-        {/* </div> */}
       </div>
     </>
   );
