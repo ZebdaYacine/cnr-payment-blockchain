@@ -139,7 +139,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		log.Fatal(err)
 	}
 	filter := bson.D{{Key: "_id", Value: id}}
-	collection := r.database.Collection("user")
+	collection := r.database.Collection(database.USER.String())
 	err = collection.FindOne(c, filter).Decode(&result)
 	if err != nil {
 		log.Print(err)
@@ -157,21 +157,23 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 }
 
 func (s *profileRepository) GetFolders(c context.Context) (*[]entities.Folder, error) {
-	location := "../../ftp/"
-	folderList := []entities.Folder{}
-	files, err := os.ReadDir(location)
+	var folders []entities.Folder
+	cursor, err := s.database.Collection(database.FOLDER.String()).Find(c, bson.M{})
 	if err != nil {
-		fmt.Println("Error reading directory:", err)
-		return &folderList, err
+		return nil, err
+	}
+	defer cursor.Close(c)
+	for cursor.Next(c) {
+		var folder entities.Folder
+		if err := cursor.Decode(&folder); err != nil {
+			log.Println("Error decoding folder:", err)
+			continue
+		}
+		folders = append(folders, folder)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
 	}
 
-	fmt.Println("Files in", err)
-	for _, file := range files {
-		if file.IsDir() {
-			folderList = append(folderList, entities.Folder{
-				Name: file.Name(),
-			})
-		}
-	}
-	return &folderList, nil
+	return &folders, nil
 }

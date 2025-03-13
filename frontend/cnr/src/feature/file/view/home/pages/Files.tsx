@@ -10,29 +10,38 @@ import { useFileMetaData } from "../../../../../core/state/FileContext";
 import { Outlet, useParams } from "react-router";
 
 function FilesPage() {
-  const { fileName } = useParams();
+  const { folderName, fileName } = useParams(); 
+
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
-  const { folderName } = useParams();
 
   const { getFiles } = useProfileViewModel(profileUseCase);
   const { getFilesList } = useFileMetaData();
+
   useEffect(() => {
-    getFiles({ folder: folderName as string });
-  }, [getFiles]);
+    if (folderName) {
+      getFiles({ folder: folderName });
+    }
+  }, [folderName, getFiles]);
 
   const { Peer } = usePeer();
   useEffect(() => {
-    const interval = setInterval(() => getFiles({ folder: "" }), 10000);
-    return () => clearInterval(interval);
-  }, [getFiles]);
+    if (folderName) {
+      const interval = setInterval(
+        () => getFiles({ folder: folderName }),
+        10000
+      );
+      return () => clearInterval(interval);
+    }
+  }, [folderName, getFiles]);
 
   return (
     <>
-      {!fileName && <ListOfFiles files={getFilesList()} peer={Peer} />}
-      <Outlet />
-      {fileName}
+      {!fileName && folderName && (
+        <ListOfFiles files={getFilesList()} peer={Peer} />
+      )}
+      {fileName && <Outlet />} {/* Show Outlet only if a file is selected */}
     </>
   );
 }

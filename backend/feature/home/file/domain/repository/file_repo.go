@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -34,66 +35,79 @@ func NewFileRepository(db database.Database) FileRepository {
 		database: db,
 	}
 }
-
 func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error) {
 	currentTime := time.Now()
-	formattedTime := currentTime.Format("2006-01-02 15:04:05") // YYYY-MM-DD HH:MM:SS format
+	fileID := uuid.New()
+
+	formattedTime := currentTime.Format("2006-01-02 15:04:05")
 	fmt.Println("Formatted Date and Time:", formattedTime)
+
 	if file.Folder == "" {
 		file.Folder = fmt.Sprintf("%02d-%02d", currentTime.Month(), currentTime.Day())
 	}
+
 	folderPath := "../../ftp/" + file.Folder
-	folderMetadata := entities.Folder{
-		Name:     file.Folder,
-		Path:     folderPath,
-		NbrItems: 1,
-		CreateAt: currentTime,
-	}
-	_, err := s.addFolderToDB(c, folderMetadata)
-	if err != nil {
-		return nil, err
-	}
-	err = os.MkdirAll(folderPath, os.ModePerm)
+	err := os.MkdirAll(folderPath, os.ModePerm)
 	if err != nil {
 		fmt.Println("Error creating folder:", err)
+		return nil, err
 	}
+
 	output := folderPath + "/" + file.Name
 	err = util.Base64ToFile(file.CodeBase64, output)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error converting Base64 to file: %v", err)
 	}
+
 	checksum, err := util.CalculateChecksum(output)
 	if err != nil {
-		fmt.Printf("Error calculating checksum: %v\n", err)
+		return nil, fmt.Errorf("error calculating checksum: %v", err)
 	}
+
 	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
 	fmt.Printf("USER ID: %s\n", file.UserId)
 
 	metadata := &fabric.FileMetadata{
+		ID:           fileID.String(),
 		HashFile:     checksum,
 		UserID:       file.UserId,
 		FileName:     file.Name,
 		Parent:       file.Parent,
 		Version:      strconv.Itoa(file.Version),
-		Time:         currentTime.GoString(),
+		Time:         currentTime.Format(time.RFC3339),
 		Action:       file.Action,
 		Folder:       file.Folder,
 		Description:  file.Description,
 		Organisation: "DG",
 		Path:         output,
 	}
-	id, err := s.addFileToDB(c, *metadata)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("Inserting file metadata into MongoDB:", id)
-	metadata.ID = id
+
 	_, err = fabric.SdkProvider("add", metadata)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error adding to Fabric Ledger:", err)
 		return nil, err
 	}
-	return metadata, err
+
+	folderMetadata := entities.Folder{
+		Name:     file.Folder,
+		Path:     folderPath,
+		NbrItems: 1,
+		CreateAt: currentTime,
+	}
+
+	folderID, err := s.addFolderToDB(c, folderMetadata)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Inserted folder metadata into MongoDB:", folderID)
+
+	fileIDMongo, err := s.addFileToDB(c, *metadata)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Inserted file metadata into MongoDB:", fileIDMongo)
+
+	return metadata, nil
 }
 
 func (s *fileRepository) addFileToDB(c context.Context, metadata fabric.FileMetadata) (string, error) {
@@ -223,6 +237,7 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 	file := &fabric.FileMetadata{
 		Folder: foldername,
 	}
+	log.Println(file)
 	result, err := fabric.SdkProvider("getAllByFolderName", file)
 	if err != nil {
 		return nil, err
@@ -231,7 +246,7 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 	if !ok {
 		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
 	}
-	location := "../../ftp/" + foldername
+	location := "../../ftp/" + file.Folder + "/"
 	for i := range *files {
 		file := &(*files)[i]
 		filePath := location + file.FileName

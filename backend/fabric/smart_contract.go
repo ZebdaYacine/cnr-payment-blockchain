@@ -191,7 +191,9 @@ func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMet
 	// Submit transaction with correct parameters
 	submitResult, err := contract.SubmitTransaction(
 		"CreateFileMetadata",
-		file.ID, file.HashFile, file.UserID, file.FileName, file.Parent, file.Version, file.Action, file.Organisation,
+		file.ID, file.HashFile, file.UserID, file.FileName,
+		file.Parent, file.Version, file.Action, file.Organisation,
+		file.Folder, file.Parent,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)

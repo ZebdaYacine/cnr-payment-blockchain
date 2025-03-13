@@ -103,7 +103,7 @@ function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
                       </td>
 
                       <td className="text-center p-4">
-                        <AtTime value="12-12-2000" />
+                        <AtTime value={folder.createAt} />
                       </td>
                     </tr>
                   ))}
