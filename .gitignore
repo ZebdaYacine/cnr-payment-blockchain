@@ -1,3 +1,5 @@
+# Gitignore for FTP SERVER 
+/ftp/
 # Gitignore for Go (backend)
 /backend/*.exe
 /backend/*.test

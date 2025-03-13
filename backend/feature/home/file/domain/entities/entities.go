@@ -1,5 +1,7 @@
 package entities
 
+import "time"
+
 type InformationsCard struct {
 	SecurityId string `json:"securityId"`
 }
@@ -20,6 +22,16 @@ type UploadFile struct {
 	Action       string `json:"action"`
 	Version      int    `json:"version"`
 	Parent       string `json:"parent"`
+	Folder       string `json:"folder"`
+	Description  string `json:"description"`
 	Organisation string `json:"organisation"`
 	UserId       string
+}
+
+type Folder struct {
+	ID       string    `json:"id,omitempty" bson:"id,omitempty"`
+	Name     string    `json:"name" bson:"name"`
+	Path     string    `json:"path" bson:"path"`
+	NbrItems int       `json:"nbrItems" bson:"nbrItems"`
+	CreateAt time.Time `json:"createAt" bson:"createAt"`
 }

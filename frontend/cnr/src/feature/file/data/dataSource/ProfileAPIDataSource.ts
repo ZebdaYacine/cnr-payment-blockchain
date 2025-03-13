@@ -4,7 +4,7 @@ import { ApiService } from "../../../../core/service/ApiService";
 
 export interface ProfileDataSource {
   GetProfileApi(token: string): Promise<ProfileResponse | ErrorResponse>;
-  GetFilesApi(token: string): Promise<FilesResponse | ErrorResponse>;
+  GetFilesApi(token: string,folder:string): Promise<FilesResponse | ErrorResponse>;
   GetFolderApi(token: string): Promise<FolderResponse | ErrorResponse>;
   UploadFileApi(
     filename: string,
@@ -31,8 +31,8 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     return ApiService.makeRequest<FolderResponse>("get", "/user/get-folders", token);
   }
 
-  async GetFilesApi(token: string): Promise<FilesResponse | ErrorResponse> {
-    return ApiService.makeRequest<FilesResponse>("get", "/user/get-all-files-metadata", token);
+  async GetFilesApi(token: string,folder:string): Promise<FilesResponse | ErrorResponse> {
+    return ApiService.makeRequest<FilesResponse>("get", "/user/get-all-files-metadata?folder="+folder, token);
   }
 
   GetInstituaionApi(token: string): Promise<InstitutionResponse | ErrorResponse> {

@@ -22,8 +22,8 @@ export class ProfileRepositoryImpl implements ProfileRepository {
   async GetFolder(token: string): Promise<FolderResponse | ErrorResponse> {
     return await this.datasource.GetFolderApi(token);
   }
-  async GetFiles(token:string): Promise<FilesResponse | ErrorResponse> {
-    return await this.datasource.GetFilesApi(token);
+  async GetFiles(token:string,folder:string): Promise<FilesResponse | ErrorResponse> {
+    return await this.datasource.GetFilesApi(token,folder);
   }
 
   async UploadFile(filename: string,codebase64: string,token:string,action :string,parent:string,folder:string,description:string,version:number): Promise<FileResponse|ErrorResponse> {

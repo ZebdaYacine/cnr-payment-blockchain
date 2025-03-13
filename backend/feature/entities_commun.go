@@ -2,6 +2,7 @@ package feature
 
 import (
 	"scps-backend/feature/auth/domain/entities"
+	fileEntities "scps-backend/feature/home/file/domain/entities"
 	institutionsEntities "scps-backend/feature/home/institutions/domain/entities"
 	profileEntities "scps-backend/feature/home/profile/domain/entities"
 
@@ -69,5 +70,5 @@ type Account interface {
 		profileEntities.InformationsCard |
 		profileEntities.Link | institutionsEntities.GetInstitution |
 		entities.Register | profileEntities.UpdateProfile |
-		profileEntities.UploadFile | versionEntities.UploadVersion
+		fileEntities.UploadFile | versionEntities.UploadVersion
 }

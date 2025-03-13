@@ -29,8 +29,8 @@ export class PofileUseCase {
       version);
   }
 
-  async GetFiles(token:string): Promise<FilesResponse|ErrorResponse> {
-      return await  this.repository.GetFiles(token);
+  async GetFiles(token:string,folder:string): Promise<FilesResponse|ErrorResponse> {
+      return await  this.repository.GetFiles(token,folder);
   }
 
   async GetProfile(token:string): Promise<ProfileResponse|ErrorResponse> {

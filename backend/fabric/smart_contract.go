@@ -92,10 +92,32 @@ func initLedger(contract *client.Contract) {
 
 // Evaluate a transaction to query ledger state.
 func getAllFileMetadata(contract *client.Contract) (*[]FileMetadata, error) {
-	//deleteAllFileMetadata(contract)
+	// deleteAllFileMetadata(contract)
 	fmt.Println("\n--> Evaluate Transaction: GetAllFileMetadata, function returns all the current assets on the ledger")
 
 	evaluateResult, err := contract.EvaluateTransaction("GetAllFileMetadata")
+	if err != nil {
+		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+	}
+	if len(evaluateResult) == 0 {
+		return nil, fmt.Errorf("❌ no metadata in blockchain network") // Return error instead of panicking
+	}
+	result := formatJSON(evaluateResult)
+
+	fmt.Printf("*** Result:%s\n", result)
+	var files *[]FileMetadata
+	err1 := json.Unmarshal([]byte(result), &files)
+	if err1 != nil {
+		log.Fatalf("Error parsing JSON: %v", err1)
+	}
+	return files, nil
+}
+
+func getAllFileMetadataByFolderName(contract *client.Contract, folderName string) (*[]FileMetadata, error) {
+	// deleteAllFileMetadata(contract)
+	fmt.Println("\n--> Evaluate Transaction: GetFileMetadataByFolderName, function returns all the current assets on the ledger")
+
+	evaluateResult, err := contract.EvaluateTransaction("GetFileMetadataByFolderName", folderName)
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
@@ -152,29 +174,30 @@ func deleteAllFileMetadata(contract *client.Contract) error {
 	if len(submitResult) > 0 { // Only print result if there is one
 		fmt.Printf("Result: %s\n", string(submitResult))
 	}
-
 	return nil
 }
 
 func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMetadata, error) {
 	fmt.Println("\n--> Evaluate Transaction: CreateFileMetadata, function creates metadata for a file on the ledger")
 
-	id := file.ID
-	hashFile := file.HashFile
-	userID := file.UserID
-	action := file.Action
-	// organisation := file.Organisation
-	fileName := file.FileName
-	parent := file.Parent
-	version := file.Version
-
-	// Submit transaction
-	submitResult, err := contract.SubmitTransaction("CreateFileMetadata", id, hashFile, userID, fileName, parent, version, action, "DG")
-	if err != nil {
-		panic(fmt.Errorf("❌ failed to submit transaction: %w", err))
+	// Ensure all necessary fields are provided
+	if file.Path == "" || file.Folder == "" || file.ID == "" || file.HashFile == "" || file.UserID == "" || file.FileName == "" || file.Version == "" {
+		return nil, fmt.Errorf("❌ missing required fields in file metadata")
 	}
 
-	// Since no result is expected, just confirm success
+	fmt.Printf("Submitting transaction with: ID=%s, HashFile=%s, UserID=%s, FileName=%s, Parent=%s, Version=%s, Action=%s, Organisation=%s, Path=%s, Folder=%s\n",
+		file.ID, file.HashFile, file.UserID, file.FileName, file.Parent, file.Version, file.Action, file.Organisation, file.Path, file.Folder)
+
+	// Submit transaction with correct parameters
+	submitResult, err := contract.SubmitTransaction(
+		"CreateFileMetadata",
+		file.ID, file.HashFile, file.UserID, file.FileName, file.Parent, file.Version, file.Action, file.Organisation,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
+	}
+
+	// Confirm success
 	fmt.Printf("*** ✅  Transaction committed successfully. Result: %s\n", string(submitResult))
 	return file, nil
 }

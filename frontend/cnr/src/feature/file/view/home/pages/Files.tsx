@@ -14,16 +14,17 @@ function FilesPage() {
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
+  const { folderName } = useParams();
 
   const { getFiles } = useProfileViewModel(profileUseCase);
   const { getFilesList } = useFileMetaData();
   useEffect(() => {
-    getFiles();
+    getFiles({ folder: folderName as string });
   }, [getFiles]);
 
   const { Peer } = usePeer();
   useEffect(() => {
-    const interval = setInterval(() => getFiles(), 10000);
+    const interval = setInterval(() => getFiles({ folder: "" }), 10000);
     return () => clearInterval(interval);
   }, [getFiles]);
 
@@ -31,6 +32,7 @@ function FilesPage() {
     <>
       {!fileName && <ListOfFiles files={getFilesList()} peer={Peer} />}
       <Outlet />
+      {fileName}
     </>
   );
 }

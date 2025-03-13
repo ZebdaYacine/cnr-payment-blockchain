@@ -132,12 +132,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   });
 
   const { mutate: getFiles, data: filesMetadata, isPending: isFetchingFiles, isSuccess: isFetchSuccess } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({folder}:{folder:string}) => {
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetFiles(storedToken);
+      return profileUseCase.GetFiles(storedToken,folder);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {

@@ -45,6 +45,8 @@ func SdkProvider(function string, file ...*FileMetadata) (interface{}, error) {
 	switch function {
 	case "getAll":
 		return getAllFileMetadata(contract)
+	case "getAllByFolderName":
+		return getAllFileMetadataByFolderName(contract, file[0].Folder)
 	case "add":
 		return createFileMetadata(contract, file[0])
 	case "deleteAll":

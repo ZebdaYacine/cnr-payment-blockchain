@@ -14,7 +14,7 @@ interface ListOfFoldersProps {
   peer: Child;
 }
 
-const ITEMS_PER_PAGE = 5; // Adjust this value as needed
+const ITEMS_PER_PAGE = 5;
 
 function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
   const navigate = useNavigate();

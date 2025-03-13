@@ -19,7 +19,6 @@ function FolderPage() {
     getFolders();
   }, [getFolders]);
 
-  
   useEffect(() => {
     const interval = setInterval(() => getFolders(), 10000);
     return () => clearInterval(interval);

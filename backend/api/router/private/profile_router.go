@@ -2,8 +2,10 @@ package private
 
 import (
 	"scps-backend/api/controller"
-	"scps-backend/feature/home/profile/domain/repository"
-	"scps-backend/feature/home/profile/usecase"
+	filerepo "scps-backend/feature/home/file/domain/repository"
+	fileusecase "scps-backend/feature/home/file/usecase"
+	profilerepo "scps-backend/feature/home/profile/domain/repository"
+	profileusecase "scps-backend/feature/home/profile/usecase"
 
 	"scps-backend/pkg/database"
 
@@ -11,8 +13,8 @@ import (
 )
 
 func NewGetProfileuRouter(db database.Database, group *gin.RouterGroup) {
-	ir := repository.NewProfileRepository(db)
-	uc := usecase.NewProfileUsecase(ir, "")
+	ir := profilerepo.NewProfileRepository(db)
+	uc := profileusecase.NewProfileUsecase(ir, "")
 	ic := &controller.ProfileController{
 		ProfileUsecase: uc,
 	}
@@ -20,17 +22,17 @@ func NewGetProfileuRouter(db database.Database, group *gin.RouterGroup) {
 }
 
 func NewUploadFileRouter(db database.Database, group *gin.RouterGroup) {
-	ir := repository.NewProfileRepository(db)
-	uc := usecase.NewProfileUsecase(ir, "")
-	ic := &controller.ProfileController{
-		ProfileUsecase: uc,
+	ir := filerepo.NewFileRepository(db)
+	uc := fileusecase.NewFileUsecase(ir, "")
+	ic := &controller.FileController{
+		FileUsecase: uc,
 	}
 	group.POST("upload-file", ic.UploadFileRequestt)
 }
 
 func NewGetFoldersRouter(db database.Database, group *gin.RouterGroup) {
-	ir := repository.NewProfileRepository(db)
-	uc := usecase.NewProfileUsecase(ir, "")
+	ir := profilerepo.NewProfileRepository(db)
+	uc := profileusecase.NewProfileUsecase(ir, "")
 	ic := &controller.ProfileController{
 		ProfileUsecase: uc,
 	}
@@ -38,10 +40,10 @@ func NewGetFoldersRouter(db database.Database, group *gin.RouterGroup) {
 }
 
 func NewGetAllMetaDataFileRouter(db database.Database, group *gin.RouterGroup) {
-	ir := repository.NewProfileRepository(db)
-	uc := usecase.NewProfileUsecase(ir, "")
-	ic := &controller.ProfileController{
-		ProfileUsecase: uc,
+	ir := filerepo.NewFileRepository(db)
+	uc := fileusecase.NewFileUsecase(ir, "")
+	ic := &controller.FileController{
+		FileUsecase: uc,
 	}
-	group.GET("get-all-files-metadata", ic.GetAllFilesMetaDataRequest)
+	group.GET("get-all-files-metadata", ic.GetAllFilesMetaDataByFolderNameRequest)
 }
