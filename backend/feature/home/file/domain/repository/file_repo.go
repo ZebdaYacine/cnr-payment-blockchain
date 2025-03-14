@@ -24,9 +24,7 @@ type fileRepository struct {
 
 // GetAllDemand implements FileRepository.
 type FileRepository interface {
-	SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error)
 	UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error)
-	GetMetadataFile(c context.Context, foldername string) (*[]fabric.FileMetadata, error)
 	GetMetadataFileByFolderName(c context.Context, foldername string) (*[]fabric.FileMetadata, error)
 }
 
@@ -36,14 +34,11 @@ func NewFileRepository(db database.Database) FileRepository {
 	}
 }
 func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error) {
-	currentTime := time.Now()
 	fileID := uuid.New()
-
-	formattedTime := currentTime.Format("2006-01-02 15:04:05")
-	fmt.Println("Formatted Date and Time:", formattedTime)
+	folderID := uuid.New()
 
 	if file.Folder == "" {
-		file.Folder = fmt.Sprintf("%02d-%02d", currentTime.Month(), currentTime.Day())
+		file.Folder = fmt.Sprintf("%02d-%02d", time.Now().Month(), time.Now().Day())
 	}
 
 	folderPath := "../../ftp/" + file.Folder
@@ -67,47 +62,58 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
 	fmt.Printf("USER ID: %s\n", file.UserId)
 
-	metadata := &fabric.FileMetadata{
+	fileMetaData := &fabric.FileMetadata{
 		ID:           fileID.String(),
 		HashFile:     checksum,
 		UserID:       file.UserId,
 		FileName:     file.Name,
 		Parent:       file.Parent,
 		Version:      strconv.Itoa(file.Version),
-		Time:         currentTime.Format(time.RFC3339),
+		Time:         time.Now().Format(time.RFC3339),
 		Action:       file.Action,
 		Folder:       file.Folder,
 		Description:  file.Description,
-		Organisation: "DG",
+		Organisation: file.Organisation,
 		Path:         output,
+		Destination:  file.Destination,
 	}
 
-	_, err = fabric.SdkProvider("add", metadata)
+	folderMetaData := &fabric.FolderMetadata{
+		ID:           folderID.String(),
+		Name:         file.Folder,
+		Path:         folderPath,
+		NbrItems:     1,
+		UserId:       file.UserId,
+		Destination:  file.Destination,
+		Organisation: file.Organisation,
+		CreateAt:     time.Now().Format(time.RFC3339),
+	}
+
+	_, err = fabric.SdkProvider("add-file", fileMetaData)
 	if err != nil {
-		fmt.Println("Error adding to Fabric Ledger:", err)
+		fmt.Println("Error adding file to Fabric Ledger:", err)
 		return nil, err
 	}
 
-	folderMetadata := entities.Folder{
-		Name:     file.Folder,
-		Path:     folderPath,
-		NbrItems: 1,
-		CreateAt: currentTime,
+	_, err = fabric.SdkProvider("add-folder", folderMetaData)
+	if err != nil {
+		fmt.Println("Error adding folder to Fabric Ledger:", err)
+		fabric.SdkProvider("deleteAll")
+		return nil, err
 	}
-
-	folderID, err := s.addFolderToDB(c, folderMetadata)
+	Id, err := s.addFolderToDB(c, *folderMetaData)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Inserted folder metadata into MongoDB:", folderID)
+	fmt.Println("Inserted folder metadata into MongoDB:", Id)
 
-	fileIDMongo, err := s.addFileToDB(c, *metadata)
+	fileIDMongo, err := s.addFileToDB(c, *fileMetaData)
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println("Inserted file metadata into MongoDB:", fileIDMongo)
 
-	return metadata, nil
+	return fileMetaData, nil
 }
 
 func (s *fileRepository) addFileToDB(c context.Context, metadata fabric.FileMetadata) (string, error) {
@@ -132,7 +138,7 @@ func (s *fileRepository) addFileToDB(c context.Context, metadata fabric.FileMeta
 	return result.(string), nil
 }
 
-func (s *fileRepository) addFolderToDB(c context.Context, folder entities.Folder) (string, error) {
+func (s *fileRepository) addFolderToDB(c context.Context, folder fabric.FolderMetadata) (string, error) {
 	collection := s.database.Collection(database.FOLDER.String())
 	count, err := collection.CountDocuments(c, bson.M{
 		"name": folder.Name,
@@ -161,7 +167,7 @@ func (s *fileRepository) addFolderToDB(c context.Context, folder entities.Folder
 
 func (s *fileRepository) updateNbrItemsInFolder(c context.Context, foldername string) (string, error) {
 	collection := s.database.Collection(database.FOLDER.String())
-	folder := entities.Folder{}
+	folder := fabric.FolderMetadata{}
 	err := collection.FindOne(c, bson.M{"name": foldername}).Decode(&folder)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -183,62 +189,13 @@ func (s *fileRepository) updateNbrItemsInFolder(c context.Context, foldername st
 	return folder.ID, nil
 }
 
-func (s *fileRepository) SaveMetaDataFile(c context.Context, metadata *fabric.FileMetadata) (*fabric.FileMetadata, error) {
-	// collection := s.database.Collection("metadata-file")
-	// resulat, err := collection.InsertOne(c, &metadata)
-	// if err != nil {
-	// 	log.Printf("Failed to create metadata-file: %v", err)
-	// 	return nil, err
-	// }
-	return nil, nil
-}
-
-func (s *fileRepository) GetMetadataFile(c context.Context, foldername string) (*[]fabric.FileMetadata, error) {
-	// fabric.SdkProvider("deleteAll")
-	result, err := fabric.SdkProvider("getAll")
-	if err != nil {
-		return nil, err
-	}
-	files, ok := result.(*[]fabric.FileMetadata)
-	if !ok {
-		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
-	}
-	location := "../../ftp/"
-	for i := range *files {
-		file := &(*files)[i]
-		filePath := location + file.FileName
-		if !util.FileExists(filePath) {
-			log.Printf("File not found: %s", filePath)
-			file.Status = "Deleted"
-			continue
-		}
-		checksum, err := util.CalculateChecksum(filePath)
-		if err != nil {
-			log.Printf("Error calculating checksum for %s: %v\n", file.FileName, err)
-			file.Status = "ChecksumError"
-			continue
-		}
-		fmt.Printf("(Recalculation)  Checksum: %s\n", checksum)
-		fmt.Printf("(Blockchain) Checksum: %s\n", file.HashFile)
-		if file.HashFile == checksum {
-			file.Status = "Valid"
-		} else {
-			file.Status = "Invalid"
-		}
-		log.Println(*file)
-		(*files)[i] = *file
-
-	}
-	return files, nil
-}
-
 func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, foldername string) (*[]fabric.FileMetadata, error) {
 	// fabric.SdkProvider("deleteAll")
-	file := &fabric.FileMetadata{
-		Folder: foldername,
+	folder := &fabric.FolderMetadata{
+		Name: foldername,
 	}
-	log.Println(file)
-	result, err := fabric.SdkProvider("getAllByFolderName", file)
+	log.Println(folder)
+	result, err := fabric.SdkProvider("getAllByFolderName", folder)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +203,7 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 	if !ok {
 		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
 	}
-	location := "../../ftp/" + file.Folder + "/"
+	location := "../../ftp/" + folder.Name + "/"
 	for i := range *files {
 		file := &(*files)[i]
 		filePath := location + file.FileName

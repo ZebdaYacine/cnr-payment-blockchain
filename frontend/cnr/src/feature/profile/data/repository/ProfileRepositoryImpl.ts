@@ -31,7 +31,7 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     return await this.datasource.GetFilesApi(token);
   }
 
-  async UploadFile(filename: string,codebase64: string,token:string,action :string,parent:string,folder:string,description:string,version:number): Promise<FileResponse|ErrorResponse> {
-    return await this.datasource.UploadFileApi(filename,codebase64,token,action,parent,folder,description,version);
+  async UploadFile(filename: string,codebase64: string,token:string,action :string,parent:string,folder:string,description:string,organisation :string,destination :string,version:number): Promise<FileResponse|ErrorResponse> {
+    return await this.datasource.UploadFileApi(filename,codebase64,token,action,parent,folder,description,organisation ,destination,version);
   }
 }

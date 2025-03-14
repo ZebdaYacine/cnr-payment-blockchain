@@ -8,6 +8,7 @@ import Warning from "../../../../../core/components/Warning";
 import ByUser from "./ByUser";
 import AtTime from "./AtTime";
 import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
+import { useUserId } from "../../../../../core/state/UserContext";
 
 interface ListOfFoldersProps {
   folders: Folder[];
@@ -27,6 +28,7 @@ function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+  const { workAt } = useUserId();
 
   const handleRowClick = (folderName: string) => {
     console.log("Navigating to folder:", folderName);
@@ -34,7 +36,9 @@ function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
   };
   return (
     <>
-      <FileUploadModal />
+      {peer?.name && workAt && (
+        <FileUploadModal destination={workAt} organisation={peer.name} />
+      )}
       <div className="card shadow-2xl w-full">
         <div className="card-body">
           <div className="flex flex-col">

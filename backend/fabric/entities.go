@@ -14,4 +14,16 @@ type FileMetadata struct {
 	Organisation string `json:"Organisation" bson:"organisation"`
 	Status       string `json:"Status",omitempty" bson:"status,omitempty"`
 	Path         string `json:"path,omitempty" bson:"path,omitempty"`
+	Destination  string `json:"Destination" bson:"Destination"`
+}
+
+type FolderMetadata struct {
+	ID           string `json:"id,omitempty" bson:"id,omitempty"`
+	Name         string `json:"name" bson:"name"`
+	Path         string `json:"path" bson:"path"`
+	UserId       string `json:"userId" bson:"userId"`
+	NbrItems     int    `json:"nbrItems" bson:"nbrItems"`
+	CreateAt     string `json:"createAt" bson:"createAt"`
+	Destination  string `json:"Destination" bson:"Destination"`
+	Organisation string `json:"Organisation" bson:"organisation"`
 }

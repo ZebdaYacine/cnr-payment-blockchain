@@ -17,6 +17,8 @@ export class PofileUseCase {
     parent:string,
     folder:string,
     description:string,
+    organisation :string,
+    destination :string,
     version:number): 
     Promise<FileResponse|ErrorResponse> {
     return await this.repository.UploadFile(
@@ -26,6 +28,8 @@ export class PofileUseCase {
       parent,
       folder,
       description,
+      organisation ,
+      destination,
       version);
   }
 

@@ -17,7 +17,6 @@ type FileResult struct {
 
 type FileUsecase interface {
 	UploadFile(c context.Context, data *FileParams) *FileResult
-	GetMetaDataFile(c context.Context, foldername string) *FileResult
 	GetMetaDataFileByFolderName(c context.Context, foldername string) *FileResult
 }
 
@@ -38,15 +37,6 @@ func NewFileUsecase(repo fileRepo.FileRepository, collection string) FileUsecase
 func (p *fileUsecase) UploadFile(c context.Context, data *FileParams) *FileResult {
 	file_uploaded := data.Data.(entities.UploadFile)
 	profileResult, err := p.repo.UploadFile(c, file_uploaded)
-	if err != nil {
-		return &FileResult{Err: err}
-	}
-	return &FileResult{Data: profileResult}
-}
-
-// GetMetaDataFile implements ProfileUsecase.
-func (p *fileUsecase) GetMetaDataFile(c context.Context, foldername string) *FileResult {
-	profileResult, err := p.repo.GetMetadataFile(c, foldername)
 	if err != nil {
 		return &FileResult{Err: err}
 	}

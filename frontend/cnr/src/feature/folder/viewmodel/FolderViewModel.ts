@@ -2,8 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { FolderUseCase } from "../domain/usecase/FolderUseCase";
-import { useNavigate } from "react-router";
-import { useAuth } from "../../../core/state/AuthContext";
 import { useFoldersMetaData } from '../../../core/state/FolderContext';
 import { FolderResponse } from "../data/dtos/FolderDtos";
 
@@ -11,8 +9,6 @@ import { FolderResponse } from "../data/dtos/FolderDtos";
 
 export function useFolderViewModel(profileUseCase: FolderUseCase) {
   
-  const { isAuthentificated, Userlogout } = useAuth();
-  const navigate = useNavigate();
   const { error } = useNotification();
     const { setFoldersList } = useFoldersMetaData();
 
@@ -35,8 +31,8 @@ export function useFolderViewModel(profileUseCase: FolderUseCase) {
       } else {
          const errorResponse = data as ErrorResponse;
          error(errorResponse.message || "Network error occurred during upload", "colored");
-         Userlogout();
-        if (!isAuthentificated) navigate("/");
+        //  Userlogout();
+        // if (!isAuthentificated) navigate("/");
       }
     },
     onError: (err: unknown) => {

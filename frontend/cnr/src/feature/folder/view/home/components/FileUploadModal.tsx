@@ -14,8 +14,14 @@ import { ProfileDataSourceImpl } from "../../../../profile/data/dataSource/Profi
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
 const profileUseCase = new PofileUseCase(repository);
-
-function FileUploadModal() {
+interface FileUploadModalProps {
+  organisation: string;
+  destination: string;
+}
+function FileUploadModal({
+  organisation: organisation,
+  destination: destination,
+}: FileUploadModalProps) {
   const ref = useRef<LoadingBarRef>(null);
   const [commitText, setCommitText] = useState("");
   const [folder, setFolder] = useState("");
@@ -66,7 +72,15 @@ function FileUploadModal() {
     let i = 0;
     for (const file of listFiles) {
       try {
-        await uploadFileAsync(file, "", folder, commitText, 1);
+        await uploadFileAsync(
+          file,
+          "",
+          folder,
+          commitText,
+          organisation,
+          destination,
+          1
+        );
         const fileElement = document.getElementById(file.name);
         const btn = document.getElementById(i.toString());
         if (fileElement) {

@@ -95,10 +95,10 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
-  const uploadFileAsync = (file: File, parent: string,folder: string,description :string, version: number): Promise<FileResponse> => {
+  const uploadFileAsync = (file: File, parent: string,folder: string,description :string,organisation :string,destination :string, version: number): Promise<FileResponse> => {
   return new Promise((resolve, reject) => {
     uploadFile(
-      { file, parent,folder,description,version },
+      { file, parent,folder,description,organisation,destination,version },
       {
         onSuccess: (data) => resolve(data as FileResponse),
         onError: (err) => reject(err),
@@ -108,7 +108,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
 };
 
   const { mutate: uploadFile, data: uploadMetadata, isPending: isUploading, isSuccess: uploadSuccess, isError: uploadError } = useMutation({
-    mutationFn: async ({ file, parent,folder,description, version }: { file: File; parent: string;folder: string;description :string; version: number }) => {
+    mutationFn: async ({ file, parent,folder,description,organisation ,destination, version }: { file: File; parent: string;folder: string;description :string;organisation :string;destination :string; version: number }) => {
       const base64File = await convertFileToBase64(file);
       const filename = file.name;
       const action = "upload";
@@ -116,7 +116,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.UploadFile(filename, base64File, storedToken, action, parent,folder,description, version);
+      return profileUseCase.UploadFile(filename, base64File, storedToken, action, parent,folder,description,organisation ,destination, version);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {

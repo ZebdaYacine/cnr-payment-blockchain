@@ -15,6 +15,8 @@ export interface ProfileDataSource {
     parent: string,
     folder:string,
     description:string,
+    organisation :string,
+    destination :string,
     version: number
   ): Promise<FileResponse | ErrorResponse>;
   GetInstituaionApi(token: string): Promise<InstitutionResponse | ErrorResponse>;
@@ -57,6 +59,8 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     parent: string,
     folder:string,
     description:string,
+    organisation :string,
+    destination :string,
     version: number
   ): Promise<FileResponse | ErrorResponse> {
     return ApiService.makeRequest<FileResponse>("post", "/user/upload-file", token, {
@@ -66,6 +70,8 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
       parent,
       folder,
       description,
+      organisation ,
+      destination ,
       version,
     });
   }

@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-func SdkProvider(function string, file ...*FileMetadata) (interface{}, error) {
+func SdkProvider(function string, args ...interface{}) (interface{}, error) {
 	var SETTING = pkg.GET_BLOCKCHAIN_SETTIN()
 	chainCode := SETTING.CHAIN_CODE
 	channelName := SETTING.CHANNEL_NAME
@@ -46,9 +46,25 @@ func SdkProvider(function string, file ...*FileMetadata) (interface{}, error) {
 	case "getAll":
 		return getAllFileMetadata(contract)
 	case "getAllByFolderName":
-		return getAllFileMetadataByFolderName(contract, file[0].Folder)
-	case "add":
-		return createFileMetadata(contract, file[0])
+		if folder, ok := args[0].(*FolderMetadata); ok {
+			return getAllFileMetadataByFolderName(contract, folder.Name)
+		}
+		return nil, fmt.Errorf("invalid argument type for getAllByFolderName")
+	case "add-file":
+		if file, ok := args[0].(*FileMetadata); ok {
+			return createFileMetadata(contract, file)
+		}
+		return nil, fmt.Errorf("invalid argument type for add-file")
+	case "add-folder":
+		if folder, ok := args[0].(*FolderMetadata); ok {
+			return createFolderMetadata(contract, folder)
+		}
+		return nil, fmt.Errorf("invalid argument type for add-folder")
+	case "get-folder":
+		if folder, ok := args[0].(*FolderMetadata); ok {
+			return getAllFolderMetadataByDestination(contract, folder.Destination)
+		}
+		return nil, fmt.Errorf("invalid argument type for add-folder")
 	case "deleteAll":
 		return nil, deleteAllFileMetadata(contract)
 	default:

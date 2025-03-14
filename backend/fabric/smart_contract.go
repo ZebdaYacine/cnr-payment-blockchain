@@ -181,19 +181,19 @@ func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMet
 	fmt.Println("\n--> Evaluate Transaction: CreateFileMetadata, function creates metadata for a file on the ledger")
 
 	// Ensure all necessary fields are provided
-	if file.Path == "" || file.Folder == "" || file.ID == "" || file.HashFile == "" || file.UserID == "" || file.FileName == "" || file.Version == "" {
+	if file.Path == "" || file.Folder == "" || file.ID == "" || file.HashFile == "" || file.UserID == "" || file.FileName == "" || file.Destination == "" || file.Organisation == "" || file.Version == "" {
 		return nil, fmt.Errorf("❌ missing required fields in file metadata")
 	}
 
-	fmt.Printf("Submitting transaction with: ID=%s, HashFile=%s, UserID=%s, FileName=%s, Parent=%s, Version=%s, Action=%s, Organisation=%s, Path=%s, Folder=%s\n",
-		file.ID, file.HashFile, file.UserID, file.FileName, file.Parent, file.Version, file.Action, file.Organisation, file.Path, file.Folder)
+	fmt.Printf("Submitting transaction with: ID=%s, HashFile=%s, UserID=%s, FileName=%s, Parent=%s, Version=%s, Action=%s, Organisation=%s, Path=%s, Folder=%s,Destination=%s\n",
+		file.ID, file.HashFile, file.UserID, file.FileName, file.Parent, file.Version, file.Action, file.Organisation, file.Path, file.Folder, file.Destination)
 
 	// Submit transaction with correct parameters
 	submitResult, err := contract.SubmitTransaction(
 		"CreateFileMetadata",
 		file.ID, file.HashFile, file.UserID, file.FileName,
 		file.Parent, file.Version, file.Action, file.Organisation,
-		file.Folder, file.Parent,
+		file.Folder, file.Path, file.Destination,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
@@ -204,10 +204,57 @@ func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMet
 	return file, nil
 }
 
+func createFolderMetadata(contract *client.Contract, folder *FolderMetadata) (*FolderMetadata, error) {
+	fmt.Println("\n--> Evaluate Transaction: createFolderMetadata, function creates metadata for a folder on the ledger")
+
+	// Ensure all necessary fields are provided
+	if folder.Path == "" || folder.Name == "" || folder.Destination == "" || folder.Organisation == "" || folder.UserId == "" || folder.ID == "" {
+		return nil, fmt.Errorf("❌ missing required fields in folder metadata")
+	}
+
+	fmt.Printf("Submitting transaction with: ID=%s, UserID=%s, Name=%s, Path=%s, Destination=%s,Organisation=%s, NbrItems=%d\n",
+		folder.ID, folder.UserId, folder.Name, folder.Path, folder.Destination, folder.Organisation, folder.NbrItems)
+
+	// Submit transaction for creating folder metadata
+	submitResult, err := contract.SubmitTransaction(
+		"CreateFolderMetadata",
+		folder.ID, folder.UserId, folder.Name, folder.Path, folder.Destination,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
+	}
+
+	// Confirm success
+	fmt.Printf("*** ✅  Transaction committed successfully. Result: %s\n", string(submitResult))
+	return folder, nil
+}
+
+func getAllFolderMetadataByDestination(contract *client.Contract, Destination string) (*[]FolderMetadata, error) {
+	// deleteAllFileMetadata(contract)
+	fmt.Println("\n--> Evaluate Transaction: getAllFolderMetadataByDestination, function returns all the current Folder by destination on the ledger")
+
+	evaluateResult, err := contract.EvaluateTransaction("GetFolderMetadataByDestination", Destination)
+	if err != nil {
+		fmt.Errorf("failed to evaluate transaction: %w", err)
+	}
+	if len(evaluateResult) == 0 {
+		return nil, fmt.Errorf("❌ no metadata in blockchain network") // Return error instead of panicking
+	}
+	result := formatJSON(evaluateResult)
+
+	fmt.Printf("*** Result:%s\n", result)
+	var folders *[]FolderMetadata
+	err1 := json.Unmarshal([]byte(result), &folders)
+	if err1 != nil {
+		fmt.Errorf("Error parsing JSON: %v", err1)
+	}
+	return folders, nil
+}
+
 func formatJSON(data []byte) string {
 	var prettyJSON bytes.Buffer
 	if err := json.Indent(&prettyJSON, data, "", "  "); err != nil {
-		panic(fmt.Errorf("failed to parse JSON: %w", err))
+		fmt.Errorf("failed to parse JSON: %w", err)
 	}
 	return prettyJSON.String()
 }

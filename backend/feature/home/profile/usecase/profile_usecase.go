@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"scps-backend/feature/home/profile/domain/entities"
 	profileRepo "scps-backend/feature/home/profile/domain/repository"
 )
 
@@ -16,9 +15,7 @@ type ProfileResult struct {
 }
 
 type ProfileUsecase interface {
-	UploadFile(c context.Context, data *ProfileParams) *ProfileResult
 	GetProfile(c context.Context, data *ProfileParams) *ProfileResult
-	GetMetaDataFile(c context.Context) *ProfileResult
 	GetFolders(c context.Context) *ProfileResult
 }
 
@@ -33,25 +30,6 @@ func NewProfileUsecase(repo profileRepo.ProfileRepository, collection string) Pr
 		repo:       repo,
 		collection: collection,
 	}
-}
-
-// UploadFile implements ProfileUsecase.
-func (p *profileUsecase) UploadFile(c context.Context, data *ProfileParams) *ProfileResult {
-	file_uploaded := data.Data.(entities.UploadFile)
-	profileResult, err := p.repo.UploadFile(c, file_uploaded)
-	if err != nil {
-		return &ProfileResult{Err: err}
-	}
-	return &ProfileResult{Data: profileResult}
-}
-
-// GetMetaDataFile implements ProfileUsecase.
-func (p *profileUsecase) GetMetaDataFile(c context.Context) *ProfileResult {
-	profileResult, err := p.repo.GetMetadataFile(c)
-	if err != nil {
-		return &ProfileResult{Err: err}
-	}
-	return &ProfileResult{Data: profileResult}
 }
 
 // Login implements UserUsecase.
