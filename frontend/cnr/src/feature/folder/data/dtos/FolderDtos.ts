@@ -13,6 +13,7 @@ export interface Folder {
   name: string;
   nbrItems: number;
   createAt: string; 
+  user:string
 }
 
 

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"scps-backend/fabric"
@@ -12,6 +13,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type profileRepository struct {
@@ -107,11 +109,21 @@ func (s *profileRepository) GetFolders(c context.Context, folder *fabric.FolderM
 			fmt.Println("❌ Error parsing time:", err)
 			return nil, err
 		}
+		user, err := s.GetProfile(c, fabricFolder.UserId)
+		if err != nil {
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				log.Printf("⚠️ No user found with ID: %s\n", fabricFolder.UserId)
+				return nil, nil // Return nil instead of error if no user found
+			}
+			log.Println("🚨 MongoDB Query Error:", err)
+			return nil, err
+		}
 		convertedFolders = append(convertedFolders, entities.Folder{
 			ID:       fabricFolder.ID,
 			Name:     fabricFolder.Name,
 			Path:     fabricFolder.Path,
 			NbrItems: fabricFolder.NbrItems,
+			User:     user.UserName,
 			CreateAt: parsedTime,
 		})
 	}

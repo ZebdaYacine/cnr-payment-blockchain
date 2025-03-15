@@ -65,7 +65,8 @@ export interface Institution {
 export interface Folder {
   name: string;
   nbrItems: number;
-  createAt: string; 
+  createAt: string;
+  username:string;
 }
 
 export interface Child {

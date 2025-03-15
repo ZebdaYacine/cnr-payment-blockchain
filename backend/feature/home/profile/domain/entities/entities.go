@@ -31,6 +31,7 @@ type UploadFile struct {
 type Folder struct {
 	ID       string    `json:"id,omitempty" bson:"id,omitempty"`
 	Name     string    `json:"name" bson:"name"`
+	User     string    `json:"user" bson:"user"`
 	Path     string    `json:"path" bson:"path"`
 	NbrItems int       `json:"nbrItems" bson:"nbrItems"`
 	CreateAt time.Time `json:"createAt" bson:"createAt"`

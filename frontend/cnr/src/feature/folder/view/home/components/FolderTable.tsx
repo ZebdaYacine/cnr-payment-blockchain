@@ -1,8 +1,8 @@
 import { FaFolder } from "react-icons/fa";
 import ByUser from "./ByUser"; // Assuming ByUser is a separate component
 import AtTime from "./AtTime"; // Assuming AtTime is a separate component
-import { Folder } from "../../../../profile/data/dtos/ProfileDtos";
 import { useState } from "react";
+import { Folder } from "../../../data/dtos/FolderDtos";
 
 interface FolderTableProps {
   listOfFolders: Folder[];
@@ -38,7 +38,7 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
 
               <td className="text-center text-gray-600 p-4">
                 <ByUser
-                  name="Zebda Yassine"
+                  name={folder.user}
                   avatar="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
                 />
               </td>
