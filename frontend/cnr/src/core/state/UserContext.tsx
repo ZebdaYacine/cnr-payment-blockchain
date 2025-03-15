@@ -1,4 +1,10 @@
-import { createContext, useState, ReactNode, useContext } from "react";
+import {
+  createContext,
+  useState,
+  ReactNode,
+  useContext,
+  useEffect,
+} from "react";
 
 interface UserContextType {
   username: string;
@@ -21,9 +27,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [username, setUserName] = useState<string>("");
   const [password, setPassWord] = useState<string>("");
   const [email, SetEmail] = useState<string>("");
-  const [permission, SetPermission] = useState<string>("");
+  const [permission, setPermission] = useState<string>(
+    () => localStorage.getItem("permission") || ""
+  );
   const [idInstituion, setidInstituion] = useState<string>("");
   const [workAt, setWorkAt] = useState<string>("");
+
+  useEffect(() => localStorage.setItem("permission", permission), [permission]);
 
   const SetUserName = (username: string) => {
     setUserName(username);
@@ -39,6 +49,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const SetidInstituion = (idInstituion: string) => {
     setidInstituion(idInstituion);
+  };
+
+  const SetPermission = (permission: string) => {
+    setPermission(permission);
+    localStorage.setItem("permission", permission);
   };
 
   return (

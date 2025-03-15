@@ -19,22 +19,30 @@ function ProfilePage() {
   const { getProfile, GetChildInstituations, GetUsers } =
     useProfileViewModel(profileUseCase);
   const { username, email, permission, workAt, idInstituion } = useUserId();
+  const userPermission = permission || localStorage.getItem("permission");
 
   useEffect(() => {
-    getProfile();
-  }, [getProfile]);
+    if (userPermission)
+      getProfile({ permission: userPermission.toLowerCase() });
+  }, [getProfile, userPermission]);
 
   useEffect(() => {
     if (["DIO", "CCR", "POST"].includes(workAt)) {
-      GetUsers();
+      if (userPermission)
+        GetUsers({ permissions: userPermission.toLowerCase() });
     }
-  }, [GetUsers, workAt]);
+  }, [GetUsers, workAt, userPermission]);
 
   useEffect(() => {
     if (workAt && idInstituion) {
-      GetChildInstituations({ name: workAt, id: idInstituion });
+      if (userPermission)
+        GetChildInstituations({
+          name: workAt,
+          id: idInstituion,
+          permissions: userPermission.toLowerCase(),
+        });
     }
-  }, [workAt, idInstituion, GetChildInstituations]);
+  }, [workAt, idInstituion, GetChildInstituations, userPermission]);
 
   return (
     <>

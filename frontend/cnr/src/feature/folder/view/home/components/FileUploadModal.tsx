@@ -10,6 +10,7 @@ import { useProfileViewModel } from "../../../../profile/viewmodel/ProfileViewMo
 import { PofileUseCase } from "../../../../profile/domain/usecase/ProfileUseCase";
 import { ProfileRepositoryImpl } from "../../../../profile/data/repository/ProfileRepositoryImpl";
 import { ProfileDataSourceImpl } from "../../../../profile/data/dataSource/ProfileAPIDataSource";
+import { useUserId } from "../../../../../core/state/UserContext";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
@@ -31,10 +32,11 @@ function FileUploadModal({
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
   const [isFinishUploading, SetFinishUploading] = useState(false);
   const { getFolders } = useFolderViewModel(profileUseCase);
+  const { permission } = useUserId();
+  const userPermission = permission || localStorage.getItem("permission");
 
   const { uploadFileAsync, uploadMetadata, isUploading, uploadSuccess } =
     useProfileViewModel(profileUseCase);
-
   useEffect(() => {
     if (isUploading) {
       ref.current?.continuousStart();
@@ -70,32 +72,39 @@ function FileUploadModal({
     event.preventDefault();
     if (listFiles.length === 0) return;
     let i = 0;
-    for (const file of listFiles) {
-      try {
-        await uploadFileAsync(
-          file,
-          "",
-          folder,
-          commitText,
-          organisation,
-          destination,
-          1
-        );
-        const fileElement = document.getElementById(file.name);
-        const btn = document.getElementById(i.toString());
-        if (fileElement) {
-          fileElement.classList.replace("badge-secondary", "badge-accent");
-          setCountUploadedFiles(i + 1);
+    if (userPermission)
+      for (const file of listFiles) {
+        try {
+          await uploadFileAsync(
+            file,
+            "",
+            folder,
+            commitText,
+            organisation,
+            destination,
+            1,
+            userPermission.toLocaleLowerCase()
+          );
+          const fileElement = document.getElementById(file.name);
+          const btn = document.getElementById(i.toString());
+          if (fileElement) {
+            fileElement.classList.replace("badge-secondary", "badge-accent");
+            setCountUploadedFiles(i + 1);
+          }
+          if (btn) {
+            btn.remove();
+            if (userPermission)
+              getFolders({
+                organisation: organisation,
+                destination: destination,
+                permission: userPermission.toLocaleLowerCase(),
+              });
+          }
+        } catch (error) {
+          console.error(`Error uploading file ${file.name}:`, error);
         }
-        if (btn) {
-          btn.remove();
-          getFolders();
-        }
-      } catch (error) {
-        console.error(`Error uploading file ${file.name}:`, error);
+        i = i + 1;
       }
-      i = i + 1;
-    }
     SetFinishUploading(true);
   };
 

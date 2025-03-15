@@ -2,7 +2,7 @@ import { FaFolder } from "react-icons/fa";
 import ByUser from "./ByUser"; // Assuming ByUser is a separate component
 import AtTime from "./AtTime"; // Assuming AtTime is a separate component
 import { useState } from "react";
-import { Folder } from "../../../data/dtos/FolderDtos";
+import { Folder } from "../../../../../core/dtos/data";
 
 interface FolderTableProps {
   listOfFolders: Folder[];

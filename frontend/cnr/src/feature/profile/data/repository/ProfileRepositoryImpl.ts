@@ -10,28 +10,28 @@ export class ProfileRepositoryImpl implements ProfileRepository {
   constructor(datasource: ProfileDataSource) {
     this.datasource = datasource;
   }
-  async GetChildOfInstitutions(id:string,name:string,token: string): Promise<ChildResponse | ErrorResponse> {
-     return await this.datasource.GetChildOfInstitutionsApi(id,name,token);
+  async GetChildOfInstitutions(id:string,name:string,token: string,permission:string): Promise<ChildResponse | ErrorResponse> {
+     return await this.datasource.GetChildOfInstitutionsApi(id,name,token,permission);
   }
-  async GetInstituations(token: string): Promise<InstitutionResponse | ErrorResponse> {
-    return await this.datasource.GetInstituaionApi(token);
+  async GetInstituations(token: string,permission:string): Promise<InstitutionResponse | ErrorResponse> {
+    return await this.datasource.GetInstituaionApi(token,permission);
   }
-  async GetProfile(token: string): Promise<ProfileResponse | ErrorResponse> {
-    return await this.datasource.GetProfileApi(token);
-  }
-
-  async GetUsers(token: string): Promise<UsersResponse | ErrorResponse> {
-    return await this.datasource.GetUsersApi(token);
+  async GetProfile(token: string,permission:string): Promise<ProfileResponse | ErrorResponse> {
+    return await this.datasource.GetProfileApi(token,permission);
   }
 
-  async GetFolder(token: string): Promise<FolderResponse | ErrorResponse> {
-    return await this.datasource.GetFolderApi(token);
-  }
-  async GetFiles(token:string): Promise<FilesResponse | ErrorResponse> {
-    return await this.datasource.GetFilesApi(token);
+  async GetUsers(token: string,permission:string): Promise<UsersResponse | ErrorResponse> {
+    return await this.datasource.GetUsersApi(token,permission);
   }
 
-  async UploadFile(filename: string,codebase64: string,token:string,action :string,parent:string,folder:string,description:string,organisation :string,destination :string,version:number): Promise<FileResponse|ErrorResponse> {
-    return await this.datasource.UploadFileApi(filename,codebase64,token,action,parent,folder,description,organisation ,destination,version);
+  async GetFolder(token: string,permission:string): Promise<FolderResponse | ErrorResponse> {
+    return await this.datasource.GetFolderApi(token,permission);
+  }
+  async GetFiles(token:string,permission:string): Promise<FilesResponse | ErrorResponse> {
+    return await this.datasource.GetFilesApi(token,permission);
+  }
+
+  async UploadFile(filename: string,codebase64: string,token:string,action :string,parent:string,folder:string,description:string,organisation :string,destination :string,version:number,permission:string): Promise<FileResponse|ErrorResponse> {
+    return await this.datasource.UploadFileApi(filename,codebase64,token,action,parent,folder,description,organisation ,destination,version,permission);
   }
 }

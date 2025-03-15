@@ -1,3 +1,4 @@
+import { Folder } from "../../../../core/dtos/data";
 
 
 
@@ -9,12 +10,7 @@ export interface FolderResponse {
 
 
 
-export interface Folder {
-  name: string;
-  nbrItems: number;
-  createAt: string; 
-  user:string
-}
+
 
 
 

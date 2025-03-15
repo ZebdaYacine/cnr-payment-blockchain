@@ -27,18 +27,29 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState("");
 
-  const { workAt } = useUserId();
+  const { workAt, permission } = useUserId();
+
+  const userPermission = permission || localStorage.getItem("permission");
 
   const fetchFolders = useCallback(() => {
     if (!peer?.name || !workAt || selectedRadio === "") return;
-    switch (selectedRadio) {
-      case "IN":
-        getFolders({ organisation: workAt, destination: peer.name });
-        break;
-      case "OUT":
-        getFolders({ organisation: peer.name, destination: workAt });
-        break;
-    }
+    if (userPermission)
+      switch (selectedRadio) {
+        case "IN":
+          getFolders({
+            organisation: workAt,
+            destination: peer.name,
+            permission: userPermission.toLowerCase(),
+          });
+          break;
+        case "OUT":
+          getFolders({
+            organisation: peer.name,
+            destination: workAt,
+            permission: userPermission.toLowerCase(),
+          });
+          break;
+      }
   }, [getFolders, selectedRadio, peer, workAt]);
 
   useEffect(() => {
@@ -71,7 +82,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
             <div className="flex flex-wrap justify-between">
               <div className="flex flex-col space-y-3">
                 <h2 className="card-title text-center text-3xl">
-                  {peer ? peer.name : "No Peer Selected"}
+                  {peer ? peer.name : "Aucune organisation sélectionnée."}
                 </h2>
                 {peer && (
                   <div className="flex items-center space-x-4">
@@ -107,9 +118,9 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
           <div className="divider"></div>
 
           {selectedRadio === "" ? (
-            <Warning message="No Folder Found" />
+            <Warning message="Aucun dossier trouvé" />
           ) : foldersList.length === 0 ? (
-            <Warning message="No Folder Found" />
+            <Warning message="Aucun dossier trouvé" />
           ) : (
             <div className="overflow-x-auto">
               <FolderTable

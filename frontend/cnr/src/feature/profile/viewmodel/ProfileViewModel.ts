@@ -37,13 +37,13 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
 
 
   const { mutate: getFolders, data: Folders, isPending: isFolderLoading, isSuccess: isFolderSuccess} = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({permission:permission}:{permission:string}) => {
       console.log("Folders")
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetFolder(storedToken);
+      return profileUseCase.GetFolder(storedToken,permission);
     },
     onSuccess: (data) => {
       if (data && "data" in data ) {
@@ -63,12 +63,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   });
   
   const { mutate: getProfile, data: Profile, isPending: isProfileLoading, isSuccess: isProfileSuccess} = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({permission:permission}:{permission:string}) => {
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetProfile(storedToken);
+      return profileUseCase.GetProfile(storedToken,permission.toLowerCase());
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -95,10 +95,10 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
-  const uploadFileAsync = (file: File, parent: string,folder: string,description :string,organisation :string,destination :string, version: number): Promise<FileResponse> => {
+  const uploadFileAsync = (file: File, parent: string,folder: string,description :string,organisation :string,destination :string, version: number,permission:string): Promise<FileResponse> => {
   return new Promise((resolve, reject) => {
     uploadFile(
-      { file, parent,folder,description,organisation,destination,version },
+      { file, parent,folder,description,organisation,destination,version,permission },
       {
         onSuccess: (data) => resolve(data as FileResponse),
         onError: (err) => reject(err),
@@ -108,7 +108,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
 };
 
   const { mutate: uploadFile, data: uploadMetadata, isPending: isUploading, isSuccess: uploadSuccess, isError: uploadError } = useMutation({
-    mutationFn: async ({ file, parent,folder,description,organisation ,destination, version }: { file: File; parent: string;folder: string;description :string;organisation :string;destination :string; version: number }) => {
+    mutationFn: async ({ file, parent,folder,description,organisation ,destination, version,permission:permission }: { file: File; parent: string;folder: string;description :string;organisation :string;destination :string; version: number,permission:string }) => {
       const base64File = await convertFileToBase64(file);
       const filename = file.name;
       const action = "upload";
@@ -116,7 +116,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.UploadFile(filename, base64File, storedToken, action, parent,folder,description,organisation ,destination, version);
+      return profileUseCase.UploadFile(filename, base64File, storedToken, action, parent,folder,description,organisation ,destination, version,permission);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -135,12 +135,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   });
 
   const { mutate: getFiles, data: filesMetadata, isPending: isFetchingFiles, isSuccess: isFetchSuccess } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({permissions:permissions}:{permissions:string}) => {
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetFiles(storedToken);
+      return profileUseCase.GetFiles(storedToken,permissions);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -159,12 +159,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   });
 
   const { mutate: GetInstituations, data: institutionData, isPending: isInstituaionsLoading, isSuccess: isInstituaionsSuccss} = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({permissions:permissions}:{permissions:string}) => {
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetInstitutions(storedToken);
+      return profileUseCase.GetInstitutions(storedToken,permissions);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -182,12 +182,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   });
 
    const { mutate: GetChildInstituations, data: childInstitutionData, isPending: isChildInstituaionsLoading, isSuccess: isChildInstituaionsSuccss} = useMutation({
-    mutationFn: async ({id,name}: { id: string,name: string}) => {
+    mutationFn: async ({id,name,permissions}: { id: string,name: string,permissions:string}) => {
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetChildOfInstitutions(id,name,storedToken);
+      return profileUseCase.GetChildOfInstitutions(id,name,storedToken,permissions);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -225,12 +225,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   });
 
   const { mutate: GetUsers, data: users, isPending: isUserLoading, isSuccess: isUsersSuccss} = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({permissions:permissions}:{permissions:string}) => {
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetUsers(storedToken);
+      return profileUseCase.GetUsers(storedToken,permissions);
     },
     
     onSuccess: (data) => {

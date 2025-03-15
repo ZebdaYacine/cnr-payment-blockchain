@@ -1,35 +1,45 @@
 import { useEffect } from "react";
-import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
-import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
-import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
-import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
+import { FileDataSourceImpl } from "../../../data/dataSource/FileAPIDataSource";
+import { FileRepositoryImpl } from "../../../data/repository/FileRepositoryImpl";
+import { FileUseCase } from "../../../domain/usecase/FileUseCase";
+import { useFileViewModel } from "../../../viewmodel/FileViewModel";
 
 import ListOfFiles from "../components/ListOfFiles";
 import { usePeer } from "../../../../../core/state/PeerContext";
 import { useFileMetaData } from "../../../../../core/state/FileContext";
 import { Outlet, useParams } from "react-router";
+import { useUserId } from "../../../../../core/state/UserContext";
 
 function FilesPage() {
-  const { folderName, fileName } = useParams(); 
+  const { folderName, fileName } = useParams();
 
-  const profileUseCase = new PofileUseCase(
-    new ProfileRepositoryImpl(new ProfileDataSourceImpl())
+  const fileUseCase = new FileUseCase(
+    new FileRepositoryImpl(new FileDataSourceImpl())
   );
 
-  const { getFiles } = useProfileViewModel(profileUseCase);
+  const { getFiles } = useFileViewModel(fileUseCase);
   const { getFilesList } = useFileMetaData();
+  const { permission } = useUserId();
 
+  const userPermission = permission || localStorage.getItem("permission");
   useEffect(() => {
-    if (folderName) {
-      getFiles({ folder: folderName });
+    if (folderName && userPermission) {
+      getFiles({
+        permission: userPermission.toLowerCase(),
+        folder: folderName,
+      });
     }
-  }, [folderName, getFiles]);
+  }, [folderName, userPermission, getFiles]);
 
   const { Peer } = usePeer();
   useEffect(() => {
     if (folderName) {
       const interval = setInterval(
-        () => getFiles({ folder: folderName }),
+        () =>
+          getFiles({
+            permission: permission.toLowerCase(),
+            folder: folderName,
+          }),
         10000
       );
       return () => clearInterval(interval);

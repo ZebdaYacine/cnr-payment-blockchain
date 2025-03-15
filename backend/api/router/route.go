@@ -43,10 +43,17 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewBringsUsersRouter(db, userRouter)
 
 	// Superuser-specific routes with middleware
-	superuserRouter := gin.Group("/super-user")
-	superuserRouter.Use(middleware.JwtAuthMiddleware(
+	adminRouter := gin.Group("/admin")
+	adminRouter.Use(middleware.JwtAuthMiddleware(
 		pkg.GET_ROOT_SERVER_SEETING().SECRET_KEY,
-		"SUPER-USER"))
-	private.NewGetProfileuRouter(db, superuserRouter)
+		"ADMIN"))
+	private.NewGetProfileuRouter(db, adminRouter)
+	private.NewGetFoldersRouter(db, adminRouter)
+	private.NewUploadFileRouter(db, adminRouter)
+	private.NewGetAllMetaDataFileRouter(db, adminRouter)
+	private.NewUploadVersionRouter(db, adminRouter)
+	private.NewGetInstitutionRouter(db, adminRouter)
+	private.NewGetChildOfInstitutiosRouter(db, adminRouter)
+	private.NewBringsUsersRouter(db, adminRouter)
 
 }

@@ -39,7 +39,7 @@ function ListOfFiles({ files }: ListOfFilesProps) {
 
   return (
     <>
-      <FileUploadModal />
+      <FileUploadModal destination="" organisation="" />
       <div className="mt-4 w-full">
         <div className="card shadow-2xl w-full">
           <div className="card-body">
