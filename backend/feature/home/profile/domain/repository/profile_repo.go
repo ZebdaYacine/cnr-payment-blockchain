@@ -8,6 +8,7 @@ import (
 	"scps-backend/feature"
 	"scps-backend/feature/home/profile/domain/entities"
 	"scps-backend/pkg/database"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -20,7 +21,7 @@ type profileRepository struct {
 // GetAllDemand implements ProfileRepository.
 type ProfileRepository interface {
 	GetProfile(c context.Context, userId string) (*feature.User, error)
-	GetFolders(c context.Context) (*[]entities.Folder, error)
+	GetFolders(c context.Context, folder *fabric.FolderMetadata) (*[]entities.Folder, error)
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -53,38 +54,66 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 	return &user, nil
 }
 
-func (s *profileRepository) GetFolders(c context.Context) (*[]entities.Folder, error) {
+func (s *profileRepository) GetFolders(c context.Context, folder *fabric.FolderMetadata) (*[]entities.Folder, error) {
 	var folders []entities.Folder
-	cursor, err := s.database.Collection(database.FOLDER.String()).Find(c, bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(c)
-	for cursor.Next(c) {
-		var folder entities.Folder
-		if err := cursor.Decode(&folder); err != nil {
-			log.Println("Error decoding folder:", err)
-			continue
-		}
-		folders = append(folders, folder)
-	}
-	if err := cursor.Err(); err != nil {
-		return nil, err
-	}
-	res, err := fabric.SdkProvider("get-folder", &fabric.FolderMetadata{
-		Destination: "POST",
-	})
-	if err != nil {
-		fmt.Println("Error getting folders from Fabric Ledger:", err)
-		return nil, err
-	}
-	fmt.Println(res)
-	res, err = fabric.SdkProvider("getAll")
-	if err != nil {
-		fmt.Println("Error adding files from Fabric Ledger:", err)
-		return nil, err
-	}
-	fmt.Println(res)
+	// cursor, err := s.database.Collection(database.FOLDER.String()).Find(c, bson.M{
+	// 	"organisation": folder.Organisation,
+	// 	"Destination":  folder.Destination,
+	// })
+	// if err != nil {
+	// 	log.Println("🚨 MongoDB Query Error:", err)
+	// 	return nil, err
+	// }
+	// defer cursor.Close(c)
 
-	return &folders, nil
+	// for cursor.Next(c) {
+	// 	var folder entities.Folder
+	// 	if err := cursor.Decode(&folder); err != nil {
+	// 		log.Println("❌ Error decoding folder:", err)
+	// 		continue // Continue processing even if decoding fails for one document
+	// 	}
+	// 	folders = append(folders, folder)
+	// }
+
+	// if err := cursor.Err(); err != nil {
+	// 	log.Println("🚨 Cursor Error:", err)
+	// 	return nil, err
+	// }
+
+	// if len(folders) == 0 {
+	// 	log.Println("⚠️ No folders found in MongoDB.")
+	// 	// Return an empty slice (not nil) to prevent breaking frontend logic
+	// 	return &folders, nil
+	// }
+	res, err := fabric.SdkProvider("get-folder", folder)
+	if err != nil {
+		log.Println("🚨 Error getting folders from Fabric Ledger:", err)
+	}
+	fmt.Println("📄 Fabric Ledger Response:", res)
+	fabricFolders, ok := res.(*[]fabric.FolderMetadata)
+	if !ok {
+		log.Println("❌ Failed to convert Fabric response to FolderMetadata slice")
+		return &folders, nil
+	}
+	var convertedFolders []entities.Folder
+	if fabricFolders == nil || len(*fabricFolders) == 0 {
+		log.Println("⚠️ No folders found in Fabric Ledger.")
+		return &folders, nil // Return whatever is available (MongoDB results)
+	}
+
+	for _, fabricFolder := range *fabricFolders {
+		parsedTime, err := time.Parse(time.RFC3339, fabricFolder.CreateAt)
+		if err != nil {
+			fmt.Println("❌ Error parsing time:", err)
+			return nil, err
+		}
+		convertedFolders = append(convertedFolders, entities.Folder{
+			ID:       fabricFolder.ID,
+			Name:     fabricFolder.Name,
+			Path:     fabricFolder.Path,
+			NbrItems: fabricFolder.NbrItems,
+			CreateAt: parsedTime,
+		})
+	}
+	return &convertedFolders, nil
 }

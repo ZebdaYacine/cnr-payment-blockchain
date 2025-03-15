@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"scps-backend/fabric"
 	profileRepo "scps-backend/feature/home/profile/domain/repository"
 )
 
@@ -16,7 +17,7 @@ type ProfileResult struct {
 
 type ProfileUsecase interface {
 	GetProfile(c context.Context, data *ProfileParams) *ProfileResult
-	GetFolders(c context.Context) *ProfileResult
+	GetFolders(c context.Context, folder *fabric.FolderMetadata) *ProfileResult
 }
 
 type profileUsecase struct {
@@ -42,8 +43,8 @@ func (p *profileUsecase) GetProfile(c context.Context, data *ProfileParams) *Pro
 }
 
 // GetFolders implements ProfileUsecase.
-func (p *profileUsecase) GetFolders(c context.Context) *ProfileResult {
-	profileResult, err := p.repo.GetFolders(c)
+func (p *profileUsecase) GetFolders(c context.Context, folder *fabric.FolderMetadata) *ProfileResult {
+	profileResult, err := p.repo.GetFolders(c, folder)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}

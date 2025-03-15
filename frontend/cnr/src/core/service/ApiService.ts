@@ -43,30 +43,34 @@ private static handleError(error: unknown): ErrorResponse {
 
     return { message: "An unexpected error occurred." };
   }
-
- public static async makeRequest<T>(
+public static async makeRequest<T>(
   method: "get" | "post",
   url: string,
   token: string,
-  data?: object
+  data?: object,
+  params?: Record<string, string> 
 ): Promise<T | ErrorResponse> {
   try {
-
-    console.log(`🔍 API Request: ${method.toUpperCase()} ${url}`); // Log API call
+    console.log(`🔍 API Request: ${method.toUpperCase()} ${url}`);
     console.log("🔑 Token used:", token);
 
+    const config = {
+      ...this.getAuthHeaders(token),
+      params, 
+    };
+
     const response = await (method === "get"
-        ? Http.get<T>(url, this.getAuthHeaders(token))
-        : Http.post<T>(url, data, this.getAuthHeaders(token)));
+      ? Http.get<T>(url, config)
+      : Http.post<T>(url, data, config));
 
     console.log("✅ API Response:", response.data);
-    
     return response.data;
   } catch (error) {
     console.error("❌ API Error:", error);
     return ApiService.handleError(error);
   }
 }
+
 
 
 }

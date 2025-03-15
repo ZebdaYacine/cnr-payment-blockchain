@@ -218,7 +218,7 @@ func createFolderMetadata(contract *client.Contract, folder *FolderMetadata) (*F
 	// Submit transaction for creating folder metadata
 	submitResult, err := contract.SubmitTransaction(
 		"CreateFolderMetadata",
-		folder.ID, folder.UserId, folder.Name, folder.Path, folder.Destination,
+		folder.ID, folder.UserId, folder.Name, folder.Path, folder.Destination, folder.Organisation,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
@@ -229,11 +229,11 @@ func createFolderMetadata(contract *client.Contract, folder *FolderMetadata) (*F
 	return folder, nil
 }
 
-func getAllFolderMetadataByDestination(contract *client.Contract, Destination string) (*[]FolderMetadata, error) {
+func getAllFolderMetadataByDestAndOrg(contract *client.Contract, Destination string, Organisation string) (*[]FolderMetadata, error) {
 	// deleteAllFileMetadata(contract)
 	fmt.Println("\n--> Evaluate Transaction: getAllFolderMetadataByDestination, function returns all the current Folder by destination on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("GetFolderMetadataByDestination", Destination)
+	evaluateResult, err := contract.EvaluateTransaction("GetFolderMetadataByDestAndOrg", Destination, Organisation)
 	if err != nil {
 		fmt.Errorf("failed to evaluate transaction: %w", err)
 	}

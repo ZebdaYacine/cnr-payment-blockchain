@@ -15,22 +15,29 @@ export function useFolderViewModel(profileUseCase: FolderUseCase) {
 
 
   const { mutate: getFolders, data: Folders, isPending: isFolderLoading, isSuccess: isFolderSuccess} = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({organisation:organisation,destination:destination}: { organisation: string,destination: string}) => {
       console.log("Folders")
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetFolder(storedToken);
+      return profileUseCase.GetFolder(storedToken,organisation,destination);
     },
     onSuccess: (data) => {
       console.log("Raw API Response:", data);
       if (data && "data" in data ) {
         const resp = data as FolderResponse;
+        if(resp.data.length>0){
         setFoldersList(resp.data);
+        }else{
+          console.log("🚨 No folders found, resetting state.");
+          setFoldersList([])
+        }
       } else {
          const errorResponse = data as ErrorResponse;
          error(errorResponse.message || "Network error occurred during upload", "colored");
+         console.log("🚨 No folders found, resetting state.");
+         setFoldersList([])
         //  Userlogout();
         // if (!isAuthentificated) navigate("/");
       }

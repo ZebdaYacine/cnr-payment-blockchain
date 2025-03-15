@@ -8,8 +8,8 @@ type HTTPRequestConfig = AxiosRequestConfig;
 
 const api = (axios: AxiosInstance) => {
   return {
-    get: <T>(url: string, config: HTTPRequestConfig = {}) => {
-      return axios.get<T>(url, config);
+    get: <T>(url: string,config: HTTPRequestConfig = {}) => {
+      return axios.get<T>(url,config);
     },
     delete: <T>(url: string, config: HTTPRequestConfig = {}) => {
       return axios.delete<T>(url, config);
