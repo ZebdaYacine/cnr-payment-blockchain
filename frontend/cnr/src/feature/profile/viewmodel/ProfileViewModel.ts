@@ -12,6 +12,7 @@ import { useUserId } from '../../../core/state/UserContext';
 import { useChildren } from '../../../core/state/InstitutionContext';
 import { useFoldersMetaData } from '../../../core/state/FolderContext';
 import { useListUsers } from '../../../core/state/ListOfUsersContext';
+import { IsTokenExpired } from '../../../services/Http';
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -33,16 +34,25 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
 
     const { setFoldersList } = useFoldersMetaData();
 
-  const {SetUsername,SetEmail,SetPermission ,SetWorkAt,SetidInstituion} = useUserId();
+  const {SetWilaya,SetUserId,SetUsername,SetEmail,SetPermission,SetType ,SetWorkAt,SetidInstituion} = useUserId();
 
 
   const { mutate: getFolders, data: Folders, isPending: isFolderLoading, isSuccess: isFolderSuccess} = useMutation({
     mutationFn: async ({permission:permission}:{permission:string}) => {
       console.log("Folders")
       const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
+      // if (!storedToken) {
+      //   throw new Error("Authentication token not found");
+      // }
+       if (!storedToken) {
+              navigate("/"); 
+              throw new Error("Authentication token not found");
+            }
+            if (IsTokenExpired(storedToken)) {
+              localStorage.removeItem("authToken"); 
+              navigate("/"); 
+              throw new Error("Session expired. Please log in again.");
+            }
       return profileUseCase.GetFolder(storedToken,permission);
     },
     onSuccess: (data) => {
@@ -65,9 +75,18 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const { mutate: getProfile, data: Profile, isPending: isProfileLoading, isSuccess: isProfileSuccess} = useMutation({
     mutationFn: async ({permission:permission}:{permission:string}) => {
       const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
+      // if (!storedToken) {
+      //   throw new Error("Authentication token not found");
+      // }
+       if (!storedToken) {
+              navigate("/"); 
+              throw new Error("Authentication token not found");
+            }
+            if (IsTokenExpired(storedToken)) {
+              localStorage.removeItem("authToken"); 
+              navigate("/"); 
+              throw new Error("Session expired. Please log in again.");
+            }
       return profileUseCase.GetProfile(storedToken,permission.toLowerCase());
     },
     onSuccess: (data) => {
@@ -77,9 +96,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         if (userData) {
           console.log("Profile fetched:", userData);
            SetUsername(userData?.username)
+           SetUserId(userData?.id)
+           SetWilaya(userData?.wilaya)
            SetEmail(userData?.email)
            SetPermission(userData?.permission)
            SetWorkAt(userData?.workAt)
+           SetType(userData?.type)
            SetidInstituion(userData?.idInstituion)
         }
       } else {
@@ -95,10 +117,13 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
-  const uploadFileAsync = (file: File, parent: string,folder: string,description :string,organisation :string,destination :string, version: number,permission:string): Promise<FileResponse> => {
+  const uploadFileAsync = (file: File, parent: string,folder: string,description :string,organisation :string,
+    destination :string, version: number,permission:string,
+    reciverId:string,tagged_users:string[]): Promise<FileResponse> => {
   return new Promise((resolve, reject) => {
     uploadFile(
-      { file, parent,folder,description,organisation,destination,version,permission },
+      { file, parent,folder,description,organisation,destination,
+        version,permission,reciverId,tagged_users},
       {
         onSuccess: (data) => resolve(data as FileResponse),
         onError: (err) => reject(err),
@@ -108,15 +133,25 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
 };
 
   const { mutate: uploadFile, data: uploadMetadata, isPending: isUploading, isSuccess: uploadSuccess, isError: uploadError } = useMutation({
-    mutationFn: async ({ file, parent,folder,description,organisation ,destination, version,permission:permission }: { file: File; parent: string;folder: string;description :string;organisation :string;destination :string; version: number,permission:string }) => {
+    mutationFn: async ({ file, parent,folder,description,organisation ,
+      destination, version,permission:permission,reciverId,tagged_users }: { file: File; parent: string;folder: string;
+        description :string;organisation :string;destination :string; version: number,
+        permission:string,reciverId:string, tagged_users:string[]}) => {
       const base64File = await convertFileToBase64(file);
       const filename = file.name;
       const action = "upload";
       const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
-      return profileUseCase.UploadFile(filename, base64File, storedToken, action, parent,folder,description,organisation ,destination, version,permission);
+       if (!storedToken) {
+              navigate("/"); 
+              throw new Error("Authentication token not found");
+            }
+            if (IsTokenExpired(storedToken)) {
+              localStorage.removeItem("authToken"); 
+              navigate("/"); 
+              throw new Error("Session expired. Please log in again.");
+            }
+      return profileUseCase.UploadFile(filename, base64File, storedToken, action, 
+        parent,folder,description,organisation ,destination, version,permission,reciverId,tagged_users);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -137,9 +172,15 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const { mutate: getFiles, data: filesMetadata, isPending: isFetchingFiles, isSuccess: isFetchSuccess } = useMutation({
     mutationFn: async ({permissions:permissions}:{permissions:string}) => {
       const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
+       if (!storedToken) {
+              navigate("/"); 
+              throw new Error("Authentication token not found");
+            }
+            if (IsTokenExpired(storedToken)) {
+              localStorage.removeItem("authToken"); 
+              navigate("/"); 
+              throw new Error("Session expired. Please log in again.");
+            }
       return profileUseCase.GetFiles(storedToken,permissions);
     },
     onSuccess: (data) => {
@@ -161,9 +202,15 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const { mutate: GetInstituations, data: institutionData, isPending: isInstituaionsLoading, isSuccess: isInstituaionsSuccss} = useMutation({
     mutationFn: async ({permissions:permissions}:{permissions:string}) => {
       const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
+       if (!storedToken) {
+              navigate("/"); 
+              throw new Error("Authentication token not found");
+            }
+            if (IsTokenExpired(storedToken)) {
+              localStorage.removeItem("authToken"); 
+              navigate("/"); 
+              throw new Error("Session expired. Please log in again.");
+            }
       return profileUseCase.GetInstitutions(storedToken,permissions);
     },
     onSuccess: (data) => {
@@ -184,9 +231,15 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
    const { mutate: GetChildInstituations, data: childInstitutionData, isPending: isChildInstituaionsLoading, isSuccess: isChildInstituaionsSuccss} = useMutation({
     mutationFn: async ({id,name,permissions}: { id: string,name: string,permissions:string}) => {
       const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
+       if (!storedToken) {
+              navigate("/"); 
+              throw new Error("Authentication token not found");
+            }
+            if (IsTokenExpired(storedToken)) {
+              localStorage.removeItem("authToken"); 
+              navigate("/"); 
+              throw new Error("Session expired. Please log in again.");
+            }
       return profileUseCase.GetChildOfInstitutions(id,name,storedToken,permissions);
     },
     onSuccess: (data) => {
@@ -196,7 +249,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const listOfChildren: Child[] = new Array<Child>();
         listOfChildren[0]=element.institutiont.obj as Child
         console.log(listOfChildren[0])
-        const parent=listOfChildren[0].parent
+        const parent=listOfChildren[0].org
         if(parent){
           listOfChildren[1]=parent as Child
           console.log(listOfChildren[1])
@@ -227,9 +280,15 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const { mutate: GetUsers, data: users, isPending: isUserLoading, isSuccess: isUsersSuccss} = useMutation({
     mutationFn: async ({permissions:permissions}:{permissions:string}) => {
       const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
+       if (!storedToken) {
+              navigate("/"); 
+              throw new Error("Authentication token not found");
+            }
+            if (IsTokenExpired(storedToken)) {
+              localStorage.removeItem("authToken"); 
+              navigate("/"); 
+              throw new Error("Session expired. Please log in again.");
+            }
       return profileUseCase.GetUsers(storedToken,permissions);
     },
     

@@ -12,13 +12,19 @@ interface UserContextType {
   permission: string;
   idInstituion: string;
   workAt: string;
+  type: string;
+  password: string;
+  wilaya: string;
+  userId: string;
+  SetUserId: (userid: string) => void;
   SetUsername: (username: string) => void;
   SetWorkAt: (workAt: string) => void;
   SetidInstituion: (idInstituion: string) => void;
   SetEmail: (email: string) => void;
   SetPermission: (permission: string) => void;
-  password: string;
   SetPassWord: (password: string) => void;
+  SetType: (type: string) => void;
+  SetWilaya: (type: string) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -32,11 +38,22 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   );
   const [idInstituion, setidInstituion] = useState<string>("");
   const [workAt, setWorkAt] = useState<string>("");
+  const [type, setType] = useState<string>("");
+  const [wilaya, setWilaya] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   useEffect(() => localStorage.setItem("permission", permission), [permission]);
 
   const SetUserName = (username: string) => {
     setUserName(username);
+  };
+
+  const SetUserId = (userId: string) => {
+    setUserId(userId);
+  };
+
+  const SetWilaya = (wilaya: string) => {
+    setWilaya(wilaya);
   };
 
   const SetPassWord = (password: string) => {
@@ -49,6 +66,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const SetidInstituion = (idInstituion: string) => {
     setidInstituion(idInstituion);
+  };
+
+  const SetType = (idInstituion: string) => {
+    setType(idInstituion);
   };
 
   const SetPermission = (permission: string) => {
@@ -65,12 +86,18 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         password: password,
         idInstituion: idInstituion,
         workAt: workAt,
+        type: type,
+        wilaya: wilaya,
+        userId: userId,
+        SetUserId: SetUserId,
         SetidInstituion: SetidInstituion,
         SetWorkAt: SetWorkAt,
         SetUsername: SetUserName,
         SetPassWord: SetPassWord,
         SetEmail: SetEmail,
         SetPermission: SetPermission,
+        SetType: SetType,
+        SetWilaya: SetWilaya,
       }}
     >
       {children}

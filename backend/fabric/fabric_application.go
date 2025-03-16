@@ -62,7 +62,7 @@ func SdkProvider(function string, args ...interface{}) (interface{}, error) {
 		return nil, fmt.Errorf("invalid argument type for add-folder")
 	case "get-folder":
 		if folder, ok := args[0].(*FolderMetadata); ok {
-			return getAllFolderMetadataByDestAndOrg(contract, folder.Destination, folder.Organisation)
+			return getFolderMetadataByRS(contract, folder.UserId, folder.ReciverId)
 		}
 		return nil, fmt.Errorf("invalid argument type for add-folder")
 	case "deleteAll":

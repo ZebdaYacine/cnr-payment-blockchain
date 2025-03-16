@@ -27,25 +27,25 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState("");
 
-  const { workAt, permission } = useUserId();
+  const { workAt, wilaya, permission, userId } = useUserId();
 
   const userPermission = permission || localStorage.getItem("permission");
 
   const fetchFolders = useCallback(() => {
-    if (!peer?.name || !workAt || selectedRadio === "") return;
+    if (!peer?.org.name || !workAt || selectedRadio === "") return;
     if (userPermission)
       switch (selectedRadio) {
         case "IN":
           getFolders({
-            organisation: workAt,
-            destination: peer.name,
+            receiverId: peer.id,
+            senderId: userId,
             permission: userPermission.toLowerCase(),
           });
           break;
         case "OUT":
           getFolders({
-            organisation: peer.name,
-            destination: workAt,
+            receiverId: userId,
+            senderId: peer.id,
             permission: userPermission.toLowerCase(),
           });
           break;
@@ -74,16 +74,29 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
   return (
     <>
       {peer?.name && workAt && (
-        <FileUploadModal destination={peer.name} organisation={workAt} />
+        <FileUploadModal
+          destination={`${peer.org.name} - ${peer.wilaya}`}
+          organisation={`${workAt} - ${wilaya}`}
+          reciverId={peer.id}
+        />
       )}
       <div className="card shadow-2xl w-full">
         <div className="card-body">
           <div className="flex flex-col">
             <div className="flex flex-wrap justify-between">
               <div className="flex flex-col space-y-3">
-                <h2 className="card-title text-center text-3xl">
-                  {peer ? peer.name : "Aucune organisation sélectionnée."}
-                </h2>
+                {peer ? (
+                  <div className="flex flex-col justify-between  p-6 ">
+                    <p className="text-3xl font-extrabold text-gray-500 ">
+                      {peer.org.name} - {peer.wilaya}
+                    </p>
+                    <p className="text-xl font-bold text-gray-400 mt-2 ">
+                      {peer.name} - {peer.type}
+                    </p>
+                  </div>
+                ) : (
+                  "Aucune organisation sélectionnée."
+                )}
                 {peer && (
                   <div className="flex items-center space-x-4">
                     <label className="flex items-center cursor-pointer gap-2 p-2">

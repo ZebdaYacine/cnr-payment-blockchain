@@ -17,7 +17,10 @@ export interface ProfileDataSource {
     description:string,
     organisation :string,
     destination :string,
-    version: number,permission:string
+    version: number,
+    permission:string,
+    reciverId:string,
+    tagged_users:string[],
   ): Promise<FileResponse | ErrorResponse>;
   GetInstituaionApi(token: string,permission:string): Promise<InstitutionResponse | ErrorResponse>;
   GetChildOfInstitutionsApi(id:string,name:string,token: string,permission:string): Promise<ChildResponse | ErrorResponse>;
@@ -64,7 +67,9 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     organisation :string,
     destination :string,
     version: number,
-    permission:string
+    permission:string,
+    reciverId:string,
+    tagged_users:string[],
   ): Promise<FileResponse | ErrorResponse> {
     return ApiService.makeRequest<FileResponse>("post", `/${permission}/upload-file`, token, {
       filename,
@@ -76,6 +81,8 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
       organisation ,
       destination ,
       version,
+      reciverId,
+      tagged_users,
     });
   }
 }

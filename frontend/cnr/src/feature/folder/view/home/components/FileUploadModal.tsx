@@ -18,10 +18,12 @@ const profileUseCase = new PofileUseCase(repository);
 interface FileUploadModalProps {
   organisation: string;
   destination: string;
+  reciverId: string;
 }
 function FileUploadModal({
   organisation: organisation,
   destination: destination,
+  reciverId: reciverId,
 }: FileUploadModalProps) {
   const ref = useRef<LoadingBarRef>(null);
   const [commitText, setCommitText] = useState("");
@@ -32,7 +34,7 @@ function FileUploadModal({
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
   const [isFinishUploading, SetFinishUploading] = useState(false);
   const { getFolders } = useFolderViewModel(profileUseCase);
-  const { permission } = useUserId();
+  const { permission, userId } = useUserId();
   const userPermission = permission || localStorage.getItem("permission");
 
   const { uploadFileAsync, uploadMetadata, isUploading, uploadSuccess } =
@@ -83,7 +85,9 @@ function FileUploadModal({
             organisation,
             destination,
             1,
-            userPermission.toLocaleLowerCase()
+            userPermission.toLocaleLowerCase(),
+            reciverId,
+            ["3218381274", "2839612832193"]
           );
           const fileElement = document.getElementById(file.name);
           const btn = document.getElementById(i.toString());
@@ -95,9 +99,9 @@ function FileUploadModal({
             btn.remove();
             if (userPermission)
               getFolders({
-                organisation: organisation,
-                destination: destination,
                 permission: userPermission.toLocaleLowerCase(),
+                receiverId: reciverId,
+                senderId: userId,
               });
           }
         } catch (error) {

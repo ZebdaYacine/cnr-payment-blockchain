@@ -188,12 +188,24 @@ func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMet
 	fmt.Printf("Submitting transaction with: ID=%s, HashFile=%s, UserID=%s, FileName=%s, Parent=%s, Version=%s, Action=%s, Organisation=%s, Path=%s, Folder=%s,Destination=%s\n",
 		file.ID, file.HashFile, file.UserID, file.FileName, file.Parent, file.Version, file.Action, file.Organisation, file.Path, file.Folder, file.Destination)
 
+	args := []string{
+		file.ID, file.HashFile, file.UserID, file.FileName,
+		file.Parent, file.Version, file.Action, file.Organisation,
+		file.Folder, file.Path, file.Destination, file.ReciverId,
+	}
+	if len(file.TaggedUser) > 0 {
+		taggedUserJSON, err := json.Marshal(file.TaggedUser)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal tagged users: %w", err)
+		}
+		args = append(args, string(taggedUserJSON))
+	} else {
+		args = append(args, "[]")
+	}
 	// Submit transaction with correct parameters
 	submitResult, err := contract.SubmitTransaction(
 		"CreateFileMetadata",
-		file.ID, file.HashFile, file.UserID, file.FileName,
-		file.Parent, file.Version, file.Action, file.Organisation,
-		file.Folder, file.Path, file.Destination,
+		args...,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
@@ -215,10 +227,24 @@ func createFolderMetadata(contract *client.Contract, folder *FolderMetadata) (*F
 	fmt.Printf("Submitting transaction with: ID=%s, UserID=%s, Name=%s, Path=%s, Destination=%s,Organisation=%s, NbrItems=%d\n",
 		folder.ID, folder.UserId, folder.Name, folder.Path, folder.Destination, folder.Organisation, folder.NbrItems)
 
+	args := []string{
+		folder.ID, folder.UserId, folder.Name, folder.Path,
+		folder.Destination, folder.Organisation, folder.ReciverId,
+	}
+	if len(folder.TaggedUser) > 0 {
+		taggedUserJSON, err := json.Marshal(folder.TaggedUser)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal tagged users: %w", err)
+		}
+		log.Println("?????????????????????", string(taggedUserJSON))
+		args = append(args, string(taggedUserJSON))
+	} else {
+		args = append(args, "[]")
+	}
 	// Submit transaction for creating folder metadata
 	submitResult, err := contract.SubmitTransaction(
 		"CreateFolderMetadata",
-		folder.ID, folder.UserId, folder.Name, folder.Path, folder.Destination, folder.Organisation,
+		args...,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
@@ -229,11 +255,11 @@ func createFolderMetadata(contract *client.Contract, folder *FolderMetadata) (*F
 	return folder, nil
 }
 
-func getAllFolderMetadataByDestAndOrg(contract *client.Contract, Destination string, Organisation string) (*[]FolderMetadata, error) {
+func getFolderMetadataByRS(contract *client.Contract, senderId string, receiverId string) (*[]FolderMetadata, error) {
 	// deleteAllFileMetadata(contract)
 	fmt.Println("\n--> Evaluate Transaction: getAllFolderMetadataByDestination, function returns all the current Folder by destination on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("GetFolderMetadataByDestAndOrg", Destination, Organisation)
+	evaluateResult, err := contract.EvaluateTransaction("GetFolderMetadataByRS", senderId, receiverId)
 	if err != nil {
 		fmt.Errorf("failed to evaluate transaction: %w", err)
 	}

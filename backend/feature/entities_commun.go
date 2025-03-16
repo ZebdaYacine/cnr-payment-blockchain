@@ -7,18 +7,21 @@ import (
 	profileEntities "scps-backend/feature/home/profile/domain/entities"
 
 	versionEntities "scps-backend/feature/home/version/domain/entities"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type User struct {
-	Id           string `json:"id" bson:"id"`
-	Email        string `json:"email" bson:"email"`
-	Password     string `json:"password" bson:"password"`
-	UserName     string `json:"username" bson:"username"`
-	IdInstituion string `json:"idInstituion" bson:"idInstituion"`
-	WorkAt       string `json:"workAt" bson:"workAt"`
-	Type         string `json:"type" bson:"type"`
-	Permission   string `json:"permission" bson:"permission"`
-	Wilaya       string `json:"wilaya" bson:"wilaya"`
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	Id           string             `json:"id" bson:"id"`
+	Email        string             `json:"email" bson:"email"`
+	Password     string             `json:"password" bson:"password"`
+	UserName     string             `json:"username" bson:"username"`
+	IdInstituion string             `json:"idInstituion" bson:"idInstituion"`
+	WorkAt       string             `json:"workAt" bson:"workAt"`
+	Type         string             `json:"type" bson:"type"`
+	Permission   string             `json:"permission" bson:"permission"`
+	Wilaya       string             `json:"wilaya" bson:"wilaya"`
 }
 
 type Agence struct {

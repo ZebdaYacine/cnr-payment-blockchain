@@ -4,11 +4,13 @@ import { useNotification } from "../../../services/useNotification";
 import { FolderUseCase } from "../domain/usecase/FolderUseCase";
 import { useFoldersMetaData } from "../../../core/state/FolderContext";
 import { FolderResponse } from "../data/dtos/FolderDtos";
+import { IsTokenExpired } from "../../../services/Http";
+import { useNavigate } from "react-router";
 
 export function useFolderViewModel(profileUseCase: FolderUseCase) {
   const { error } = useNotification();
   const { setFoldersList } = useFoldersMetaData();
-
+  const navigate = useNavigate();
   const {
     mutate: getFolders,
     data: Folders,
@@ -17,19 +19,25 @@ export function useFolderViewModel(profileUseCase: FolderUseCase) {
   } = useMutation({
     mutationFn: async ({
       permission,
-      organisation,
-      destination,
+      receiverId,
+      senderId
     }: {
       permission: string;
-      organisation: string;
-      destination: string;
+      receiverId: string;
+      senderId:string
     }) => {
       console.log("Fetching Folders with permission:", permission);
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
+        navigate("/"); 
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.GetFolder(storedToken, permission, organisation, destination);
+      if (IsTokenExpired(storedToken)) {
+        localStorage.removeItem("authToken"); 
+        navigate("/"); 
+        throw new Error("Session expired. Please log in again.");
+      }
+      return profileUseCase.GetFolder(storedToken, permission, receiverId,senderId);
     },
     onSuccess: (data) => {
       console.log("Raw API Response:", data);

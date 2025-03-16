@@ -3,15 +3,15 @@ import { FolderResponse } from "../dtos/FolderDtos";
 import { ApiService } from "../../../../core/service/ApiService";
 
 export interface FolderDataSource {
-  GetFolderApi(token:string,permission:string,organisation:string,destination:string): Promise<FolderResponse | ErrorResponse>;
+  GetFolderApi(token:string,permission:string,receiverId:string,senderId:string): Promise<FolderResponse | ErrorResponse>;
 }
 
 export class FolderDataSourceImpl implements FolderDataSource {
 
-  async GetFolderApi(token:string,permission:string,organisation:string,destination:string): Promise<FolderResponse | ErrorResponse> {
+  async GetFolderApi(token:string,permission:string,receiverId:string,senderId:string): Promise<FolderResponse | ErrorResponse> {
     return ApiService.makeRequest<FolderResponse>("get", `/${permission}/get-folders`,token,undefined, {
-      organisation,
-      destination,
+      receiverId,
+      senderId
     });
   }
 }

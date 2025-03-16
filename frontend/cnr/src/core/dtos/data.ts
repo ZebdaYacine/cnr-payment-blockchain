@@ -5,6 +5,7 @@ export interface User {
   username: string;
   idInstituion: string;
   workAt: string;
+  type:string;
   permission: string,
   wilaya: string,
 }

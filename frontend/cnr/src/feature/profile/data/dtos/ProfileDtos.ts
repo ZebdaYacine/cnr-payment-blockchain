@@ -72,7 +72,9 @@ export interface Folder {
 export interface Child {
   id: string;
   name: string;
-  parent:Institution;
+  type: string;
+  wilaya:string;
+  org:Institution;
 }
 
 

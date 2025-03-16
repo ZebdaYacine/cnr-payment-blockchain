@@ -39,21 +39,21 @@ func (ic *ProfileController) GetFoldersRequest(c *gin.Context) {
 	log.Println("************************ GET FOLDERS REQUEST ************************")
 
 	// ✅ Extract query parameters safely
-	organisation := c.Query("organisation")
-	destination := c.Query("destination")
+	receiverId := c.Query("receiverId")
+	senderId := c.Query("senderId")
 
 	// ✅ Validate input (both parameters are required)
-	if organisation == "" || destination == "" {
-		log.Println("🚨 Missing required parameters: organisation or destination")
+	if receiverId == "" {
+		log.Println("🚨 Missing required parameter: receiverId")
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Message: "Missing required parameters: organisation and destination",
+			Message: "Missing required parameter: receiverId ",
 		})
 		return
 	}
 
 	folder := &fabric.FolderMetadata{
-		Organisation: organisation,
-		Destination:  destination,
+		ReciverId: receiverId,
+		UserId:    senderId,
 	}
 
 	log.Printf("📂 Fetching folders for Organisation: %s, Destination: %s\n", folder.Organisation, folder.Destination)

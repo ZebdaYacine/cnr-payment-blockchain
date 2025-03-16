@@ -26,4 +26,21 @@ const api = (axios: AxiosInstance) => {
   };
 };
 
+export function IsTokenExpired(token: string): boolean {
+  try {
+    const base64Url = token.split(".")[1]; // Extract payload
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const decodedPayload = JSON.parse(atob(base64));
+
+    if (!decodedPayload.exp) return false;
+
+    const expirationTime = decodedPayload.exp * 1000; // Convert to milliseconds
+    return Date.now() >= expirationTime;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return true; // Assume expired if an error occurs
+  }
+}
+
+
 export const Http = api(instance);

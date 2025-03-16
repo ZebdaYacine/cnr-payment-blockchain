@@ -4,7 +4,7 @@ function AvatarCnr() {
     <>
       <div className="flex flex-col items-center justify-center mb-6">
         <div className="flex  justify-center avatar mb-4">
-          <div className="w-30" style={{ width: "50%" }}>
+          <div className="w-30" style={{ width: "60%" }}>
             <img src={CNARLogo} alt="Logo" />
           </div>
         </div>

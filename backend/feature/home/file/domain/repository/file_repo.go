@@ -76,6 +76,8 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		Organisation: file.Organisation,
 		Path:         output,
 		Destination:  file.Destination,
+		ReciverId:    file.ReciverId,
+		TaggedUser:   file.TaggedUser,
 	}
 
 	folderMetaData := &fabric.FolderMetadata{
@@ -86,6 +88,8 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		UserId:       file.UserId,
 		Destination:  file.Destination,
 		Organisation: file.Organisation,
+		TaggedUser:   file.TaggedUser,
+		ReciverId:    file.ReciverId,
 		CreateAt:     time.Now().Format(time.RFC3339),
 	}
 
@@ -225,7 +229,6 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 		} else {
 			file.Status = "Invalid"
 		}
-		log.Println(*file)
 		(*files)[i] = *file
 
 	}

@@ -18,7 +18,8 @@ function ProfilePage() {
 
   const { getProfile, GetChildInstituations, GetUsers } =
     useProfileViewModel(profileUseCase);
-  const { username, email, permission, workAt, idInstituion } = useUserId();
+  const { username, email, permission, workAt, idInstituion, type } =
+    useUserId();
   const userPermission = permission || localStorage.getItem("permission");
 
   useEffect(() => {
@@ -27,10 +28,9 @@ function ProfilePage() {
   }, [getProfile, userPermission]);
 
   useEffect(() => {
-    if (["DIO", "CCR", "POST"].includes(workAt)) {
-      if (userPermission)
-        GetUsers({ permissions: userPermission.toLowerCase() });
-    }
+    // if (["DIO", "CCR", "POST"].includes(workAt)) {
+    if (userPermission) GetUsers({ permissions: userPermission.toLowerCase() });
+    // }
   }, [GetUsers, workAt, userPermission]);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ function ProfilePage() {
   return (
     <>
       <NavBarComponent
-        user={{ username, email, permission, workAt, idInstituion }}
+        user={{ username, email, permission, workAt, idInstituion, type }}
       />
 
       <div className="flex flex-col">

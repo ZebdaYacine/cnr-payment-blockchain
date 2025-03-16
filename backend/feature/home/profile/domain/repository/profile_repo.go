@@ -46,11 +46,14 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		return nil, err
 	}
 	user := feature.User{
+		Id:           userId,
 		Permission:   result["permission"].(string),
 		Email:        result["email"].(string),
 		UserName:     result["username"].(string),
 		WorkAt:       result["workAt"].(string),
 		IdInstituion: result["idInstituion"].(string),
+		Type:         result["type"].(string),
+		Wilaya:       result["wilaya"].(string),
 	}
 
 	return &user, nil
@@ -58,35 +61,6 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 
 func (s *profileRepository) GetFolders(c context.Context, folder *fabric.FolderMetadata) (*[]entities.Folder, error) {
 	var folders []entities.Folder
-	// cursor, err := s.database.Collection(database.FOLDER.String()).Find(c, bson.M{
-	// 	"organisation": folder.Organisation,
-	// 	"Destination":  folder.Destination,
-	// })
-	// if err != nil {
-	// 	log.Println("🚨 MongoDB Query Error:", err)
-	// 	return nil, err
-	// }
-	// defer cursor.Close(c)
-
-	// for cursor.Next(c) {
-	// 	var folder entities.Folder
-	// 	if err := cursor.Decode(&folder); err != nil {
-	// 		log.Println("❌ Error decoding folder:", err)
-	// 		continue // Continue processing even if decoding fails for one document
-	// 	}
-	// 	folders = append(folders, folder)
-	// }
-
-	// if err := cursor.Err(); err != nil {
-	// 	log.Println("🚨 Cursor Error:", err)
-	// 	return nil, err
-	// }
-
-	// if len(folders) == 0 {
-	// 	log.Println("⚠️ No folders found in MongoDB.")
-	// 	// Return an empty slice (not nil) to prevent breaking frontend logic
-	// 	return &folders, nil
-	// }
 	res, err := fabric.SdkProvider("get-folder", folder)
 	if err != nil {
 		log.Println("🚨 Error getting folders from Fabric Ledger:", err)
