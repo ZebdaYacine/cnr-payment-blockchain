@@ -78,7 +78,7 @@ func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([
 		if user.Type == "CAL" {
 			filter = bson.M{"$or": []bson.M{
 				{"workAt": "CCR", "type": "CAL"},
-				{"workAt": "DIO", "type": bson.M{"$in": []string{"CAL", "VAL"}}},
+				{"workAt": "DIO", "type": bson.M{"$in": []string{"CAL", "VAL", "IT"}}},
 				{"workAt": "CCR", "type": "IT"},
 			}}
 		} else if user.Type == "IT" {
