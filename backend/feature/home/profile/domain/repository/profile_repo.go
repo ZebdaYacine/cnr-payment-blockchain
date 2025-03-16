@@ -61,6 +61,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 
 func (s *profileRepository) GetFolders(c context.Context, folder *fabric.FolderMetadata) (*[]entities.Folder, error) {
 	var folders []entities.Folder
+	// fabric.SdkProvider("getAll", folder)
 	res, err := fabric.SdkProvider("get-folder", folder)
 	if err != nil {
 		log.Println("🚨 Error getting folders from Fabric Ledger:", err)
@@ -71,6 +72,7 @@ func (s *profileRepository) GetFolders(c context.Context, folder *fabric.FolderM
 		log.Println("❌ Failed to convert Fabric response to FolderMetadata slice")
 		return &folders, nil
 	}
+	log.Println(">>>>>>>>>>>>>>>>>>>>>>>", fabricFolders)
 	var convertedFolders []entities.Folder
 	if fabricFolders == nil || len(*fabricFolders) == 0 {
 		log.Println("⚠️ No folders found in Fabric Ledger.")

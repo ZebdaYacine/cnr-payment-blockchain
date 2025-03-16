@@ -11,8 +11,10 @@ export interface User {
 }
 
 export interface Folder {
+  id:string,
   name: string;
   nbrItems: number;
   createAt: string; 
-  user:string
+  user:string,
+  
 }

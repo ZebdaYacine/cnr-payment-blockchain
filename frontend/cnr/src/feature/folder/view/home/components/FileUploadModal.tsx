@@ -11,6 +11,9 @@ import { PofileUseCase } from "../../../../profile/domain/usecase/ProfileUseCase
 import { ProfileRepositoryImpl } from "../../../../profile/data/repository/ProfileRepositoryImpl";
 import { ProfileDataSourceImpl } from "../../../../profile/data/dataSource/ProfileAPIDataSource";
 import { useUserId } from "../../../../../core/state/UserContext";
+import { useListUsers } from "../../../../../core/state/ListOfUsersContext";
+import { User } from "../../../../../core/dtos/data";
+import { IoReloadSharp } from "react-icons/io5";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
@@ -30,13 +33,16 @@ function FileUploadModal({
   const [folder, setFolder] = useState("");
   const [commitSize, setCommitSize] = useState(100);
   const [listFiles, setListFiles] = useState<File[]>([]);
+  const [listUsers, setListUsers] = useState<User[]>([]);
   const [groupInFOlder, setGroupInFOlder] = useState(false);
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
   const [isFinishUploading, SetFinishUploading] = useState(false);
   const { getFolders } = useFolderViewModel(profileUseCase);
   const { permission, userId } = useUserId();
   const userPermission = permission || localStorage.getItem("permission");
+  const { users } = useListUsers();
 
+  const [taggedUsers, setTaggedUsers] = useState<string[]>([]);
   const { uploadFileAsync, uploadMetadata, isUploading, uploadSuccess } =
     useProfileViewModel(profileUseCase);
   useEffect(() => {
@@ -48,6 +54,10 @@ function FileUploadModal({
       console.log(fileData);
     }
   }, [isUploading, uploadSuccess, uploadMetadata]);
+
+  useEffect(() => {
+    if (listUsers.length === 0) setListUsers(users);
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -87,7 +97,7 @@ function FileUploadModal({
             1,
             userPermission.toLocaleLowerCase(),
             reciverId,
-            ["3218381274", "2839612832193"]
+            taggedUsers
           );
           const fileElement = document.getElementById(file.name);
           const btn = document.getElementById(i.toString());
@@ -127,13 +137,33 @@ function FileUploadModal({
     );
   };
 
+  const [selectedUsers, setSelectedUsers] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const handleAddUser = (userId: string) => {
+    setSelectedUsers((prev) => ({
+      ...prev,
+      [userId]: !prev[userId],
+    }));
+    setTaggedUsers((prevUsers) =>
+      prevUsers.includes(userId)
+        ? prevUsers.filter((id) => id !== userId)
+        : [...prevUsers, userId]
+    );
+    console.log("User ID clicked:", userId);
+  };
+
+  const refrecheListUsers = () => {
+    setListUsers(users);
+  };
+
   return (
     <dialog id="files" className="modal">
       <div className="modal-box p-8 shadow-lg">
         <LoadingBar color="#f11946" ref={ref} shadow={true} />
 
         <div className="flex justify-between">
-          <h3 className="font-bold text-lg">Insert new Version:</h3>
+          <h3 className="font-bold text-lg">Insérer un nouveau fichier:</h3>
           <BsXLg className="cursor-pointer" onClick={close} />
         </div>
         <form
@@ -158,13 +188,39 @@ function FileUploadModal({
             />
           </label>
 
+          <div className="flex flex-wrap gap-2">
+            {!listUsers || listUsers.length === 0 ? (
+              <div className="flex items-center justify-between w-full">
+                <p className="text-lg font-semibold text-gray-400">
+                  Aucun utilisateur mentionné
+                </p>
+                <IoReloadSharp
+                  className="text-2xl text-red-500 cursor-pointer hover:text-gray-700 transition-all duration-200"
+                  onClick={() => refrecheListUsers()}
+                />
+              </div>
+            ) : (
+              listUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className={`badge ${
+                    selectedUsers[user.id] ? "badge-accent" : "badge-warning"
+                  } flex items-center gap-2 p-2 cursor-pointer`}
+                  onClick={() => handleAddUser(user.id)}
+                >
+                  {user.username} - {user.workAt} - {user.wilaya}
+                </div>
+              ))
+            )}
+          </div>
+
           {listFiles.length > 0 && (
             <>
               <div className="divider" />
               <p className="text-start font-bold ">
                 {countUploadedFiles > 0
-                  ? `Files Uploaded : ${countUploadedFiles}/${listFiles.length}`
-                  : `List of Files : ${listFiles.length}`}
+                  ? `Fichier téléchargé : ${countUploadedFiles}/${listFiles.length}`
+                  : `List des Fichiers : ${listFiles.length}`}
               </p>
               <div className="flex flex-wrap gap-2 bg-gray-200 p-3 rounded-lg max-h-40 overflow-y-auto">
                 {listFiles.map((file, index) => (
@@ -192,14 +248,14 @@ function FileUploadModal({
                   onChange={() => setGroupInFOlder((prev) => !prev)}
                 />
                 <span className="label-text font-bold text-lg">
-                  Group files in a single folder
+                  Regrouper les fichiers dans un seul dossier
                 </span>
               </label>
               {groupInFOlder && (
                 <input
                   type="text"
                   className="mt-3 input input-bordered w-full"
-                  placeholder="Folder name..."
+                  placeholder="Le nom de dossier..."
                   onChange={(event) => {
                     setFolder(event.target.value);
                   }}
@@ -208,7 +264,7 @@ function FileUploadModal({
               <div className="flex flex-col mt-3">
                 <textarea
                   className="textarea textarea-bordered"
-                  placeholder="Details about transactions..."
+                  placeholder="Détails sur la transaction..."
                   onChange={handleCommitSizeChange}
                   value={commitText}
                 />
@@ -237,7 +293,7 @@ function FileUploadModal({
                 className="flex items-center gap-2 text-green-600 font-bold"
               >
                 <MdCheckCircle className="w-8 h-8 text-green-500 animate-pulse" />
-                Upload Successful!
+                Téléchargement réussi !{" "}
               </motion.div>
             ) : (
               <button
@@ -245,7 +301,7 @@ function FileUploadModal({
                 className="btn btn-primary flex items-center gap-2 cursor-pointer"
               >
                 <FaUpload className="animate-bounce" />
-                Upload Files
+                Charger Les Fichiers
               </button>
             ))}
         </form>

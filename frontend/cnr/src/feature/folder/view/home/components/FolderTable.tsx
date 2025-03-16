@@ -25,7 +25,7 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
         <tbody>
           {paginatedFiles.map((folder) => (
             <tr
-              key={folder.name}
+              key={folder.id}
               className="cursor-pointer hover:bg-gray-100 transition-all duration-200"
               onClick={() => onRowClick(folder.name)}
             >

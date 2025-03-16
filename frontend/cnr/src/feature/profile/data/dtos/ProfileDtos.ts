@@ -63,6 +63,7 @@ export interface Institution {
 }
 
 export interface Folder {
+  id :string;
   name: string;
   nbrItems: number;
   createAt: string;
