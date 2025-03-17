@@ -8,12 +8,9 @@ import { useUserId } from "../../../../core/state/UserContext";
 import ListOfPeers from "../components/ListOfPeers";
 import FolderPage from "../../../folder/view/home/pages/Folder";
 import { Outlet, useParams } from "react-router";
-import TagInput from "../components/TagInput";
-import { useListUsers } from "../../../../core/state/ListOfUsersContext";
 
 function ProfilePage() {
   const { folderName, fileName } = useParams();
-  const { users } = useListUsers();
 
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
@@ -52,7 +49,6 @@ function ProfilePage() {
       <NavBarComponent
         user={{ username, email, permission, workAt, idInstituion, type }}
       />
-      <TagInput userList={users} />
       <div className="flex flex-col">
         <div className="m-5">{!folderName && !fileName && <ListOfPeers />}</div>
 

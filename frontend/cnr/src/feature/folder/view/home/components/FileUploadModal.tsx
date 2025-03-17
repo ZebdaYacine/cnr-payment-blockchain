@@ -13,7 +13,8 @@ import { ProfileDataSourceImpl } from "../../../../profile/data/dataSource/Profi
 import { useUserId } from "../../../../../core/state/UserContext";
 import { useListUsers } from "../../../../../core/state/ListOfUsersContext";
 import { User } from "../../../../../core/dtos/data";
-import { IoReloadSharp } from "react-icons/io5";
+// import { IoReloadSharp } from "react-icons/io5";
+import TagInput from "../../../../profile/view/components/TagInput";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
@@ -129,6 +130,7 @@ function FileUploadModal({
     setCountUploadedFiles(0);
     setCommitText("");
     SetFinishUploading(false);
+    setListUsers([]);
   };
 
   const handleDeleteFile = (fileName: string) => {
@@ -137,25 +139,25 @@ function FileUploadModal({
     );
   };
 
-  const [selectedUsers, setSelectedUsers] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const handleAddUser = (userId: string) => {
-    setSelectedUsers((prev) => ({
-      ...prev,
-      [userId]: !prev[userId],
-    }));
-    setTaggedUsers((prevUsers) =>
-      prevUsers.includes(userId)
-        ? prevUsers.filter((id) => id !== userId)
-        : [...prevUsers, userId]
-    );
-    console.log("User ID clicked:", userId);
-  };
+  // const [selectedUsers, setSelectedUsers] = useState<{
+  //   [key: string]: boolean;
+  // }>({});
+  // const handleAddUser = (userId: string) => {
+  //   setSelectedUsers((prev) => ({
+  //     ...prev,
+  //     [userId]: !prev[userId],
+  //   }));
+  //   setTaggedUsers((prevUsers) =>
+  //     prevUsers.includes(userId)
+  //       ? prevUsers.filter((id) => id !== userId)
+  //       : [...prevUsers, userId]
+  //   );
+  //   console.log("User ID clicked:", userId);
+  // };
 
-  const refrecheListUsers = () => {
-    setListUsers(users);
-  };
+  // const refrecheListUsers = () => {
+  //   setListUsers(users);
+  // };
 
   return (
     <dialog id="files" className="modal">
@@ -187,8 +189,9 @@ function FileUploadModal({
               multiple
             />
           </label>
+          <TagInput userList={listUsers} onTagsChange={setTaggedUsers} />
 
-          <div className="flex flex-wrap gap-2">
+          {/* <div className="flex flex-wrap gap-2">
             {!listUsers || listUsers.length === 0 ? (
               <div className="flex items-center justify-between w-full">
                 <p className="text-lg font-semibold text-gray-400">
@@ -212,7 +215,7 @@ function FileUploadModal({
                 </div>
               ))
             )}
-          </div>
+          </div> */}
 
           {listFiles.length > 0 && (
             <>
