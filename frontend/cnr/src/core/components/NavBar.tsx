@@ -36,12 +36,12 @@ function NavBarComponent({ user }: NavBarProps) {
       <div
         className={
           isDarkMode
-            ? "navbar bg-zinc-800 text-white"
-            : "navbar bg-blue-700 text-black"
+            ? "navbar bg-slate-950 text-white"
+            : "navbar bg-blue-600 text-black"
         }
       >
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">
+          <a className="btn btn-ghost text-xl text-cyan-50">
             {user.username} - {user.workAt} / {user.type}
           </a>
         </div>

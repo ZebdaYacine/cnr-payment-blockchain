@@ -71,7 +71,7 @@ function ListOfPeers() {
                           },
                         })
                       }
-                      className="badge badge-secondary hover:badge-outline 
+                      className="badge badge-primary lg:badge-lg  font-semibold hover:badge-outline 
                       cursor-pointer px-3 py-2 whitespace-nowrap
                       "
                     >

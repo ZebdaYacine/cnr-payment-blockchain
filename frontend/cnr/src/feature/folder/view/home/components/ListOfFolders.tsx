@@ -80,7 +80,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
           reciverId={peer.id}
         />
       )}
-      <div className="card shadow-2xl w-full">
+      <div className="card shadow-2xl w-full ">
         <div className="card-body">
           <div className="flex flex-col">
             <div className="flex flex-wrap justify-between">

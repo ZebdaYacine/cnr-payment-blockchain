@@ -1,3 +1,4 @@
+import { User } from "../../../../core/dtos/data";
 
 
 export interface VersionsResponse {
@@ -18,5 +19,13 @@ export interface VersionData {
   Time: string;
   Organisation: string;
   Status: string;
+}
+
+export interface CommitData {
+  ID: string;
+  User: User;
+  Body: string;
+  Time:string;
+
 }
 

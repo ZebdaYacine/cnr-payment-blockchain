@@ -50,12 +50,15 @@ function ProfilePage() {
         user={{ username, email, permission, workAt, idInstituion, type }}
       />
       <div className="flex flex-col">
-        <div className="m-5">{!folderName && !fileName && <ListOfPeers />}</div>
-
-        <div className="m-5">
-          {!folderName && <FolderPage />}
+        {!folderName || !fileName ? (
+          <div className="m-5">
+            {!folderName && !fileName && <ListOfPeers />}
+            {!folderName && <FolderPage />}
+            <Outlet />
+          </div>
+        ) : (
           <Outlet />
-        </div>
+        )}
       </div>
     </>
   );

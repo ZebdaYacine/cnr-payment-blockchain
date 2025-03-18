@@ -5,7 +5,7 @@ import { FileUseCase } from "../../../domain/usecase/FileUseCase";
 import { useFileViewModel } from "../../../viewmodel/FileViewModel";
 
 import ListOfFiles from "../components/ListOfFiles";
-import { usePeer } from "../../../../../core/state/PeerContext";
+// import { usePeer } from "../../../../../core/state/PeerContext";
 import { useFileMetaData } from "../../../../../core/state/FileContext";
 import { Outlet, useParams } from "react-router";
 import { useUserId } from "../../../../../core/state/UserContext";
@@ -31,7 +31,6 @@ function FilesPage() {
     }
   }, [folderName, userPermission, getFiles]);
 
-  const { Peer } = usePeer();
   useEffect(() => {
     if (folderName) {
       const interval = setInterval(
@@ -48,9 +47,7 @@ function FilesPage() {
 
   return (
     <>
-      {!fileName && folderName && (
-        <ListOfFiles files={getFilesList()} peer={Peer} />
-      )}
+      {!fileName && folderName && <ListOfFiles files={getFilesList()} />}
       {fileName && <Outlet />} {/* Show Outlet only if a file is selected */}
     </>
   );
