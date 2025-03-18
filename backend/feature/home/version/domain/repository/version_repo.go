@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"scps-backend/fabric"
 	"scps-backend/feature/home/version/domain/entities"
@@ -62,6 +63,7 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 		FileName:     file.Name,
 		Parent:       file.Parent,
 		Version:      strconv.Itoa(file.Version),
+		LastVersion:  strconv.Itoa(file.Version),
 		Time:         time.Now().Format(time.RFC3339),
 		Action:       file.Action,
 		Folder:       versionPath,
@@ -73,9 +75,11 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 		TaggedUsers:  []string{},
 	}
 
-	_, err = fabric.SdkProvider("add-file", fileMetaData)
+	log.Println(fileMetaData)
+
+	_, err = fabric.SdkProvider("add-version", fileMetaData, file.HashParent)
 	if err != nil {
-		fmt.Println("Error adding file to Fabric Ledger:", err)
+		fmt.Println("Error adding version to Fabric Ledger:", err)
 		return nil, err
 	}
 

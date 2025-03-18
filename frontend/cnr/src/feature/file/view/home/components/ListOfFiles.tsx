@@ -5,7 +5,6 @@ import { Data } from "../../../data/dtos/ProfileDtos";
 import { MdErrorOutline } from "react-icons/md";
 import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
 import { FaFolderTree } from "react-icons/fa6";
-import { useVersion } from "../../../../../core/state/VersionContext";
 
 interface ListOfFilesProps {
   files: Data[];
@@ -18,7 +17,6 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   const { folderName } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRadio] = useState("");
-  const { SetLastVersion } = useVersion();
 
   const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
   const paginatedFiles = files.slice(
@@ -32,11 +30,16 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
     }
   }, [files, totalPages, currentPage]);
 
-  const handleRowClick = (fileName: string, version: number) => {
+  const handleRowClick = (
+    fileName: string,
+    last_version: number,
+    hashPrent: string
+  ) => {
     console.log("Navigating to file version:", fileName);
     navigate(`/home/${folderName}/${fileName}`);
-    console.log(version);
-    SetLastVersion(version);
+    // SetLastVersion(last_version);
+    localStorage.setItem("last-version", String(last_version));
+    localStorage.setItem("hash-parent", String(hashPrent));
   };
 
   return (
@@ -85,7 +88,8 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                     <th className="text-center">User</th>
                     <th className="text-center">Time</th>
                     <th className="text-center">Status</th>
-                    <th className="text-center">Version</th>
+                    <th className="text-center">Version actuelle</th>
+                    <th className="text-center">Nomber de version</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -94,7 +98,11 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                       key={file.ID}
                       className="cursor-pointer hover"
                       onClick={() =>
-                        handleRowClick(file.FileName, file.Version)
+                        handleRowClick(
+                          file.FileName,
+                          file.LasteVersion,
+                          file.HashFile
+                        )
                       }
                     >
                       <td className="text-center">{file.ID}</td>
@@ -113,6 +121,26 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                         </div>
                       </td>
                       <td className="text-center">
+                        {file.Version === file.LasteVersion ? (
+                          <div className=" badge badge-primary font-bold">
+                            v - {file.Version}
+                          </div>
+                        ) : file.LasteVersion > 0 ? (
+                          <select
+                            defaultValue="Pick a Runtime"
+                            className="select select-xs select-success"
+                          >
+                            {[...Array(file.LasteVersion)].map((_, index) => (
+                              <option key={index}>Version {index}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <div className=" badge badge-ghost">
+                            aucun version
+                          </div>
+                        )}
+                      </td>
+                      <td className="text-center">
                         <div
                           className={`badge ${
                             file.Version > 1
@@ -120,7 +148,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                               : "badge-accent"
                           }`}
                         >
-                          {file.Version} version
+                          {file.LasteVersion} versions
                         </div>
                       </td>
                     </tr>
@@ -172,3 +200,19 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
 }
 
 export default ListOfFiles;
+
+// const ListOfFiles = () => {
+//   const { lastVersion, SetLastVersion } = useVersion();
+
+//   return (
+//     <div>
+//       <p>Current Version: {lastVersion}</p>
+//       <button onClick={() => SetLastVersion(lastVersion + 1)}>
+//         Increment Version
+//       </button>
+//       <p>Stored Version in LocalStorage: {lastVersion}</p>
+//     </div>
+//   );
+// };
+
+// export default ListOfFiles;

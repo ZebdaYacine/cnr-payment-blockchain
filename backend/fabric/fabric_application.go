@@ -55,6 +55,13 @@ func SdkProvider(function string, args ...interface{}) (interface{}, error) {
 			return createFileMetadata(contract, file)
 		}
 		return nil, fmt.Errorf("invalid argument type for add-file")
+	case "add-version":
+		return createVersionMetadata(contract, args[0].(*FileMetadata), args[1].(string))
+	case "update-last-version":
+		if file, ok := args[0].(*FileMetadata); ok {
+			return updateVersionOfFile(contract, file)
+		}
+		return nil, fmt.Errorf("invalid argument type for add-file")
 	case "add-folder":
 		if folder, ok := args[0].(*FolderMetadata); ok {
 			return createFolderMetadata(contract, folder)

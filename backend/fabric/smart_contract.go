@@ -177,11 +177,72 @@ func deleteAllFileMetadata(contract *client.Contract) error {
 	return nil
 }
 
+func updateVersionOfFile(contract *client.Contract, file *FileMetadata) (*FileMetadata, error) {
+	fmt.Println("\n--> Evaluate Transaction: UpdateLastVersionFile, function update metadata for a file on the ledger")
+	// Ensure all necessary fields are provided
+	if file.HashFile == "" {
+		return nil, fmt.Errorf("❌ missing required fields in file metadata")
+	}
+	fmt.Printf("Submitting transaction with: HashFile=%s\n", file.HashFile)
+	// Submit transaction with correct parameters
+	submitResult, err := contract.SubmitTransaction(
+		"UpdateLastVersionFile",
+		file.HashFile,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
+	}
+	// Confirm success
+	fmt.Printf("*** ✅  Transaction committed successfully. Result: %s\n", string(submitResult))
+	return file, nil
+}
+
+func createVersionMetadata(contract *client.Contract, file *FileMetadata, HashParent string) (*FileMetadata, error) {
+	fmt.Println("\n--> Evaluate Transaction: createVersionMetadata, function creates metadata for a file on the ledger")
+
+	if HashParent == "" || file.Parent == "" || file.Path == "" || file.Folder == "" || file.ID == "" || file.HashFile == "" || file.UserID == "" || file.FileName == "" || file.Organisation == "" || file.Version == "" || file.LastVersion == "" {
+		return nil, fmt.Errorf("❌ missing required fields in file metadata")
+	}
+
+	fmt.Printf("Submitting transaction with: HashParent=%s ,ID=%s, HashFile=%s, UserID=%s, FileName=%s, Parent=%s, Version=%s, Action=%s, Organisation=%s, Path=%s, Folder=%s,Destination=%s\n",
+		HashParent, file.ID, file.HashFile, file.UserID, file.FileName, file.Parent, file.Version, file.Action, file.Organisation, file.Path, file.Folder, file.Destination)
+
+	taggedUser := "[]"
+	if len(file.TaggedUsers) > 0 {
+		taggedUserJSON, err := json.Marshal(file.TaggedUsers)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal tagged users: %w", err)
+		}
+		taggedUser = string(taggedUserJSON)
+	}
+	// Submit transaction with correct parameters
+	submitResult, err := contract.SubmitTransaction(
+		"CreateVersionMetadata",
+		HashParent, file.ID, file.HashFile, file.UserID, file.FileName,
+		file.Parent, file.Version, file.LastVersion, file.Action, file.Organisation,
+		file.Folder, file.Path, file.Destination, file.ReciverId,
+		taggedUser,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
+	}
+
+	// Confirm success
+	fmt.Printf("*** ✅  Transaction committed successfully. Result: %s\n", string(submitResult))
+	return file, nil
+}
+
 func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMetadata, error) {
 	fmt.Println("\n--> Evaluate Transaction: CreateFileMetadata, function creates metadata for a file on the ledger")
 
+	if file.Parent == "" {
+		if file.Destination == "" {
+			return nil, fmt.Errorf("❌ missing Destination")
+		}
+	}
+
 	// Ensure all necessary fields are provided
-	if file.Path == "" || file.Folder == "" || file.ID == "" || file.HashFile == "" || file.UserID == "" || file.FileName == "" || file.Destination == "" || file.Organisation == "" || file.Version == "" {
+	if file.Path == "" || file.Folder == "" || file.ID == "" || file.HashFile == "" || file.UserID == "" || file.FileName == "" || file.Organisation == "" || file.Version == "" || file.LastVersion == "" {
 		return nil, fmt.Errorf("❌ missing required fields in file metadata")
 	}
 
@@ -200,7 +261,7 @@ func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMet
 	submitResult, err := contract.SubmitTransaction(
 		"CreateFileMetadata",
 		file.ID, file.HashFile, file.UserID, file.FileName,
-		file.Parent, file.Version, file.Action, file.Organisation,
+		file.Parent, file.Version, file.LastVersion, file.Action, file.Organisation,
 		file.Folder, file.Path, file.Destination, file.ReciverId,
 		taggedUser,
 	)

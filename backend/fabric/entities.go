@@ -9,6 +9,7 @@ type FileMetadata struct {
 	FileName     string   `json:"FileName" bson:"file_name"`
 	Parent       string   `json:"Parent" bson:"parent"`
 	Version      string   `json:"Version" bson:"version"`
+	LastVersion  string   `json:"LasteVersion",omitempty" bson:"laste_version"`
 	Action       string   `json:"Action" bson:"action"`
 	Folder       string   `json:"Folder",omitempty" bson:"folder,omitempty"`
 	Description  string   `json:"Description",omitempty" bson:"description,omitempty"`

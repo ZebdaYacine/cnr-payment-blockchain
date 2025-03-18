@@ -2,6 +2,7 @@ package entities
 
 type UploadVersion struct {
 	Name        string `json:"filename"`
+	HashParent  string `json:"hash_parent"`
 	CodeBase64  string `json:"codebase64"`
 	Action      string `json:"action"`
 	Version     int    `json:"version"`

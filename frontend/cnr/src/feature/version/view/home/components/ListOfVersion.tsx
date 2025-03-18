@@ -21,12 +21,16 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
       modal.showModal();
     }
   };
+  const storedVersion = localStorage.getItem("last-version") || "0";
+
   return (
     <>
       <div className="card bg-base-100  m-2 h-full">
         <div className="card-body">
           <div className="flex flex-wrap justify-between">
-            <h2 className="card-title text-center">List of Versions:</h2>
+            <h2 className="card-title text-center">
+              List of Versions:{storedVersion}
+            </h2>
             <button className="btn btn-accent" onClick={displayVersionModal}>
               Ajouter une version
             </button>

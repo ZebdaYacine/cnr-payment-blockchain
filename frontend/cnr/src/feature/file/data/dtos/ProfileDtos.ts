@@ -46,6 +46,7 @@ export interface Data {
   FileName: string;
   Parent: string;
   Version: number;
+  LasteVersion: number;
   Action: string;
   Time: string;
   Organisation: string;

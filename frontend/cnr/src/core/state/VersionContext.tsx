@@ -1,33 +1,40 @@
-import { createContext, useState, ReactNode, useContext } from "react";
+import {
+  createContext,
+  useState,
+  ReactNode,
+  useContext,
+  useEffect,
+} from "react";
 
-interface UserContextType {
+// Define the context type
+interface VersionContextType {
   lastVersion: number;
   SetLastVersion: (version: number) => void;
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+// Create the context
+const VersionContext = createContext<VersionContextType | undefined>(undefined);
 
 export const VersionProvider = ({ children }: { children: ReactNode }) => {
-  const [version, setVersion] = useState<number>(0);
+  const [lastVersion, setLastVersion] = useState<number>(0);
 
   const SetLastVersion = (version: number) => {
-    setVersion(version);
+    setLastVersion(version);
   };
+  useEffect(() => {
+    setLastVersion(lastVersion);
+  }, [lastVersion]);
 
   return (
-    <UserContext.Provider
-      value={{
-        lastVersion: version,
-        SetLastVersion: SetLastVersion,
-      }}
-    >
+    <VersionContext.Provider value={{ lastVersion, SetLastVersion }}>
       {children}
-    </UserContext.Provider>
+    </VersionContext.Provider>
   );
 };
 
-export const useVersion = (): UserContextType => {
-  const context = useContext(UserContext);
+// Custom hook to use VersionContext
+export const useVersion = (): VersionContextType => {
+  const context = useContext(VersionContext);
   if (!context) {
     throw new Error("useVersion must be used within a VersionProvider");
   }

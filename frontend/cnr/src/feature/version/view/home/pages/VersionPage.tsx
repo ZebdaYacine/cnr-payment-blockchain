@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import ListOfVersion from "../components/ListOfVersion";
 import ListOfCommits from "../components/ListOfCommits";
 import { VersionData } from "../../../data/dtos/VersionsDtos";
@@ -63,10 +63,10 @@ function VersionPage() {
 
   const { fileName } = useParams();
 
-  useEffect(() => {
-    const interval = setInterval(() => {}, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {}, 10000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   return (
     <>

@@ -69,6 +69,7 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		FileName:     file.Name,
 		Parent:       file.Parent,
 		Version:      strconv.Itoa(file.Version),
+		LastVersion:  strconv.Itoa(file.Version),
 		Time:         time.Now().Format(time.RFC3339),
 		Action:       file.Action,
 		Folder:       file.Folder,
@@ -92,6 +93,7 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		ReciverId:    file.ReciverId,
 		CreateAt:     time.Now().Format(time.RFC3339),
 	}
+	log.Println(fileMetaData)
 
 	_, err = fabric.SdkProvider("add-file", fileMetaData)
 	if err != nil {

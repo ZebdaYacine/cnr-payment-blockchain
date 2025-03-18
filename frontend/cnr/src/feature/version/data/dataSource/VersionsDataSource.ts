@@ -11,10 +11,10 @@ export interface VersionsDataSource {
     token: string,
     action: string,
     parent: string,
-    version: number,
+    version:number,
     permission: string,
     commit: string,
-    description: string ,folderName:string
+    description: string ,folderName:string,hash_parent:string
   ): Promise<VersionsResponse | ErrorResponse>;
 }
 
@@ -33,10 +33,11 @@ export class ProfileDataSourceImpl implements VersionsDataSource {
     token: string,
     action: string,
     parent: string,
-    version: number,
+    version:number,
     permission: string,
      commit: string,
-    description: string ,folderName:string
+    description: string ,folderName:string,
+    hash_parent:string
   ): Promise<VersionsResponse | ErrorResponse> {
     return ApiService.makeRequest<VersionsResponse>("post", `/${permission}/upload-veriosn`, token, {
       filename,
@@ -46,7 +47,8 @@ export class ProfileDataSourceImpl implements VersionsDataSource {
       version,
       commit,
       description ,
-      folderName
+      folderName,
+      hash_parent,
     });
   }
 }

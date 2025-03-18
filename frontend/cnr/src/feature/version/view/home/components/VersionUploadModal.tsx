@@ -6,19 +6,18 @@ import { ProfileDataSourceImpl } from "../../../data/dataSource/VersionsDataSour
 import { VersionRepositoryImpl } from "../../../data/repository/VersionRepositoryImpl";
 import { VersionUseCase } from "../../../domain/usecase/VersionUseCase";
 import { VersionsResponse } from "../../../data/dtos/VersionsDtos";
-import { useVersion } from "../../../../../core/state/VersionContext";
 import { useParams } from "react-router";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new VersionRepositoryImpl(dataSource);
 const versionUseCase = new VersionUseCase(repository);
+
 function VersionUploadModal() {
   const ref = useRef<LoadingBarRef>(null);
   const [versionName, setVersionName] = useState("");
   const [commitSize, setCommitSize] = useState(100);
   const [commitText, setCommitText] = useState("");
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
-  const { lastVersion, SetLastVersion } = useVersion();
   const { fileName } = useParams();
   const { folderName } = useParams();
 
@@ -84,23 +83,22 @@ function VersionUploadModal() {
     }
   };
 
-  useEffect(() => {
-    if (selectedVersion) {
-      uploadVersion({
-        version: selectedVersion,
-        parent: fileName || "",
-        version_seq: lastVersion,
-        commit: commitText,
-        description: "",
-        folderName: folderName || "",
-      });
-    }
-  }, [lastVersion]);
-
   const addNewVersion = async (event: FormEvent) => {
     event.preventDefault();
     if (selectedVersion) {
-      SetLastVersion((Number(lastVersion) || 0) + 1);
+      const n = localStorage.getItem("last-version") || "0";
+      const hashParent = localStorage.getItem("hash-parent") || "0";
+      const version = parseInt(n) || 0;
+      const new_version = Number(version) + 1;
+      uploadVersion({
+        version: selectedVersion,
+        parent: fileName || "",
+        version_seq: new_version,
+        commit: commitText,
+        description: "",
+        folderName: folderName || "",
+        hash_parent: hashParent,
+      });
     }
   };
 
@@ -109,7 +107,7 @@ function VersionUploadModal() {
       <div className="modal-box p-8 shadow-lg">
         <LoadingBar color="#f11946" ref={ref} shadow={true} />
         <div className="flex flex-row justify-between">
-          <h3 className="font-bold text-lg">Inserer nouvelle Version:</h3>
+          <h3 className="font-bold text-lg">Inserer nouvelle Version: {}</h3>
           <BsXLg className="cursor-pointer" onClick={close} />
         </div>
         <div className="flex flex-col items-center justify-center">

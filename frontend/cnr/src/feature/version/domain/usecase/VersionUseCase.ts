@@ -1,6 +1,6 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import { VersionsResponse } from "../../data/dtos/VersionsDtos";
-import { VersionRepository } from "../repository/ProfileRepository";
+import { VersionRepository } from "../repository/VersionRepository";
 
 export class VersionUseCase {
   repository: VersionRepository;
@@ -15,7 +15,7 @@ export class VersionUseCase {
     token:string,action :string,
     parent:string,version:number,permission: string,
     commit: string,
-    description: string ,folderName:string
+    description: string ,folderName:string,hash_parent:string
   ): 
     Promise<VersionsResponse|ErrorResponse> {
     return await this.repository.UploadVersions(
@@ -26,7 +26,8 @@ export class VersionUseCase {
       version,
       permission,
       commit,
-      description,folderName
+      description,folderName,
+      hash_parent,
     );
   }
 
