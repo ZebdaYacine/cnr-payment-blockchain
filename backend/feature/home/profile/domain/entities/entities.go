@@ -28,6 +28,17 @@ type UploadFile struct {
 	UserId       string
 }
 
+type VersionFile struct {
+	CodeBase64   string `json:"codebase64"`
+	Action       string `json:"action"`
+	Version      int    `json:"version"`
+	Parent       string `json:"parent"`
+	Folder       string `json:"folder"`
+	Description  string `json:"description"`
+	Organisation string `json:"organisation"`
+	UserId       string
+}
+
 type Folder struct {
 	ID       string    `json:"id,omitempty" bson:"id,omitempty"`
 	Name     string    `json:"name" bson:"name"`

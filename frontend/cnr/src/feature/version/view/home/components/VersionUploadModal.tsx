@@ -7,6 +7,7 @@ import { VersionRepositoryImpl } from "../../../data/repository/VersionRepositor
 import { VersionUseCase } from "../../../domain/usecase/VersionUseCase";
 import { VersionsResponse } from "../../../data/dtos/VersionsDtos";
 import { useVersion } from "../../../../../core/state/VersionContext";
+import { useParams } from "react-router";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new VersionRepositoryImpl(dataSource);
@@ -18,6 +19,7 @@ function VersionUploadModal() {
   const [commitText, setCommitText] = useState("");
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
   const { lastVersion, SetLastVersion } = useVersion();
+  const { fileName } = useParams();
   const { uploadVersion, uploadMetadata, isUploading, uploadSuccess } =
     useVersionViewModel(versionUseCase);
 
@@ -84,8 +86,10 @@ function VersionUploadModal() {
     if (selectedVersion) {
       uploadVersion({
         version: selectedVersion,
-        parent: "",
+        parent: fileName || "",
         version_seq: lastVersion,
+        commit: commitText,
+        description: "",
       });
     }
   }, [lastVersion]);

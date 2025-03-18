@@ -13,7 +13,10 @@ export class VersionUseCase {
     filename: string,
     codebase64: string,
     token:string,action :string,
-    parent:string,version:number,permission: string): 
+    parent:string,version:number,permission: string,
+    commit: string,
+    description: string 
+  ): 
     Promise<VersionsResponse|ErrorResponse> {
     return await this.repository.UploadVersions(
       filename,
@@ -21,7 +24,9 @@ export class VersionUseCase {
       token,action,
       parent,
       version,
-      permission
+      permission,
+      commit,
+      description
     );
   }
 
