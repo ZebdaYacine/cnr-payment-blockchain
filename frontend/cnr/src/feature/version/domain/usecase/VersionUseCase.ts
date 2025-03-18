@@ -13,14 +13,16 @@ export class VersionUseCase {
     filename: string,
     codebase64: string,
     token:string,action :string,
-    parent:string,version:number): 
+    parent:string,version:number,permission: string): 
     Promise<VersionsResponse|ErrorResponse> {
     return await this.repository.UploadVersions(
       filename,
       codebase64,
       token,action,
       parent,
-      version);
+      version,
+      permission
+    );
   }
 
   async GetVersions(token:string): Promise<VersionsResponse|ErrorResponse> {

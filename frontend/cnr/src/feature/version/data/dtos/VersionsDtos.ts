@@ -6,6 +6,17 @@ export interface VersionsResponse {
   data: VersionData[] ;
 }
 
+export interface VersionRequest {
+  UserID: string;
+  FileBase64: string;
+  FileName: string;
+  Parent: string;
+  Commit: string;
+  Time: string;
+  Description: string;
+  Version: string;
+}
+
 
 export interface VersionData {
   ID: string;

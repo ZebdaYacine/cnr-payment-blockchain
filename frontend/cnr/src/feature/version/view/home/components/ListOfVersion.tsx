@@ -28,17 +28,16 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
           <div className="flex flex-wrap justify-between">
             <h2 className="card-title text-center">List of Versions:</h2>
             <button className="btn btn-accent" onClick={displayVersionModal}>
-              Add new Version
+              Ajouter une version
             </button>
           </div>
           <table className="table  sm:overflow-x-auto sm:table-sm w-full">
             <thead>
               <tr>
                 <th className="text-center">ID</th>
-                <th className="text-center">File</th>
-                <th className="text-center">User</th>
-                <th className="text-center">Time</th>
-                <th className="text-center">Status</th>
+                <th className="text-center">Fichier</th>
+                <th className="text-center">Utilisateur</th>
+                <th className="text-center">Temps</th>
                 <th className="text-center">Version</th>
               </tr>
             </thead>
@@ -48,19 +47,14 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
                   <td className="text-center">{version.ID}</td>
                   <td className="text-center">{version.FileName}</td>
                   <td className="text-center">{version.UserID}</td>
-                  <td className="text-center">{version.Time}</td>
                   <td className="text-center">
-                    <div
-                      className={`badge ${
-                        version.Status === "Valid"
-                          ? "badge-accent"
-                          : "badge-secondary"
-                      }`}
-                    >
-                      {version.Status}
+                    <div className="badge badge-primary">{version.Time}</div>
+                  </td>
+                  <td className="flex justify-center">
+                    <div className="badge badge-accent">
+                      Veriosn -{version.Note}
                     </div>
                   </td>
-                  <td className="text-center">{version.Note}</td>
                 </tr>
               ))}
             </tbody>

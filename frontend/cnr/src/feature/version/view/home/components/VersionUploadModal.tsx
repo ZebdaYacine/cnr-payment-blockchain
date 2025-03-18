@@ -4,8 +4,9 @@ import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { useVersionViewModel } from "../../../viewmodel/VersionViewModel";
 import { ProfileDataSourceImpl } from "../../../data/dataSource/VersionsDataSource";
 import { VersionRepositoryImpl } from "../../../data/repository/VersionRepositoryImpl";
-import { VersionUseCase } from "../../../domain/usecase/ProfileUseCase";
+import { VersionUseCase } from "../../../domain/usecase/VersionUseCase";
 import { VersionsResponse } from "../../../data/dtos/VersionsDtos";
+import { useVersion } from "../../../../../core/state/VersionContext";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new VersionRepositoryImpl(dataSource);
@@ -16,7 +17,7 @@ function VersionUploadModal() {
   const [commitSize, setCommitSize] = useState(100);
   const [commitText, setCommitText] = useState("");
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
-
+  const { lastVersion, SetLastVersion } = useVersion();
   const { uploadVersion, uploadMetadata, isUploading, uploadSuccess } =
     useVersionViewModel(versionUseCase);
 
@@ -79,10 +80,20 @@ function VersionUploadModal() {
     }
   };
 
+  useEffect(() => {
+    if (selectedVersion) {
+      uploadVersion({
+        version: selectedVersion,
+        parent: "",
+        version_seq: lastVersion,
+      });
+    }
+  }, [lastVersion]);
+
   const addNewVersion = async (event: FormEvent) => {
     event.preventDefault();
     if (selectedVersion) {
-      uploadVersion({ version: selectedVersion, parent: "", version_seq: 1 });
+      SetLastVersion((Number(lastVersion) || 0) + 1);
     }
   };
 
@@ -91,7 +102,7 @@ function VersionUploadModal() {
       <div className="modal-box p-8 shadow-lg">
         <LoadingBar color="#f11946" ref={ref} shadow={true} />
         <div className="flex flex-row justify-between">
-          <h3 className="font-bold text-lg">Insert new Version:</h3>
+          <h3 className="font-bold text-lg">Inserer nouvelle Version:</h3>
           <BsXLg className="cursor-pointer" onClick={close} />
         </div>
         <div className="flex flex-col items-center justify-center">
@@ -115,12 +126,12 @@ function VersionUploadModal() {
             <input
               type="text"
               className="mt-3 input input-bordered w-full"
-              placeholder="Commit transactions..."
+              placeholder="Commiter la transactions..."
             />
             <div className="flex flex-col mt-3">
               <textarea
                 className="textarea textarea-bordered"
-                placeholder="Details about transactions..."
+                placeholder="Details sur la  transactions..."
                 onChange={handleCommitSizeChange}
                 value={commitText}
               />
@@ -143,7 +154,7 @@ function VersionUploadModal() {
                 disabled={commitText.length === 0}
                 onClick={addNewVersion}
               >
-                Add Version
+                Ajouter la Version
               </button>
             </div>
           </form>

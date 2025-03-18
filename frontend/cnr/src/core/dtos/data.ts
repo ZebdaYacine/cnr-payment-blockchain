@@ -16,5 +16,4 @@ export interface Folder {
   nbrItems: number;
   createAt: string; 
   user:string,
-  
 }

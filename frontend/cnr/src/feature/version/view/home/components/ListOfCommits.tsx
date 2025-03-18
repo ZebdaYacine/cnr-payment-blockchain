@@ -4,7 +4,7 @@ function ListOdCommits() {
   return (
     <>
       <div className="flex  flex-col  h-full">
-        <h1 className="text-2xl font-bold">List of Commits:</h1>
+        <h1 className="text-2xl font-bold">List des Commits:</h1>
         <div className="divider divider-info" />
         <div className="space-y-2  max-h-full overflow-y-auto ">
           {" "}

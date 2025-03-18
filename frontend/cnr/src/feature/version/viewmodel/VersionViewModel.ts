@@ -1,12 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
-import { VersionUseCase } from "../domain/usecase/ProfileUseCase";
-// import { useFileMetaData } from "../../../core/state/FileContext";
-// import { useNavigate } from "react-router";
-// import { useAuth } from "../../../core/state/AuthContext";
-// import { useUserId } from "../../../core/state/UserContext";
+import { VersionUseCase } from "../domain/usecase/VersionUseCase";
 import { VersionsResponse } from "../data/dtos/VersionsDtos";
+import { useUserId } from "../../../core/state/UserContext";
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -21,6 +18,7 @@ export function useVersionViewModel(profileUseCase: VersionUseCase) {
   // const { isAuthentificated, Userlogout } = useAuth();
   // const navigate = useNavigate();
   const { error } = useNotification();
+  const {permission}=useUserId()
   // const { setFilesList } = useFileMetaData();
   // const {SetUsername,SetEmail,SetPermission } = useUserId();
   
@@ -65,7 +63,7 @@ export function useVersionViewModel(profileUseCase: VersionUseCase) {
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.UploadVersion(filename, base64File, storedToken, action, parent, version_seq);
+      return profileUseCase.UploadVersion(filename, base64File, storedToken, action, parent, version_seq,permission.toLowerCase());
     },
     onSuccess: (data) => {
       if (data && "data" in data) {

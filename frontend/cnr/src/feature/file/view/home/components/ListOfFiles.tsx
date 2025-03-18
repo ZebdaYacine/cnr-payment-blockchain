@@ -5,6 +5,7 @@ import { Data } from "../../../data/dtos/ProfileDtos";
 import { MdErrorOutline } from "react-icons/md";
 import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
 import { FaFolderTree } from "react-icons/fa6";
+import { useVersion } from "../../../../../core/state/VersionContext";
 
 interface ListOfFilesProps {
   files: Data[];
@@ -17,6 +18,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   const { folderName } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRadio] = useState("");
+  const { SetLastVersion } = useVersion();
 
   const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
   const paginatedFiles = files.slice(
@@ -30,9 +32,11 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
     }
   }, [files, totalPages, currentPage]);
 
-  const handleRowClick = (fileName: string) => {
+  const handleRowClick = (fileName: string, version: number) => {
     console.log("Navigating to file version:", fileName);
     navigate(`/home/${folderName}/${fileName}`);
+    console.log(version);
+    SetLastVersion(version);
   };
 
   return (
@@ -89,7 +93,9 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                     <tr
                       key={file.ID}
                       className="cursor-pointer hover"
-                      onClick={() => handleRowClick(file.FileName)}
+                      onClick={() =>
+                        handleRowClick(file.FileName, file.Version)
+                      }
                     >
                       <td className="text-center">{file.ID}</td>
                       <td className="text-center">{file.FileName}</td>

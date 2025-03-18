@@ -82,9 +82,9 @@ function VersionPage() {
                       {fileName ?? "Unknown"}
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-500 mt-2 font-bold">
+                  <h1 className="text-xs sm:text-xl text-gray-500 mt-2 font-bold">
                     Checksum: 23972987498399502319092183426593246343432434
-                  </p>
+                  </h1>
                 </div>
               </div>
             </div>
@@ -92,21 +92,16 @@ function VersionPage() {
 
           <div className="divider"></div>
 
-          {/* Responsive Layout - Column on Small Screens, Row on Larger Screens */}
           <div className="flex flex-col  md:flex-row space-y-5 md:space-y-0 md:space-x-2">
-            {/* Commits Section - Full Width on Small Screens, Sidebar on Larger Screens */}
             <div className="flex flex-col  md:w-1/4 w-full border-r border-gray-300 p-3 h-64 md:h-auto md:max-h-screen overflow-y-auto">
               <ListOfCommits />
             </div>
 
-            {/* Versions and Textarea Section */}
             <div className="flex flex-col md:w-3/4 w-full h-full">
-              {/* Scrollable Versions List */}
               <div className="h-72 md:h-3/4 shadow overflow-y-auto">
                 <ListOfVersion version={versionDataArray} />
               </div>
 
-              {/* Textarea for Details */}
               <div className="h-32 md:h-1/4 p-3 space-y-2 shadow">
                 <textarea
                   className="textarea textarea-success w-full h-full"

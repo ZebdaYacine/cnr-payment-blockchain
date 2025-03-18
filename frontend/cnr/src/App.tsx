@@ -8,27 +8,30 @@ import { ChildProvider } from "./core/state/InstitutionContext";
 import { PeerProvider } from "./core/state/PeerContext";
 import { FolderProvider } from "./core/state/FolderContext";
 import { UsersListProvider } from "./core/state/ListOfUsersContext";
+import { VersionProvider } from "./core/state/VersionContext";
 
 function App() {
   return (
     <UsersListProvider>
-      <ChildProvider>
-        <PeerProvider>
-          <FolderProvider>
-            <FileProvider>
-              <AuthProvider>
-                <ThemeProvider>
-                  <UserProvider>
-                    <BrowserRouter>
-                      <AppRouter />
-                    </BrowserRouter>
-                  </UserProvider>
-                </ThemeProvider>
-              </AuthProvider>
-            </FileProvider>
-          </FolderProvider>
-        </PeerProvider>
-      </ChildProvider>
+      <VersionProvider>
+        <ChildProvider>
+          <PeerProvider>
+            <FolderProvider>
+              <FileProvider>
+                <AuthProvider>
+                  <ThemeProvider>
+                    <UserProvider>
+                      <BrowserRouter>
+                        <AppRouter />
+                      </BrowserRouter>
+                    </UserProvider>
+                  </ThemeProvider>
+                </AuthProvider>
+              </FileProvider>
+            </FolderProvider>
+          </PeerProvider>
+        </ChildProvider>
+      </VersionProvider>
     </UsersListProvider>
   );
 }
