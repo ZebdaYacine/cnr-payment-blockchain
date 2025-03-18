@@ -20,6 +20,8 @@ function VersionUploadModal() {
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
   const { lastVersion, SetLastVersion } = useVersion();
   const { fileName } = useParams();
+  const { folderName } = useParams();
+
   const { uploadVersion, uploadMetadata, isUploading, uploadSuccess } =
     useVersionViewModel(versionUseCase);
 
@@ -90,6 +92,7 @@ function VersionUploadModal() {
         version_seq: lastVersion,
         commit: commitText,
         description: "",
+        folderName: folderName || "",
       });
     }
   }, [lastVersion]);

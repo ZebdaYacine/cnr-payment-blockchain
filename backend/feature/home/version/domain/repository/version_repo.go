@@ -2,14 +2,18 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log"
+	"os"
 	"scps-backend/fabric"
 	"scps-backend/feature/home/version/domain/entities"
 	"scps-backend/pkg/database"
 	"scps-backend/util"
 	"strconv"
 	"time"
+
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type versionRepository struct {
@@ -18,7 +22,7 @@ type versionRepository struct {
 
 // GetAllDemand implements VersionRepository.
 type VersionRepository interface {
-	UploadVersion(c context.Context, file entities.UploadVersion) (*[]fabric.FileMetadata, error)
+	UploadVersion(c context.Context, file entities.UploadVersion) (*fabric.FileMetadata, error)
 }
 
 func NewVersionRepository(db database.Database) VersionRepository {
@@ -27,22 +31,32 @@ func NewVersionRepository(db database.Database) VersionRepository {
 	}
 }
 
-func (s *versionRepository) UploadVersion(c context.Context, file entities.UploadVersion) (*[]fabric.FileMetadata, error) {
-	output := "../../ftp/" + file.Name
-	err := util.Base64ToFile(file.CodeBase64, output)
+func (s *versionRepository) UploadVersion(c context.Context, file entities.UploadVersion) (*fabric.FileMetadata, error) {
+	fileID := uuid.New()
+
+	versionPath := "../../ftp/" + file.Folder + "/" + "Versions_Of_" + file.Parent
+	err := os.MkdirAll(versionPath, os.ModePerm)
 	if err != nil {
+		fmt.Println("Error creating folder:", err)
 		return nil, err
 	}
+
+	output := versionPath + "/" + file.Name
+	err = util.Base64ToFile(file.CodeBase64, output)
+	if err != nil {
+		return nil, fmt.Errorf("error converting Base64 to file: %v", err)
+	}
+
 	checksum, err := util.CalculateChecksum(output)
 	if err != nil {
-		fmt.Printf("Error calculating checksum: %v\n", err)
+		return nil, fmt.Errorf("error calculating checksum: %v", err)
 	}
-	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
+
+	fmt.Printf("SHA-256 Version Checksum: %s\n", checksum)
 	fmt.Printf("USER ID: %s\n", file.UserId)
 
-	id := time.Now().UnixMilli()
-	metadata := &fabric.FileMetadata{
-		ID:           strconv.FormatInt(id, 10),
+	fileMetaData := &fabric.FileMetadata{
+		ID:           fileID.String(),
 		HashFile:     checksum,
 		UserID:       file.UserId,
 		FileName:     file.Name,
@@ -50,26 +64,48 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 		Version:      strconv.Itoa(file.Version),
 		Time:         time.Now().Format(time.RFC3339),
 		Action:       file.Action,
-		Organisation: "file.Organisation",
+		Folder:       versionPath,
+		Description:  file.Description,
+		Organisation: "DIO",
+		Path:         output,
+		Destination:  "",
+		ReciverId:    "",
+		TaggedUsers:  []string{},
 	}
-	log.Println(metadata.Action)
-	log.Println(metadata.Organisation)
-	log.Println(metadata.Parent)
-	log.Println(metadata.Version)
 
-	// fabric.SdkProvider("deleteAll", metadata)
-	result, err := fabric.SdkProvider("add", metadata)
+	_, err = fabric.SdkProvider("add-file", fileMetaData)
+	if err != nil {
+		fmt.Println("Error adding file to Fabric Ledger:", err)
+		return nil, err
+	}
+
+	fileIDMongo, err := s.addFileToDB(c, *fileMetaData)
 	if err != nil {
 		return nil, err
 	}
-	files, ok := result.(*[]fabric.FileMetadata)
-	if !ok {
-		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
+	fmt.Println("Inserted file metadata into MongoDB:", fileIDMongo)
+
+	return fileMetaData, nil
+}
+
+func (s *versionRepository) addFileToDB(c context.Context, metadata fabric.FileMetadata) (string, error) {
+	collection := s.database.Collection(database.FILE.String())
+	count, err := collection.CountDocuments(c, bson.M{
+		"file_name": metadata.FileName,
+		"folder":    metadata.Folder,
+	})
+	if err != nil {
+		fmt.Println("Error checking file existence in MongoDB:", err)
+		return "", err
 	}
-	for i := range *files {
-		file := &(*files)[i]
-		file.Status = "Valid"
-		(*files)[i] = *file
+	if count > 0 {
+		return "", errors.New("file already exists in MongoDB. Skipping insertion")
 	}
-	return files, err
+	result, err := collection.InsertOne(c, metadata)
+	if err != nil {
+		fmt.Println("Error inserting file metadata into MongoDB:", err)
+		return "", err
+	}
+	fmt.Printf("File inserted with ID: %v\n", result.(string))
+	return result.(string), nil
 }

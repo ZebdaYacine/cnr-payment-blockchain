@@ -55,7 +55,7 @@ export function useVersionViewModel(profileUseCase: VersionUseCase) {
   // });
 
   const { mutate: uploadVersion, data: uploadMetadata, isPending: isUploading, isSuccess: uploadSuccess, isError: uploadError } = useMutation({
-    mutationFn: async ({ version: version, parent, version_seq: version_seq,commit,description }: { version: File; parent: string; version_seq: number;commit: string;description: string }) => {
+    mutationFn: async ({ version: version, parent, version_seq: version_seq,commit,description,folderName }: { version: File; parent: string; version_seq: number;commit: string;description: string,folderName:string }) => {
       const base64File = await convertFileToBase64(version);
       const filename = version.name;
       const action = "upload";
@@ -63,7 +63,7 @@ export function useVersionViewModel(profileUseCase: VersionUseCase) {
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return profileUseCase.UploadVersion(filename, base64File, storedToken, action, parent, version_seq,permission.toLowerCase(),commit,description);
+      return profileUseCase.UploadVersion(filename, base64File, storedToken, action, parent, version_seq,permission.toLowerCase(),commit,description,folderName);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {

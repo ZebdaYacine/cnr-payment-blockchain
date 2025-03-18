@@ -6,6 +6,7 @@ type UploadVersion struct {
 	Action      string `json:"action"`
 	Version     int    `json:"version"`
 	Parent      string `json:"parent"`
+	Folder      string `json:"folderName"`
 	Commit      string `json:"commit"`
 	Description string `json:"description"`
 	UserId      string

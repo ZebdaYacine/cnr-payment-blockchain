@@ -15,7 +15,7 @@ export class VersionUseCase {
     token:string,action :string,
     parent:string,version:number,permission: string,
     commit: string,
-    description: string 
+    description: string ,folderName:string
   ): 
     Promise<VersionsResponse|ErrorResponse> {
     return await this.repository.UploadVersions(
@@ -26,7 +26,7 @@ export class VersionUseCase {
       version,
       permission,
       commit,
-      description
+      description,folderName
     );
   }
 

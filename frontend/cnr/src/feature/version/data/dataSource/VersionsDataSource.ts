@@ -14,7 +14,7 @@ export interface VersionsDataSource {
     version: number,
     permission: string,
     commit: string,
-    description: string 
+    description: string ,folderName:string
   ): Promise<VersionsResponse | ErrorResponse>;
 }
 
@@ -36,7 +36,7 @@ export class ProfileDataSourceImpl implements VersionsDataSource {
     version: number,
     permission: string,
      commit: string,
-    description: string 
+    description: string ,folderName:string
   ): Promise<VersionsResponse | ErrorResponse> {
     return ApiService.makeRequest<VersionsResponse>("post", `/${permission}/upload-veriosn`, token, {
       filename,
@@ -46,6 +46,7 @@ export class ProfileDataSourceImpl implements VersionsDataSource {
       version,
       commit,
       description ,
+      folderName
     });
   }
 }

@@ -6,5 +6,5 @@ export interface VersionRepository {
   // GetProfile(token:string): Promise<ProfileResponse|ErrorResponse>;
   UploadVersions(filename: string,codebase64: string,token:string,
     action :string,parent:string,version:number,permission: string, commit: string,
-    description: string ): Promise<VersionsResponse|ErrorResponse>;
+    description: string,folderName:string ): Promise<VersionsResponse|ErrorResponse>;
 }
