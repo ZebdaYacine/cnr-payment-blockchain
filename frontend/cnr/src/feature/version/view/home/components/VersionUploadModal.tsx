@@ -46,7 +46,7 @@ function VersionUploadModal() {
         const d = uploadMetadata as VersionsResponse;
         const file = d?.data;
         if (file) {
-          SetLastVersion(Number(lastVersion) + 1);
+          SetLastVersion(Number(file[0].LastVersion) + 1);
           close();
         } else {
           // setFileName("Error occurred during upload");

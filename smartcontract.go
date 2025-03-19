@@ -169,7 +169,7 @@ func (s *SmartContract) ReadFileMetadata(ctx contractapi.TransactionContextInter
 }
 
 // UpdateFileMetadata updates an existing FileMetadata entry
-func (s *SmartContract) UpdateFileMetadata(ctx contractapi.TransactionContextInterface, id, hashFile, userID, action, FileName, Parent, Version, LastVersion, organisation, FolderName, Path, Destination string, ReciverId string, TaggedUserJson, description string) error {
+func (s *SmartContract) UpdateFileMetadata(ctx contractapi.TransactionContextInterface, id, hashFile, userID, action, FileName, Parent, Version, LastVersion, organisation, FolderName, Path, Destination string, ReciverId string, TaggedUserJson, description, commit string) error {
 	if !isValidAction(action) {
 		return fmt.Errorf("invalid action: %s. Valid actions are 'upload' or 'download'", action)
 	}
@@ -209,6 +209,7 @@ func (s *SmartContract) UpdateFileMetadata(ctx contractapi.TransactionContextInt
 		ReciverId:    ReciverId,
 		TaggedUser:   taggedUsers,
 		Description:  description,
+		Commit:       commit,
 	}
 	FileMetadataJSON, err := json.Marshal(FileMetadata)
 	if err != nil {
@@ -264,7 +265,7 @@ func (s *SmartContract) UpdateLastVersionFile(ctx contractapi.TransactionContext
 		file.LastVersion = lastVersion
 		return s.UpdateFileMetadata(ctx, file.ID, file.HashFile, file.UserID, file.Action,
 			file.FileName, file.Parent, file.Version, file.LastVersion,
-			file.Organisation, file.Folder, file.Path, file.Destination, file.ReciverId, taggedUser)
+			file.Organisation, file.Folder, file.Path, file.Destination, file.ReciverId, taggedUser, file.Description, file.Commit)
 	}
 
 	for _, file := range files {
@@ -286,30 +287,24 @@ func (s *SmartContract) GetFileMetadataByParentName(ctx contractapi.TransactionC
 		return nil, err
 	}
 	defer resultsIterator.Close()
-
 	var fileMetadataList []*FileMetadata
-
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
 			return nil, err
 		}
-
 		var fileMetadata FileMetadata
 		err = json.Unmarshal(queryResponse.Value, &fileMetadata)
 		if err != nil {
 			return nil, err
 		}
-
 		if fileMetadata.Parent == parent && fileMetadata.HashFile != "" {
 			fileMetadataList = append(fileMetadataList, &fileMetadata)
 		}
 	}
-
 	if len(fileMetadataList) == 0 {
 		return nil, fmt.Errorf("no FileMetadata found for FolderName: %s", parent)
 	}
-
 	return fileMetadataList, nil
 }
 

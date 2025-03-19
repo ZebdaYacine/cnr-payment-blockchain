@@ -238,7 +238,6 @@ func createVersionMetadata(contract *client.Contract, file *FileMetadata, HashPa
 		return nil, err
 	}
 	fmt.Printf("*** ✅  Transaction Get Parent File committed successfully. Result: %s\n", string(submitResult1))
-
 	if err != nil {
 		return nil, fmt.Errorf("❌ failed to Get Parent File  submit transaction: %w", err)
 	}
@@ -252,11 +251,37 @@ func createVersionMetadata(contract *client.Contract, file *FileMetadata, HashPa
 		fileParent.ID, fileParent.HashFile, fileParent.UserID, fileParent.Action, fileParent.FileName,
 		fileParent.Parent, fileParent.Version, file.LastVersion, fileParent.Organisation,
 		fileParent.Folder, fileParent.Path, fileParent.Destination, fileParent.ReciverId,
-		taggedUser, fileParent.Description,
+		taggedUser, fileParent.Description, "",
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ >>>>>>>>>>>>failed to submit transaction: %w", err)
 	}
+	version := []FileMetadata{}
+	fmt.Printf("*** ✅  Transaction Get Parent File committed successfully. Result: %s\n", string(submitResult1))
+	submitResult0, err := contract.SubmitTransaction(
+		"GetFileMetadataByParentName",
+		file.Parent,
+	)
+	err = json.Unmarshal(submitResult0, &version)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("*** ✅  Transaction Get all files by  Parent File committed successfully. Result: %s\n", string(submitResult0))
+
+	for _, version := range version {
+		_, err = contract.SubmitTransaction(
+			"UpdateFileMetadata",
+			version.ID, version.HashFile, version.UserID, version.Action, version.FileName,
+			version.Parent, version.Version, file.LastVersion, version.Organisation,
+			version.Folder, version.Path, version.Destination, version.ReciverId,
+			taggedUser, version.Description, version.Commit,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("❌ >>>>>>>>>>>>failed to submit transaction: %w", err)
+		}
+	}
+	fmt.Printf("*** ✅  Transaction Update last_version for all versions ")
+
 	submitResult4, err := contract.SubmitTransaction(
 		"GetFileMetadataByHashFile",
 		fileParent.HashFile,

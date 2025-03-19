@@ -27,6 +27,8 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   );
 
   useEffect(() => {
+    SetHashParent("");
+    SetLastVersion(0);
     if (currentPage > totalPages) {
       setCurrentPage(1);
     }
