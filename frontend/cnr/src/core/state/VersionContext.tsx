@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useState,
-  ReactNode,
-  useContext,
-  useEffect,
-} from "react";
+import { createContext, useState, ReactNode, useContext } from "react";
 
 // Define the context type
 interface VersionContextType {
@@ -21,9 +15,6 @@ export const VersionProvider = ({ children }: { children: ReactNode }) => {
   const SetLastVersion = (version: number) => {
     setLastVersion(version);
   };
-  useEffect(() => {
-    setLastVersion(lastVersion);
-  }, [lastVersion]);
 
   return (
     <VersionContext.Provider value={{ lastVersion, SetLastVersion }}>

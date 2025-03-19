@@ -5,6 +5,7 @@ import { Data } from "../../../data/dtos/ProfileDtos";
 import { MdErrorOutline } from "react-icons/md";
 import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
 import { FaFolderTree } from "react-icons/fa6";
+import { useVersion } from "../../../../../core/state/VersionContext";
 
 interface ListOfFilesProps {
   files: Data[];
@@ -17,6 +18,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   const { folderName } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRadio] = useState("");
+  const { lastVersion, SetLastVersion } = useVersion();
 
   const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
   const paginatedFiles = files.slice(
@@ -37,7 +39,6 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   ) => {
     console.log("Navigating to file version:", fileName);
     navigate(`/home/${folderName}/${fileName}`);
-    // SetLastVersion(last_version);
     localStorage.setItem("last-version", String(last_version));
     localStorage.setItem("hash-parent", String(hashPrent));
   };
@@ -52,6 +53,9 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
         />
       )} */}
       {/* <FileUploadModal destination="" organisation="" /> */}
+      <button onClick={() => SetLastVersion(lastVersion + 1)}>
+        // Increment Version //{lastVersion}
+      </button>
       <div className="card shadow-2xl w-full">
         <div className="card-body">
           <div className="flex flex-col">

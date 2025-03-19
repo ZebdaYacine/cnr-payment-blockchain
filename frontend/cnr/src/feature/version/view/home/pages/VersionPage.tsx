@@ -1,75 +1,17 @@
 // import { useEffect } from "react";
 import ListOfVersion from "../components/ListOfVersion";
 import ListOfCommits from "../components/ListOfCommits";
-import { VersionData } from "../../../data/dtos/VersionsDtos";
 import { FaFileAlt } from "react-icons/fa";
 import { useParams } from "react-router";
+import { useVersion } from "../../../../../core/state/VersionContext";
 
 function VersionPage() {
-  const versionDataArray: VersionData[] = [
-    {
-      ID: "1",
-      HashFile: "abc123",
-      UserID: "user01",
-      FileName: "report.pdf",
-      Parent: "0",
-      Note: 5,
-      Path: "/files/reports",
-      Action: "created",
-      Time: "2025-03-17T10:00:00Z",
-      Organisation: "TechCorp",
-      Status: "approved",
-    },
-    {
-      ID: "2",
-      HashFile: "def456",
-      UserID: "user02",
-      FileName: "design.png",
-      Parent: "1",
-      Note: 4,
-      Path: "/files/designs",
-      Action: "updated",
-      Time: "2025-03-17T11:00:00Z",
-      Organisation: "DesignStudio",
-      Status: "pending",
-    },
-    {
-      ID: "3",
-      HashFile: "ghi789",
-      UserID: "user03",
-      FileName: "presentation.pptx",
-      Parent: "1",
-      Note: 3,
-      Path: "/files/presentations",
-      Action: "deleted",
-      Time: "2025-03-17T12:00:00Z",
-      Organisation: "EduFirm",
-      Status: "archived",
-    },
-    {
-      ID: "4",
-      HashFile: "jkl012",
-      UserID: "user04",
-      FileName: "contract.docx",
-      Parent: "2",
-      Note: 5,
-      Path: "/files/contracts",
-      Action: "reviewed",
-      Time: "2025-03-17T13:00:00Z",
-      Organisation: "LegalFirm",
-      Status: "approved",
-    },
-  ];
-
   const { fileName } = useParams();
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {}, 10000);
-  //   return () => clearInterval(interval);
-  // }, []);
+  const { lastVersion } = useVersion();
 
   return (
     <>
+      // Increment Version //{lastVersion}
       <div className="card shadow-2xl">
         <div className="card-body">
           <div className="flex flex-col">
@@ -99,7 +41,7 @@ function VersionPage() {
 
             <div className="flex flex-col md:w-3/4 w-full h-full">
               <div className="h-72 md:h-3/4 shadow overflow-y-auto">
-                <ListOfVersion version={versionDataArray} />
+                <ListOfVersion version={[]} />
               </div>
 
               <div className="h-32 md:h-1/4 p-3 space-y-2 shadow">

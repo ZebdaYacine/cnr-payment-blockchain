@@ -12,8 +12,8 @@ import { VersionProvider } from "./core/state/VersionContext";
 
 function App() {
   return (
-    <UsersListProvider>
-      <VersionProvider>
+    <VersionProvider>
+      <UsersListProvider>
         <ChildProvider>
           <PeerProvider>
             <FolderProvider>
@@ -31,8 +31,8 @@ function App() {
             </FolderProvider>
           </PeerProvider>
         </ChildProvider>
-      </VersionProvider>
-    </UsersListProvider>
+      </UsersListProvider>
+    </VersionProvider>
   );
 }
 

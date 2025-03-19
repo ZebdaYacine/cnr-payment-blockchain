@@ -21,15 +21,11 @@ function FilesPage() {
   const { getFiles } = useFileViewModel(fileUseCase);
   const { getFilesList } = useFileMetaData();
   const { permission } = useUserId();
-  const { lastVersion, SetLastVersion } = useVersion();
 
   const userPermission = permission || localStorage.getItem("permission");
-  useEffect(() => {
-    SetLastVersion(0);
-  }, [lastVersion]);
 
   useEffect(() => {
-    if (folderName && userPermission && lastVersion == 0) {
+    if (folderName && userPermission) {
       getFiles({
         permission: userPermission.toLowerCase(),
         folder: folderName,
@@ -38,7 +34,7 @@ function FilesPage() {
   }, [folderName, userPermission, getFiles]);
 
   useEffect(() => {
-    if (folderName && lastVersion == 0) {
+    if (folderName) {
       const interval = setInterval(
         () =>
           getFiles({
