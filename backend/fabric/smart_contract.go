@@ -215,8 +215,9 @@ func createVersionMetadata(contract *client.Contract, file *FileMetadata, HashPa
 		}
 		taggedUser = string(taggedUserJSON)
 	}
+
 	// Submit transaction with correct parameters
-	submitResult, err := contract.SubmitTransaction(
+	_, err := contract.SubmitTransaction(
 		"CreateVersionMetadata",
 		HashParent, file.ID, file.HashFile, file.UserID, file.FileName,
 		file.Parent, file.Version, file.LastVersion, file.Action, file.Organisation,
@@ -224,11 +225,50 @@ func createVersionMetadata(contract *client.Contract, file *FileMetadata, HashPa
 		taggedUser,
 	)
 	if err != nil {
+		return nil, fmt.Errorf("❌ failed to Create Version Metadata transaction: %w", err)
+	}
+	fmt.Printf("*** ✅  Transaction  CreateVersionMetadata committed successfully")
+	fileParent := &FileMetadata{}
+	submitResult1, err := contract.SubmitTransaction(
+		"GetFileMetadataByHashFile",
+		HashParent,
+	)
+	err = json.Unmarshal(submitResult1, &fileParent)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("*** ✅  Transaction Get Parent File committed successfully. Result: %s\n", string(submitResult1))
+
+	if err != nil {
+		return nil, fmt.Errorf("❌ failed to Get Parent File  submit transaction: %w", err)
+	}
+	taggedUserJSON, err := json.Marshal(fileParent.TaggedUsers)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal tagged users: %w", err)
+	}
+	taggedUser = string(taggedUserJSON)
+	_, err = contract.SubmitTransaction(
+		"UpdateFileMetadata",
+		fileParent.ID, fileParent.HashFile, fileParent.UserID, fileParent.Action, fileParent.FileName,
+		fileParent.Parent, fileParent.Version, file.LastVersion, fileParent.Organisation,
+		fileParent.Folder, fileParent.Path, fileParent.Destination, fileParent.ReciverId,
+		taggedUser,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("❌ >>>>>>>>>>>>failed to submit transaction: %w", err)
+	}
+	submitResult4, err := contract.SubmitTransaction(
+		"GetFileMetadataByHashFile",
+		fileParent.HashFile,
+	)
+	fmt.Printf("*** ✅  Transaction 3 committed successfully. Result: %s\n", string(submitResult4))
+
+	if err != nil {
 		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
 	}
 
 	// Confirm success
-	fmt.Printf("*** ✅  Transaction committed successfully. Result: %s\n", string(submitResult))
+	// fmt.Printf("*** ✅  Transaction committed successfully. Result: %s\n", string(submitResult))
 	return file, nil
 }
 
@@ -249,14 +289,11 @@ func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMet
 	fmt.Printf("Submitting transaction with: ID=%s, HashFile=%s, UserID=%s, FileName=%s, Parent=%s, Version=%s, Action=%s, Organisation=%s, Path=%s, Folder=%s,Destination=%s\n",
 		file.ID, file.HashFile, file.UserID, file.FileName, file.Parent, file.Version, file.Action, file.Organisation, file.Path, file.Folder, file.Destination)
 
-	taggedUser := "[]"
-	if len(file.TaggedUsers) > 0 {
-		taggedUserJSON, err := json.Marshal(file.TaggedUsers)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal tagged users: %w", err)
-		}
-		taggedUser = string(taggedUserJSON)
+	taggedUserJSON, err := json.Marshal(file.TaggedUsers)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal tagged users: %w", err)
 	}
+	taggedUser := string(taggedUserJSON)
 	// Submit transaction with correct parameters
 	submitResult, err := contract.SubmitTransaction(
 		"CreateFileMetadata",
