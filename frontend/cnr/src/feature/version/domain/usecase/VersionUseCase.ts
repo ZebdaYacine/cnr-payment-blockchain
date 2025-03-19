@@ -31,8 +31,8 @@ export class VersionUseCase {
     );
   }
 
-  async GetVersions(token:string): Promise<VersionsResponse|ErrorResponse> {
-      return await  this.repository.GetVersions(token);
+  async GetVersions(token:string,permission:string,folder:string,parent:string): Promise<VersionsResponse|ErrorResponse> {
+      return await  this.repository.GetVersions(token,permission,folder,parent);
   }
 
 

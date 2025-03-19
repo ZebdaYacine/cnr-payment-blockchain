@@ -42,7 +42,8 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
                 <th className="text-center">Fichier</th>
                 <th className="text-center">Utilisateur</th>
                 <th className="text-center">Temps</th>
-                <th className="text-center">Version</th>
+                <th className="text-center">Version actuelle</th>
+                <th className="text-center"> Nomber versions</th>
               </tr>
             </thead>
             <tbody>
@@ -56,9 +57,10 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
                   </td>
                   <td className="flex justify-center">
                     <div className="badge badge-accent">
-                      Veriosn -{version.Note}
+                      <b> Veriosn - {version.Version}</b>
                     </div>
                   </td>
+                  <td className="text-center">{version.LasteVersion}</td>
                 </tr>
               ))}
             </tbody>

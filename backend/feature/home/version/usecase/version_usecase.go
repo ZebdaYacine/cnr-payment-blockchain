@@ -17,6 +17,7 @@ type VersionResult struct {
 
 type VersionUsecase interface {
 	UploadVersion(c context.Context, data *VersionParams) *VersionResult
+	GetMetadataVersionByParentFile(c context.Context, folder string, parent string) *VersionResult
 }
 
 type versionUsecase struct {
@@ -40,4 +41,12 @@ func (p *versionUsecase) UploadVersion(c context.Context, data *VersionParams) *
 		return &VersionResult{Err: err}
 	}
 	return &VersionResult{Data: profileResult}
+}
+
+func (p *versionUsecase) GetMetadataVersionByParentFile(c context.Context, folder string, parent string) *VersionResult {
+	versionResult, err := p.repo.GetMetadataVersionByParentFile(c, folder, parent)
+	if err != nil {
+		return &VersionResult{Err: err}
+	}
+	return &VersionResult{Data: versionResult}
 }

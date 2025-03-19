@@ -38,6 +38,7 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewUploadFileRouter(db, userRouter)
 	private.NewGetAllMetaDataFileRouter(db, userRouter)
 	private.NewUploadVersionRouter(db, userRouter)
+	private.NewGetVersionRouter(db, userRouter)
 	private.NewGetInstitutionRouter(db, userRouter)
 	private.NewGetChildOfInstitutiosRouter(db, userRouter)
 	private.NewBringsUsersRouter(db, userRouter)
@@ -55,5 +56,6 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewGetInstitutionRouter(db, adminRouter)
 	private.NewGetChildOfInstitutiosRouter(db, adminRouter)
 	private.NewBringsUsersRouter(db, adminRouter)
+	private.NewGetVersionRouter(db, adminRouter)
 
 }

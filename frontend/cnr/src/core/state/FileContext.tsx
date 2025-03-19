@@ -1,5 +1,5 @@
 import { createContext, useState, ReactNode, useContext } from "react";
-import { Data } from "../../feature/profile/data/dtos/ProfileDtos";
+import { Data } from "../../feature/file/data/dtos/FileDtos";
 
 interface FileContextType {
   files: Data[];

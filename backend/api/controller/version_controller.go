@@ -48,3 +48,20 @@ func (ic *VersionController) UploadVersionRequestt(c *gin.Context) {
 		Data:    resulat.Data,
 	})
 }
+
+func (ic *VersionController) GetVersionRequestt(c *gin.Context) {
+	log.Println("************************ GET VERSION REQUEST ************************")
+	folder := c.Query("folder")
+	parentFile := c.Query("parent")
+	resulat := ic.VersionUsecase.GetMetadataVersionByParentFile(c, folder, parentFile)
+	if err := resulat.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "GET VERSION SUCCESSFULY",
+		Data:    resulat.Data,
+	})
+}

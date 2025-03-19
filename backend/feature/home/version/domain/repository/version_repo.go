@@ -24,6 +24,7 @@ type versionRepository struct {
 // GetAllDemand implements VersionRepository.
 type VersionRepository interface {
 	UploadVersion(c context.Context, file entities.UploadVersion) (*fabric.FileMetadata, error)
+	GetMetadataVersionByParentFile(c context.Context, folder string, parent string) (*[]fabric.FileMetadata, error)
 }
 
 func NewVersionRepository(db database.Database) VersionRepository {
@@ -112,4 +113,41 @@ func (s *versionRepository) addFileToDB(c context.Context, metadata fabric.FileM
 	}
 	fmt.Printf("File inserted with ID: %v\n", result.(string))
 	return result.(string), nil
+}
+
+func (s *versionRepository) GetMetadataVersionByParentFile(c context.Context, folder string, parent string) (*[]fabric.FileMetadata, error) {
+	result, err := fabric.SdkProvider("get-version", parent)
+	if err != nil {
+		return nil, err
+	}
+	files, ok := result.(*[]fabric.FileMetadata)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
+	}
+	location := "../../ftp/" + folder + "/" + parent
+	for i := range *files {
+		file := &(*files)[i]
+		filePath := location + file.FileName
+		if !util.FileExists(filePath) {
+			log.Printf("File not found: %s", filePath)
+			file.Status = "Deleted"
+			continue
+		}
+		checksum, err := util.CalculateChecksum(filePath)
+		if err != nil {
+			log.Printf("Error calculating checksum for %s: %v\n", file.FileName, err)
+			file.Status = "ChecksumError"
+			continue
+		}
+		fmt.Printf("(Recalculation)  Checksum: %s\n", checksum)
+		fmt.Printf("(Blockchain) Checksum: %s\n", file.HashFile)
+		if file.HashFile == checksum {
+			file.Status = "Valid"
+		} else {
+			file.Status = "Invalid"
+		}
+		(*files)[i] = *file
+
+	}
+	return files, nil
 }

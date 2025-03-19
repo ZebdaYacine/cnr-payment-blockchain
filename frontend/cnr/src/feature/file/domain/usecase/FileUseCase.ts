@@ -1,6 +1,6 @@
-import {  FileResponse } from '../../data/dtos/ProfileDtos';
+import {  FileResponse } from '../../data/dtos/FileDtos';
 import { ErrorResponse } from "../../../../services/model/commun";
-import { FilesResponse } from "../../data/dtos/ProfileDtos";
+import { FilesResponse } from "../../data/dtos/FileDtos";
 import { FileRepository } from "../repository/FileRepository";
 
 export class FileUseCase {

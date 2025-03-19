@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Data } from "../../../data/dtos/ProfileDtos";
 
 import { MdErrorOutline } from "react-icons/md";
 import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
 import { FaFolderTree } from "react-icons/fa6";
-import { useVersion } from "../../../../../core/state/VersionContext";
+import { useVersion } from "../../../../../core/state/versionContext";
+import { Data } from "../../../data/dtos/FileDtos";
 
 interface ListOfFilesProps {
   files: Data[];
@@ -18,7 +18,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   const { folderName } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRadio] = useState("");
-  const { lastVersion, SetLastVersion } = useVersion();
+  const { SetLastVersion, SetHashParent } = useVersion();
 
   const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
   const paginatedFiles = files.slice(
@@ -39,8 +39,8 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   ) => {
     console.log("Navigating to file version:", fileName);
     navigate(`/home/${folderName}/${fileName}`);
-    localStorage.setItem("last-version", String(last_version));
-    localStorage.setItem("hash-parent", String(hashPrent));
+    SetHashParent(hashPrent);
+    SetLastVersion(last_version);
   };
 
   return (
@@ -53,9 +53,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
         />
       )} */}
       {/* <FileUploadModal destination="" organisation="" /> */}
-      <button onClick={() => SetLastVersion(lastVersion + 1)}>
-        // Increment Version //{lastVersion}
-      </button>
+
       <div className="card shadow-2xl w-full">
         <div className="card-body">
           <div className="flex flex-col">
@@ -125,22 +123,21 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                         </div>
                       </td>
                       <td className="text-center">
-                        {file.Version === file.LasteVersion ? (
-                          <div className=" badge badge-primary font-bold">
-                            v - {file.Version}
-                          </div>
-                        ) : file.LasteVersion > 0 ? (
+                        {file.LasteVersion}
+                        {file.LasteVersion > 0 ? (
                           <select
                             defaultValue="Pick a Runtime"
                             className="select select-xs select-success"
                           >
                             {[...Array(file.LasteVersion)].map((_, index) => (
-                              <option key={index}>Version {index}</option>
+                              <option key={index + 1}>
+                                Version {index + 1}
+                              </option>
                             ))}
                           </select>
                         ) : (
-                          <div className=" badge badge-ghost">
-                            aucun version
+                          <div className=" badge badge-primary font-bold">
+                            v - {file.Version}
                           </div>
                         )}
                       </td>
@@ -152,7 +149,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                               : "badge-accent"
                           }`}
                         >
-                          {file.LasteVersion} versions
+                          <b>{file.LasteVersion - 1}</b> autres versions
                         </div>
                       </td>
                     </tr>

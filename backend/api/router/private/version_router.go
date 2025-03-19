@@ -15,5 +15,14 @@ func NewUploadVersionRouter(db database.Database, group *gin.RouterGroup) {
 	ic := &controller.VersionController{
 		VersionUsecase: uc,
 	}
-	group.POST("upload-veriosn", ic.UploadVersionRequestt)
+	group.POST("upload-version", ic.UploadVersionRequestt)
+}
+
+func NewGetVersionRouter(db database.Database, group *gin.RouterGroup) {
+	ir := versionRepo.NewVersionRepository(db)
+	uc := versionUsecase.NewVersionUsecase(ir, "")
+	ic := &controller.VersionController{
+		VersionUsecase: uc,
+	}
+	group.GET("get-versions", ic.GetVersionRequestt)
 }

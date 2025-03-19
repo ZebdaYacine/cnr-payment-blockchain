@@ -30,6 +30,8 @@ export interface VersionData {
   Time: string;
   Organisation: string;
   Status: string;
+  Version:string,
+  LasteVersion:string
 }
 
 export interface CommitData {

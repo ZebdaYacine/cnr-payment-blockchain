@@ -1,5 +1,5 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import {  FileResponse, FilesResponse  } from "../../data/dtos/ProfileDtos";
+import {  FileResponse, FilesResponse  } from "../../data/dtos/FileDtos";
 
 export interface FileRepository {
   GetFiles(permission: string,token:string,folder:string): Promise<FilesResponse|ErrorResponse>;

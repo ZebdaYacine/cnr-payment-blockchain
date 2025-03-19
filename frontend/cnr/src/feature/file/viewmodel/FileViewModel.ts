@@ -1,9 +1,9 @@
-import { FileResponse } from '../data/dtos/ProfileDtos';
+import { FileResponse } from '../data/dtos/FileDtos';
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { FileUseCase } from "../domain/usecase/FileUseCase";
-import { FilesResponse } from "../data/dtos/ProfileDtos";
+import { FilesResponse } from "../data/dtos/FileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
 
 

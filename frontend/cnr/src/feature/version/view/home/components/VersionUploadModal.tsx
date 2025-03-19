@@ -2,13 +2,14 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { BsXLg } from "react-icons/bs";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { useVersionViewModel } from "../../../viewmodel/VersionViewModel";
-import { ProfileDataSourceImpl } from "../../../data/dataSource/VersionsDataSource";
+import { VersionDataSourceImpl } from "../../../data/dataSource/VersionsDataSource";
 import { VersionRepositoryImpl } from "../../../data/repository/VersionRepositoryImpl";
 import { VersionUseCase } from "../../../domain/usecase/VersionUseCase";
 import { VersionsResponse } from "../../../data/dtos/VersionsDtos";
 import { useParams } from "react-router";
+import { useVersion } from "../../../../../core/state/versionContext";
 
-const dataSource = new ProfileDataSourceImpl();
+const dataSource = new VersionDataSourceImpl();
 const repository = new VersionRepositoryImpl(dataSource);
 const versionUseCase = new VersionUseCase(repository);
 
@@ -20,6 +21,7 @@ function VersionUploadModal() {
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
   const { fileName } = useParams();
   const { folderName } = useParams();
+  const { lastVersion, hashParent } = useVersion();
 
   const { uploadVersion, uploadMetadata, isUploading, uploadSuccess } =
     useVersionViewModel(versionUseCase);
@@ -86,10 +88,7 @@ function VersionUploadModal() {
   const addNewVersion = async (event: FormEvent) => {
     event.preventDefault();
     if (selectedVersion) {
-      const n = localStorage.getItem("last-version") || "0";
-      const hashParent = localStorage.getItem("hash-parent") || "0";
-      const version = parseInt(n) || 0;
-      const new_version = Number(version) + 1;
+      const new_version = Number(lastVersion) + 1;
       uploadVersion({
         version: selectedVersion,
         parent: fileName || "",

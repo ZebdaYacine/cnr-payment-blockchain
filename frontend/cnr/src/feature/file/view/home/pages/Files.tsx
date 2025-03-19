@@ -9,7 +9,6 @@ import ListOfFiles from "../components/ListOfFiles";
 import { useFileMetaData } from "../../../../../core/state/FileContext";
 import { Outlet, useParams } from "react-router";
 import { useUserId } from "../../../../../core/state/UserContext";
-import { useVersion } from "../../../../../core/state/VersionContext";
 
 function FilesPage() {
   const { folderName, fileName } = useParams();
@@ -34,7 +33,7 @@ function FilesPage() {
   }, [folderName, userPermission, getFiles]);
 
   useEffect(() => {
-    if (folderName) {
+    if (folderName && !fileName) {
       const interval = setInterval(
         () =>
           getFiles({

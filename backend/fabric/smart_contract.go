@@ -92,7 +92,6 @@ func initLedger(contract *client.Contract) {
 
 // Evaluate a transaction to query ledger state.
 func getAllFileMetadata(contract *client.Contract) (*[]FileMetadata, error) {
-	// deleteAllFileMetadata(contract)
 	fmt.Println("\n--> Evaluate Transaction: GetAllFileMetadata, function returns all the current assets on the ledger")
 
 	evaluateResult, err := contract.EvaluateTransaction("GetAllFileMetadata")
@@ -177,24 +176,25 @@ func deleteAllFileMetadata(contract *client.Contract) error {
 	return nil
 }
 
-func updateVersionOfFile(contract *client.Contract, file *FileMetadata) (*FileMetadata, error) {
-	fmt.Println("\n--> Evaluate Transaction: UpdateLastVersionFile, function update metadata for a file on the ledger")
-	// Ensure all necessary fields are provided
-	if file.HashFile == "" {
-		return nil, fmt.Errorf("❌ missing required fields in file metadata")
-	}
-	fmt.Printf("Submitting transaction with: HashFile=%s\n", file.HashFile)
-	// Submit transaction with correct parameters
-	submitResult, err := contract.SubmitTransaction(
-		"UpdateLastVersionFile",
-		file.HashFile,
-	)
+func getFileMetadataByParentName(contract *client.Contract, parent string) (*[]FileMetadata, error) {
+	fmt.Println("\n--> Evaluate Transaction: getFileMetadataByParentName, function returns all the current assets on the ledger")
+
+	evaluateResult, err := contract.EvaluateTransaction("GetFileMetadataByParentName", parent)
 	if err != nil {
-		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
+		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
-	// Confirm success
-	fmt.Printf("*** ✅  Transaction committed successfully. Result: %s\n", string(submitResult))
-	return file, nil
+	if len(evaluateResult) == 0 {
+		return nil, fmt.Errorf("❌ no metadata in blockchain network") // Return error instead of panicking
+	}
+	result := formatJSON(evaluateResult)
+
+	fmt.Printf("*** Result:%s\n", result)
+	var files *[]FileMetadata
+	err1 := json.Unmarshal([]byte(result), &files)
+	if err1 != nil {
+		log.Fatalf("Error parsing JSON: %v", err1)
+	}
+	return files, nil
 }
 
 func createVersionMetadata(contract *client.Contract, file *FileMetadata, HashParent string) (*FileMetadata, error) {

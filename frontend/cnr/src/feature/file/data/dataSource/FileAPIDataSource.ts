@@ -1,5 +1,5 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import {FileResponse, FilesResponse } from "../dtos/ProfileDtos";
+import {FileResponse, FilesResponse } from "../dtos/FileDtos";
 import { ApiService } from "../../../../core/service/ApiService";
 
 export interface FileDataSource {

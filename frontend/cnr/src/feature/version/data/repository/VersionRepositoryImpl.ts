@@ -10,8 +10,8 @@ export class VersionRepositoryImpl implements VersionRepository {
     this.datasource = datasource;
   }
 
-  async GetVersions(token:string): Promise<VersionsResponse | ErrorResponse> {
-    return await this.datasource.GetVersionsApi(token);
+  async GetVersions(token:string,permission:string,folder:string,parent:string): Promise<VersionsResponse | ErrorResponse> {
+    return await this.datasource.GetVersionsApi(token,permission,folder,parent);
   }
 
   async UploadVersions(filename: string,codebase64: string,token:string,

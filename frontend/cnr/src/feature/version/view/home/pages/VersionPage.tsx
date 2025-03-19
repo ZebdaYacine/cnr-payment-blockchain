@@ -3,30 +3,53 @@ import ListOfVersion from "../components/ListOfVersion";
 import ListOfCommits from "../components/ListOfCommits";
 import { FaFileAlt } from "react-icons/fa";
 import { useParams } from "react-router";
-import { useVersion } from "../../../../../core/state/VersionContext";
+import { useVersion } from "../../../../../core/state/versionContext";
+import { VersionUseCase } from "../../../domain/usecase/VersionUseCase";
+import { VersionRepositoryImpl } from "../../../data/repository/VersionRepositoryImpl";
+import { VersionDataSourceImpl } from "../../../data/dataSource/VersionsDataSource";
+import { useVersionViewModel } from "../../../viewmodel/VersionViewModel";
+import { useEffect } from "react";
+import { useUserId } from "../../../../../core/state/UserContext";
+import { useVersionMetaData } from "../../../../../core/state/versionMetaDataContext";
 
+const dataSource = new VersionDataSourceImpl();
+const repository = new VersionRepositoryImpl(dataSource);
+const versionUseCase = new VersionUseCase(repository);
 function VersionPage() {
-  const { fileName } = useParams();
-  const { lastVersion } = useVersion();
+  const { hashParent } = useVersion();
+  const { folderName, fileName } = useParams();
+  const { permission } = useUserId();
 
+  const userPermission = permission || localStorage.getItem("permission");
+
+  const { getVersion, isFetchSuccess, isUploading, filesMetadata } =
+    useVersionViewModel(versionUseCase);
+  const { getFilesList } = useVersionMetaData();
+
+  useEffect(() => {
+    getVersion({
+      permission: permission,
+      folder: folderName || "",
+      parent: fileName || "",
+    });
+  }, [folderName, userPermission, getVersion]);
   return (
     <>
-      // Increment Version //{lastVersion}
       <div className="card shadow-2xl">
         <div className="card-body">
           <div className="flex flex-col">
             <div className="flex flex-wrap justify-between">
               <div className="flex flex-col space-y-3">
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
+                  <div className="flex  items-center gap-2 ">
                     <FaFileAlt className="text-3xl" />
-                    <span className="font-medium text-2xl sm:text-3xl">
+                    <span className="font-medium text-lg sm:text-3xl">
                       {fileName ?? "Unknown"}
                     </span>
                   </div>
-                  <h1 className="text-xs sm:text-xl text-gray-500 mt-2 font-bold">
-                    Checksum: 23972987498399502319092183426593246343432434
-                  </h1>
+                  <p className="text-xs sm:text-xl text-gray-500 mt-2 font-bold">
+                    Checksum: {hashParent}
+                  </p>
                 </div>
               </div>
             </div>
@@ -41,7 +64,7 @@ function VersionPage() {
 
             <div className="flex flex-col md:w-3/4 w-full h-full">
               <div className="h-72 md:h-3/4 shadow overflow-y-auto">
-                <ListOfVersion version={[]} />
+                <ListOfVersion version={getFilesList()} />
               </div>
 
               <div className="h-32 md:h-1/4 p-3 space-y-2 shadow">

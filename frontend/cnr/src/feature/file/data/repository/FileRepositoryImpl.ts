@@ -1,7 +1,7 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import { FileRepository } from "../../domain/repository/FileRepository";
 import { FileDataSource } from "../dataSource/FileAPIDataSource";
-import {  FileResponse, FilesResponse } from "../dtos/ProfileDtos";
+import {  FileResponse, FilesResponse } from "../dtos/FileDtos";
 
 export class FileRepositoryImpl implements FileRepository {
   datasource: FileDataSource;
