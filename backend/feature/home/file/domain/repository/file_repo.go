@@ -211,7 +211,10 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 	}
 	location := "../../ftp/" + folder.Name + "/"
 	for i := range *files {
+
 		file := &(*files)[i]
+		log.Println(">>>>>>>>>>>>>>>>>>>>>>", file.LastVersion)
+
 		filePath := location + file.FileName
 		if !util.FileExists(filePath) {
 			log.Printf("File not found: %s", filePath)

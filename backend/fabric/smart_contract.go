@@ -222,7 +222,7 @@ func createVersionMetadata(contract *client.Contract, file *FileMetadata, HashPa
 		HashParent, file.ID, file.HashFile, file.UserID, file.FileName,
 		file.Parent, file.Version, file.LastVersion, file.Action, file.Organisation,
 		file.Folder, file.Path, file.Destination, file.ReciverId,
-		taggedUser,
+		taggedUser, file.Commit, file.Description,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ failed to Create Version Metadata transaction: %w", err)
@@ -252,7 +252,7 @@ func createVersionMetadata(contract *client.Contract, file *FileMetadata, HashPa
 		fileParent.ID, fileParent.HashFile, fileParent.UserID, fileParent.Action, fileParent.FileName,
 		fileParent.Parent, fileParent.Version, file.LastVersion, fileParent.Organisation,
 		fileParent.Folder, fileParent.Path, fileParent.Destination, fileParent.ReciverId,
-		taggedUser,
+		taggedUser, fileParent.Description,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ >>>>>>>>>>>>failed to submit transaction: %w", err)

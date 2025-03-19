@@ -16,12 +16,13 @@ const versionUseCase = new VersionUseCase(repository);
 function VersionUploadModal() {
   const ref = useRef<LoadingBarRef>(null);
   const [versionName, setVersionName] = useState("");
-  const [commitSize, setCommitSize] = useState(100);
-  const [commitText, setCommitText] = useState("");
+  const [descriptionSize, setDescrpitionSize] = useState(100);
+  const [Descrpition, setDescription] = useState("");
+  const [commit, setCommit] = useState("");
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
   const { fileName } = useParams();
   const { folderName } = useParams();
-  const { lastVersion, hashParent } = useVersion();
+  const { lastVersion, hashParent, SetLastVersion } = useVersion();
 
   const { uploadVersion, uploadMetadata, isUploading, uploadSuccess } =
     useVersionViewModel(versionUseCase);
@@ -45,6 +46,7 @@ function VersionUploadModal() {
         const d = uploadMetadata as VersionsResponse;
         const file = d?.data;
         if (file) {
+          SetLastVersion(Number(lastVersion) + 1);
           close();
         } else {
           // setFileName("Error occurred during upload");
@@ -54,7 +56,7 @@ function VersionUploadModal() {
         console.log("Error occurred during upload");
       }
     }
-  }, [isUploading, uploadSuccess, uploadMetadata]);
+  }, [isUploading, uploadSuccess]);
 
   const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
@@ -63,18 +65,26 @@ function VersionUploadModal() {
     }
   };
 
-  const handleCommitSizeChange = (
+  const handleDescriptionSizeChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     const newText = event.target.value;
     const size = newText.length;
     if (size <= 100) {
-      setCommitText(newText);
-      setCommitSize(100 - size);
+      setDescription(newText);
+      setDescrpitionSize(100 - size);
     } else {
       const limitedText = newText.slice(0, 100);
-      setCommitText(limitedText);
-      setCommitSize(0);
+      setDescription(limitedText);
+      setDescrpitionSize(0);
+    }
+  };
+
+  const handleCommitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newText = event.target.value;
+    const size = newText.length;
+    if (size <= 100) {
+      setCommit(newText);
     }
   };
 
@@ -93,8 +103,8 @@ function VersionUploadModal() {
         version: selectedVersion,
         parent: fileName || "",
         version_seq: new_version,
-        commit: commitText,
-        description: "",
+        commit: commit,
+        description: Descrpition,
         folderName: folderName || "",
         hash_parent: hashParent,
       });
@@ -131,23 +141,25 @@ function VersionUploadModal() {
               type="text"
               className="mt-3 input input-bordered w-full"
               placeholder="Commiter la transactions..."
+              onChange={handleCommitChange}
+              value={commit}
             />
             <div className="flex flex-col mt-3">
               <textarea
                 className="textarea textarea-bordered"
                 placeholder="Details sur la  transactions..."
-                onChange={handleCommitSizeChange}
-                value={commitText}
+                onChange={handleDescriptionSizeChange}
+                value={Descrpition}
               />
               <div className="mt-2 flex flex-row-reverse">
                 <div
                   className={`badge badge-lg ${
-                    commitText.length == 100
+                    Descrpition.length == 100
                       ? "badge-secondary"
                       : "badge-accent"
                   }`}
                 >
-                  {commitSize}
+                  {descriptionSize}
                 </div>
               </div>
             </div>
@@ -155,7 +167,7 @@ function VersionUploadModal() {
             <div className="mt-5 flex justify-center">
               <button
                 className="btn btn-accent flex items-center"
-                disabled={commitText.length === 0}
+                disabled={Descrpition.length === 0}
                 onClick={addNewVersion}
               >
                 Ajouter la Version

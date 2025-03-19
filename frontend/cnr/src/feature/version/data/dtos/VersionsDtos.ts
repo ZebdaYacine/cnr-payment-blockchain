@@ -24,14 +24,15 @@ export interface VersionData {
   UserID: string;
   FileName: string;
   Parent: string;
-  Note: number;
+  Commit: string;
+  Description: string;
   Path:string;
   Action: string;
   Time: string;
   Organisation: string;
   Status: string;
   Version:string,
-  LasteVersion:string
+  LastVersion:string
 }
 
 export interface CommitData {

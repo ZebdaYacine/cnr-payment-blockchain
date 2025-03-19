@@ -102,7 +102,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                       onClick={() =>
                         handleRowClick(
                           file.FileName,
-                          file.LasteVersion,
+                          file.LastVersion,
                           file.HashFile
                         )
                       }
@@ -123,13 +123,12 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                         </div>
                       </td>
                       <td className="text-center">
-                        {file.LasteVersion}
-                        {file.LasteVersion > 0 ? (
+                        {file.LastVersion > 0 ? (
                           <select
                             defaultValue="Pick a Runtime"
                             className="select select-xs select-success"
                           >
-                            {[...Array(file.LasteVersion)].map((_, index) => (
+                            {[...Array(file.LastVersion)].map((_, index) => (
                               <option key={index + 1}>
                                 Version {index + 1}
                               </option>
@@ -149,7 +148,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                               : "badge-accent"
                           }`}
                         >
-                          <b>{file.LasteVersion - 1}</b> autres versions
+                          <b>{file.LastVersion - 1}</b> autres versions
                         </div>
                       </td>
                     </tr>

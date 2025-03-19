@@ -60,7 +60,7 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
                       <b> Veriosn - {version.Version}</b>
                     </div>
                   </td>
-                  <td className="text-center">{version.LasteVersion}</td>
+                  <td className="text-center">{version.LastVersion}</td>
                 </tr>
               ))}
             </tbody>

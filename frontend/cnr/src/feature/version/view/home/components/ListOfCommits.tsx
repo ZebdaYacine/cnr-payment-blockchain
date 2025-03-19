@@ -1,6 +1,11 @@
+import { VersionData } from "../../../data/dtos/VersionsDtos";
 import Commit from "./Commit";
 
-function ListOdCommits() {
+interface ListOfCommitProps {
+  commits: VersionData[];
+}
+
+function ListOdCommits({ commits: commits }: ListOfCommitProps) {
   return (
     <>
       <div className="flex  flex-col  h-full">
@@ -8,24 +13,24 @@ function ListOdCommits() {
         <div className="divider divider-info" />
         <div className="space-y-2  max-h-full overflow-y-auto ">
           {" "}
-          {[...Array(30)].map((_, index) => (
+          {commits.map((commit) => (
             <Commit
-              key={index}
+              key={commit.ID}
               commit={{
-                ID: "12231",
-                Body: "Adding new version for this file",
+                ID: commit.ID,
+                Body: commit.Commit,
                 User: {
                   id: "",
                   password: "",
                   permission: "",
                   idInstituion: "",
                   email: "",
-                  username: "Zebda Yacine",
+                  username: commit.UserID,
                   workAt: "",
                   type: "",
                   wilaya: "",
                 },
-                Time: "2025-03-17",
+                Time: commit.Time,
               }}
             />
           ))}

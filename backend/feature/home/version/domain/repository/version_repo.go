@@ -65,6 +65,7 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 		Parent:       file.Parent,
 		Version:      strconv.Itoa(file.Version),
 		LastVersion:  strconv.Itoa(file.Version),
+		Commit:       file.Commit,
 		Time:         time.Now().Format(time.RFC3339),
 		Action:       file.Action,
 		Folder:       versionPath,

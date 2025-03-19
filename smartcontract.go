@@ -22,7 +22,7 @@ type FileMetadata struct {
 	Folder       string   `json:"Folder"`
 	Parent       string   `json:"Parent"`
 	Version      string   `json:"Version"`
-	LastVersion  string   `json:"LasteVersion"`
+	LastVersion  string   `json:"LastVersion"`
 	Action       string   `json:"Action"`
 	Time         string   `json:"Time"`
 	Organisation string   `json:"Organisation"`
@@ -30,6 +30,8 @@ type FileMetadata struct {
 	Destination  string   `json:"Destination"`
 	ReciverId    string   `json:"ReciverId"`
 	TaggedUser   []string `json:"TaggedUsers"`
+	Description  string   `json:"Description",omitempty"`
+	Commit       string   `json:"Commit",omitempty"`
 }
 
 type FolderMetadata struct {
@@ -99,7 +101,7 @@ func (s *SmartContract) CreateFileMetadata(ctx contractapi.TransactionContextInt
 	return ctx.GetStub().PutState(hashFile, FileMetadataJSON)
 }
 
-func (s *SmartContract) CreateVersionMetadata(ctx contractapi.TransactionContextInterface, HashParent, id, hashFile, userID, FileName, Parent, Version, LastVersion, action, organisation, FolderName, Path, Destination, ReciverId, taggedUsersJSON string) error {
+func (s *SmartContract) CreateVersionMetadata(ctx contractapi.TransactionContextInterface, HashParent, id, hashFile, userID, FileName, Parent, Version, LastVersion, action, organisation, FolderName, Path, Destination, ReciverId, taggedUsersJSON, commit, description string) error {
 	if !isValidAction(action) {
 		return fmt.Errorf("invalid action: %s. Valid actions are 'upload' or 'download'", action)
 	}
@@ -133,6 +135,8 @@ func (s *SmartContract) CreateVersionMetadata(ctx contractapi.TransactionContext
 		Destination:  Destination,
 		ReciverId:    ReciverId,
 		TaggedUser:   taggedUsers,
+		Commit:       commit,
+		Description:  description,
 	}
 	FileMetadataJSON, err := json.Marshal(FileMetadata)
 	if err != nil {
@@ -165,7 +169,7 @@ func (s *SmartContract) ReadFileMetadata(ctx contractapi.TransactionContextInter
 }
 
 // UpdateFileMetadata updates an existing FileMetadata entry
-func (s *SmartContract) UpdateFileMetadata(ctx contractapi.TransactionContextInterface, id, hashFile, userID, action, FileName, Parent, Version, LastVersion, organisation, FolderName, Path, Destination string, ReciverId string, TaggedUserJson string) error {
+func (s *SmartContract) UpdateFileMetadata(ctx contractapi.TransactionContextInterface, id, hashFile, userID, action, FileName, Parent, Version, LastVersion, organisation, FolderName, Path, Destination string, ReciverId string, TaggedUserJson, description string) error {
 	if !isValidAction(action) {
 		return fmt.Errorf("invalid action: %s. Valid actions are 'upload' or 'download'", action)
 	}
@@ -204,6 +208,7 @@ func (s *SmartContract) UpdateFileMetadata(ctx contractapi.TransactionContextInt
 		Destination:  Destination,
 		ReciverId:    ReciverId,
 		TaggedUser:   taggedUsers,
+		Description:  description,
 	}
 	FileMetadataJSON, err := json.Marshal(FileMetadata)
 	if err != nil {

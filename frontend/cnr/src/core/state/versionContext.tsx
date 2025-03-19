@@ -29,7 +29,7 @@ export const VersionProvider = ({ children }: { children: ReactNode }) => {
 
   // Update localStorage whenever the state changes
   useEffect(() => {
-    localStorage.setItem("lastVersion", lastVersion.toString());
+    localStorage.setItem("lastVersion", String(lastVersion));
   }, [lastVersion]);
 
   useEffect(() => {

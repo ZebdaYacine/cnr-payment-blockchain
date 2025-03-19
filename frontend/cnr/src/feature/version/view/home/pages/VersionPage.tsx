@@ -16,14 +16,13 @@ const dataSource = new VersionDataSourceImpl();
 const repository = new VersionRepositoryImpl(dataSource);
 const versionUseCase = new VersionUseCase(repository);
 function VersionPage() {
-  const { hashParent } = useVersion();
+  const { lastVersion, hashParent } = useVersion();
   const { folderName, fileName } = useParams();
   const { permission } = useUserId();
 
   const userPermission = permission || localStorage.getItem("permission");
 
-  const { getVersion, isFetchSuccess, isUploading, filesMetadata } =
-    useVersionViewModel(versionUseCase);
+  const { getVersion } = useVersionViewModel(versionUseCase);
   const { getFilesList } = useVersionMetaData();
 
   useEffect(() => {
@@ -33,8 +32,24 @@ function VersionPage() {
       parent: fileName || "",
     });
   }, [folderName, userPermission, getVersion]);
+
+  useEffect(() => {
+    if (fileName) {
+      const interval = setInterval(
+        () =>
+          getVersion({
+            permission: permission,
+            folder: folderName || "",
+            parent: fileName || "",
+          }),
+        10000
+      );
+      return () => clearInterval(interval);
+    }
+  }, [folderName, getVersion]);
   return (
     <>
+      {lastVersion}
       <div className="card shadow-2xl">
         <div className="card-body">
           <div className="flex flex-col">
@@ -59,7 +74,7 @@ function VersionPage() {
 
           <div className="flex flex-col  md:flex-row space-y-5 md:space-y-0 md:space-x-2">
             <div className="flex flex-col  md:w-1/4 w-full border-r border-gray-300 p-3 h-64 md:h-auto md:max-h-screen overflow-y-auto">
-              <ListOfCommits />
+              <ListOfCommits commits={getFilesList()} />
             </div>
 
             <div className="flex flex-col md:w-3/4 w-full h-full">
