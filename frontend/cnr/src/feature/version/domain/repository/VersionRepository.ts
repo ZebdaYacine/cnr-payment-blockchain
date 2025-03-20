@@ -1,5 +1,5 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import { VersionsResponse } from "../../data/dtos/VersionsDtos";
+import { VersionsResponse, VersionsUploadResponse } from "../../data/dtos/VersionsDtos";
 
 export interface VersionRepository {
   GetVersions(token:string,permission:string,folder:string,parent:string): Promise<VersionsResponse|ErrorResponse>;
@@ -7,5 +7,5 @@ export interface VersionRepository {
   UploadVersions(filename: string,codebase64: string,token:string,
     action :string,parent:string,version:number,permission: string, commit: string,
     description: string,folderName:string,hash_parent:string
- ): Promise<VersionsResponse|ErrorResponse>;
+ ): Promise<VersionsUploadResponse|ErrorResponse>;
 }

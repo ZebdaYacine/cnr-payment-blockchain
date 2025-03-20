@@ -6,6 +6,11 @@ export interface VersionsResponse {
   data: VersionData[] ;
 }
 
+export interface VersionsUploadResponse {
+  message: string;
+  data: VersionData ;
+}
+
 export interface VersionRequest {
   UserID: string;
   FileBase64: string;

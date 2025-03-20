@@ -8,16 +8,15 @@ import { useUserId } from "../../../../core/state/UserContext";
 import ListOfPeers from "../components/ListOfPeers";
 import FolderPage from "../../../folder/view/home/pages/Folder";
 import { Outlet, useParams } from "react-router";
+import { ToastContainer } from "react-toastify";
 
 function ProfilePage() {
   const { folderName, fileName } = useParams();
-
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
 
-  const { getProfile, GetChildInstituations, GetUsers } =
-    useProfileViewModel(profileUseCase);
+  const { getProfile, GetUsers } = useProfileViewModel(profileUseCase);
   const { username, email, permission, workAt, idInstituion, type } =
     useUserId();
   const userPermission = permission || localStorage.getItem("permission");
@@ -33,22 +32,23 @@ function ProfilePage() {
     // }
   }, [GetUsers, workAt, userPermission]);
 
-  useEffect(() => {
-    if (workAt && idInstituion) {
-      if (userPermission)
-        GetChildInstituations({
-          name: workAt,
-          id: idInstituion,
-          permissions: userPermission.toLowerCase(),
-        });
-    }
-  }, [workAt, idInstituion, GetChildInstituations, userPermission]);
+  // useEffect(() => {
+  //   if (workAt && idInstituion) {
+  //     if (userPermission)
+  //       GetChildInstituations({
+  //         name: workAt,
+  //         id: idInstituion,
+  //         permissions: userPermission.toLowerCase(),
+  //       });
+  //   }
+  // }, [workAt, idInstituion, GetChildInstituations, userPermission]);
 
   return (
     <>
       <NavBarComponent
         user={{ username, email, permission, workAt, idInstituion, type }}
       />
+      <ToastContainer />
       <div className="flex flex-col">
         {!folderName || !fileName ? (
           <div className="m-5">

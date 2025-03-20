@@ -22,7 +22,7 @@ function VersionUploadModal() {
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
   const { fileName } = useParams();
   const { folderName } = useParams();
-  const { lastVersion, hashParent, SetLastVersion } = useVersion();
+  const { lastVersion, hashParent } = useVersion();
 
   const { uploadVersion, uploadMetadata, isUploading, uploadSuccess } =
     useVersionViewModel(versionUseCase);
@@ -46,7 +46,6 @@ function VersionUploadModal() {
         const d = uploadMetadata as VersionsResponse;
         const file = d?.data;
         if (file) {
-          SetLastVersion(Number(file[0].LastVersion) + 1);
           close();
         } else {
           // setFileName("Error occurred during upload");
@@ -56,7 +55,7 @@ function VersionUploadModal() {
         console.log("Error occurred during upload");
       }
     }
-  }, [isUploading, uploadSuccess]);
+  }, [isUploading, uploadSuccess, uploadMetadata]);
 
   const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();

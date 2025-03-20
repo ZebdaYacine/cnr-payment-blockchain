@@ -13,7 +13,6 @@ import { ProfileDataSourceImpl } from "../../../../profile/data/dataSource/Profi
 import { useUserId } from "../../../../../core/state/UserContext";
 import { useListUsers } from "../../../../../core/state/ListOfUsersContext";
 import { User } from "../../../../../core/dtos/data";
-// import { IoReloadSharp } from "react-icons/io5";
 import TagInput from "../../../../profile/view/components/TagInput";
 
 const dataSource = new ProfileDataSourceImpl();
@@ -52,7 +51,12 @@ function FileUploadModal({
     } else if (uploadSuccess && uploadMetadata) {
       ref.current?.complete();
       const fileData = (uploadMetadata as FileResponse)?.data;
-      console.log(fileData);
+      if (fileData) {
+        console.log(">>>>>>>>>>>>>>>>>>>>>", fileData);
+        SetFinishUploading(true);
+      } else {
+        SetFinishUploading(false);
+      }
     }
   }, [isUploading, uploadSuccess, uploadMetadata]);
 
@@ -106,9 +110,9 @@ function FileUploadModal({
             fileElement.classList.replace("badge-secondary", "badge-accent");
             setCountUploadedFiles(i + 1);
           }
-          if (btn) {
+          if (btn && isFinishUploading) {
             btn.remove();
-            if (userPermission)
+            if (userPermission && reciverId != "" && userId != "")
               getFolders({
                 permission: userPermission.toLocaleLowerCase(),
                 receiverId: reciverId,
@@ -120,7 +124,7 @@ function FileUploadModal({
         }
         i = i + 1;
       }
-    SetFinishUploading(true);
+    // SetFinishUploading(true);
   };
 
   const close = () => {
@@ -138,26 +142,6 @@ function FileUploadModal({
       prevFiles.filter((file) => file.name !== fileName)
     );
   };
-
-  // const [selectedUsers, setSelectedUsers] = useState<{
-  //   [key: string]: boolean;
-  // }>({});
-  // const handleAddUser = (userId: string) => {
-  //   setSelectedUsers((prev) => ({
-  //     ...prev,
-  //     [userId]: !prev[userId],
-  //   }));
-  //   setTaggedUsers((prevUsers) =>
-  //     prevUsers.includes(userId)
-  //       ? prevUsers.filter((id) => id !== userId)
-  //       : [...prevUsers, userId]
-  //   );
-  //   console.log("User ID clicked:", userId);
-  // };
-
-  // const refrecheListUsers = () => {
-  //   setListUsers(users);
-  // };
 
   return (
     <dialog id="files" className="modal">
@@ -190,32 +174,6 @@ function FileUploadModal({
             />
           </label>
           <TagInput userList={listUsers} onTagsChange={setTaggedUsers} />
-
-          {/* <div className="flex flex-wrap gap-2">
-            {!listUsers || listUsers.length === 0 ? (
-              <div className="flex items-center justify-between w-full">
-                <p className="text-lg font-semibold text-gray-400">
-                  Aucun utilisateur mentionné
-                </p>
-                <IoReloadSharp
-                  className="text-2xl text-red-500 cursor-pointer hover:text-gray-700 transition-all duration-200"
-                  onClick={() => refrecheListUsers()}
-                />
-              </div>
-            ) : (
-              listUsers.map((user) => (
-                <div
-                  key={user.id}
-                  className={`badge ${
-                    selectedUsers[user.id] ? "badge-accent" : "badge-warning"
-                  } flex items-center gap-2 p-2 cursor-pointer`}
-                  onClick={() => handleAddUser(user.id)}
-                >
-                  {user.username} - {user.workAt} - {user.wilaya}
-                </div>
-              ))
-            )}
-          </div> */}
 
           {listFiles.length > 0 && (
             <>

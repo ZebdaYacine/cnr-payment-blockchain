@@ -27,8 +27,6 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   );
 
   useEffect(() => {
-    SetHashParent("");
-    SetLastVersion(0);
     if (currentPage > totalPages) {
       setCurrentPage(1);
     }
@@ -39,6 +37,8 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
     last_version: number,
     hashPrent: string
   ) => {
+    SetHashParent("");
+    SetLastVersion(0);
     console.log("Navigating to file version:", fileName);
     navigate(`/home/${folderName}/${fileName}`);
     SetHashParent(hashPrent);

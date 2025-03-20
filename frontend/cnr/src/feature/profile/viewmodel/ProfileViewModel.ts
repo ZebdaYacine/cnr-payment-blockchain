@@ -1,4 +1,8 @@
-import { Child, ChildResponse, Elements, FileResponse, FolderResponse, InstitutionResponse, UsersResponse } from './../data/dtos/ProfileDtos';
+import {
+  FileResponse,
+  FolderResponse,
+  UsersResponse,
+} from "./../data/dtos/ProfileDtos";
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
@@ -6,13 +10,14 @@ import { PofileUseCase } from "../domain/usecase/ProfileUseCase";
 import { FilesResponse, ProfileResponse } from "../data/dtos/ProfileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../../core/state/AuthContext";
+// import { useAuth } from "../../../core/state/AuthContext";
 import { User } from "../../../core/dtos/data";
-import { useUserId } from '../../../core/state/UserContext';
-import { useChildren } from '../../../core/state/InstitutionContext';
-import { useFoldersMetaData } from '../../../core/state/FolderContext';
-import { useListUsers } from '../../../core/state/ListOfUsersContext';
-import { IsTokenExpired } from '../../../services/Http';
+import { useUserId } from "../../../core/state/UserContext";
+// import { useChildren } from "../../../core/state/InstitutionContext";
+import { useFoldersMetaData } from "../../../core/state/FolderContext";
+import { useListUsers } from "../../../core/state/ListOfUsersContext";
+import { IsTokenExpired } from "../../../services/Http";
+import { useAuth } from "../../../core/state/AuthContext";
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -23,71 +28,75 @@ function convertFileToBase64(file: File): Promise<string> {
   });
 }
 
+function getAuthToken(navigate: Function): string {
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    navigate("/");
+    throw new Error("Authentication token not found");
+  }
+  if (IsTokenExpired(token)) {
+    localStorage.removeItem("authToken");
+    navigate("/");
+    throw new Error("Session expired. Please log in again.");
+  }
+  return token;
+}
+
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
-  const { SetChildren: SetChild } = useChildren();
-  
-  const { isAuthentificated, Userlogout } = useAuth();
+  // const { isAuthentificated, Userlogout } = useAuth();
   const navigate = useNavigate();
   const { error } = useNotification();
   const { setFilesList } = useFileMetaData();
-    const { setUsersList } = useListUsers();
+  const { setUsersList } = useListUsers();
+  const { Userlogout } = useAuth();
 
-    const { setFoldersList } = useFoldersMetaData();
+  const { setFoldersList } = useFoldersMetaData();
 
-  const {SetWilaya,SetUserId,SetUsername,SetEmail,SetPermission,SetType ,SetWorkAt,SetidInstituion} = useUserId();
+  const {
+    SetWilaya,
+    SetUserId,
+    SetUsername,
+    SetEmail,
+    SetPermission,
+    SetType,
+    SetWorkAt,
+    SetidInstituion,
+  } = useUserId();
 
-
-  const { mutate: getFolders, data: Folders, isPending: isFolderLoading, isSuccess: isFolderSuccess} = useMutation({
-    mutationFn: async ({permission:permission}:{permission:string}) => {
-      console.log("Folders")
-      const storedToken = localStorage.getItem("authToken");
-      // if (!storedToken) {
-      //   throw new Error("Authentication token not found");
-      // }
-       if (!storedToken) {
-              navigate("/"); 
-              throw new Error("Authentication token not found");
-            }
-            if (IsTokenExpired(storedToken)) {
-              localStorage.removeItem("authToken"); 
-              navigate("/"); 
-              throw new Error("Session expired. Please log in again.");
-            }
-      return profileUseCase.GetFolder(storedToken,permission);
+  const {
+    mutate: getFolders,
+    data: Folders,
+    isPending: isFolderLoading,
+    isSuccess: isFolderSuccess,
+  } = useMutation({
+    mutationFn: async ({ permission: permission }: { permission: string }) => {
+      const storedToken = getAuthToken(navigate);
+      return profileUseCase.GetFolder(storedToken, permission);
     },
     onSuccess: (data) => {
-      if (data && "data" in data ) {
+      if (data && "data" in data) {
         const resp = data as FolderResponse;
         setFoldersList(resp.data);
-      } else {
-         const errorResponse = data as ErrorResponse;
-         error(errorResponse.message || "Network error occurred during upload", "colored");
-         Userlogout();
-        if (!isAuthentificated) navigate("/");
       }
     },
     onError: (err: unknown) => {
       console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
+      error(
+        "An error occurred during the upload. Please try again.",
+        "colored"
+      );
     },
   });
-  
-  const { mutate: getProfile, data: Profile, isPending: isProfileLoading, isSuccess: isProfileSuccess} = useMutation({
-    mutationFn: async ({permission:permission}:{permission:string}) => {
-      const storedToken = localStorage.getItem("authToken");
-      // if (!storedToken) {
-      //   throw new Error("Authentication token not found");
-      // }
-       if (!storedToken) {
-              navigate("/"); 
-              throw new Error("Authentication token not found");
-            }
-            if (IsTokenExpired(storedToken)) {
-              localStorage.removeItem("authToken"); 
-              navigate("/"); 
-              throw new Error("Session expired. Please log in again.");
-            }
-      return profileUseCase.GetProfile(storedToken,permission.toLowerCase());
+
+  const {
+    mutate: getProfile,
+    data: Profile,
+    isPending: isProfileLoading,
+    isSuccess: isProfileSuccess,
+  } = useMutation({
+    mutationFn: async ({ permission: permission }: { permission: string }) => {
+      const storedToken = getAuthToken(navigate);
+      return profileUseCase.GetProfile(storedToken, permission.toLowerCase());
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -95,63 +104,110 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const userData = resp.data as User;
         if (userData) {
           console.log("Profile fetched:", userData);
-           SetUsername(userData?.username)
-           SetUserId(userData?.id)
-           SetWilaya(userData?.wilaya)
-           SetEmail(userData?.email)
-           SetPermission(userData?.permission)
-           SetWorkAt(userData?.workAt)
-           SetType(userData?.type)
-           SetidInstituion(userData?.idInstituion)
+          SetUsername(userData?.username);
+          SetUserId(userData?.id);
+          SetWilaya(userData?.wilaya);
+          SetEmail(userData?.email);
+          SetPermission(userData?.permission);
+          SetWorkAt(userData?.workAt);
+          SetType(userData?.type);
+          SetidInstituion(userData?.idInstituion);
         }
-      } else {
-         const errorResponse = data as ErrorResponse;
-         error(errorResponse.message || "Network error occurred during upload", "colored");
-         Userlogout();
-        if (!isAuthentificated) navigate("/");
       }
     },
     onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
+      console.error("GET PROFILE error:", err);
+      navigate("/error-page");
+      error(
+        "An error occurred during the upload. Please try again.",
+        "colored"
+      );
     },
   });
 
-  const uploadFileAsync = (file: File, parent: string,folder: string,description :string,organisation :string,
-    destination :string, version: number,permission:string,
-    reciverId:string,tagged_users:string[]): Promise<FileResponse> => {
-  return new Promise((resolve, reject) => {
-    uploadFile(
-      { file, parent,folder,description,organisation,destination,
-        version,permission,reciverId,tagged_users},
-      {
-        onSuccess: (data) => resolve(data as FileResponse),
-        onError: (err) => reject(err),
-      }
-    );
-  });
-};
+  const uploadFileAsync = (
+    file: File,
+    parent: string,
+    folder: string,
+    description: string,
+    organisation: string,
+    destination: string,
+    version: number,
+    permission: string,
+    reciverId: string,
+    tagged_users: string[]
+  ): Promise<FileResponse> => {
+    return new Promise((resolve, reject) => {
+      uploadFile(
+        {
+          file,
+          parent,
+          folder,
+          description,
+          organisation,
+          destination,
+          version,
+          permission,
+          reciverId,
+          tagged_users,
+        },
+        {
+          onSuccess: (data) => resolve(data as FileResponse),
+          onError: (err) => reject(err),
+        }
+      );
+    });
+  };
 
-  const { mutate: uploadFile, data: uploadMetadata, isPending: isUploading, isSuccess: uploadSuccess, isError: uploadError } = useMutation({
-    mutationFn: async ({ file, parent,folder,description,organisation ,
-      destination, version,permission:permission,reciverId,tagged_users }: { file: File; parent: string;folder: string;
-        description :string;organisation :string;destination :string; version: number,
-        permission:string,reciverId:string, tagged_users:string[]}) => {
+  const {
+    mutate: uploadFile,
+    data: uploadMetadata,
+    isPending: isUploading,
+    isSuccess: uploadSuccess,
+    isError: uploadError,
+  } = useMutation({
+    mutationFn: async ({
+      file,
+      parent,
+      folder,
+      description,
+      organisation,
+      destination,
+      version,
+      permission: permission,
+      reciverId,
+      tagged_users,
+    }: {
+      file: File;
+      parent: string;
+      folder: string;
+      description: string;
+      organisation: string;
+      destination: string;
+      version: number;
+      permission: string;
+      reciverId: string;
+      tagged_users: string[];
+    }) => {
       const base64File = await convertFileToBase64(file);
       const filename = file.name;
       const action = "upload";
-      const storedToken = localStorage.getItem("authToken");
-       if (!storedToken) {
-              navigate("/"); 
-              throw new Error("Authentication token not found");
-            }
-            if (IsTokenExpired(storedToken)) {
-              localStorage.removeItem("authToken"); 
-              navigate("/"); 
-              throw new Error("Session expired. Please log in again.");
-            }
-      return profileUseCase.UploadFile(filename, base64File, storedToken, action, 
-        parent,folder,description,organisation ,destination, version,permission,reciverId,tagged_users);
+      const storedToken = getAuthToken(navigate);
+      return profileUseCase.UploadFile(
+        filename,
+        base64File,
+        storedToken,
+        action,
+        parent,
+        folder,
+        description,
+        organisation,
+        destination,
+        version,
+        permission,
+        reciverId,
+        tagged_users
+      );
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -160,28 +216,34 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         console.log("File URL:", resp.data?.HashFile);
       } else {
         const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during upload", "colored");
+        error(
+          errorResponse.message || "Network error occurred during upload",
+          "colored"
+        );
       }
     },
     onError: (err: unknown) => {
       console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
+      error(
+        "An error occurred during the upload. Please try again.",
+        "colored"
+      );
     },
   });
 
-  const { mutate: getFiles, data: filesMetadata, isPending: isFetchingFiles, isSuccess: isFetchSuccess } = useMutation({
-    mutationFn: async ({permissions:permissions}:{permissions:string}) => {
-      const storedToken = localStorage.getItem("authToken");
-       if (!storedToken) {
-              navigate("/"); 
-              throw new Error("Authentication token not found");
-            }
-            if (IsTokenExpired(storedToken)) {
-              localStorage.removeItem("authToken"); 
-              navigate("/"); 
-              throw new Error("Session expired. Please log in again.");
-            }
-      return profileUseCase.GetFiles(storedToken,permissions);
+  const {
+    mutate: getFiles,
+    data: filesMetadata,
+    isPending: isFetchingFiles,
+    isSuccess: isFetchSuccess,
+  } = useMutation({
+    mutationFn: async ({
+      permissions: permissions,
+    }: {
+      permissions: string;
+    }) => {
+      const storedToken = getAuthToken(navigate);
+      return profileUseCase.GetFiles(storedToken, permissions);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -190,121 +252,61 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       } else {
         const errorResponse = data as ErrorResponse;
         setFilesList([]);
-        error(errorResponse.message || "Network error occurred while fetching files", "colored");
+        error(
+          errorResponse.message ||
+            "Network error occurred while fetching files",
+          "colored"
+        );
       }
     },
     onError: (err: unknown) => {
       console.error("Fetch error:", err);
-      error("An error occurred while retrieving files. Please try again.", "colored");
+      error(
+        "An error occurred while retrieving files. Please try again.",
+        "colored"
+      );
     },
   });
 
-  const { mutate: GetInstituations, data: institutionData, isPending: isInstituaionsLoading, isSuccess: isInstituaionsSuccss} = useMutation({
-    mutationFn: async ({permissions:permissions}:{permissions:string}) => {
-      const storedToken = localStorage.getItem("authToken");
-       if (!storedToken) {
-              navigate("/"); 
-              throw new Error("Authentication token not found");
-            }
-            if (IsTokenExpired(storedToken)) {
-              localStorage.removeItem("authToken"); 
-              navigate("/"); 
-              throw new Error("Session expired. Please log in again.");
-            }
-      return profileUseCase.GetInstitutions(storedToken,permissions);
+  const {
+    mutate: GetUsers,
+    data: users,
+    isPending: isUserLoading,
+    isSuccess: isUsersSuccss,
+    isError: isError,
+  } = useMutation({
+    mutationFn: async ({
+      permissions: permissions,
+    }: {
+      permissions: string;
+    }) => {
+      const storedToken = getAuthToken(navigate);
+      return await profileUseCase.GetUsers(storedToken, permissions);
     },
-    onSuccess: (data) => {
-      if (data && "data" in data) {
-        const resp = data as InstitutionResponse;
-        console.log("Get Institutions successfully:", resp.data.at(-1)?.id);
-      } else {
-        const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during upload", "colored");
-      }
-    },
-    onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
-    },
-  });
 
-   const { mutate: GetChildInstituations, data: childInstitutionData, isPending: isChildInstituaionsLoading, isSuccess: isChildInstituaionsSuccss} = useMutation({
-    mutationFn: async ({id,name,permissions}: { id: string,name: string,permissions:string}) => {
-      const storedToken = localStorage.getItem("authToken");
-       if (!storedToken) {
-              navigate("/"); 
-              throw new Error("Authentication token not found");
-            }
-            if (IsTokenExpired(storedToken)) {
-              localStorage.removeItem("authToken"); 
-              navigate("/"); 
-              throw new Error("Session expired. Please log in again.");
-            }
-      return profileUseCase.GetChildOfInstitutions(id,name,storedToken,permissions);
-    },
-    onSuccess: (data) => {
-      if (data && "data" in data) {
-        const resp = data as ChildResponse;
-        const element = resp.data as Elements;
-        const listOfChildren: Child[] = new Array<Child>();
-        listOfChildren[0]=element.institutiont.obj as Child
-        console.log(listOfChildren[0])
-        const parent=listOfChildren[0].org
-        if(parent){
-          listOfChildren[1]=parent as Child
-          console.log(listOfChildren[1])
-          if(element.child){
-            element.child.map((value, key) => {
-              listOfChildren[key+2]=value.obj as Child
-          });
-          }
-        }else{
-          if(element.child){
-            element.child.map((value, key) => {
-              listOfChildren[key+1]=value.obj as Child
-          });
-        }
-        }
-        SetChild(listOfChildren)
-      } else {
-        const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during upload", "colored");
-      }
-    },
-    onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
-    },
-  });
-
-  const { mutate: GetUsers, data: users, isPending: isUserLoading, isSuccess: isUsersSuccss} = useMutation({
-    mutationFn: async ({permissions:permissions}:{permissions:string}) => {
-      const storedToken = localStorage.getItem("authToken");
-       if (!storedToken) {
-              navigate("/"); 
-              throw new Error("Authentication token not found");
-            }
-            if (IsTokenExpired(storedToken)) {
-              localStorage.removeItem("authToken"); 
-              navigate("/"); 
-              throw new Error("Session expired. Please log in again.");
-            }
-      return profileUseCase.GetUsers(storedToken,permissions);
-    },
-    
     onSuccess: (data) => {
       if (data && "data" in data) {
         const resp = data as UsersResponse;
         const users = resp.data as User[];
-        setUsersList(users)
-      } else {
-        const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during get users", "colored");
+        console.log(users);
+        setUsersList(users);
       }
     },
-    onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error("An error occurred during get users. Please try again.", "colored");
+    onError: (err) => {
+      if (err instanceof Error) {
+        if (err.message.includes("Error unknown: Unknown error")) {
+          console.error("Error fetching users:", err);
+
+          error(
+            "Cannot connect to the server. Please check your internet or try again later.",
+            "colored"
+          );
+        } else {
+          error(err.message || "An unexpected error occurred.", "colored");
+        }
+      } else {
+        error("An unknown error occurred while fetching users.", "colored");
+      }
     },
   });
 
@@ -330,22 +332,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isProfileSuccess,
     Profile,
 
-    GetInstituations,
-    institutionData,
-    isInstituaionsLoading,
-    isInstituaionsSuccss,
-
-    GetChildInstituations,
-    childInstitutionData,
-    isChildInstituaionsLoading,
-    isChildInstituaionsSuccss,
-
     GetUsers,
     users,
     isUserLoading,
     isUsersSuccss,
+    isError,
 
-    uploadFileAsync
-
+    uploadFileAsync,
   };
 }

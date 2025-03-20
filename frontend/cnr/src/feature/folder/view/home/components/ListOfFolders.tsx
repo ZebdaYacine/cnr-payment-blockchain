@@ -32,37 +32,75 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
   const userPermission = permission || localStorage.getItem("permission");
 
   const fetchFolders = useCallback(() => {
-    if (!peer?.org.name || !workAt || selectedRadio === "") return;
-    if (userPermission)
+    console.log("Fetching folders with:", { peer, userId, selectedRadio });
+
+    if (
+      !peer?.id ||
+      !userId ||
+      !peer?.org.name ||
+      !workAt ||
+      selectedRadio === ""
+    ) {
+      console.warn(
+        "🚨 Missing required parameters for getFolders. Aborting fetch."
+      );
+      return;
+    }
+
+    if (userPermission) {
+      let receiverId, senderId;
+
       switch (selectedRadio) {
         case "IN":
-          getFolders({
-            receiverId: peer.id,
-            senderId: userId,
-            permission: userPermission.toLowerCase(),
-          });
+          receiverId = peer.id;
+          senderId = userId;
           break;
         case "OUT":
-          getFolders({
-            receiverId: userId,
-            senderId: peer.id,
-            permission: userPermission.toLowerCase(),
-          });
+          receiverId = userId;
+          senderId = peer.id;
           break;
+        default:
+          console.warn("🚨 Invalid selectedRadio value:", selectedRadio);
+          return;
       }
-  }, [getFolders, selectedRadio, peer, workAt]);
 
-  useEffect(() => {
-    if (selectedRadio !== "") {
-      fetchFolders();
+      console.log("✅ Calling getFolders with:", {
+        receiverId,
+        senderId,
+        userPermission,
+      });
+
+      getFolders({
+        receiverId,
+        senderId,
+        permission: userPermission.toLowerCase(),
+      });
     }
-  }, [fetchFolders, selectedRadio]);
+  }, [getFolders, selectedRadio, peer?.id, userId, userPermission]);
 
   useEffect(() => {
-    if (selectedRadio === "") return;
+    if (!selectedRadio || !userId || !peer?.id) {
+      console.warn("🚨 Not calling fetchFolders - missing values:", {
+        selectedRadio,
+        userId,
+        peer,
+      });
+      return;
+    }
+
+    console.log("✅ Calling fetchFolders on useEffect...");
+    fetchFolders();
+  }, [fetchFolders, selectedRadio, userId, peer?.id]);
+
+  useEffect(() => {
+    if (!selectedRadio || !userId || !peer?.id) {
+      console.warn("🚨 Skipping interval - missing values.");
+      return;
+    }
+
     const interval = setInterval(() => fetchFolders(), 10000);
     return () => clearInterval(interval);
-  }, [fetchFolders, selectedRadio]);
+  }, [fetchFolders, selectedRadio, userId, peer?.id]);
 
   const handleRowClick = (folderName: string) => {
     console.log("Navigating to folder:", folderName);
@@ -130,17 +168,25 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
           </div>
           <div className="divider"></div>
 
-          {selectedRadio === "" ? (
-            <Warning message="Aucun dossier trouvé" />
-          ) : foldersList.length === 0 ? (
-            <Warning message="Aucun dossier trouvé" />
-          ) : (
-            <div className="overflow-x-auto">
-              <FolderTable
-                listOfFolders={foldersList}
-                onRowClick={handleRowClick}
+          {peer ? (
+            selectedRadio === "" ? (
+              <Warning message="Selectionner IN or OUT" user={"jjjjlmalad"} />
+            ) : foldersList.length === 0 ? (
+              <Warning
+                message="Aucun dossier trouvé"
+                notification={selectedRadio === "OUT"}
+                user={peer.name}
               />
-            </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <FolderTable
+                  listOfFolders={foldersList}
+                  onRowClick={handleRowClick}
+                />
+              </div>
+            )
+          ) : (
+            <Warning message="Aucun Participant  Selecetione" />
           )}
         </div>
       </div>

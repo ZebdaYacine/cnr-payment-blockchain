@@ -1,5 +1,5 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import { VersionsResponse } from "../../data/dtos/VersionsDtos";
+import { VersionsResponse, VersionsUploadResponse } from "../../data/dtos/VersionsDtos";
 import { VersionRepository } from "../repository/VersionRepository";
 
 export class VersionUseCase {
@@ -17,7 +17,7 @@ export class VersionUseCase {
     commit: string,
     description: string ,folderName:string,hash_parent:string
   ): 
-    Promise<VersionsResponse|ErrorResponse> {
+    Promise<VersionsUploadResponse|ErrorResponse> {
     return await this.repository.UploadVersions(
       filename,
       codebase64,

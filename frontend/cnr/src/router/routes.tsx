@@ -4,6 +4,7 @@ import LoginPage from "../feature/auth/view/login/pages/Login";
 import ProfilePage from "../feature/profile/view/pages/Profile";
 import VersionPage from "../feature/version/view/home/pages/VersionPage";
 import FilesPage from "../feature/file/view/home/pages/Files";
+import ErrorPage from "../feature/profile/view/pages/error_page";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -31,6 +32,10 @@ function AppRouter() {
           />
         </Route>
       </Route>
+      <Route
+        path="/error-page"
+        element={isAuthentificated ? <ErrorPage /> : <LoginPage />}
+      />
       {/* <Route path="/home/:folderName" element={<FilesPage />} />{" "} */}
     </Routes>
   );

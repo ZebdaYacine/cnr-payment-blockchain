@@ -1,5 +1,5 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import { VersionsResponse } from "../dtos/VersionsDtos";
+import { VersionsResponse, VersionsUploadResponse } from "../dtos/VersionsDtos";
 import { ApiService } from "../../../../core/service/ApiService";
 
 export interface VersionsDataSource {
@@ -41,7 +41,7 @@ return ApiService.makeRequest<VersionsResponse>(
      commit: string,
     description: string ,folderName:string,
     hash_parent:string
-  ): Promise<VersionsResponse | ErrorResponse> {
+  ): Promise<VersionsUploadResponse | ErrorResponse> {
     return ApiService.makeRequest<VersionsResponse>("post", `/${permission}/upload-version`, token, {
       filename,
       codebase64,

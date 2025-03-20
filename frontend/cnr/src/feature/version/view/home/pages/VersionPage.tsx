@@ -49,7 +49,6 @@ function VersionPage() {
   }, [folderName, getVersion]);
   return (
     <>
-      {lastVersion}
       <div className="card shadow-2xl">
         <div className="card-body">
           <div className="flex flex-col">
