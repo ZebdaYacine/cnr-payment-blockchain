@@ -38,6 +38,7 @@ function NavBarComponent({ user }: NavBarProps) {
   const { permission } = useUserId();
   const userPermission = permission || localStorage.getItem("permission");
   const [canPlaySound, setCanPlaySound] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const { GetNotificationsList, SetNotificationsList } =
     useNotificationContext();
@@ -142,13 +143,39 @@ function NavBarComponent({ user }: NavBarProps) {
               role="button"
               className="btn btn-ghost btn-circle"
             >
-              <div className="indicator">
-                <IoNotificationsSharp className="h-5 w-5 " />
-                <span className="badge badge-sm indicator-item">
-                  {GetNotificationsList()?.length === 0
-                    ? 0
-                    : GetNotificationsList()?.length}
-                </span>
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotifications((prev) => !prev)}
+                  className="btn btn-ghost btn-circle"
+                >
+                  <div className="indicator">
+                    <IoNotificationsSharp className="h-5 w-5" />
+                    <span className="badge badge-sm indicator-item">
+                      {GetNotificationsList()?.length || 0}
+                    </span>
+                  </div>
+                </button>
+
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-64 rounded-md bg-base-100 shadow-lg z-50">
+                    <div className="p-2 max-h-80 overflow-y-auto">
+                      {GetNotificationsList()?.length ? (
+                        GetNotificationsList()?.map((notif, index) => (
+                          <div key={index} className="border-b py-2 text-sm">
+                            {notif.title ? (
+                              <p className="font-bold">{notif.title}</p>
+                            ) : null}
+                            <p>{notif.message}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-center text-sm text-gray-500 py-4">
+                          No notifications
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div
