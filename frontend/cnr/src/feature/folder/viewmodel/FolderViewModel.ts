@@ -7,9 +7,11 @@ import { IsTokenExpired } from "../../../services/Http";
 import { useNavigate } from "react-router";
 import { NotificationResponse } from "../../../core/dtos/data";
 import { FolderResponse } from "../data/dtos/FolderDtos";
+import { useNotificationContext } from "../../../core/state/NotificationContext";
 
 export function useFolderViewModel(folderUseCase?: FolderUseCase) {
   const { error } = useNotification();
+  const { SetNotification } = useNotificationContext();
   const { setFoldersList } = useFoldersMetaData();
   const navigate = useNavigate();
 
@@ -80,6 +82,7 @@ export function useFolderViewModel(folderUseCase?: FolderUseCase) {
     data: Notifications,
     isPending: isNotificationLoading,
     isSuccess: isNotificationSuccess,
+    isError: isNotificationError,
   } = useMutation({
     mutationFn: async ({
       permission,
@@ -119,10 +122,7 @@ export function useFolderViewModel(folderUseCase?: FolderUseCase) {
       if (data && "data" in data) {
         const resp = data as NotificationResponse;
         if (resp.data.length > 0) {
-          setFoldersList(resp.data);
-        } else {
-          console.log("🚨 No folders found, resetting state.");
-          setFoldersList([]);
+          SetNotification(resp.data[0]);
         }
       } else {
         const errorResponse = data as ErrorResponse;
@@ -131,7 +131,7 @@ export function useFolderViewModel(folderUseCase?: FolderUseCase) {
           "colored"
         );
         console.log("🚨 No folders found, resetting state.");
-        setFoldersList([]);
+        SetNotification(null);
       }
     },
     onError: (err: unknown) => {
@@ -153,5 +153,6 @@ export function useFolderViewModel(folderUseCase?: FolderUseCase) {
     Notifications,
     isNotificationLoading,
     isNotificationSuccess,
+    isNotificationError,
   };
 }

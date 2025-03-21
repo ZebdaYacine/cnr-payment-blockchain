@@ -10,31 +10,34 @@ import { FolderProvider } from "./core/state/FolderContext";
 import { UsersListProvider } from "./core/state/ListOfUsersContext";
 import { VersionProvider } from "./core/state/versionContext";
 import { VersionMetaDataProvider } from "./core/state/versionMetaDataContext";
+import { NotificationProvider } from "./core/state/NotificationContext";
 
 function App() {
   return (
     <VersionMetaDataProvider>
-      <VersionProvider>
-        <UsersListProvider>
-          <ChildProvider>
-            <PeerProvider>
-              <FolderProvider>
-                <FileProvider>
-                  <AuthProvider>
-                    <ThemeProvider>
-                      <UserProvider>
-                        <BrowserRouter>
-                          <AppRouter />
-                        </BrowserRouter>
-                      </UserProvider>
-                    </ThemeProvider>
-                  </AuthProvider>
-                </FileProvider>
-              </FolderProvider>
-            </PeerProvider>
-          </ChildProvider>
-        </UsersListProvider>
-      </VersionProvider>
+      <NotificationProvider>
+        <VersionProvider>
+          <UsersListProvider>
+            <ChildProvider>
+              <PeerProvider>
+                <FolderProvider>
+                  <FileProvider>
+                    <AuthProvider>
+                      <ThemeProvider>
+                        <UserProvider>
+                          <BrowserRouter>
+                            <AppRouter />
+                          </BrowserRouter>
+                        </UserProvider>
+                      </ThemeProvider>
+                    </AuthProvider>
+                  </FileProvider>
+                </FolderProvider>
+              </PeerProvider>
+            </ChildProvider>
+          </UsersListProvider>
+        </VersionProvider>
+      </NotificationProvider>
     </VersionMetaDataProvider>
   );
 }

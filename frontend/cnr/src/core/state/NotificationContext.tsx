@@ -2,10 +2,10 @@ import { createContext, useState, ReactNode, useContext } from "react";
 import { Notification } from "../dtos/data";
 
 interface NotificationContextType {
-  setNotification: (notification: Notification) => void;
-  getNotification: () => Notification | null;
-  setNotificationsList: (notifications: Notification[]) => void;
-  getNotificationsList: () => Notification[];
+  SetNotification: (notification: Notification | null) => void;
+  GetNotification: () => Notification | null;
+  SetNotificationsList: (notifications: Notification[] | null) => void;
+  GetNotificationsList: () => Notification[] | null;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -13,24 +13,29 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 );
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
-  const [notification, setNotification] = useState<Notification | null>(null);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notificationState, setNotificationState] =
+    useState<Notification | null>(null);
+  const [notifications, setNotifications] = useState<Notification[] | null>([]);
 
-  const setNotificationsList = (notifications: Notification[]) => {
-    setNotifications(notifications);
+  const setNotificationsList = (notifications: Notification[] | null) => {
+    setNotifications(notifications || []);
+  };
+
+  const setNotification = (notification: Notification | null) => {
+    setNotificationState(notification);
   };
 
   const getNotificationsList = () => notifications;
 
-  const getNotification = () => notification;
+  const getNotification = () => notificationState;
 
   return (
     <NotificationContext.Provider
       value={{
-        setNotification,
-        getNotification,
-        setNotificationsList,
-        getNotificationsList,
+        SetNotification: setNotification,
+        GetNotification: getNotification,
+        SetNotificationsList: setNotificationsList,
+        GetNotificationsList: getNotificationsList,
       }}
     >
       {children}
@@ -38,7 +43,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useNotification = (): NotificationContextType => {
+export const useNotificationContext = (): NotificationContextType => {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(
