@@ -38,20 +38,12 @@ export function useNotificationViewModel(
       console.log("Raw API Response:", data);
       if (data && "data" in data) {
         const resp = data as NotificationResponse;
-        if (resp.data.length > 0) {
+        if (resp?.data?.length > 0) {
           SetNotificationsList(resp.data);
         } else {
           console.log("🚨 No folders found, resetting state.");
           SetNotificationsList([]);
         }
-      } else {
-        const errorResponse = data as ErrorResponse;
-        error(
-          errorResponse.message || "Network error occurred during fetch",
-          "colored"
-        );
-        console.log("🚨 No folders found, resetting state.");
-        SetNotificationsList([]);
       }
     },
     onError: (err: unknown) => {

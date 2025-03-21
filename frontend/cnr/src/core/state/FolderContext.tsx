@@ -1,5 +1,5 @@
 import { createContext, useState, ReactNode, useContext } from "react";
-import { Folder } from "../../feature/folder/data/dtos/FolderDtos";
+import { Folder } from "../../core/dtos/data";
 
 interface FolderContextType {
   folders: Folder[];

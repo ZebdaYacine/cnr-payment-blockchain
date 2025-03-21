@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { ErrorResponse } from "../../../services/model/commun";
-import { useNotification } from "../../../services/useNotification";
+// import { useNotification } from "../../../services/useNotification";
 import { FolderUseCase } from "../domain/usecase/FolderUseCase";
 import { useFoldersMetaData } from "../../../core/state/FolderContext";
 import { IsTokenExpired } from "../../../services/Http";
@@ -8,7 +7,7 @@ import { useNavigate } from "react-router";
 import { FolderResponse } from "../data/dtos/FolderDtos";
 
 export function useFolderViewModel(folderUseCase?: FolderUseCase) {
-  const { error } = useNotification();
+  // const { error } = useNotification();
   const { setFoldersList } = useFoldersMetaData();
   const navigate = useNavigate();
 
@@ -49,28 +48,22 @@ export function useFolderViewModel(folderUseCase?: FolderUseCase) {
       console.log("Raw API Response:", data);
       if (data && "data" in data) {
         const resp = data as FolderResponse;
+        // setFoldersList(resp.data);
         if (resp.data.length > 0) {
           setFoldersList(resp.data);
         } else {
           console.log("🚨 No folders found, resetting state.");
           setFoldersList([]);
         }
-      } else {
-        const errorResponse = data as ErrorResponse;
-        error(
-          errorResponse.message || "Network error occurred during fetch",
-          "colored"
-        );
-        console.log("🚨 No folders found, resetting state.");
-        setFoldersList([]);
       }
     },
     onError: (err: unknown) => {
+      setFoldersList([]);
       console.error("Fetch error:", err);
-      error(
-        "An error occurred while fetching folders. Please try again.",
-        "colored"
-      );
+      // error(
+      //   "An error occurred while fetching folders. Please try again.",
+      //   "colored"
+      // );
     },
   });
 

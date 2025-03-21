@@ -63,31 +63,6 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     SetidInstituion,
   } = useUserId();
 
-  // const {
-  //   mutate: getFolders,
-  //   data: Folders,
-  //   isPending: isFolderLoading,
-  //   isSuccess: isFolderSuccess,
-  // } = useMutation({
-  //   mutationFn: async ({ permission: permission }: { permission: string }) => {
-  //     const storedToken = getAuthToken(navigate);
-  //     return profileUseCase.GetFolder(storedToken, permission);
-  //   },
-  //   onSuccess: (data) => {
-  //     if (data && "data" in data) {
-  //       const resp = data as FolderResponse;
-  //       setFoldersList(resp.data);
-  //     }
-  //   },
-  //   onError: (err: unknown) => {
-  //     console.error("Upload error:", err);
-  //     error(
-  //       "An error occurred during the upload. Please try again.",
-  //       "colored"
-  //     );
-  //   },
-  // });
-
   const {
     mutate: getProfile,
     data: Profile,
@@ -321,11 +296,6 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     filesMetadata,
     isFetchingFiles,
     isFetchSuccess,
-
-    // getFolders,
-    // isFolderLoading,
-    // isFolderSuccess,
-    // Folders,
 
     getProfile,
     isProfileLoading,
