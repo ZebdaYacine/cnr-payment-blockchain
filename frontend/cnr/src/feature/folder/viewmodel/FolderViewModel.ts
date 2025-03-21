@@ -95,7 +95,7 @@ export function useFolderViewModel(folderUseCase?: FolderUseCase) {
       receiverId: string[];
       senderId: string;
       message: string;
-      time: string;
+      time: Date;
     }) => {
       console.log("Adding Notification to ", receiverId);
       const storedToken = localStorage.getItem("authToken");

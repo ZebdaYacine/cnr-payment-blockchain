@@ -42,6 +42,7 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewGetInstitutionRouter(db, userRouter)
 	private.NewGetChildOfInstitutiosRouter(db, userRouter)
 	private.NewBringsUsersRouter(db, userRouter)
+	private.NewAddNotificationRouter(db, userRouter)
 
 	// Superuser-specific routes with middleware
 	adminRouter := gin.Group("/admin")
@@ -57,5 +58,6 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewGetChildOfInstitutiosRouter(db, adminRouter)
 	private.NewBringsUsersRouter(db, adminRouter)
 	private.NewGetVersionRouter(db, adminRouter)
+	private.NewAddNotificationRouter(db, adminRouter)
 
 }

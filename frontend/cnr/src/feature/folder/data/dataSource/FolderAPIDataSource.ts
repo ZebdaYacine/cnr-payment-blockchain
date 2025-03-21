@@ -16,7 +16,7 @@ export interface FolderDataSource {
     receiverId: string[],
     senderId: string,
     message: string,
-    time: string
+    time: Date
   ): Promise<NotificationResponse | ErrorResponse>;
 }
 
@@ -27,7 +27,7 @@ export class FolderDataSourceImpl implements FolderDataSource {
     receiverId: string[],
     senderId: string,
     message: string,
-    time: string
+    time: Date
   ): Promise<NotificationResponse | ErrorResponse> {
     return ApiService.makeRequest<FolderResponse>(
       "post",

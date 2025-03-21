@@ -21,8 +21,8 @@ export interface Folder {
 export interface Notification {
   id: string;
   sender: string;
-  receivers: string;
-  message: string[];
+  receivers: string[];
+  message: string;
   time: string;
 }
 

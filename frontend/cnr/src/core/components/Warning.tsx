@@ -6,14 +6,21 @@ import { FolderUseCase } from "../../feature/folder/domain/usecase/FolderUseCase
 import { FolderDataSourceImpl } from "../../feature/folder/data/dataSource/FolderAPIDataSource";
 import { FolderRepositoryImpl } from "../../feature/folder/data/repository/FolderRepositoryImpl";
 import { useFolderViewModel } from "../../feature/folder/viewmodel/FolderViewModel";
+import { useUserId } from "../state/UserContext";
 
 interface WarningProps {
   message: string;
   notification?: boolean;
-  user?: string;
+  userId?: string;
+  username?: string;
 }
 
-function Warning({ message, notification = false, user }: WarningProps) {
+function Warning({
+  message,
+  notification = false,
+  userId: userId,
+  username: username,
+}: WarningProps) {
   const folderUseCase = new FolderUseCase(
     new FolderRepositoryImpl(new FolderDataSourceImpl())
   );
@@ -44,13 +51,17 @@ function Warning({ message, notification = false, user }: WarningProps) {
     setCommitSize(100 - newText.length);
   };
 
+  const { permission } = useUserId();
+
+  const userPermission = permission || localStorage.getItem("permission");
+
   const sendNotification = () => {
     addNotification({
-      permission: "",
-      receiverId: [],
+      permission: userPermission?.toLowerCase() || "",
+      receiverId: [userId || ""],
       senderId: "",
-      message: "",
-      time: "",
+      message: commitText,
+      time: new Date(),
     });
     setCanSend(GetNotification() !== null);
   };
@@ -76,7 +87,7 @@ function Warning({ message, notification = false, user }: WarningProps) {
           <div className="flex flex-col mt-3 w-full md:w-3/4">
             <textarea
               className="textarea textarea-bordered w-full"
-              placeholder={`Notifier ${user} ....`}
+              placeholder={`Notifier ${username} ....`}
               onChange={handleCommitSizeChange}
               value={commitText}
             />

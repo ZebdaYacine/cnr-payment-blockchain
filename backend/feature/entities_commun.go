@@ -6,6 +6,7 @@ import (
 	institutionsEntities "scps-backend/feature/home/institutions/domain/entities"
 	profileEntities "scps-backend/feature/home/profile/domain/entities"
 
+	notificationsEntities "scps-backend/feature/home/notifications/domain/entities"
 	versionEntities "scps-backend/feature/home/version/domain/entities"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -73,5 +74,5 @@ type Account interface {
 		profileEntities.InformationsCard |
 		profileEntities.Link | institutionsEntities.GetInstitution |
 		entities.Register | profileEntities.UpdateProfile |
-		fileEntities.UploadFile | versionEntities.UploadVersion
+		fileEntities.UploadFile | versionEntities.UploadVersion | notificationsEntities.Notification
 }

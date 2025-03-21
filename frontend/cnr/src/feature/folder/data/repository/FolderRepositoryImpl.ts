@@ -31,7 +31,7 @@ export class FolderRepositoryImpl implements FolderRepository {
     receiverId: string[],
     senderId: string,
     message: string,
-    time: string
+    time: Date
   ): Promise<NotificationResponse | ErrorResponse> {
     return await this.datasource.AddNotificationApi(
       token,

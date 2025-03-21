@@ -15,6 +15,6 @@ export interface FolderRepository {
     receiverId: string[],
     senderId: string,
     message: string,
-    time: string
+    time: Date
   ): Promise<NotificationResponse | ErrorResponse>;
 }

@@ -170,12 +170,13 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
 
           {peer ? (
             selectedRadio === "" ? (
-              <Warning message="Selectionner IN or OUT" user={"jjjjlmalad"} />
+              <Warning message="Selectionner IN or OUT" userId={"jjjjlmalad"} />
             ) : foldersList.length === 0 ? (
               <Warning
                 message="Aucun dossier trouvé"
                 notification={selectedRadio === "OUT"}
-                user={peer.name}
+                userId={peer.id}
+                username={peer.name}
               />
             ) : (
               <div className="overflow-x-auto">
