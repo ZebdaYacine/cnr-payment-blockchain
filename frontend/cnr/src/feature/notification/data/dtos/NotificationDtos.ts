@@ -4,6 +4,7 @@ export interface Notification {
   receivers: string[];
   message: string;
   time: string;
+  title: string;
 }
 
 export interface NotificationResponse {

@@ -12,6 +12,8 @@ import { NotificationRepositoryImpl } from "../../feature/notification/data/repo
 import { useNotificationViewModel } from "../../feature/notification/viewmodel/NotificationViewModel";
 import { useNotificationContext } from "../state/NotificationContext";
 import { useUserId } from "../state/UserContext";
+import { BsXLg } from "react-icons/bs";
+import NotificationComponent from "../../feature/notification/view/components/NotificationComponent";
 
 interface NavBarProps {
   user: {
@@ -107,6 +109,10 @@ function NavBarComponent({ user }: NavBarProps) {
     if (!isAuthentificated) navigate("/");
   };
 
+  const close = () => {
+    setShowNotifications(false);
+  };
+
   return (
     <>
       <audio
@@ -159,14 +165,15 @@ function NavBarComponent({ user }: NavBarProps) {
                 {showNotifications && (
                   <div className="absolute right-0 mt-2 w-64 rounded-md bg-base-100 shadow-lg z-50">
                     <div className="p-2 max-h-80 overflow-y-auto">
+                      <div className="flex justify-between">
+                        <h3 className="font-bold text-lg">
+                          List de notifications:
+                        </h3>
+                        <BsXLg className="cursor-pointer" onClick={close} />
+                      </div>
                       {GetNotificationsList()?.length ? (
-                        GetNotificationsList()?.map((notif, index) => (
-                          <div key={index} className="border-b py-2 text-sm">
-                            {notif.title ? (
-                              <p className="font-bold">{notif.title}</p>
-                            ) : null}
-                            <p>{notif.message}</p>
-                          </div>
+                        GetNotificationsList()?.map((notif) => (
+                          <NotificationComponent notification={notif} />
                         ))
                       ) : (
                         <p className="text-center text-sm text-gray-500 py-4">
