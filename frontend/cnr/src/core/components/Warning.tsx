@@ -2,27 +2,27 @@ import { MdErrorOutline } from "react-icons/md";
 import { useState, useEffect } from "react";
 import { FaMessage } from "react-icons/fa6";
 import { useNotificationContext } from "../state/NotificationContext";
-import { FolderUseCase } from "../../feature/folder/domain/usecase/FolderUseCase";
-import { FolderDataSourceImpl } from "../../feature/folder/data/dataSource/FolderAPIDataSource";
-import { FolderRepositoryImpl } from "../../feature/folder/data/repository/FolderRepositoryImpl";
-import { useFolderViewModel } from "../../feature/folder/viewmodel/FolderViewModel";
+import { NotificationUseCase } from "../../feature/notification/domain/usecase/NotificationUseCase";
+import { NotificationDataSourceImpl } from "../../feature/notification/data/dataSource/NotificationAPIDataSource";
+import { NotificationRepositoryImpl } from "../../feature/notification/data/repository/NotificationRepositoryImpl";
+import { useNotificationViewModel } from "../../feature/notification/viewmodel/NotificationViewModel";
 import { useUserId } from "../state/UserContext";
 
 interface WarningProps {
   message: string;
   notification?: boolean;
   userId?: string;
-  username?: string;
+  senderName?: string;
 }
 
 function Warning({
   message,
   notification = false,
   userId: userId,
-  username: username,
+  senderName: senderName,
 }: WarningProps) {
-  const folderUseCase = new FolderUseCase(
-    new FolderRepositoryImpl(new FolderDataSourceImpl())
+  const notificationUseCase = new NotificationUseCase(
+    new NotificationRepositoryImpl(new NotificationDataSourceImpl())
   );
 
   const [commitText, setCommitText] = useState("");
@@ -37,7 +37,7 @@ function Warning({
     isNotificationSuccess,
     Notifications,
     isNotificationError,
-  } = useFolderViewModel(folderUseCase);
+  } = useNotificationViewModel(notificationUseCase);
 
   useEffect(() => {
     setCanSend(GetNotification() === null);
@@ -51,7 +51,7 @@ function Warning({
     setCommitSize(100 - newText.length);
   };
 
-  const { permission } = useUserId();
+  const { permission, username } = useUserId();
 
   const userPermission = permission || localStorage.getItem("permission");
 
@@ -61,6 +61,7 @@ function Warning({
       receiverId: [userId || ""],
       senderId: "",
       message: commitText,
+      title: `Nouvelle notification de  ${username} `,
       time: new Date(),
     });
     setCanSend(GetNotification() !== null);
@@ -70,7 +71,6 @@ function Warning({
     if (isNotificationLoading) {
       setLoading("send notification...");
     } else if (isNotificationSuccess && Notifications) {
-      //setCanSend(GetNotification() !== null);
       setLoading("sent");
     } else if (isNotificationError) {
       setLoading("Error..");
@@ -87,7 +87,7 @@ function Warning({
           <div className="flex flex-col mt-3 w-full md:w-3/4">
             <textarea
               className="textarea textarea-bordered w-full"
-              placeholder={`Notifier ${username} ....`}
+              placeholder={`Notifier ${senderName} ....`}
               onChange={handleCommitSizeChange}
               value={commitText}
             />

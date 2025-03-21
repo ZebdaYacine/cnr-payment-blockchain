@@ -6,23 +6,23 @@ import Warning from "../../../../../core/components/Warning";
 import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
 import { useUserId } from "../../../../../core/state/UserContext";
 import FolderTable from "./FolderTable";
-import { FolderUseCase } from "../../../domain/usecase/FolderUseCase";
-import { FolderDataSourceImpl } from "../../../data/dataSource/FolderAPIDataSource";
-import { FolderRepositoryImpl } from "../../../data/repository/FolderRepositoryImpl";
+import { NotificationUseCase } from "../../../domain/usecase/NotificationUseCase";
+import { NotificationDataSourceImpl } from "../../../data/dataSource/NotificationAPIDataSource";
+import { NotificationRepositoryImpl } from "../../../data/repository/NotificationRepositoryImpl";
 import { useFoldersMetaData } from "../../../../../core/state/FolderContext";
-import { useFolderViewModel } from "../../../viewmodel/FolderViewModel";
+import { useNotificationViewModel } from "../../../viewmodel/NotificationViewModel";
 
 interface ListOfFoldersProps {
   peer: Child;
 }
 
 function ListOfFolders({ peer }: ListOfFoldersProps) {
-  const folderUseCase = new FolderUseCase(
-    new FolderRepositoryImpl(new FolderDataSourceImpl())
+  const folderUseCase = new NotificationUseCase(
+    new NotificationRepositoryImpl(new NotificationDataSourceImpl())
   );
 
   const { getFoldersList } = useFoldersMetaData();
-  const { getFolders } = useFolderViewModel(folderUseCase);
+  const { getFolders } = useNotificationViewModel(folderUseCase);
 
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState("");
@@ -170,7 +170,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
 
           {peer ? (
             selectedRadio === "" ? (
-              <Warning message="Selectionner IN or OUT" />
+              <Warning message="Selectionner IN or OUT" userId={"jjjjlmalad"} />
             ) : foldersList.length === 0 ? (
               <Warning
                 message="Aucun dossier trouvé"

@@ -1,4 +1,3 @@
-import { NotificationResponse } from "../../../../core/dtos/data";
 import { ErrorResponse } from "../../../../services/model/commun";
 import { FolderResponse } from "../../data/dtos/FolderDtos";
 import { FolderRepository } from "../repository/FolderRepository";
@@ -21,24 +20,6 @@ export class FolderUseCase {
       permission,
       receiverId,
       senderId
-    );
-  }
-
-  async AddNotification(
-    token: string,
-    permission: string,
-    receiverId: string[],
-    senderId: string,
-    message: string,
-    time: Date
-  ): Promise<NotificationResponse | ErrorResponse> {
-    return await this.repository.AddNotification(
-      token,
-      permission,
-      receiverId,
-      senderId,
-      message,
-      time
     );
   }
 }

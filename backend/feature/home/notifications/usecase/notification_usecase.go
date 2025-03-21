@@ -17,6 +17,7 @@ type NotificationResult struct {
 
 type NotificationUsecase interface {
 	AddNotification(c context.Context, data *NotificationParams) *NotificationResult
+	GetNotifications(c context.Context, receiverId string) *NotificationResult
 }
 
 type notificationUsecase struct {
@@ -25,19 +26,26 @@ type notificationUsecase struct {
 }
 
 // SearchIfEamilExiste implements ProfileUsecase.
-func NewVersionUsecase(repo notificationRepo.NotificationRepository, collection string) NotificationUsecase {
+func NewNOtificationUsecase(repo notificationRepo.NotificationRepository, collection string) NotificationUsecase {
 	return &notificationUsecase{
 		repo:       repo,
 		collection: collection,
 	}
 }
 
-// AddNotification implements ProfileUsecase.
 func (p *notificationUsecase) AddNotification(c context.Context, data *NotificationParams) *NotificationResult {
 	notification := data.Data.(entities.Notification)
-	profileResult, err := p.repo.AddNotification(c, notification)
+	notificationResult, err := p.repo.AddNotification(c, notification)
 	if err != nil {
 		return &NotificationResult{Err: err}
 	}
-	return &NotificationResult{Data: profileResult}
+	return &NotificationResult{Data: notificationResult}
+}
+
+func (p *notificationUsecase) GetNotifications(c context.Context, receiverId string) *NotificationResult {
+	notificationResult, err := p.repo.GetNotifications(c, receiverId)
+	if err != nil {
+		return &NotificationResult{Err: err}
+	}
+	return &NotificationResult{Data: notificationResult}
 }

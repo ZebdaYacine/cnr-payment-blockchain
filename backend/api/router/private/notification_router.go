@@ -10,10 +10,19 @@ import (
 )
 
 func NewAddNotificationRouter(db database.Database, group *gin.RouterGroup) {
-	ir := notificationsRepo.NewVersionRepository(db)
-	uc := notificationsUsecase.NewVersionUsecase(ir, "")
+	ir := notificationsRepo.NewNotificationRepository(db)
+	uc := notificationsUsecase.NewNOtificationUsecase(ir, "")
 	ic := &controller.NotificationController{
 		NotificationUsecase: uc,
 	}
 	group.POST("add-notification", ic.AddNotificationRequestt)
+}
+
+func NewGetNotificationsRouter(db database.Database, group *gin.RouterGroup) {
+	ir := notificationsRepo.NewNotificationRepository(db)
+	uc := notificationsUsecase.NewNOtificationUsecase(ir, "")
+	ic := &controller.NotificationController{
+		NotificationUsecase: uc,
+	}
+	group.GET("get-notifications", ic.GetNotificationsRequestt)
 }

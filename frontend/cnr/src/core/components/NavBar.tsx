@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { MdOutlineDarkMode } from "react-icons/md";
@@ -6,6 +6,12 @@ import { useTheme } from "../state/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
 import { useLogger } from "../../services/useLogger";
+import { NotificationUseCase } from "../../feature/notification/domain/usecase/NotificationUseCase";
+import { NotificationDataSourceImpl } from "../../feature/notification/data/dataSource/NotificationAPIDataSource";
+import { NotificationRepositoryImpl } from "../../feature/notification/data/repository/NotificationRepositoryImpl";
+import { useNotificationViewModel } from "../../feature/notification/viewmodel/NotificationViewModel";
+import { useNotificationContext } from "../state/NotificationContext";
+import { useUserId } from "../state/UserContext";
 
 interface NavBarProps {
   user: {
@@ -25,6 +31,75 @@ function NavBarComponent({ user }: NavBarProps) {
   const { debug } = useLogger();
   const profileDialogRef = useRef<HTMLDialogElement>(null);
 
+  const notificationUseCase = new NotificationUseCase(
+    new NotificationRepositoryImpl(new NotificationDataSourceImpl())
+  );
+
+  const { permission } = useUserId();
+  const userPermission = permission || localStorage.getItem("permission");
+  const [canPlaySound, setCanPlaySound] = useState(false);
+
+  const { GetNotificationsList, SetNotificationsList } =
+    useNotificationContext();
+  const {
+    getNotifications,
+    isNotificationsLoading,
+    isNotificationsSuccess,
+    isNotificationError,
+  } = useNotificationViewModel(notificationUseCase);
+
+  useEffect(() => {
+    const interval = setInterval(
+      () =>
+        getNotifications({
+          permission: userPermission?.toLocaleLowerCase() || "",
+        }),
+      10000
+    );
+    return () => clearInterval(interval);
+  }, [getNotifications]);
+
+  const prevNotificationCount = useRef<number>(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    const handleFirstClick = () => {
+      setCanPlaySound(true);
+      document.removeEventListener("click", handleFirstClick);
+    };
+
+    document.addEventListener("click", handleFirstClick);
+
+    return () => {
+      document.removeEventListener("click", handleFirstClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isNotificationsLoading) {
+      console.log("getting notification...");
+      SetNotificationsList([]);
+    } else if (isNotificationsSuccess) {
+      const nbr = GetNotificationsList()?.length || 0;
+
+      if (nbr > prevNotificationCount.current) {
+        if (canPlaySound && audioRef.current) {
+          audioRef.current.play().catch((err) => {
+            console.warn("Audio play failed", err);
+          });
+        } else {
+          console.log("🔇 Can't play sound yet – user hasn't interacted");
+        }
+      }
+
+      prevNotificationCount.current = nbr;
+      SetNotificationsList(GetNotificationsList());
+    } else if (isNotificationError) {
+      console.log("Error..");
+      SetNotificationsList([]);
+    }
+  }, [isNotificationsLoading, isNotificationsSuccess, canPlaySound]);
+
   const logoutEvent = () => {
     Userlogout();
     debug("USER IS AUTHENTIFICATED : " + isAuthentificated);
@@ -33,6 +108,11 @@ function NavBarComponent({ user }: NavBarProps) {
 
   return (
     <>
+      <audio
+        ref={audioRef}
+        src="/sounds/snap-notification.mp3"
+        preload="auto"
+      />
       <div
         className={
           isDarkMode
@@ -64,7 +144,11 @@ function NavBarComponent({ user }: NavBarProps) {
             >
               <div className="indicator">
                 <IoNotificationsSharp className="h-5 w-5 " />
-                <span className="badge badge-sm indicator-item">8</span>
+                <span className="badge badge-sm indicator-item">
+                  {GetNotificationsList()?.length === 0
+                    ? 0
+                    : GetNotificationsList()?.length}
+                </span>
               </div>
             </div>
             <div

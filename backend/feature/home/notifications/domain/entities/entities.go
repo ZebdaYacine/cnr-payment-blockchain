@@ -7,5 +7,6 @@ type Notification struct {
 	Sender    string    `json:"sender,omitempty" bson:"sender"`
 	Receivers []string  `json:"receiverId" bson:"receiverId"`
 	Message   string    `json:"message" bson:"message"`
+	Title     string    `json:"title" bson:"title"`
 	Time      time.Time `json:"time" bson:"time"`
 }

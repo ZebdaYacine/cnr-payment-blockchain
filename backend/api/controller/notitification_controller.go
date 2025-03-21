@@ -48,3 +48,26 @@ func (ic *NotificationController) AddNotificationRequestt(c *gin.Context) {
 		Data:    resulat.Data,
 	})
 }
+
+func (ic *NotificationController) GetNotificationsRequestt(c *gin.Context) {
+	log.Println("************************ GET NOTIFICATIONS REQUEST ************************")
+	token := util.GetToken(c)
+	userid, err := util.ExtractIDFromToken(token, pkg.GET_ROOT_SERVER_SEETING().SECRET_KEY)
+	if err != nil {
+		c.JSON(http.StatusNonAuthoritativeInfo, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+	resulat := ic.NotificationUsecase.GetNotifications(c, userid)
+	if err := resulat.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "GET NOTIFICATIONS REQUEST",
+		Data:    resulat.Data,
+	})
+}
