@@ -3,14 +3,16 @@ import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { FolderUseCase } from "../domain/usecase/FolderUseCase";
 import { useFoldersMetaData } from "../../../core/state/FolderContext";
-import { FolderResponse } from "../data/dtos/FolderDtos";
 import { IsTokenExpired } from "../../../services/Http";
 import { useNavigate } from "react-router";
+import { NotificationResponse } from "../../../core/dtos/data";
+import { FolderResponse } from "../data/dtos/FolderDtos";
 
-export function useFolderViewModel(profileUseCase: FolderUseCase) {
+export function useFolderViewModel(folderUseCase?: FolderUseCase) {
   const { error } = useNotification();
   const { setFoldersList } = useFoldersMetaData();
   const navigate = useNavigate();
+
   const {
     mutate: getFolders,
     data: Folders,
@@ -20,24 +22,29 @@ export function useFolderViewModel(profileUseCase: FolderUseCase) {
     mutationFn: async ({
       permission,
       receiverId,
-      senderId
+      senderId,
     }: {
       permission: string;
       receiverId: string;
-      senderId:string
+      senderId: string;
     }) => {
       console.log("Fetching Folders with permission:", permission);
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
-        navigate("/"); 
+        navigate("/");
         throw new Error("Authentication token not found");
       }
       if (IsTokenExpired(storedToken)) {
-        localStorage.removeItem("authToken"); 
-        navigate("/"); 
+        localStorage.removeItem("authToken");
+        navigate("/");
         throw new Error("Session expired. Please log in again.");
       }
-      return profileUseCase.GetFolder(storedToken, permission, receiverId,senderId);
+      return folderUseCase?.GetFolder(
+        storedToken,
+        permission,
+        receiverId,
+        senderId
+      );
     },
     onSuccess: (data) => {
       console.log("Raw API Response:", data);
@@ -51,14 +58,88 @@ export function useFolderViewModel(profileUseCase: FolderUseCase) {
         }
       } else {
         const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during fetch", "colored");
+        error(
+          errorResponse.message || "Network error occurred during fetch",
+          "colored"
+        );
         console.log("🚨 No folders found, resetting state.");
         setFoldersList([]);
       }
     },
     onError: (err: unknown) => {
       console.error("Fetch error:", err);
-      error("An error occurred while fetching folders. Please try again.", "colored");
+      error(
+        "An error occurred while fetching folders. Please try again.",
+        "colored"
+      );
+    },
+  });
+
+  const {
+    mutate: addNotification,
+    data: Notifications,
+    isPending: isNotificationLoading,
+    isSuccess: isNotificationSuccess,
+  } = useMutation({
+    mutationFn: async ({
+      permission,
+      receiverId,
+      senderId,
+      message,
+      time,
+    }: {
+      permission: string;
+      receiverId: string[];
+      senderId: string;
+      message: string;
+      time: string;
+    }) => {
+      console.log("Adding Notification to ", receiverId);
+      const storedToken = localStorage.getItem("authToken");
+      if (!storedToken) {
+        navigate("/");
+        throw new Error("Authentication token not found");
+      }
+      if (IsTokenExpired(storedToken)) {
+        localStorage.removeItem("authToken");
+        navigate("/");
+        throw new Error("Session expired. Please log in again.");
+      }
+      return folderUseCase?.AddNotification(
+        storedToken,
+        permission,
+        receiverId,
+        senderId,
+        message,
+        time
+      );
+    },
+    onSuccess: (data) => {
+      console.log("Raw API Response:", data);
+      if (data && "data" in data) {
+        const resp = data as NotificationResponse;
+        if (resp.data.length > 0) {
+          setFoldersList(resp.data);
+        } else {
+          console.log("🚨 No folders found, resetting state.");
+          setFoldersList([]);
+        }
+      } else {
+        const errorResponse = data as ErrorResponse;
+        error(
+          errorResponse.message || "Network error occurred during fetch",
+          "colored"
+        );
+        console.log("🚨 No folders found, resetting state.");
+        setFoldersList([]);
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("Fetch error:", err);
+      error(
+        "An error occurred while fetching folders. Please try again.",
+        "colored"
+      );
     },
   });
 
@@ -67,5 +148,10 @@ export function useFolderViewModel(profileUseCase: FolderUseCase) {
     isFolderLoading,
     isFolderSuccess,
     Folders,
+
+    addNotification,
+    Notifications,
+    isNotificationLoading,
+    isNotificationSuccess,
   };
 }

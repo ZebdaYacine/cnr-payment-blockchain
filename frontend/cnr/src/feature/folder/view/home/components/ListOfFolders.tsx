@@ -17,12 +17,12 @@ interface ListOfFoldersProps {
 }
 
 function ListOfFolders({ peer }: ListOfFoldersProps) {
-  const profileUseCase = new FolderUseCase(
+  const folderUseCase = new FolderUseCase(
     new FolderRepositoryImpl(new FolderDataSourceImpl())
   );
 
   const { getFoldersList } = useFoldersMetaData();
-  const { getFolders } = useFolderViewModel(profileUseCase);
+  const { getFolders } = useFolderViewModel(folderUseCase);
 
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState("");

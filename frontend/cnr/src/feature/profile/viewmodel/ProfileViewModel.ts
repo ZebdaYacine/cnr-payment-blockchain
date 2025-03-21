@@ -1,6 +1,6 @@
 import {
   FileResponse,
-  FolderResponse,
+  // FolderResponse,
   UsersResponse,
 } from "./../data/dtos/ProfileDtos";
 import { useMutation } from "@tanstack/react-query";
@@ -14,10 +14,10 @@ import { useNavigate } from "react-router";
 import { User } from "../../../core/dtos/data";
 import { useUserId } from "../../../core/state/UserContext";
 // import { useChildren } from "../../../core/state/InstitutionContext";
-import { useFoldersMetaData } from "../../../core/state/FolderContext";
+// import { useFoldersMetaData } from "../../../core/state/FolderContext";
 import { useListUsers } from "../../../core/state/ListOfUsersContext";
 import { IsTokenExpired } from "../../../services/Http";
-import { useAuth } from "../../../core/state/AuthContext";
+// import { useAuth } from "../../../core/state/AuthContext";
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -28,6 +28,7 @@ function convertFileToBase64(file: File): Promise<string> {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 function getAuthToken(navigate: Function): string {
   const token = localStorage.getItem("authToken");
   if (!token) {
@@ -48,9 +49,8 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const { error } = useNotification();
   const { setFilesList } = useFileMetaData();
   const { setUsersList } = useListUsers();
-  const { Userlogout } = useAuth();
 
-  const { setFoldersList } = useFoldersMetaData();
+  // const { setFoldersList } = useFoldersMetaData();
 
   const {
     SetWilaya,
@@ -63,30 +63,30 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     SetidInstituion,
   } = useUserId();
 
-  const {
-    mutate: getFolders,
-    data: Folders,
-    isPending: isFolderLoading,
-    isSuccess: isFolderSuccess,
-  } = useMutation({
-    mutationFn: async ({ permission: permission }: { permission: string }) => {
-      const storedToken = getAuthToken(navigate);
-      return profileUseCase.GetFolder(storedToken, permission);
-    },
-    onSuccess: (data) => {
-      if (data && "data" in data) {
-        const resp = data as FolderResponse;
-        setFoldersList(resp.data);
-      }
-    },
-    onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error(
-        "An error occurred during the upload. Please try again.",
-        "colored"
-      );
-    },
-  });
+  // const {
+  //   mutate: getFolders,
+  //   data: Folders,
+  //   isPending: isFolderLoading,
+  //   isSuccess: isFolderSuccess,
+  // } = useMutation({
+  //   mutationFn: async ({ permission: permission }: { permission: string }) => {
+  //     const storedToken = getAuthToken(navigate);
+  //     return profileUseCase.GetFolder(storedToken, permission);
+  //   },
+  //   onSuccess: (data) => {
+  //     if (data && "data" in data) {
+  //       const resp = data as FolderResponse;
+  //       setFoldersList(resp.data);
+  //     }
+  //   },
+  //   onError: (err: unknown) => {
+  //     console.error("Upload error:", err);
+  //     error(
+  //       "An error occurred during the upload. Please try again.",
+  //       "colored"
+  //     );
+  //   },
+  // });
 
   const {
     mutate: getProfile,
@@ -322,10 +322,10 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isFetchingFiles,
     isFetchSuccess,
 
-    getFolders,
-    isFolderLoading,
-    isFolderSuccess,
-    Folders,
+    // getFolders,
+    // isFolderLoading,
+    // isFolderSuccess,
+    // Folders,
 
     getProfile,
     isProfileLoading,

@@ -26,6 +26,11 @@ function ErrorPage() {
   }, [getProfile, userPermission]);
 
   useEffect(() => {
+    if (userPermission)
+      getProfile({ permission: userPermission.toLowerCase() });
+  }, [getProfile, userPermission]);
+
+  useEffect(() => {
     if (isProfileSuccess) {
       navigate("/home");
     }

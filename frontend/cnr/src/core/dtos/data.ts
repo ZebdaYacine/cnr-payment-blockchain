@@ -5,15 +5,28 @@ export interface User {
   username: string;
   idInstituion: string;
   workAt: string;
-  type:string;
-  permission: string,
-  wilaya: string,
+  type: string;
+  permission: string;
+  wilaya: string;
 }
 
 export interface Folder {
-  id:string,
+  id: string;
   name: string;
   nbrItems: number;
-  createAt: string; 
-  user:string,
+  createAt: string;
+  user: string;
+}
+
+export interface Notification {
+  id: string;
+  sender: string;
+  receivers: string;
+  message: string[];
+  time: string;
+}
+
+export interface NotificationResponse {
+  message: string;
+  data: Notification[];
 }

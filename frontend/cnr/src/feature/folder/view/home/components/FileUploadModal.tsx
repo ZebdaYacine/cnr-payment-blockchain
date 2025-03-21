@@ -14,10 +14,17 @@ import { useUserId } from "../../../../../core/state/UserContext";
 import { useListUsers } from "../../../../../core/state/ListOfUsersContext";
 import { User } from "../../../../../core/dtos/data";
 import TagInput from "../../../../profile/view/components/TagInput";
+import { FolderUseCase } from "../../../domain/usecase/FolderUseCase";
+import { FolderRepositoryImpl } from "../../../data/repository/FolderRepositoryImpl";
+import { FolderDataSourceImpl } from "../../../data/dataSource/FolderAPIDataSource";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
 const profileUseCase = new PofileUseCase(repository);
+
+const folderdataSource = new FolderDataSourceImpl();
+const folderdataRepository = new FolderRepositoryImpl(folderdataSource);
+const folderUseCase = new FolderUseCase(folderdataRepository);
 interface FileUploadModalProps {
   organisation: string;
   destination: string;
@@ -37,7 +44,7 @@ function FileUploadModal({
   const [groupInFOlder, setGroupInFOlder] = useState(false);
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
   const [isFinishUploading, SetFinishUploading] = useState(false);
-  const { getFolders } = useFolderViewModel(profileUseCase);
+  const { getFolders } = useFolderViewModel(folderUseCase);
   const { permission, userId } = useUserId();
   const userPermission = permission || localStorage.getItem("permission");
   const { users } = useListUsers();
@@ -45,6 +52,7 @@ function FileUploadModal({
   const [taggedUsers, setTaggedUsers] = useState<string[]>([]);
   const { uploadFileAsync, uploadMetadata, isUploading, uploadSuccess } =
     useProfileViewModel(profileUseCase);
+
   useEffect(() => {
     if (isUploading) {
       ref.current?.continuousStart();
