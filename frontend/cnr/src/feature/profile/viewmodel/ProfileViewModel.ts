@@ -10,14 +10,11 @@ import { PofileUseCase } from "../domain/usecase/ProfileUseCase";
 import { FilesResponse, ProfileResponse } from "../data/dtos/ProfileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
 import { useNavigate } from "react-router";
-// import { useAuth } from "../../../core/state/AuthContext";
 import { User } from "../../../core/dtos/data";
 import { useUserId } from "../../../core/state/UserContext";
-// import { useChildren } from "../../../core/state/InstitutionContext";
-// import { useFoldersMetaData } from "../../../core/state/FolderContext";
+
 import { useListUsers } from "../../../core/state/ListOfUsersContext";
 import { IsTokenExpired } from "../../../services/Http";
-// import { useAuth } from "../../../core/state/AuthContext";
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -79,14 +76,14 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const userData = resp.data as User;
         if (userData) {
           console.log("Profile fetched:", userData);
-          SetUsername(userData?.username);
-          SetUserId(userData?.id);
-          SetWilaya(userData?.wilaya);
-          SetEmail(userData?.email);
-          SetPermission(userData?.permission);
-          SetWorkAt(userData?.workAt);
-          SetType(userData?.type);
-          SetidInstituion(userData?.idInstituion);
+          SetUsername(userData.username);
+          SetUserId(userData.id);
+          SetWilaya(userData.wilaya);
+          SetEmail(userData.email);
+          SetPermission(userData.permission);
+          SetWorkAt(userData.workAt);
+          SetType(userData.type);
+          SetidInstituion(userData.idInstituion);
         }
       }
     },
@@ -268,20 +265,14 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       }
     },
     onError: (err) => {
-      if (err instanceof Error) {
-        if (err.message.includes("Error unknown: Unknown error")) {
-          console.error("Error fetching users:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Cannot connect to the server. Please check your internet or try again later."
+            : err.message
+          : "An unknown error occurred while fetching users.";
 
-          error(
-            "Cannot connect to the server. Please check your internet or try again later.",
-            "colored"
-          );
-        } else {
-          error(err.message || "An unexpected error occurred.", "colored");
-        }
-      } else {
-        error("An unknown error occurred while fetching users.", "colored");
-      }
+      error(errorMessage, "colored");
     },
   });
 

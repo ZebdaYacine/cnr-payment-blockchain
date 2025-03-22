@@ -164,7 +164,7 @@ function NavBarComponent({ user }: NavBarProps) {
 
                 {showNotifications && (
                   <div className="absolute right-0 mt-2 w-64 rounded-md bg-base-100 shadow-lg z-50">
-                    <div className="p-2 max-h-80 overflow-y-auto">
+                    <div className="p-2 max-h-80 overflow-y-auto ">
                       <div className="flex justify-between">
                         <h3 className="font-bold text-lg">
                           List de notifications:

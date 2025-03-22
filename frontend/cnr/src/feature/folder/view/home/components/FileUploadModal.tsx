@@ -17,6 +17,10 @@ import TagInput from "../../../../profile/view/components/TagInput";
 import { FolderUseCase } from "../../../domain/usecase/FolderUseCase";
 import { FolderRepositoryImpl } from "../../../data/repository/FolderRepositoryImpl";
 import { FolderDataSourceImpl } from "../../../data/dataSource/FolderAPIDataSource";
+import { NotificationUseCase } from "../../../../notification/domain/usecase/NotificationUseCase";
+import { NotificationDataSourceImpl } from "../../../../notification/data/dataSource/NotificationAPIDataSource";
+import { NotificationRepositoryImpl } from "../../../../notification/data/repository/NotificationRepositoryImpl";
+import { useNotificationViewModel } from "../../../../notification/viewmodel/NotificationViewModel";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
@@ -25,11 +29,19 @@ const profileUseCase = new PofileUseCase(repository);
 const folderdataSource = new FolderDataSourceImpl();
 const folderdataRepository = new FolderRepositoryImpl(folderdataSource);
 const folderUseCase = new FolderUseCase(folderdataRepository);
+
+const notificationDataSource = new NotificationDataSourceImpl();
+const notificationRepository = new NotificationRepositoryImpl(
+  notificationDataSource
+);
+const notificationUseCase = new NotificationUseCase(notificationRepository);
+
 interface FileUploadModalProps {
   organisation: string;
   destination: string;
   reciverId: string;
 }
+
 function FileUploadModal({
   organisation: organisation,
   destination: destination,
@@ -37,21 +49,30 @@ function FileUploadModal({
 }: FileUploadModalProps) {
   const ref = useRef<LoadingBarRef>(null);
   const [commitText, setCommitText] = useState("");
-  const [folder, setFolder] = useState("");
   const [commitSize, setCommitSize] = useState(100);
   const [listFiles, setListFiles] = useState<File[]>([]);
   const [listUsers, setListUsers] = useState<User[]>([]);
-  const [groupInFOlder, setGroupInFOlder] = useState(false);
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
   const [isFinishUploading, SetFinishUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const { getFolders } = useFolderViewModel(folderUseCase);
-  const { permission, userId } = useUserId();
+  const { permission, userId, username, type } = useUserId();
   const userPermission = permission || localStorage.getItem("permission");
   const { users } = useListUsers();
 
   const [taggedUsers, setTaggedUsers] = useState<string[]>([]);
-  const { uploadFileAsync, uploadMetadata, isUploading, uploadSuccess } =
+  const { uploadFileAsync, uploadMetadata, uploadSuccess } =
     useProfileViewModel(profileUseCase);
+  const { addNotification } = useNotificationViewModel(notificationUseCase);
+
+  // Generate folder name based on organization, wilaya, username, type, and date
+  const generateFolderName = () => {
+    const now = new Date();
+    const date = now.toISOString().split("T")[0]; // Get only the date part without time
+    return `${organisation}_${username}_${type}_${date}`;
+  };
+
+  const folderName = generateFolderName();
 
   useEffect(() => {
     if (isUploading) {
@@ -62,6 +83,10 @@ function FileUploadModal({
       if (fileData) {
         console.log(">>>>>>>>>>>>>>>>>>>>>", fileData);
         SetFinishUploading(true);
+        // Close modal after 5 seconds on successful upload
+        setTimeout(() => {
+          close();
+        }, 5000);
       } else {
         SetFinishUploading(false);
       }
@@ -97,13 +122,16 @@ function FileUploadModal({
     event.preventDefault();
     if (listFiles.length === 0) return;
     let i = 0;
+    setIsUploading(true);
+    SetFinishUploading(false);
     if (userPermission)
       for (const file of listFiles) {
         try {
+          if (!isUploading) break;
           await uploadFileAsync(
             file,
             "",
-            folder,
+            folderName,
             commitText,
             organisation,
             destination,
@@ -129,13 +157,30 @@ function FileUploadModal({
           }
         } catch (error) {
           console.error(`Error uploading file ${file.name}:`, error);
+          break;
         }
         i = i + 1;
       }
-    // SetFinishUploading(true);
+    setIsUploading(false);
+
+    // Send notifications if all files were uploaded successfully
+    if (countUploadedFiles === listFiles.length && userPermission) {
+      const now = new Date();
+      const receivers = [reciverId, ...taggedUsers];
+
+      addNotification({
+        permission: userPermission.toLocaleLowerCase(),
+        receiverId: receivers,
+        senderId: userId,
+        message: `Nouveaux fichiers ont été téléchargés dans le dossier "${folderName}"`,
+        title: "Nouveaux fichiers téléchargés",
+        time: now,
+      });
+    }
   };
 
   const close = () => {
+    setIsUploading(false);
     const modal = document.getElementById("files") as HTMLDialogElement;
     if (modal) modal.close();
     setListFiles([]);
@@ -209,27 +254,17 @@ function FileUploadModal({
                 ))}
               </div>
               <div className="divider" />
-              <label className="flex flex-row space-x-2 items-center">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-primary"
-                  checked={groupInFOlder}
-                  onChange={() => setGroupInFOlder((prev) => !prev)}
-                />
-                <span className="label-text font-bold text-lg">
-                  Regrouper les fichiers dans un seul dossier
-                </span>
-              </label>
-              {groupInFOlder && (
+              <div className="flex flex-col">
+                <label className="text-start font-bold mb-2">
+                  Nom du dossier:
+                </label>
                 <input
                   type="text"
-                  className="mt-3 input input-bordered w-full"
-                  placeholder="Le nom de dossier..."
-                  onChange={(event) => {
-                    setFolder(event.target.value);
-                  }}
+                  className="mt-3 input input-bordered w-full bg-gray-100"
+                  value={folderName}
+                  readOnly
                 />
-              )}
+              </div>
               <div className="flex flex-col mt-3">
                 <textarea
                   className="textarea textarea-bordered"

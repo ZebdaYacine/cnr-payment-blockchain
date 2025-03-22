@@ -31,8 +31,8 @@ function NotificationComponent({ notification }: NotificationProps) {
         {notification.title || "📌 Notification Sans Titre"}
       </h5>
       <p className="mt-1">
-        {notification.message.length > 20
-          ? notification.message.slice(0, 20) + "..."
+        {notification.message.length > 100
+          ? notification.message.slice(0, 100) + "..."
           : notification.message}
       </p>
       <div className={`flex items-center gap-1 text-xs mt-2 `}>
