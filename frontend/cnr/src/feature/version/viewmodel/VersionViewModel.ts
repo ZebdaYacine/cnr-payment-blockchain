@@ -41,6 +41,10 @@ export function useVersionViewModel(versioneUseCase: VersionUseCase) {
       description,
       folderName,
       hash_parent,
+      receiverId,
+      taggedUsers,
+      organization,
+      destination,
     }: {
       version: File;
       parent: string;
@@ -49,6 +53,10 @@ export function useVersionViewModel(versioneUseCase: VersionUseCase) {
       description: string;
       folderName: string;
       hash_parent: string;
+      receiverId: string;
+      taggedUsers: string[];
+      organization: string;
+      destination: string;
     }) => {
       const base64File = await convertFileToBase64(version);
       const filename = version.name;
@@ -68,7 +76,11 @@ export function useVersionViewModel(versioneUseCase: VersionUseCase) {
         commit,
         description,
         folderName,
-        hash_parent
+        hash_parent,
+        receiverId,
+        taggedUsers,
+        organization,
+        destination
       );
     },
     onSuccess: (data) => {

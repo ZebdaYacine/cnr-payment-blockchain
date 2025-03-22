@@ -18,7 +18,15 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   const { folderName } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRadio] = useState("");
-  const { SetLastVersion, SetHashParent } = useVersion();
+  const {
+    SetLastVersion,
+    SetHashParent,
+    SetReceiverId,
+    SetTaggedUsers,
+    SetOrganization,
+    SetDestination,
+    ClearTaggedUsers,
+  } = useVersion();
 
   const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
   const paginatedFiles = files.slice(
@@ -35,27 +43,35 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   const handleRowClick = (
     fileName: string,
     last_version: number,
-    hashPrent: string
+    hashPrent: string,
+    userId: string,
+    organization: string,
+    destination: string,
+    taggedUsers: string[]
   ) => {
+    // Reset all states first
     SetHashParent("");
     SetLastVersion(0);
-    console.log("Navigating to file version:", fileName);
-    navigate(`/home/${folderName}/${fileName}`);
+    SetReceiverId("");
+    SetTaggedUsers([]);
+    SetOrganization("");
+    SetDestination("");
+    ClearTaggedUsers();
+
+    // Set new values
     SetHashParent(hashPrent);
     SetLastVersion(last_version);
+    SetReceiverId(userId);
+    SetOrganization(organization);
+    SetDestination(destination);
+    SetTaggedUsers(taggedUsers);
+
+    console.log("Navigating to file version:", fileName);
+    navigate(`/home/${folderName}/${fileName}`);
   };
 
   return (
     <>
-      {/* {peer?.name && workAt && (
-        <FileUploadModal
-          destination={`${peer.org.name} - ${peer.wilaya}`}
-          organisation={`${workAt} - ${wilaya}`}
-          reciverId={peer.id}
-        />
-      )} */}
-      {/* <FileUploadModal destination="" organisation="" /> */}
-
       <div className="card shadow-2xl w-full">
         <div className="card-body">
           <div className="flex flex-col">
@@ -105,13 +121,17 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                         handleRowClick(
                           file.FileName,
                           file.LastVersion,
-                          file.HashFile
+                          file.HashFile,
+                          file.reciverId,
+                          file.Organisation || "",
+                          "",
+                          file.TaggedUsers || []
                         )
                       }
                     >
                       <td className="text-center">{file.ID}</td>
                       <td className="text-center">{file.FileName}</td>
-                      <td className="text-center">{file.UserID}</td>
+                      <td className="text-center">{file.reciverId}</td>
                       <td className="text-center">{file.Time}</td>
                       <td className="text-center">
                         <div
@@ -125,22 +145,9 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                         </div>
                       </td>
                       <td className="text-center">
-                        {file.LastVersion > 0 ? (
-                          <select
-                            defaultValue="Pick a Runtime"
-                            className="select select-xs select-success"
-                          >
-                            {[...Array(file.LastVersion)].map((_, index) => (
-                              <option key={index + 1}>
-                                Version {index + 1}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <div className=" badge badge-primary font-bold">
-                            v - {file.Version}
-                          </div>
-                        )}
+                        <div className=" badge badge-primary font-bold">
+                          version - {file.Version}
+                        </div>
                       </td>
                       <td className="text-center">
                         <div

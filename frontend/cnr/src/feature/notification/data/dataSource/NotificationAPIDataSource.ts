@@ -14,7 +14,8 @@ export interface NotificationDataSource {
     senderId: string,
     message: string,
     title: string,
-    time: Date
+    time: Date,
+    path: string
   ): Promise<NotificationResponse | ErrorResponse>;
 }
 
@@ -26,7 +27,8 @@ export class NotificationDataSourceImpl implements NotificationDataSource {
     senderId: string,
     message: string,
     title: string,
-    time: Date
+    time: Date,
+    path: string
   ): Promise<NotificationResponse | ErrorResponse> {
     return ApiService.makeRequest<NotificationResponse>(
       "post",
@@ -38,6 +40,7 @@ export class NotificationDataSourceImpl implements NotificationDataSource {
         message,
         title,
         time,
+        path,
       }
     );
   }

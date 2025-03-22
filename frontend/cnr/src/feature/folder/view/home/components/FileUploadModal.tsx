@@ -54,14 +54,13 @@ function FileUploadModal({
   const [listUsers, setListUsers] = useState<User[]>([]);
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
   const [isFinishUploading, SetFinishUploading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const { getFolders } = useFolderViewModel(folderUseCase);
-  const { permission, userId, username, type } = useUserId();
+  const { permission, userId } = useUserId();
   const userPermission = permission || localStorage.getItem("permission");
   const { users } = useListUsers();
 
   const [taggedUsers, setTaggedUsers] = useState<string[]>([]);
-  const { uploadFileAsync, uploadMetadata, uploadSuccess } =
+  const { uploadFileAsync, uploadMetadata, isUploading, uploadSuccess } =
     useProfileViewModel(profileUseCase);
   const { addNotification } = useNotificationViewModel(notificationUseCase);
 
@@ -69,7 +68,7 @@ function FileUploadModal({
   const generateFolderName = () => {
     const now = new Date();
     const date = now.toISOString().split("T")[0]; // Get only the date part without time
-    return `${organisation}_${username}_${type}_${date}`;
+    return `${organisation}_${reciverId}_${date}`;
   };
 
   const folderName = generateFolderName();
@@ -122,12 +121,9 @@ function FileUploadModal({
     event.preventDefault();
     if (listFiles.length === 0) return;
     let i = 0;
-    setIsUploading(true);
-    SetFinishUploading(false);
-    if (userPermission)
+    if (userPermission) {
       for (const file of listFiles) {
         try {
-          if (!isUploading) break;
           await uploadFileAsync(
             file,
             "",
@@ -157,30 +153,28 @@ function FileUploadModal({
           }
         } catch (error) {
           console.error(`Error uploading file ${file.name}:`, error);
-          break;
         }
         i = i + 1;
       }
-    setIsUploading(false);
 
-    // Send notifications if all files were uploaded successfully
-    if (countUploadedFiles === listFiles.length && userPermission) {
       const now = new Date();
       const receivers = [reciverId, ...taggedUsers];
 
       addNotification({
-        permission: userPermission.toLocaleLowerCase(),
+        permission: userPermission.toLowerCase(),
         receiverId: receivers,
         senderId: userId,
-        message: `Nouveaux fichiers ont été téléchargés dans le dossier "${folderName}"`,
+        message: `Il ya ${i} nouveaux fichiers ont été téléchargés dans le dossier "${folderName}"`,
         title: "Nouveaux fichiers téléchargés",
         time: now,
+        path: `${folderName}`,
       });
+
+      SetFinishUploading(true);
     }
   };
 
   const close = () => {
-    setIsUploading(false);
     const modal = document.getElementById("files") as HTMLDialogElement;
     if (modal) modal.close();
     setListFiles([]);

@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"scps-backend/api/controller/model"
 	"scps-backend/core"
+	"scps-backend/feature"
 	"scps-backend/pkg"
 	util "scps-backend/util/token"
 
-	"scps-backend/feature/home/notifications/domain/entities"
 	"scps-backend/feature/home/notifications/usecase"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,7 @@ type NotificationController struct {
 
 func (ic *NotificationController) AddNotificationRequestt(c *gin.Context) {
 	log.Println("************************ ADD NOTIFICATION REQUEST ************************")
-	var notification entities.Notification
+	var notification feature.Notification
 	if !core.IsDataRequestSupported(&notification, c) {
 		return
 	}
@@ -32,7 +32,7 @@ func (ic *NotificationController) AddNotificationRequestt(c *gin.Context) {
 		})
 		return
 	}
-	notification.Sender = userid
+	notification.SenderId = userid
 	log.Println("notification  :", notification)
 	notificationParams := &usecase.NotificationParams{}
 	notificationParams.Data = notification

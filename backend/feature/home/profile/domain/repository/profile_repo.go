@@ -34,9 +34,11 @@ func NewProfileRepository(db database.Database) ProfileRepository {
 
 func (r *profileRepository) GetProfile(c context.Context, userId string) (*feature.User, error) {
 	var result bson.M
+	log.Println("LLLLLLLLLLLLLLLL", userId)
 	id, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("❌ Invalid user ID format: %s\n", userId)
+		return nil, fmt.Errorf("invalid user ID: %w", err)
 	}
 	filter := bson.D{{Key: "_id", Value: id}}
 	collection := r.database.Collection(database.USER.String())
@@ -46,6 +48,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		return nil, err
 	}
 	user := feature.User{
+		ID:           id,
 		Id:           userId,
 		Permission:   result["permission"].(string),
 		Email:        result["email"].(string),

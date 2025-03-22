@@ -6,8 +6,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"scps-backend/fabric"
+	"scps-backend/feature"
+	notificationsRepo "scps-backend/feature/home/notifications/domain/repository"
+
 	"scps-backend/feature/home/version/domain/entities"
+
 	"scps-backend/pkg/database"
 	"scps-backend/util"
 	"strconv"
@@ -70,11 +75,11 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 		Action:       file.Action,
 		Folder:       versionPath,
 		Description:  file.Description,
-		Organisation: "DIO",
+		Organisation: file.Organisation,
 		Path:         output,
-		Destination:  "",
-		ReciverId:    "",
-		TaggedUsers:  []string{},
+		Destination:  file.Destination,
+		ReciverId:    file.ReciverId,
+		TaggedUsers:  file.TaggedUser,
 	}
 
 	log.Println(fileMetaData)
@@ -91,6 +96,44 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 	}
 	fmt.Println("Inserted file metadata into MongoDB:", fileIDMongo)
 
+	// Send notifications to tagged users and receiver
+	notificationMessage := fmt.Sprintf("Nouvelle version du fichier '%s' a été ajoutée", file.Name)
+
+	nr := notificationsRepo.NewNotificationRepository(s.database)
+
+	if err != nil {
+		log.Printf("Error getting receiver profile: %v", err)
+	}
+	// Send notification to receiver
+	if file.ReciverId != "" {
+		receiverNotification := &feature.Notification{
+			Receivers: []string{file.ReciverId},
+			Title:     "Nouvelle version ajoutée",
+			Message:   notificationMessage,
+			Time:      time.Now(),
+			SenderId:  file.UserId,
+			Path:      filepath.Join("/home", file.Folder, file.Parent),
+		}
+		_, err = nr.AddNotification(c, *receiverNotification)
+		if err != nil {
+			log.Printf("Error sending notification to receiver: %v", err)
+		}
+	}
+	// Send notifications to tagged users
+	if len(file.TaggedUser) > 0 {
+		taggedUserNotification := &feature.Notification{
+			Receivers: file.TaggedUser,
+			Title:     "Nouvelle version ajoutée",
+			Message:   notificationMessage,
+			Time:      time.Now(),
+			SenderId:  file.UserId,
+			Path:      filepath.Join("/home", file.Folder, file.Parent),
+		}
+		_, err = nr.AddNotification(c, *taggedUserNotification)
+		if err != nil {
+			log.Printf("Error sending notification to receiver: %v", err)
+		}
+	}
 	return fileMetaData, nil
 }
 

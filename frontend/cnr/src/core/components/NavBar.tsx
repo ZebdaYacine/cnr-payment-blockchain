@@ -12,7 +12,6 @@ import { NotificationRepositoryImpl } from "../../feature/notification/data/repo
 import { useNotificationViewModel } from "../../feature/notification/viewmodel/NotificationViewModel";
 import { useNotificationContext } from "../state/NotificationContext";
 import { useUserId } from "../state/UserContext";
-import { BsXLg } from "react-icons/bs";
 import NotificationComponent from "../../feature/notification/view/components/NotificationComponent";
 
 interface NavBarProps {
@@ -40,7 +39,7 @@ function NavBarComponent({ user }: NavBarProps) {
   const { permission } = useUserId();
   const userPermission = permission || localStorage.getItem("permission");
   const [canPlaySound, setCanPlaySound] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const { GetNotificationsList, SetNotificationsList } =
     useNotificationContext();
@@ -50,6 +49,28 @@ function NavBarComponent({ user }: NavBarProps) {
     isNotificationsSuccess,
     isNotificationError,
   } = useNotificationViewModel(notificationUseCase);
+
+  // Initialize audio context on first user interaction
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      setCanPlaySound(true);
+      // Create and initialize audio context
+      if (audioRef.current) {
+        audioRef.current.load();
+        audioRef.current.volume = 0.5; // Set volume to 50%
+      }
+      document.removeEventListener("click", handleFirstInteraction);
+      document.removeEventListener("touchstart", handleFirstInteraction);
+    };
+
+    document.addEventListener("click", handleFirstInteraction);
+    document.addEventListener("touchstart", handleFirstInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleFirstInteraction);
+      document.removeEventListener("touchstart", handleFirstInteraction);
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(
@@ -63,42 +84,36 @@ function NavBarComponent({ user }: NavBarProps) {
   }, [getNotifications]);
 
   const prevNotificationCount = useRef<number>(0);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  useEffect(() => {
-    const handleFirstClick = () => {
-      setCanPlaySound(true);
-      document.removeEventListener("click", handleFirstClick);
-    };
-
-    document.addEventListener("click", handleFirstClick);
-
-    return () => {
-      document.removeEventListener("click", handleFirstClick);
-    };
-  }, []);
 
   useEffect(() => {
     if (isNotificationsLoading) {
       console.log("getting notification...");
       SetNotificationsList([]);
     } else if (isNotificationsSuccess) {
-      const nbr = GetNotificationsList()?.length || 0;
+      const currentNotifications = GetNotificationsList() || [];
+      const nbr = currentNotifications.length;
 
       if (nbr > prevNotificationCount.current) {
+        console.log("New notification received!");
         if (canPlaySound && audioRef.current) {
-          audioRef.current.play().catch((err) => {
-            console.warn("Audio play failed", err);
-          });
+          // Reset audio to start
+          audioRef.current.currentTime = 0;
+          // Play the sound
+          const playPromise = audioRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              console.warn("Audio playback failed:", error);
+            });
+          }
         } else {
-          console.log("🔇 Can't play sound yet – user hasn't interacted");
+          console.log("🔇 Sound disabled - waiting for user interaction");
         }
       }
 
       prevNotificationCount.current = nbr;
-      SetNotificationsList(GetNotificationsList());
+      SetNotificationsList(currentNotifications);
     } else if (isNotificationError) {
-      console.log("Error..");
+      console.log("Error fetching notifications");
       SetNotificationsList([]);
     }
   }, [isNotificationsLoading, isNotificationsSuccess, canPlaySound]);
@@ -109,8 +124,8 @@ function NavBarComponent({ user }: NavBarProps) {
     if (!isAuthentificated) navigate("/");
   };
 
-  const close = () => {
-    setShowNotifications(false);
+  const goToHomePage = () => {
+    navigate("/home");
   };
 
   return (
@@ -119,6 +134,7 @@ function NavBarComponent({ user }: NavBarProps) {
         ref={audioRef}
         src="/sounds/snap-notification.mp3"
         preload="auto"
+        loop={false}
       />
       <div
         className={
@@ -128,7 +144,12 @@ function NavBarComponent({ user }: NavBarProps) {
         }
       >
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl text-cyan-50">
+          <a
+            className="btn btn-ghost text-xl text-cyan-50"
+            onClick={() => {
+              goToHomePage();
+            }}
+          >
             {user.username} - {user.workAt} / {user.type}
           </a>
         </div>
@@ -144,16 +165,13 @@ function NavBarComponent({ user }: NavBarProps) {
                 <span className="badge badge-sm indicator-item">8</span>
               </div>
             </div>
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost btn-circle"
-            >
-              <div className="relative">
-                <button
-                  onClick={() => setShowNotifications((prev) => !prev)}
-                  className="btn btn-ghost btn-circle"
-                >
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-ghost btn-circle"
+              >
+                <button className="btn btn-ghost btn-circle">
                   <div className="indicator">
                     <IoNotificationsSharp className="h-5 w-5" />
                     <span className="badge badge-sm indicator-item">
@@ -161,73 +179,75 @@ function NavBarComponent({ user }: NavBarProps) {
                     </span>
                   </div>
                 </button>
-
-                {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-md bg-base-100 shadow-lg z-50">
-                    <div className="p-2 max-h-80 overflow-y-auto ">
-                      <div className="flex justify-between">
-                        <h3 className="font-bold text-lg">
-                          List de notifications:
-                        </h3>
-                        <BsXLg className="cursor-pointer" onClick={close} />
-                      </div>
-                      {GetNotificationsList()?.length ? (
-                        GetNotificationsList()?.map((notif) => (
-                          <NotificationComponent notification={notif} />
-                        ))
-                      ) : (
-                        <p className="text-center text-sm text-gray-500 py-4">
-                          No notifications
+              </div>
+              <ul
+                tabIndex={0}
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+              >
+                <div className="card">
+                  {GetNotificationsList()?.length || 0 > 0 ? (
+                    <>
+                      <div className="justify-between">
+                        <p className="text-mf font-bold border-b">
+                          📌 Liste des Notifications
                         </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div
-              role="button"
-              className="btn btn-ghost btn-circle"
-              onClick={toggleDarkMode}
-            >
-              <div className="indicator">
-                <MdOutlineDarkMode className="h-5 w-5" />
-              </div>
+                      </div>
+                      {GetNotificationsList()?.map((notif) => (
+                        <NotificationComponent
+                          key={notif.id}
+                          notification={notif}
+                        />
+                      ))}
+                    </>
+                  ) : (
+                    <p className=" font-bold ">🚫 Notification vide</p>
+                  )}
+                </div>
+              </ul>
             </div>
           </div>
+          <div
+            role="button"
+            className="btn btn-ghost btn-circle"
+            onClick={toggleDarkMode}
+          >
+            <div className="indicator">
+              <MdOutlineDarkMode className="h-5 w-5" />
+            </div>
+          </div>
+        </div>
 
-          {/* Profile Dropdown */}
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost btn-circle avatar"
-            >
-              <div className="w-10 rounded-full">
-                <img
-                  alt="User Profile"
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                />
-              </div>
+        {/* Profile Dropdown */}
+        <div className="dropdown dropdown-end">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-ghost btn-circle avatar"
+          >
+            <div className="w-10 rounded-full">
+              <img
+                alt="User Profile"
+                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+              />
             </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-            >
-              <li onClick={() => profileDialogRef.current?.showModal()}>
-                <a className="justify-between">
-                  Profile
-                  <span className="badge">New</span>
-                </a>
-              </li>
-              <li>
-                <a>Settings</a>
-              </li>
-              <li>
-                <a onClick={logoutEvent}>Logout</a>
-              </li>
-            </ul>
           </div>
+          <ul
+            tabIndex={0}
+            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+          >
+            <li onClick={() => profileDialogRef.current?.showModal()}>
+              <a className="justify-between">
+                Profile
+                <span className="badge">New</span>
+              </a>
+            </li>
+            <li>
+              <a>Settings</a>
+            </li>
+            <li>
+              <a onClick={logoutEvent}>Logout</a>
+            </li>
+          </ul>
         </div>
       </div>
 
@@ -288,3 +308,21 @@ function NavBarComponent({ user }: NavBarProps) {
 }
 
 export default NavBarComponent;
+
+//  <div className="absolute right-0 mt-2 w-64 rounded-md bg-base-100 shadow-lg z-50">
+//    <div className="p-2 max-h-80 overflow-y-auto ">
+//      <div className="flex justify-between">
+//        <h3 className="font-bold text-lg">List de notifications:</h3>
+//        <BsXLg className="cursor-pointer" onClick={close} />
+//      </div>
+//      {GetNotificationsList()?.length ? (
+//        GetNotificationsList()?.map((notif) => (
+//          <NotificationComponent notification={notif} />
+//        ))
+//      ) : (
+//        <p className="text-center text-sm text-gray-500 py-4">
+//          No notifications
+//        </p>
+//      )}
+//    </div>
+//  </div>;

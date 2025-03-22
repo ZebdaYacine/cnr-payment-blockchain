@@ -13,6 +13,7 @@ export interface NotificationRepository {
     senderId: string,
     message: string,
     title: string,
-    time: Date
+    time: Date,
+    path: string
   ): Promise<NotificationResponse | ErrorResponse>;
 }

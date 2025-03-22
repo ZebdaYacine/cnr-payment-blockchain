@@ -1,3 +1,5 @@
+import { User } from "../../../../core/dtos/data";
+
 export interface Notification {
   id: string;
   sender: string;
@@ -5,6 +7,8 @@ export interface Notification {
   message: string;
   time: string;
   title: string;
+  Sender: User;
+  path: string;
 }
 
 export interface NotificationResponse {

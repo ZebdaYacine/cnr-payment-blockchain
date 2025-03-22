@@ -24,7 +24,8 @@ export class NotificationRepositoryImpl implements NotificationRepository {
     senderId: string,
     message: string,
     title: string,
-    time: Date
+    time: Date,
+    path: string
   ): Promise<NotificationResponse | ErrorResponse> {
     return await this.datasource.AddNotificationApi(
       token,
@@ -33,7 +34,8 @@ export class NotificationRepositoryImpl implements NotificationRepository {
       senderId,
       message,
       title,
-      time
+      time,
+      path
     );
   }
 }

@@ -5,8 +5,8 @@ import (
 	fileEntities "scps-backend/feature/home/file/domain/entities"
 	institutionsEntities "scps-backend/feature/home/institutions/domain/entities"
 	profileEntities "scps-backend/feature/home/profile/domain/entities"
+	"time"
 
-	notificationsEntities "scps-backend/feature/home/notifications/domain/entities"
 	versionEntities "scps-backend/feature/home/version/domain/entities"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -23,6 +23,18 @@ type User struct {
 	Type         string             `json:"type" bson:"type"`
 	Permission   string             `json:"permission" bson:"permission"`
 	Wilaya       string             `json:"wilaya" bson:"wilaya"`
+}
+
+type Notification struct {
+	ID        string    `json:"id" bson:"_id,omitempty"`
+	SenderId  string    `json:"sender,omitempty" bson:"sender"`
+	Sender    User      ` bson:"sender_name"`
+	Receivers []string  `json:"receiverId" bson:"receiverId"`
+	Message   string    `json:"message" bson:"message"`
+	Title     string    `json:"title" bson:"title"`
+	Time      time.Time `json:"time" bson:"time"`
+	Path      string    `json:"path" bson:"path"`
+	IsRead    bool      `json:"is_read,omitempty" bson:"is_read,omitempty"`
 }
 
 type Agence struct {
@@ -74,5 +86,5 @@ type Account interface {
 		profileEntities.InformationsCard |
 		profileEntities.Link | institutionsEntities.GetInstitution |
 		entities.Register | profileEntities.UpdateProfile |
-		fileEntities.UploadFile | versionEntities.UploadVersion | notificationsEntities.Notification
+		fileEntities.UploadFile | versionEntities.UploadVersion | Notification
 }

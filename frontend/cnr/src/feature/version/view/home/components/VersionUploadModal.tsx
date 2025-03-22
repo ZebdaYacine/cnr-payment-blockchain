@@ -22,7 +22,14 @@ function VersionUploadModal() {
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
   const { fileName } = useParams();
   const { folderName } = useParams();
-  const { lastVersion, hashParent } = useVersion();
+  const {
+    lastVersion,
+    hashParent,
+    receiverId,
+    taggedUsers,
+    organization,
+    destination,
+  } = useVersion();
 
   const { uploadVersion, uploadMetadata, isUploading, uploadSuccess } =
     useVersionViewModel(versionUseCase);
@@ -47,9 +54,6 @@ function VersionUploadModal() {
         const file = d?.data;
         if (file) {
           close();
-        } else {
-          // setFileName("Error occurred during upload");
-          // setBadge("badge badge-danger");
         }
       } else {
         console.log("Error occurred during upload");
@@ -106,6 +110,10 @@ function VersionUploadModal() {
         description: Descrpition,
         folderName: folderName || "",
         hash_parent: hashParent,
+        receiverId: receiverId || "",
+        taggedUsers: taggedUsers || [],
+        organization: organization || "",
+        destination: destination || "",
       });
     }
   };

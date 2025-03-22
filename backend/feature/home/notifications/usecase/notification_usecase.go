@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"scps-backend/feature/home/notifications/domain/entities"
+	"scps-backend/feature"
 	notificationRepo "scps-backend/feature/home/notifications/domain/repository"
 )
 
@@ -34,7 +34,7 @@ func NewNOtificationUsecase(repo notificationRepo.NotificationRepository, collec
 }
 
 func (p *notificationUsecase) AddNotification(c context.Context, data *NotificationParams) *NotificationResult {
-	notification := data.Data.(entities.Notification)
+	notification := data.Data.(feature.Notification)
 	notificationResult, err := p.repo.AddNotification(c, notification)
 	if err != nil {
 		return &NotificationResult{Err: err}

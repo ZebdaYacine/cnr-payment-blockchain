@@ -16,7 +16,7 @@ const dataSource = new VersionDataSourceImpl();
 const repository = new VersionRepositoryImpl(dataSource);
 const versionUseCase = new VersionUseCase(repository);
 function VersionPage() {
-  const { lastVersion, hashParent } = useVersion();
+  const { hashParent } = useVersion();
   const { folderName, fileName } = useParams();
   const { permission } = useUserId();
 

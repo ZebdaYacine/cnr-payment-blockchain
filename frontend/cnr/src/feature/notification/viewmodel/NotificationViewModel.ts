@@ -69,6 +69,7 @@ export function useNotificationViewModel(
       message,
       title,
       time,
+      path,
     }: {
       permission: string;
       receiverId: string[];
@@ -76,6 +77,7 @@ export function useNotificationViewModel(
       message: string;
       title: string;
       time: Date;
+      path: string;
     }) => {
       console.log("Adding Notification to ", receiverId);
       const storedToken = localStorage.getItem("authToken");
@@ -95,7 +97,8 @@ export function useNotificationViewModel(
         senderId,
         message,
         title,
-        time
+        time,
+        path
       );
     },
     onSuccess: (data) => {

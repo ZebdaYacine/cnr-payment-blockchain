@@ -11,13 +11,9 @@ export class NotificationUseCase {
 
   async GetNotifications(
     token: string,
-    permission: string,
-
+    permission: string
   ): Promise<NotificationRepository | ErrorResponse> {
-    return await this.repository.GetNotification(
-      token,
-      permission,
-    );
+    return await this.repository.GetNotification(token, permission);
   }
 
   async AddNotification(
@@ -27,7 +23,8 @@ export class NotificationUseCase {
     senderId: string,
     message: string,
     title: string,
-    time: Date
+    time: Date,
+    path: string
   ): Promise<NotificationResponse | ErrorResponse> {
     return await this.repository.AddNotification(
       token,
@@ -36,7 +33,8 @@ export class NotificationUseCase {
       senderId,
       message,
       title,
-      time
+      time,
+      path
     );
   }
 }

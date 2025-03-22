@@ -2,41 +2,41 @@ import { User } from "../../../../core/dtos/data";
 
 export interface FileResponse {
   message: string;
-  data: Data ;
+  data: Data;
 }
 
 export interface FilesResponse {
   message: string;
-  data: Data[] ;
+  data: Data[];
 }
 
 export interface ChildResponse {
   message: string;
-  data: Elements ;
+  data: Elements;
 }
 
 export interface Peer {
-  obj: unknown; 
-  type: string; 
+  obj: unknown;
+  type: string;
 }
 export interface Elements {
-  institutiont: Peer; 
-  child: Peer[]; 
+  institutiont: Peer;
+  child: Peer[];
 }
 
 export interface InstitutionResponse {
   message: string;
-  data: Institution[] ;
+  data: Institution[];
 }
 
 export interface FolderResponse {
   message: string;
-  data: Folder[] ;
+  data: Folder[];
 }
 
 export interface ProfileResponse {
   message: string;
-  data: User ;
+  data: User;
 }
 
 export interface Data {
@@ -51,6 +51,8 @@ export interface Data {
   Time: string;
   Organisation: string;
   Status: string;
+  TaggedUsers: string[];
+  reciverId: string;
 }
 
 export interface Institution {
@@ -65,7 +67,5 @@ export interface Folder {
 export interface Child {
   id: string;
   name: string;
-  parent:Institution;
+  parent: Institution;
 }
-
-
