@@ -24,6 +24,7 @@ type profileRepository struct {
 type ProfileRepository interface {
 	GetProfile(c context.Context, userId string) (*feature.User, error)
 	GetFolders(c context.Context, folder *fabric.FolderMetadata) (*[]entities.Folder, error)
+	GetCurrentPhase(c context.Context) (*entities.Phase, error)
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -34,7 +35,6 @@ func NewProfileRepository(db database.Database) ProfileRepository {
 
 func (r *profileRepository) GetProfile(c context.Context, userId string) (*feature.User, error) {
 	var result bson.M
-	log.Println("LLLLLLLLLLLLLLLL", userId)
 	id, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
 		log.Printf("❌ Invalid user ID format: %s\n", userId)
@@ -47,6 +47,17 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		log.Print(err)
 		return nil, err
 	}
+	var phases []string
+	if rawPhases, ok := result["phases"].(primitive.A); ok {
+		for _, p := range rawPhases {
+			if s, ok := p.(string); ok {
+				phases = append(phases, s)
+			}
+		}
+	} else {
+		log.Printf("⚠️ Could not cast phases for user %s\n", userId)
+	}
+
 	user := feature.User{
 		ID:           id,
 		Id:           userId,
@@ -57,6 +68,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		IdInstituion: result["idInstituion"].(string),
 		Type:         result["type"].(string),
 		Wilaya:       result["wilaya"].(string),
+		Phases:       phases,
 	}
 
 	return &user, nil
@@ -107,4 +119,32 @@ func (s *profileRepository) GetFolders(c context.Context, folder *fabric.FolderM
 		})
 	}
 	return &convertedFolders, nil
+}
+
+func (r *profileRepository) GetCurrentPhase(c context.Context) (*entities.Phase, error) {
+	collection := r.database.Collection(database.PHASE.String())
+
+	// Get current time
+	now := time.Now()
+
+	// Create filter to find phase where current time is between startAt and endAt
+	filter := bson.M{
+		"startAt": bson.M{"$lte": now.Day()},
+		"endAt":   bson.M{"$gte": now.Day()},
+	}
+
+	// Find the current phase
+	var phase entities.Phase
+	err := collection.FindOne(c, filter).Decode(&phase)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			log.Println("⚠️ No active phase found for current time")
+			return nil, fmt.Errorf("no active phase found")
+		}
+		log.Printf("❌ Error getting current phase: %v\n", err)
+		return nil, fmt.Errorf("error getting current phase: %w", err)
+	}
+
+	log.Printf("✅ Found current phase: %s\n", phase.Name)
+	return &phase, nil
 }

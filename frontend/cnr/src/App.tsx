@@ -11,6 +11,7 @@ import { UsersListProvider } from "./core/state/ListOfUsersContext";
 import { VersionProvider } from "./core/state/versionContext";
 import { VersionMetaDataProvider } from "./core/state/versionMetaDataContext";
 import { NotificationProvider } from "./core/state/NotificationContext";
+import { PhaseProvider } from "./core/state/PhaseContext";
 
 function App() {
   return (
@@ -25,9 +26,11 @@ function App() {
                     <AuthProvider>
                       <ThemeProvider>
                         <UserProvider>
-                          <BrowserRouter>
-                            <AppRouter />
-                          </BrowserRouter>
+                          <PhaseProvider>
+                            <BrowserRouter>
+                              <AppRouter />
+                            </BrowserRouter>
+                          </PhaseProvider>
                         </UserProvider>
                       </ThemeProvider>
                     </AuthProvider>

@@ -1,5 +1,6 @@
 import {
   FileResponse,
+  PhaseResponse,
   // FolderResponse,
   UsersResponse,
 } from "./../data/dtos/ProfileDtos";
@@ -15,6 +16,7 @@ import { useUserId } from "../../../core/state/UserContext";
 
 import { useListUsers } from "../../../core/state/ListOfUsersContext";
 import { IsTokenExpired } from "../../../services/Http";
+import { usePhaseId } from "../../../core/state/PhaseContext";
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -46,7 +48,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const { error } = useNotification();
   const { setFilesList } = useFileMetaData();
   const { setUsersList } = useListUsers();
-
+  const { SetCurrentPhase } = usePhaseId();
   // const { setFoldersList } = useFoldersMetaData();
 
   const {
@@ -58,6 +60,8 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     SetType,
     SetWorkAt,
     SetidInstituion,
+    SetPhases,
+    permission,
   } = useUserId();
 
   const {
@@ -84,6 +88,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
           SetWorkAt(userData.workAt);
           SetType(userData.type);
           SetidInstituion(userData.idInstituion);
+          SetPhases(userData.phases);
         }
       }
     },
@@ -276,6 +281,36 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
+  const {
+    mutate: getCurrentPhase,
+    data: currentPhase,
+    isPending: isPhaseLoading,
+    isSuccess: isPhaseSuccess,
+  } = useMutation({
+    mutationFn: async () => {
+      const storedToken = getAuthToken(navigate);
+      return profileUseCase.GetCurrentPhase(
+        storedToken,
+        permission.toLowerCase()
+      );
+    },
+    onSuccess: (data) => {
+      if (data && "data" in data) {
+        const phase = data.data as PhaseResponse;
+        if (phase) {
+          SetCurrentPhase(phase);
+        }
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("GET CURRENT PHASE error:", err);
+      error(
+        "An error occurred while fetching the current phase. Please try again.",
+        "colored"
+      );
+    },
+  });
+
   return {
     uploadFile,
     uploadMetadata,
@@ -300,5 +335,10 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isError,
 
     uploadFileAsync,
+
+    getCurrentPhase,
+    currentPhase,
+    isPhaseLoading,
+    isPhaseSuccess,
   };
 }

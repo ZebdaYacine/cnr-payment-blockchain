@@ -28,11 +28,11 @@ function Phase() {
         <div className="flex justify-between">
           <div className="flex items-center space-x-2">
             <p className="text-xs md:text-xl font-bold">
-              La Phase actuelle:llkdfsd
+              Phase : Verification jour par jour
             </p>
           </div>
           <div>
-            <div className="badge  badge-xs md:badge-lg badge-accent font-bold gap-3">
+            <div className="badge  badge-xs md:badge-lg badge-accent font-bold gap-3 ">
               <TbCalendarClock className="text-xl md:text-xl" />
               {formattedTime}
             </div>

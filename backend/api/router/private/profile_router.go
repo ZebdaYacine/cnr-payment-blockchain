@@ -47,3 +47,12 @@ func NewGetAllMetaDataFileRouter(db database.Database, group *gin.RouterGroup) {
 	}
 	group.GET("get-all-files-metadata", ic.GetAllFilesMetaDataByFolderNameRequest)
 }
+
+func NewGetCurrentPhaseRouter(db database.Database, group *gin.RouterGroup) {
+	ir := profilerepo.NewProfileRepository(db)
+	uc := profileusecase.NewProfileUsecase(ir, "")
+	ic := &controller.ProfileController{
+		ProfileUsecase: uc,
+	}
+	group.GET("get-current-phase", ic.GetCurrentPhaseRequest)
+}

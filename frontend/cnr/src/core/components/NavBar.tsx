@@ -11,6 +11,7 @@ import { useNotificationViewModel } from "../../feature/notification/viewmodel/N
 import { useNotificationContext } from "../state/NotificationContext";
 import { useUserId } from "../state/UserContext";
 import NotificationDropdown from "./NotificationDropdown";
+// import { TbCalendarClock } from "react-icons/tb";
 
 interface NavBarProps {
   user: {
@@ -38,6 +39,26 @@ function NavBarComponent({ user }: NavBarProps) {
   const userPermission = permission || localStorage.getItem("permission");
   const [canPlaySound, setCanPlaySound] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  const [dateTime, setDateTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDateTime(new Date());
+    }, 1000); // Update every second
+
+    return () => clearInterval(timer); // Cleanup on unmount
+  }, []);
+
+  const formattedTime = dateTime.toLocaleString("fr-FR", {
+    weekday: "long",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   const { GetNotificationsList, SetNotificationsList } =
     useNotificationContext();
@@ -152,7 +173,11 @@ function NavBarComponent({ user }: NavBarProps) {
           </a>
         </div>
 
-        <div className="flex-none">
+        <div className="flex-1 justify-end">
+          <p className="font-bold text-sm sm:text-xl md:text-xl">
+            {" "}
+            {formattedTime}
+          </p>
           <NotificationDropdown />
           <div
             role="button"

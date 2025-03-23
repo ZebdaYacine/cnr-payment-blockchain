@@ -16,6 +16,7 @@ interface UserContextType {
   password: string;
   wilaya: string;
   userId: string;
+  phases: string[];
   SetUserId: (userid: string) => void;
   SetUsername: (username: string) => void;
   SetWorkAt: (workAt: string) => void;
@@ -25,6 +26,7 @@ interface UserContextType {
   SetPassWord: (password: string) => void;
   SetType: (type: string) => void;
   SetWilaya: (type: string) => void;
+  SetPhases: (phases: string[]) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -41,8 +43,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [type, setType] = useState<string>("");
   const [wilaya, setWilaya] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
+  const [phases, setPhases] = useState<string[]>(() => {
+    const storedPhases = localStorage.getItem("phases");
+    return storedPhases ? JSON.parse(storedPhases) : [];
+  });
 
-  useEffect(() => localStorage.setItem("permission", permission), [permission]);
+  // Store permission when it changes
+  useEffect(() => {
+    localStorage.setItem("permission", permission);
+  }, [permission]);
+
+  // Store phases when they change
+  useEffect(() => {
+    localStorage.setItem("phases", JSON.stringify(phases));
+  }, [phases]);
 
   const SetUserName = (username: string) => {
     setUserName(username);
@@ -68,8 +82,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setidInstituion(idInstituion);
   };
 
-  const SetType = (idInstituion: string) => {
-    setType(idInstituion);
+  const SetType = (type: string) => {
+    setType(type);
   };
 
   const SetPermission = (permission: string) => {
@@ -77,27 +91,33 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("permission", permission);
   };
 
+  const SetPhases = (phases: string[]) => {
+    setPhases(phases);
+  };
+
   return (
     <UserContext.Provider
       value={{
-        username: username,
-        email: email,
-        permission: permission,
-        password: password,
-        idInstituion: idInstituion,
-        workAt: workAt,
-        type: type,
-        wilaya: wilaya,
-        userId: userId,
-        SetUserId: SetUserId,
-        SetidInstituion: SetidInstituion,
-        SetWorkAt: SetWorkAt,
+        username,
+        email,
+        permission,
+        password,
+        idInstituion,
+        workAt,
+        type,
+        wilaya,
+        userId,
+        phases,
+        SetUserId,
+        SetidInstituion,
+        SetWorkAt,
         SetUsername: SetUserName,
-        SetPassWord: SetPassWord,
-        SetEmail: SetEmail,
-        SetPermission: SetPermission,
-        SetType: SetType,
-        SetWilaya: SetWilaya,
+        SetPassWord,
+        SetEmail,
+        SetPermission,
+        SetType,
+        SetWilaya,
+        SetPhases,
       }}
     >
       {children}

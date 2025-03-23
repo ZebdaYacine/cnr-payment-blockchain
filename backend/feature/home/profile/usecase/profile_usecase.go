@@ -18,6 +18,7 @@ type ProfileResult struct {
 type ProfileUsecase interface {
 	GetProfile(c context.Context, data *ProfileParams) *ProfileResult
 	GetFolders(c context.Context, folder *fabric.FolderMetadata) *ProfileResult
+	GetCurrentPhase(c context.Context) *ProfileResult
 }
 
 type profileUsecase struct {
@@ -49,4 +50,12 @@ func (p *profileUsecase) GetFolders(c context.Context, folder *fabric.FolderMeta
 		return &ProfileResult{Err: err}
 	}
 	return &ProfileResult{Data: profileResult}
+}
+
+func (p *profileUsecase) GetCurrentPhase(c context.Context) *ProfileResult {
+	phase, err := p.repo.GetCurrentPhase(c)
+	if err != nil {
+		return &ProfileResult{Err: err}
+	}
+	return &ProfileResult{Data: phase}
 }

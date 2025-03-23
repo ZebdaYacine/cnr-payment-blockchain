@@ -8,6 +8,7 @@ export interface User {
   type: string;
   permission: string;
   wilaya: string;
+  phases: string[];
 }
 
 export interface Folder {

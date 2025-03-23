@@ -1,8 +1,12 @@
 import { FaFileCirclePlus } from "react-icons/fa6";
 
 import { ToastContainer } from "react-toastify";
+import { useUserId } from "../state/UserContext";
+import { usePhaseId } from "../state/PhaseContext";
 
 function SelectFilesComponent() {
+  const { phases } = useUserId();
+  const { phase } = usePhaseId();
   const displayVersionModal = () => {
     const modal = document.getElementById("files") as HTMLDialogElement;
     if (modal) {
@@ -22,6 +26,7 @@ function SelectFilesComponent() {
               onClick={displayVersionModal}
               multiple
               className="hidden"
+              disabled={!phases.includes(phase?.id || "")}
             />
           </label>
         </div>

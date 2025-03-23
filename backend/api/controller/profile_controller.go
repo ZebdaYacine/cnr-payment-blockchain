@@ -87,3 +87,20 @@ func (ic *ProfileController) GetFoldersRequest(c *gin.Context) {
 		Data:    resulat.Data,
 	})
 }
+
+func (ic *ProfileController) GetCurrentPhaseRequest(c *gin.Context) {
+	log.Println("************************ GET CURRENT PHASE REQUEST ************************")
+
+	result := ic.ProfileUsecase.GetCurrentPhase(c)
+	if err := result.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "GET CURRENT PHASE SUCCESSFULLY",
+		Data:    result.Data,
+	})
+}

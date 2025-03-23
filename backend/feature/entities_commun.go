@@ -23,6 +23,7 @@ type User struct {
 	Type         string             `json:"type" bson:"type"`
 	Permission   string             `json:"permission" bson:"permission"`
 	Wilaya       string             `json:"wilaya" bson:"wilaya"`
+	Phases       []string           `json:"phases" bson:"phases"`
 }
 
 type Notification struct {
