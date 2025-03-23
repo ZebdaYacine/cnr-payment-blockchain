@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { FaShoppingCart } from "react-icons/fa";
-import { IoNotificationsSharp } from "react-icons/io5";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { useTheme } from "../state/ThemeContext";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +10,7 @@ import { NotificationRepositoryImpl } from "../../feature/notification/data/repo
 import { useNotificationViewModel } from "../../feature/notification/viewmodel/NotificationViewModel";
 import { useNotificationContext } from "../state/NotificationContext";
 import { useUserId } from "../state/UserContext";
-import NotificationComponent from "../../feature/notification/view/components/NotificationComponent";
+import NotificationDropdown from "./NotificationDropdown";
 
 interface NavBarProps {
   user: {
@@ -139,13 +137,13 @@ function NavBarComponent({ user }: NavBarProps) {
       <div
         className={
           isDarkMode
-            ? "navbar bg-slate-950 text-white"
-            : "navbar bg-blue-600 text-black"
+            ? "flex navbar bg-slate-950 text-white"
+            : "flex navbar bg-blue-600 text-black"
         }
       >
         <div className="flex-1">
           <a
-            className="btn btn-ghost text-xl text-cyan-50"
+            className="btn btn-ghost text-lg sm:text-xl md:text-xl text-cyan-50"
             onClick={() => {
               goToHomePage();
             }}
@@ -153,125 +151,9 @@ function NavBarComponent({ user }: NavBarProps) {
             {user.username} - {user.workAt} / {user.type}
           </a>
         </div>
-        <div className="flex-none">
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost btn-circle"
-            >
-              <div className="indicator">
-                <FaShoppingCart className="h-5 w-5" />
-                <span className="badge badge-sm indicator-item">8</span>
-              </div>
-            </div>
-          </div>
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost btn-circle"
-            >
-              <div className="indicator">
-                <IoNotificationsSharp className="h-5 w-5" />
-                <span className="badge badge-sm indicator-item">
-                  {GetNotificationsList()?.length || 0}
-                </span>
-              </div>
-            </div>
-            <ul
-              tabIndex={0}
-              className={`dropdown-content shadow-2xl rounded-2xl 
-                  w-72 sm:w-[400px] md:w-[450px]
-                  min-h-[200px]
-                  max-h-[calc(100vh-60px)] sm:max-h-[70vh]
-                  overflow-y-auto
-                  overflow-x-hidden
-                  z-50
-                  ${
-                    isDarkMode
-                      ? "bg-slate-800/95 backdrop-blur-md border border-slate-700"
-                      : "bg-white/95 backdrop-blur-md border border-gray-200 shadow-lg"
-                  }`}
-              style={{
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-                height: GetNotificationsList()?.length ? "auto" : "300px",
-              }}
-            >
-              <div
-                className={`sticky top-0 z-10 px-4 py-3 border-b w-full
-                  ${
-                    isDarkMode
-                      ? "bg-slate-800/95 backdrop-blur-md border-slate-700"
-                      : "bg-white/95 backdrop-blur-md border-gray-200"
-                  }`}
-                style={{
-                  backdropFilter: "blur(12px)",
-                  WebkitBackdropFilter: "blur(12px)",
-                }}
-              >
-                <div className="flex justify-between items-center">
-                  <h3
-                    className={`text-base sm:text-lg font-bold flex items-center gap-2 ${
-                      isDarkMode ? "text-white" : "text-gray-800"
-                    }`}
-                  >
-                    📌 Liste des Notifications
-                  </h3>
-                  <span
-                    className={`text-sm px-3 py-1.5 rounded-full whitespace-nowrap
-                        ${
-                          isDarkMode
-                            ? "bg-blue-500/20 text-blue-300"
-                            : "bg-blue-100 text-blue-600"
-                        }`}
-                  >
-                    {GetNotificationsList()?.length || 0} notifications
-                  </span>
-                </div>
-              </div>
 
-              <div className="w-full">
-                {GetNotificationsList()?.length ? (
-                  <div className="divide-y w-full">
-                    {GetNotificationsList()?.map((notif) => (
-                      <div key={notif.id} className="w-full px-4 py-3">
-                        <NotificationComponent notification={notif} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div
-                    className={`flex flex-col items-center justify-center h-[200px] w-full
-                      ${isDarkMode ? "bg-slate-800/95" : "bg-white/95"}`}
-                    style={{
-                      backdropFilter: "blur(12px)",
-                      WebkitBackdropFilter: "blur(12px)",
-                    }}
-                  >
-                    <div className="flex flex-col items-center space-y-4 px-4">
-                      <span className="text-5xl sm:text-4xl mb-2">🔔</span>
-                      <p
-                        className={`text-xl sm:text-lg font-semibold ${
-                          isDarkMode ? "text-slate-300" : "text-gray-700"
-                        }`}
-                      >
-                        Aucune notification
-                      </p>
-                      <p
-                        className={`text-base sm:text-sm text-center ${
-                          isDarkMode ? "text-slate-400" : "text-gray-500"
-                        }`}
-                      >
-                        Vous n'avez pas de nouvelles notifications
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </ul>
-          </div>
+        <div className="flex-none">
+          <NotificationDropdown />
           <div
             role="button"
             className="btn btn-ghost btn-circle"
@@ -281,39 +163,39 @@ function NavBarComponent({ user }: NavBarProps) {
               <MdOutlineDarkMode className="h-5 w-5" />
             </div>
           </div>
-        </div>
 
-        {/* Profile Dropdown */}
-        <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn btn-ghost btn-circle avatar"
-          >
-            <div className="w-10 rounded-full">
-              <img
-                alt="User Profile"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              />
+          {/* Profile Dropdown */}
+          <div className="dropdown dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost btn-circle avatar"
+            >
+              <div className="w-10 rounded-full">
+                <img
+                  alt="User Profile"
+                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                />
+              </div>
             </div>
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            >
+              <li onClick={() => profileDialogRef.current?.showModal()}>
+                <a className="justify-between">
+                  Profile
+                  <span className="badge">New</span>
+                </a>
+              </li>
+              <li>
+                <a>Settings</a>
+              </li>
+              <li>
+                <a onClick={logoutEvent}>Logout</a>
+              </li>
+            </ul>
           </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-          >
-            <li onClick={() => profileDialogRef.current?.showModal()}>
-              <a className="justify-between">
-                Profile
-                <span className="badge">New</span>
-              </a>
-            </li>
-            <li>
-              <a>Settings</a>
-            </li>
-            <li>
-              <a onClick={logoutEvent}>Logout</a>
-            </li>
-          </ul>
         </div>
       </div>
 
@@ -374,21 +256,3 @@ function NavBarComponent({ user }: NavBarProps) {
 }
 
 export default NavBarComponent;
-
-//  <div className="absolute right-0 mt-2 w-64 rounded-md bg-base-100 shadow-lg z-50">
-//    <div className="p-2 max-h-80 overflow-y-auto ">
-//      <div className="flex justify-between">
-//        <h3 className="font-bold text-lg">List de notifications:</h3>
-//        <BsXLg className="cursor-pointer" onClick={close} />
-//      </div>
-//      {GetNotificationsList()?.length ? (
-//        GetNotificationsList()?.map((notif) => (
-//          <NotificationComponent notification={notif} />
-//        ))
-//      ) : (
-//        <p className="text-center text-sm text-gray-500 py-4">
-//          No notifications
-//        </p>
-//      )}
-//    </div>
-//  </div>;

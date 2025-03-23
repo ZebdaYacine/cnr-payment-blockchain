@@ -9,6 +9,7 @@ import ListOfPeers from "../components/ListOfPeers";
 import FolderPage from "../../../folder/view/home/pages/Folder";
 import { Outlet, useParams } from "react-router";
 import { ToastContainer } from "react-toastify";
+import Phase from "../components/Phase";
 
 function ProfilePage() {
   const { folderName, fileName } = useParams();
@@ -49,6 +50,7 @@ function ProfilePage() {
         user={{ username, email, permission, workAt, idInstituion, type }}
       />
       <ToastContainer />
+      <Phase />
       <div className="flex flex-col">
         {!folderName || !fileName ? (
           <div className="m-5">
