@@ -171,36 +171,101 @@ function NavBarComponent({ user }: NavBarProps) {
                 role="button"
                 className="btn btn-ghost btn-circle"
               >
-                <button className="btn btn-ghost btn-circle">
-                  <div className="indicator">
-                    <IoNotificationsSharp className="h-5 w-5" />
-                    <span className="badge badge-sm indicator-item">
-                      {GetNotificationsList()?.length || 0}
-                    </span>
-                  </div>
-                </button>
+                <div className="indicator">
+                  <IoNotificationsSharp className="h-5 w-5" />
+                  <span className="badge badge-sm indicator-item">
+                    {GetNotificationsList()?.length || 0}
+                  </span>
+                </div>
               </div>
               <ul
                 tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+                className={`dropdown-content menu p-0 shadow-xl rounded-lg 
+                  w-[280px] sm:w-[400px] md:w-[400px]
+                  overflow-y-auto
+                  left-1/4 sm:left-auto
+                  -translate-x-1/2 sm:translate-x-0
+                  mt-0 sm:mt-2
+                  z-50
+                  ${
+                    isDarkMode
+                      ? "bg-slate-800 border border-slate-700"
+                      : "bg-white border border-gray-100 shadow-lg"
+                  }`}
+                style={{
+                  backdropFilter: "none",
+                  WebkitBackdropFilter: "none",
+                }}
               >
-                <div className="card">
-                  {GetNotificationsList()?.length || 0 > 0 ? (
-                    <>
-                      <div className="justify-between">
-                        <p className="text-mf font-bold border-b">
-                          📌 Liste des Notifications
-                        </p>
-                      </div>
-                      {GetNotificationsList()?.map((notif) => (
-                        <NotificationComponent
-                          key={notif.id}
-                          notification={notif}
-                        />
-                      ))}
-                    </>
+                <div
+                  className={`sticky top-0 z-10 p-3 sm:p-4 border-b
+                  ${
+                    isDarkMode
+                      ? "bg-slate-800 border-slate-700"
+                      : "bg-white border-gray-200"
+                  }`}
+                  style={{
+                    backdropFilter: "none",
+                    WebkitBackdropFilter: "none",
+                  }}
+                >
+                  <div className="flex justify-between items-center">
+                    <h3
+                      className={`text-base sm:text-lg font-bold ${
+                        isDarkMode ? "text-white" : "text-gray-800"
+                      }`}
+                    >
+                      📌 Liste des Notifications
+                    </h3>
+                    <span
+                      className={`text-xs sm:text-sm font-medium px-2 py-1 rounded-full
+                        ${
+                          isDarkMode
+                            ? "bg-slate-700 text-slate-300"
+                            : "bg-blue-100 text-blue-600"
+                        }`}
+                    >
+                      {GetNotificationsList()?.length || 0} notifications
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  className={`divide-y ${
+                    isDarkMode ? "divide-slate-700" : "divide-gray-100"
+                  }`}
+                >
+                  {GetNotificationsList()?.length ? (
+                    GetNotificationsList()?.map((notif) => (
+                      <NotificationComponent
+                        key={notif.id}
+                        notification={notif}
+                      />
+                    ))
                   ) : (
-                    <p className=" font-bold ">🚫 Notification vide</p>
+                    <div
+                      className={`flex flex-col items-center justify-center py-8 sm:py-12 px-4
+                      ${isDarkMode ? "bg-slate-800" : "bg-white"}`}
+                      style={{
+                        backdropFilter: "none",
+                        WebkitBackdropFilter: "none",
+                      }}
+                    >
+                      <p
+                        className={`text-base sm:text-lg font-semibold ${
+                          isDarkMode ? "text-slate-300" : "text-gray-700"
+                        }`}
+                      >
+                        🚫 Aucune notification
+                      </p>
+                      <p
+                        className={`text-xs sm:text-sm mt-2 text-center ${
+                          isDarkMode ? "text-slate-400" : "text-gray-500"
+                        }`}
+                      >
+                        Vous n'avez pas de nouvelles notifications
+                      </p>
+                    </div>
                   )}
                 </div>
               </ul>
