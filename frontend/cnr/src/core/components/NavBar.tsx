@@ -180,48 +180,52 @@ function NavBarComponent({ user }: NavBarProps) {
               </div>
               <ul
                 tabIndex={0}
-                className={`dropdown-content menu p-0 shadow-xl rounded-lg 
-                  w-[280px] sm:w-[400px] md:w-[400px]
+                className={`dropdown-content shadow-2xl rounded-2xl 
+                  w-screen sm:w-[400px] md:w-[450px]
+                  min-h-[200px]
+                  max-h-[calc(100vh-60px)] sm:max-h-[70vh]
                   overflow-y-auto
-                  left-1/4 sm:left-auto
-                  -translate-x-1/2 sm:translate-x-0
-                  mt-0 sm:mt-2
+                  overflow-x-hidden
+                  fixed sm:absolute
+                   right-0 sm:inset-x-auto sm:right-0
+                  top-[60px] sm:top-12
                   z-50
                   ${
                     isDarkMode
-                      ? "bg-slate-800 border border-slate-700"
-                      : "bg-white border border-gray-100 shadow-lg"
+                      ? "bg-slate-800/95 backdrop-blur-md border border-slate-700"
+                      : "bg-white/95 backdrop-blur-md border border-gray-200 shadow-lg"
                   }`}
                 style={{
-                  backdropFilter: "none",
-                  WebkitBackdropFilter: "none",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  height: GetNotificationsList()?.length ? "auto" : "200px",
                 }}
               >
                 <div
-                  className={`sticky top-0 z-10 p-3 sm:p-4 border-b
+                  className={`sticky top-0 z-10 px-4 py-3 border-b w-full
                   ${
                     isDarkMode
-                      ? "bg-slate-800 border-slate-700"
-                      : "bg-white border-gray-200"
+                      ? "bg-slate-800/95 backdrop-blur-md border-slate-700"
+                      : "bg-white/95 backdrop-blur-md border-gray-200"
                   }`}
                   style={{
-                    backdropFilter: "none",
-                    WebkitBackdropFilter: "none",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
                   }}
                 >
                   <div className="flex justify-between items-center">
                     <h3
-                      className={`text-base sm:text-lg font-bold ${
+                      className={`text-base sm:text-lg font-bold flex items-center gap-2 ${
                         isDarkMode ? "text-white" : "text-gray-800"
                       }`}
                     >
                       📌 Liste des Notifications
                     </h3>
                     <span
-                      className={`text-xs sm:text-sm font-medium px-2 py-1 rounded-full
+                      className={`text-sm px-3 py-1.5 rounded-full whitespace-nowrap
                         ${
                           isDarkMode
-                            ? "bg-slate-700 text-slate-300"
+                            ? "bg-blue-500/20 text-blue-300"
                             : "bg-blue-100 text-blue-600"
                         }`}
                     >
@@ -230,41 +234,41 @@ function NavBarComponent({ user }: NavBarProps) {
                   </div>
                 </div>
 
-                <div
-                  className={`divide-y ${
-                    isDarkMode ? "divide-slate-700" : "divide-gray-100"
-                  }`}
-                >
+                <div className="w-full">
                   {GetNotificationsList()?.length ? (
-                    GetNotificationsList()?.map((notif) => (
-                      <NotificationComponent
-                        key={notif.id}
-                        notification={notif}
-                      />
-                    ))
+                    <div className="divide-y w-full">
+                      {GetNotificationsList()?.map((notif) => (
+                        <div key={notif.id} className="w-full px-4 py-3">
+                          <NotificationComponent notification={notif} />
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div
-                      className={`flex flex-col items-center justify-center py-8 sm:py-12 px-4
-                      ${isDarkMode ? "bg-slate-800" : "bg-white"}`}
+                      className={`flex flex-col items-center justify-center h-[200px] w-full
+                      ${isDarkMode ? "bg-slate-800/95" : "bg-white/95"}`}
                       style={{
-                        backdropFilter: "none",
-                        WebkitBackdropFilter: "none",
+                        backdropFilter: "blur(12px)",
+                        WebkitBackdropFilter: "blur(12px)",
                       }}
                     >
-                      <p
-                        className={`text-base sm:text-lg font-semibold ${
-                          isDarkMode ? "text-slate-300" : "text-gray-700"
-                        }`}
-                      >
-                        🚫 Aucune notification
-                      </p>
-                      <p
-                        className={`text-xs sm:text-sm mt-2 text-center ${
-                          isDarkMode ? "text-slate-400" : "text-gray-500"
-                        }`}
-                      >
-                        Vous n'avez pas de nouvelles notifications
-                      </p>
+                      <div className="flex flex-col items-center space-y-4 px-4">
+                        <span className="text-5xl sm:text-4xl mb-2">🔔</span>
+                        <p
+                          className={`text-xl sm:text-lg font-semibold ${
+                            isDarkMode ? "text-slate-300" : "text-gray-700"
+                          }`}
+                        >
+                          Aucune notification
+                        </p>
+                        <p
+                          className={`text-base sm:text-sm text-center ${
+                            isDarkMode ? "text-slate-400" : "text-gray-500"
+                          }`}
+                        >
+                          Vous n'avez pas de nouvelles notifications
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
