@@ -34,7 +34,7 @@ function NotificationComponent({ notification }: NotificationProps) {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
       key={notification.id}
-      className={`relative border-b py-4 px-4 text-sm text-left transition-all duration-300 cursor-pointer 
+      className={`relative py-4 px-4 text-sm text-left transition-all duration-300 cursor-pointer 
         ${
           isDarkMode
             ? "hover:bg-slate-800 border-slate-700"
