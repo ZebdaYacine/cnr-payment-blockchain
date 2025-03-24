@@ -252,6 +252,7 @@ func createVersionMetadata(contract *client.Contract, file *FileMetadata, HashPa
 		fileParent.Parent, fileParent.Version, file.LastVersion, fileParent.Organisation,
 		fileParent.Folder, fileParent.Path, fileParent.Destination, fileParent.ReciverId,
 		taggedUser, fileParent.Description, "",
+		fileParent.Phase,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ >>>>>>>>>>>>failed to submit transaction: %w", err)
@@ -325,7 +326,7 @@ func createFileMetadata(contract *client.Contract, file *FileMetadata) (*FileMet
 		file.ID, file.HashFile, file.UserID, file.FileName,
 		file.Parent, file.Version, file.LastVersion, file.Action, file.Organisation,
 		file.Folder, file.Path, file.Destination, file.ReciverId,
-		taggedUser,
+		taggedUser, file.Phase,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)
@@ -360,7 +361,7 @@ func createFolderMetadata(contract *client.Contract, folder *FolderMetadata) (*F
 		"CreateFolderMetadata",
 		folder.ID, folder.UserId, folder.Name, folder.Path,
 		folder.Destination, folder.Organisation, folder.ReciverId,
-		taggedUser,
+		taggedUser, folder.Phase,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("❌ failed to submit transaction: %w", err)

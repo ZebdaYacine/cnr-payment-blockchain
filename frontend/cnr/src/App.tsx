@@ -15,33 +15,33 @@ import { PhaseProvider } from "./core/state/PhaseContext";
 
 function App() {
   return (
-    <VersionMetaDataProvider>
-      <NotificationProvider>
-        <VersionProvider>
-          <UsersListProvider>
-            <ChildProvider>
-              <PeerProvider>
-                <FolderProvider>
-                  <FileProvider>
-                    <AuthProvider>
-                      <ThemeProvider>
-                        <UserProvider>
-                          <PhaseProvider>
-                            <BrowserRouter>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
+          <UserProvider>
+            <PhaseProvider>
+              <NotificationProvider>
+                <VersionMetaDataProvider>
+                  <VersionProvider>
+                    <UsersListProvider>
+                      <ChildProvider>
+                        <PeerProvider>
+                          <FolderProvider>
+                            <FileProvider>
                               <AppRouter />
-                            </BrowserRouter>
-                          </PhaseProvider>
-                        </UserProvider>
-                      </ThemeProvider>
-                    </AuthProvider>
-                  </FileProvider>
-                </FolderProvider>
-              </PeerProvider>
-            </ChildProvider>
-          </UsersListProvider>
-        </VersionProvider>
-      </NotificationProvider>
-    </VersionMetaDataProvider>
+                            </FileProvider>
+                          </FolderProvider>
+                        </PeerProvider>
+                      </ChildProvider>
+                    </UsersListProvider>
+                  </VersionProvider>
+                </VersionMetaDataProvider>
+              </NotificationProvider>
+            </PhaseProvider>
+          </UserProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 

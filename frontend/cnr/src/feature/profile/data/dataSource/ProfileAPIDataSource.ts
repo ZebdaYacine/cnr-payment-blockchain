@@ -45,7 +45,8 @@ export interface ProfileDataSource {
     version: number,
     permission: string,
     reciverId: string,
-    tagged_users: string[]
+    tagged_users: string[],
+    phase: string
   ): Promise<FileResponse | ErrorResponse>;
   GetInstituaionApi(
     token: string,
@@ -151,7 +152,8 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     version: number,
     permission: string,
     reciverId: string,
-    tagged_users: string[]
+    tagged_users: string[],
+    phase: string
   ): Promise<FileResponse | ErrorResponse> {
     return ApiService.makeRequest<FileResponse>(
       "post",
@@ -169,6 +171,7 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
         version,
         reciverId,
         tagged_users,
+        phase,
       }
     );
   }

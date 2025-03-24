@@ -79,6 +79,7 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		Destination:  file.Destination,
 		ReciverId:    file.ReciverId,
 		TaggedUsers:  file.TaggedUser,
+		Phase:        file.Phase,
 	}
 
 	folderMetaData := &fabric.FolderMetadata{
@@ -92,6 +93,7 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		TaggedUsers:  file.TaggedUser,
 		ReciverId:    file.ReciverId,
 		CreateAt:     time.Now().Format(time.RFC3339),
+		Phase:        file.Phase,
 	}
 	log.Println(fileMetaData)
 

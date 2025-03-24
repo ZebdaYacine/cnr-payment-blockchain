@@ -76,7 +76,8 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     version: number,
     permission: string,
     reciverId: string,
-    tagged_users: string[]
+    tagged_users: string[],
+    phase: string
   ): Promise<FileResponse | ErrorResponse> {
     return await this.datasource.UploadFileApi(
       filename,
@@ -91,7 +92,8 @@ export class ProfileRepositoryImpl implements ProfileRepository {
       version,
       permission,
       reciverId,
-      tagged_users
+      tagged_users,
+      phase
     );
   }
 

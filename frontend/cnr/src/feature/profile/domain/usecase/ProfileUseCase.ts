@@ -30,7 +30,8 @@ export class PofileUseCase {
     version: number,
     permission: string,
     reciverId: string,
-    tagged_users: string[]
+    tagged_users: string[],
+    phase: string
   ): Promise<FileResponse | ErrorResponse> {
     return await this.repository.UploadFile(
       filename,
@@ -45,7 +46,8 @@ export class PofileUseCase {
       version,
       permission,
       reciverId,
-      tagged_users
+      tagged_users,
+      phase
     );
   }
 

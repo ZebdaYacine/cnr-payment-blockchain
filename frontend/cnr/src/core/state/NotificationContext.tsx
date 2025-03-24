@@ -1,6 +1,5 @@
 import { createContext, useState, ReactNode, useContext } from "react";
-import { Notification } from "../dtos/data";
-
+import { Notification } from "../../feature/notification/data/dtos/NotificationDtos";
 interface NotificationContextType {
   SetNotification: (notification: Notification | null) => void;
   GetNotification: () => Notification | null;

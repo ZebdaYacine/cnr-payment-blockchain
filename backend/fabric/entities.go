@@ -18,18 +18,20 @@ type FileMetadata struct {
 	Organisation string   `json:"Organisation" bson:"organisation"`
 	Status       string   `json:"Status",omitempty" bson:"status,omitempty"`
 	Path         string   `json:"path,omitempty" bson:"path,omitempty"`
+	Phase        string   `json:"phase" bson:"phase"`
 	Destination  string   `json:"Destination" bson:"Destination"`
 }
 
 type FolderMetadata struct {
-	ID           string   `json:"id,omitempty" bson:"id,omitempty"`
-	Name         string   `json:"name" bson:"name"`
-	Path         string   `json:"path" bson:"path"`
-	UserId       string   `json:"userId" bson:"userId"`
-	ReciverId    string   `json:"reciverId" bson:"reciverId"`
-	NbrItems     int      `json:"nbrItems" bson:"nbrItems"`
-	CreateAt     string   `json:"createAt" bson:"createAt"`
-	Destination  string   `json:"Destination" bson:"Destination"`
-	Organisation string   `json:"Organisation" bson:"organisation"`
-	TaggedUsers  []string `json:"TaggedUsers" bson:"tagged_users"`
+	ID           string `json:"id,omitempty" bson:"id,omitempty"`
+	Name         string `json:"name" bson:"name"`
+	Path         string `json:"path" bson:"path"`
+	UserId       string `json:"userId" bson:"userId"`
+	ReciverId    string `json:"reciverId" bson:"reciverId"`
+	NbrItems     int    `json:"nbrItems" bson:"nbrItems"`
+	CreateAt     string `json:"createAt" bson:"createAt"`
+	Destination  string `json:"Destination" bson:"Destination"`
+	Organisation string `json:"Organisation" bson:"organisation"`
+	Phase        string `json:"phase" bson:"phase"`
+	TaggedUsers []string `json:"TaggedUsers" bson:"tagged_users"`
 }

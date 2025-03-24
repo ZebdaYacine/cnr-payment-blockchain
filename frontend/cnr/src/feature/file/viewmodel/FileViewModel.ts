@@ -1,11 +1,10 @@
-import { FileResponse } from '../data/dtos/FileDtos';
+import { FileResponse } from "../data/dtos/FileDtos";
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { FileUseCase } from "../domain/usecase/FileUseCase";
 import { FilesResponse } from "../data/dtos/FileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
-
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -39,8 +38,28 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     });
   };
 
-  const { mutate: uploadFile, data: uploadMetadata, isPending: isUploading, isSuccess: uploadSuccess, isError: uploadError } = useMutation({
-    mutationFn: async ({ permission, file, parent, folder, description, version }: { permission: string; file: File; parent: string; folder: string; description: string; version: number }) => {
+  const {
+    mutate: uploadFile,
+    data: uploadMetadata,
+    isPending: isUploading,
+    isSuccess: uploadSuccess,
+    isError: uploadError,
+  } = useMutation({
+    mutationFn: async ({
+      permission,
+      file,
+      parent,
+      folder,
+      description,
+      version,
+    }: {
+      permission: string;
+      file: File;
+      parent: string;
+      folder: string;
+      description: string;
+      version: number;
+    }) => {
       const base64File = await convertFileToBase64(file);
       const filename = file.name;
       const action = "upload";
@@ -48,7 +67,17 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
       if (!storedToken) {
         throw new Error("Authentication token not found");
       }
-      return fileUseCase.UploadFile(permission, filename, base64File, storedToken, action, parent, folder, description, version);
+      return fileUseCase.UploadFile(
+        permission,
+        filename,
+        base64File,
+        storedToken,
+        action,
+        parent,
+        folder,
+        description,
+        version
+      );
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -57,17 +86,34 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
         console.log("File URL:", resp.data?.HashFile);
       } else {
         const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during upload", "colored");
+        error(
+          errorResponse.message || "Network error occurred during upload",
+          "colored"
+        );
       }
     },
     onError: (err: unknown) => {
       console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
+      error(
+        "An error occurred during the upload. Please try again.",
+        "colored"
+      );
     },
   });
 
-  const { mutate: getFiles, data: filesMetadata, isPending: isFetchingFiles, isSuccess: isFetchSuccess } = useMutation({
-    mutationFn: async ({ permission, folder }: { permission: string; folder: string }) => {
+  const {
+    mutate: getFiles,
+    data: filesMetadata,
+    isPending: isFetchingFiles,
+    isSuccess: isFetchSuccess,
+  } = useMutation({
+    mutationFn: async ({
+      permission,
+      folder,
+    }: {
+      permission: string;
+      folder: string;
+    }) => {
       const storedToken = localStorage.getItem("authToken");
       if (!storedToken) {
         throw new Error("Authentication token not found");
@@ -81,12 +127,19 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
       } else {
         const errorResponse = data as ErrorResponse;
         setFilesList([]);
-        error(errorResponse.message || "Network error occurred while fetching files", "colored");
+        error(
+          errorResponse.message ||
+            "Network error occurred while fetching files",
+          "colored"
+        );
       }
     },
     onError: (err: unknown) => {
       console.error("Fetch error:", err);
-      error("An error occurred while retrieving files. Please try again.", "colored");
+      error(
+        "An error occurred while retrieving files. Please try again.",
+        "colored"
+      );
     },
   });
 
@@ -102,6 +155,6 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     isFetchingFiles,
     isFetchSuccess,
 
-    uploadFileAsync
+    uploadFileAsync,
   };
 }

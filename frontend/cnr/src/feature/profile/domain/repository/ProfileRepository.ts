@@ -40,7 +40,8 @@ export interface ProfileRepository {
     version: number,
     permission: string,
     reciverId: string,
-    tagged_users: string[]
+    tagged_users: string[],
+    phase:string
   ): Promise<FileResponse | ErrorResponse>;
   GetInstituations(
     token: string,

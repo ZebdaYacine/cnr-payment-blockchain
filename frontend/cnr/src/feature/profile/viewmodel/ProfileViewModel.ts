@@ -112,7 +112,8 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     version: number,
     permission: string,
     reciverId: string,
-    tagged_users: string[]
+    tagged_users: string[],
+    phase: string
   ): Promise<FileResponse> => {
     return new Promise((resolve, reject) => {
       uploadFile(
@@ -127,6 +128,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
           permission,
           reciverId,
           tagged_users,
+          phase,
         },
         {
           onSuccess: (data) => resolve(data as FileResponse),
@@ -154,6 +156,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       permission: permission,
       reciverId,
       tagged_users,
+      phase,
     }: {
       file: File;
       parent: string;
@@ -165,6 +168,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       permission: string;
       reciverId: string;
       tagged_users: string[];
+      phase: string;
     }) => {
       const base64File = await convertFileToBase64(file);
       const filename = file.name;
@@ -183,7 +187,8 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         version,
         permission,
         reciverId,
-        tagged_users
+        tagged_users,
+        phase
       );
     },
     onSuccess: (data) => {

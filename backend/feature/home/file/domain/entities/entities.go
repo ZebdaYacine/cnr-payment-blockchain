@@ -27,5 +27,6 @@ type UploadFile struct {
 	UserId       string   `json:"userid" bson:"user_id"`
 	ReciverId    string   `json:"reciverId" bson:"reciverId"`
 	TaggedUser   []string `json:"tagged_users" bson:"tagged_users"`
-	Path         string
+	Phase        string   `json:"phase" bson:"phase"`
+	Path string
 }

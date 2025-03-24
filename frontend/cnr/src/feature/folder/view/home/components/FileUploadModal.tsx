@@ -21,6 +21,7 @@ import { NotificationUseCase } from "../../../../notification/domain/usecase/Not
 import { NotificationDataSourceImpl } from "../../../../notification/data/dataSource/NotificationAPIDataSource";
 import { NotificationRepositoryImpl } from "../../../../notification/data/repository/NotificationRepositoryImpl";
 import { useNotificationViewModel } from "../../../../notification/viewmodel/NotificationViewModel";
+import { usePhaseId } from "../../../../../core/state/PhaseContext";
 
 const dataSource = new ProfileDataSourceImpl();
 const repository = new ProfileRepositoryImpl(dataSource);
@@ -56,12 +57,18 @@ function FileUploadModal({
   const [isFinishUploading, SetFinishUploading] = useState(false);
   const { getFolders } = useFolderViewModel(folderUseCase);
   const { permission, userId } = useUserId();
+  const { phase } = usePhaseId();
   const userPermission = permission || localStorage.getItem("permission");
   const { users } = useListUsers();
 
   const [taggedUsers, setTaggedUsers] = useState<string[]>([]);
-  const { uploadFileAsync, uploadMetadata, isUploading, uploadSuccess } =
-    useProfileViewModel(profileUseCase);
+  const {
+    uploadFileAsync,
+    uploadMetadata,
+    isUploading,
+    uploadSuccess,
+    uploadError,
+  } = useProfileViewModel(profileUseCase);
   const { addNotification } = useNotificationViewModel(notificationUseCase);
 
   // Generate folder name based on organization, wilaya, username, type, and date
@@ -80,7 +87,6 @@ function FileUploadModal({
       ref.current?.complete();
       const fileData = (uploadMetadata as FileResponse)?.data;
       if (fileData) {
-        console.log(">>>>>>>>>>>>>>>>>>>>>", fileData);
         SetFinishUploading(true);
         // Close modal after 5 seconds on successful upload
         setTimeout(() => {
@@ -89,8 +95,10 @@ function FileUploadModal({
       } else {
         SetFinishUploading(false);
       }
+    } else if (uploadError) {
+      ref.current?.complete();
     }
-  }, [isUploading, uploadSuccess, uploadMetadata]);
+  }, [isUploading, uploadSuccess, uploadMetadata, uploadError]);
 
   useEffect(() => {
     if (listUsers.length === 0) setListUsers(users);
@@ -134,7 +142,8 @@ function FileUploadModal({
             1,
             userPermission.toLocaleLowerCase(),
             reciverId,
-            taggedUsers
+            taggedUsers,
+            phase?.id || ""
           );
           const fileElement = document.getElementById(file.name);
           const btn = document.getElementById(i.toString());

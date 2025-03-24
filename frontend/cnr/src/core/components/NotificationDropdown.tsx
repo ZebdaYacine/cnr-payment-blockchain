@@ -15,7 +15,7 @@ const NotificationDropdown = () => {
         <div className="indicator">
           <IoNotificationsSharp className="h-5 w-5" />
           <span className="badge badge-sm indicator-item">
-            {notifications.length}
+            {notifications.length || "..."}
           </span>
         </div>
       </div>
