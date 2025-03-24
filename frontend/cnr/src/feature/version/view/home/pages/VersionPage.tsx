@@ -49,7 +49,7 @@ function VersionPage() {
   }, [folderName, getVersion]);
   return (
     <>
-      <div className="card shadow-2xl">
+      <div className="card shadow-2xl  ">
         <div className="card-body">
           <div className="flex flex-col">
             <div className="flex flex-wrap justify-between">

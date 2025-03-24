@@ -20,8 +20,7 @@ function VersionUploadModal() {
   const [Descrpition, setDescription] = useState("");
   const [commit, setCommit] = useState("");
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
-  const { fileName } = useParams();
-  const { folderName } = useParams();
+  const { fileName, folderName } = useParams();
   const {
     lastVersion,
     hashParent,
@@ -37,10 +36,8 @@ function VersionUploadModal() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
-      if (file) {
-        setVersionName(file.name);
-        setSelectedVersion(file);
-      }
+      setVersionName(file.name);
+      setSelectedVersion(file);
     }
   };
 
@@ -65,6 +62,7 @@ function VersionUploadModal() {
     event.preventDefault();
     if (event.dataTransfer.files.length > 0) {
       setVersionName(event.dataTransfer.files[0].name);
+      setSelectedVersion(event.dataTransfer.files[0]);
     }
   };
 
@@ -77,16 +75,14 @@ function VersionUploadModal() {
       setDescription(newText);
       setDescrpitionSize(100 - size);
     } else {
-      const limitedText = newText.slice(0, 100);
-      setDescription(limitedText);
+      setDescription(newText.slice(0, 100));
       setDescrpitionSize(0);
     }
   };
 
   const handleCommitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newText = event.target.value;
-    const size = newText.length;
-    if (size <= 100) {
+    if (newText.length <= 100) {
       setCommit(newText);
     }
   };
@@ -120,68 +116,77 @@ function VersionUploadModal() {
 
   return (
     <dialog id="version" className="modal">
-      <div className="modal-box p-8 shadow-lg">
+      <div className="modal-box w-screen max-w-2xl p-4 md:p-8 rounded-xl">
         <LoadingBar color="#f11946" ref={ref} shadow={true} />
-        <div className="flex flex-row justify-between">
-          <h3 className="font-bold text-lg">Inserer nouvelle Version: {}</h3>
-          <BsXLg className="cursor-pointer" onClick={close} />
-        </div>
-        <div className="flex flex-col items-center justify-center">
-          <form className="form-control mt-4 w-full max-w-md text-center">
-            <label
-              className="mt-5 flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-accent rounded-lg cursor-pointer hover:bg-gray-100"
-              onDrop={handleDrop}
-              onDragOver={(e) => e.preventDefault()}
-            >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <p className="mt-2 text-sm text-gray-600">
-                  {versionName || "Drag & Drop File or Click to Upload"}
-                </p>
-              </div>
-              <input
-                type="file"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </label>
-            <input
-              type="text"
-              className="mt-3 input input-bordered w-full"
-              placeholder="Commiter la transactions..."
-              onChange={handleCommitChange}
-              value={commit}
-            />
-            <div className="flex flex-col mt-3">
-              <textarea
-                className="textarea textarea-bordered"
-                placeholder="Details sur la  transactions..."
-                onChange={handleDescriptionSizeChange}
-                value={Descrpition}
-              />
-              <div className="mt-2 flex flex-row-reverse">
-                <div
-                  className={`badge badge-lg ${
-                    Descrpition.length == 100
-                      ? "badge-secondary"
-                      : "badge-accent"
-                  }`}
-                >
-                  {descriptionSize}
-                </div>
-              </div>
-            </div>
 
-            <div className="mt-5 flex justify-center">
-              <button
-                className="btn btn-accent flex items-center"
-                disabled={Descrpition.length === 0}
-                onClick={addNewVersion}
-              >
-                Ajouter la Version
-              </button>
-            </div>
-          </form>
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg md:text-xl font-bold">
+            📁 Insérer une nouvelle version
+          </h3>
+          <BsXLg className="text-xl cursor-pointer" onClick={close} />
         </div>
+
+        {/* Form */}
+        <form
+          className="form-control w-full space-y-4"
+          onSubmit={addNewVersion}
+        >
+          {/* Drop File Area */}
+          <label
+            className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-accent rounded-lg cursor-pointer hover:bg-gray-100 transition"
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-sm text-gray-600">
+                {versionName || "📤 Glissez & déposez un fichier ou cliquez"}
+              </p>
+            </div>
+            <input type="file" className="hidden" onChange={handleFileChange} />
+          </label>
+
+          {/* Commit Input */}
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            placeholder="Commentaire de version (Commit)..."
+            onChange={handleCommitChange}
+            value={commit}
+          />
+
+          {/* Description Textarea */}
+          <div>
+            <textarea
+              className="textarea textarea-bordered w-full"
+              placeholder="Détails de la transaction..."
+              onChange={handleDescriptionSizeChange}
+              value={Descrpition}
+            />
+            <div className="mt-1 flex justify-end">
+              <span
+                className={`badge ${
+                  Descrpition.length === 100
+                    ? "badge-secondary"
+                    : "badge-accent"
+                }`}
+              >
+                {descriptionSize}
+              </span>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="btn btn-accent px-6"
+              disabled={Descrpition.length === 0 || isUploading}
+            >
+              {isUploading ? "Chargement..." : "Ajouter la version"}
+            </button>
+          </div>
+        </form>
       </div>
     </dialog>
   );
