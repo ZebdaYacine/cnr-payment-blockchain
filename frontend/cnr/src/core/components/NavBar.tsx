@@ -11,6 +11,7 @@ import { useNotificationViewModel } from "../../feature/notification/viewmodel/N
 import { useNotificationContext } from "../state/NotificationContext";
 import { useUserId } from "../state/UserContext";
 import NotificationDropdown from "./NotificationDropdown";
+import { usePhaseId } from "../state/PhaseContext";
 // import { TbCalendarClock } from "react-icons/tb";
 
 interface NavBarProps {
@@ -30,10 +31,13 @@ function NavBarComponent({ user }: NavBarProps) {
   const { isAuthentificated, Userlogout } = useAuth();
   const { debug } = useLogger();
   const profileDialogRef = useRef<HTMLDialogElement>(null);
+  const phaseDialogRef = useRef<HTMLDialogElement>(null);
 
   const notificationUseCase = new NotificationUseCase(
     new NotificationRepositoryImpl(new NotificationDataSourceImpl())
   );
+
+  const { phase } = usePhaseId();
 
   const { permission } = useUserId();
   const userPermission = permission || localStorage.getItem("permission");
@@ -174,7 +178,11 @@ function NavBarComponent({ user }: NavBarProps) {
         </div>
 
         <div className="flex-1 justify-end">
-          <p className="font-bold text-sm sm:text-xl md:text-xl">
+          {" "}
+          <p
+            className="rounded hover:rounded-btn font-bold sm:text-xl md:text-xl text-cyan-50 hover:cursor-pointer border p-2 "
+            onClick={() => phaseDialogRef.current?.showModal()}
+          >
             {" "}
             {formattedTime}
           </p>
@@ -188,7 +196,6 @@ function NavBarComponent({ user }: NavBarProps) {
               <MdOutlineDarkMode className="h-5 w-5" />
             </div>
           </div>
-
           {/* Profile Dropdown */}
           <div className="dropdown dropdown-end">
             <div
@@ -270,6 +277,47 @@ function NavBarComponent({ user }: NavBarProps) {
             <button
               className="btn"
               onClick={() => profileDialogRef.current?.close()}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog ref={phaseDialogRef} id="Profile" className="modal">
+        <div className="modal-box">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg">Information sur la Phase</h3>
+          <div className="py-4">
+            <div className="mt-4 space-y-2">
+              <p>
+                <span className="font-semibold">Phase:</span>{" "}
+                {phase?.name || "N/A"}
+              </p>
+              <p>
+                <span className="font-semibold">Date debut :</span>{" "}
+                {phase?.startAt || "Not Assigned"} {"de ce mois"}
+              </p>
+              <p>
+                <span className="font-semibold">Date fin :</span>{" "}
+                {phase?.endAt || "Not Assigned"} {"de ce mois"}
+              </p>
+              <span className="font-semibold">Description:</span>
+
+              <p className="text-center font-semibold text-blue-600">
+                {phase?.description || "None"}
+              </p>
+            </div>
+          </div>
+
+          <div className="modal-action">
+            <button
+              className="btn"
+              onClick={() => phaseDialogRef.current?.close()}
             >
               Close
             </button>
