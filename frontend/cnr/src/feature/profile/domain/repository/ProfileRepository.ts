@@ -1,7 +1,6 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import {
   ChildResponse,
-  FolderResponse,
   InstitutionResponse,
   PhaseResponse,
   ProfileResponse,
@@ -13,10 +12,7 @@ export interface ProfileRepository {
     token: string,
     permission: string
   ): Promise<ProfileResponse | ErrorResponse>;
-  GetFolder(
-    token: string,
-    permission: string
-  ): Promise<FolderResponse | ErrorResponse>;
+
   GetUsers(
     token: string,
     permission: string

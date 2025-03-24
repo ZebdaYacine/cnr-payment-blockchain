@@ -5,12 +5,7 @@ import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { useFolderViewModel } from "../../../viewmodel/FolderViewModel";
 import { motion } from "framer-motion"; // Import animation library
 import { MdCheckCircle } from "react-icons/md";
-import { FileResponse } from "../../../../profile/data/dtos/ProfileDtos";
-import { useProfileViewModel } from "../../../../profile/viewmodel/ProfileViewModel";
-import { PofileUseCase } from "../../../../profile/domain/usecase/ProfileUseCase";
-import { ProfileRepositoryImpl } from "../../../../profile/data/repository/ProfileRepositoryImpl";
-import { ProfileDataSourceImpl } from "../../../../profile/data/dataSource/ProfileAPIDataSource";
-import { useUserId } from "../../../../../core/state/UserContext";
+import { useUser } from "../../../../../core/state/UserContext";
 import { useListUsers } from "../../../../../core/state/ListOfUsersContext";
 import { User } from "../../../../../core/dtos/data";
 import TagInput from "../../../../profile/view/components/TagInput";
@@ -22,10 +17,15 @@ import { NotificationDataSourceImpl } from "../../../../notification/data/dataSo
 import { NotificationRepositoryImpl } from "../../../../notification/data/repository/NotificationRepositoryImpl";
 import { useNotificationViewModel } from "../../../../notification/viewmodel/NotificationViewModel";
 import { usePhaseId } from "../../../../../core/state/PhaseContext";
+import { useFileViewModel } from "../../../../file/viewmodel/FileViewModel";
+import { FileDataSourceImpl } from "../../../../file/data/dataSource/FileAPIDataSource";
+import { FileRepositoryImpl } from "../../../../file/data/repository/FileRepositoryImpl";
+import { FileUseCase } from "../../../../file/domain/usecase/FileUseCase";
+import { FileResponse } from "../../../../file/data/dtos/FileDtos";
 
-const dataSource = new ProfileDataSourceImpl();
-const repository = new ProfileRepositoryImpl(dataSource);
-const profileUseCase = new PofileUseCase(repository);
+const dataSource = new FileDataSourceImpl();
+const repository = new FileRepositoryImpl(dataSource);
+const fileUseCase = new FileUseCase(repository);
 
 const folderdataSource = new FolderDataSourceImpl();
 const folderdataRepository = new FolderRepositoryImpl(folderdataSource);
@@ -56,9 +56,9 @@ function FileUploadModal({
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
   const [isFinishUploading, SetFinishUploading] = useState(false);
   const { getFolders } = useFolderViewModel(folderUseCase);
-  const { permission, userId } = useUserId();
+  const { userSaved } = useUser();
   const { phase } = usePhaseId();
-  const userPermission = permission || localStorage.getItem("permission");
+  const userPermission = userSaved.permission;
   const { users } = useListUsers();
 
   const [taggedUsers, setTaggedUsers] = useState<string[]>([]);
@@ -68,7 +68,7 @@ function FileUploadModal({
     isUploading,
     uploadSuccess,
     uploadError,
-  } = useProfileViewModel(profileUseCase);
+  } = useFileViewModel(fileUseCase);
   const { addNotification } = useNotificationViewModel(notificationUseCase);
 
   // Generate folder name based on organization, wilaya, username, type, and date
@@ -153,11 +153,11 @@ function FileUploadModal({
           }
           if (btn && isFinishUploading) {
             btn.remove();
-            if (userPermission && reciverId != "" && userId != "")
+            if (userPermission && reciverId != "" && userSaved.id != "")
               getFolders({
                 permission: userPermission.toLocaleLowerCase(),
                 receiverId: reciverId,
-                senderId: userId,
+                senderId: userSaved.id,
               });
           }
         } catch (error) {
@@ -172,7 +172,7 @@ function FileUploadModal({
       addNotification({
         permission: userPermission.toLowerCase(),
         receiverId: receivers,
-        senderId: userId,
+        senderId: userSaved.id,
         message: `Il ya ${i} nouveaux fichiers ont été téléchargés dans le dossier "${folderName}"`,
         title: "Nouveaux fichiers téléchargés",
         time: now,

@@ -1,20 +1,12 @@
 import { useListUsers } from "../../../../core/state/ListOfUsersContext";
-// import { useListUsers } from "../../../../core/state/ListOfUsersContext";
 import { usePeer } from "../../../../core/state/PeerContext";
-import { useUserId } from "../../../../core/state/UserContext";
+import { useUser } from "../../../../core/state/UserContext";
 import { Child } from "../../data/dtos/ProfileDtos";
 
 function ListOfPeers() {
-  // const { children: child } = useChildren();
   const { users } = useListUsers();
   const { SetChild } = usePeer();
-  const { idInstituion } = useUserId();
-
-  // if (!child || child.length === 0) {
-  //   return (
-  //     <p className="text-xl font-bold text-gray-400">No children available</p>
-  //   );
-  // }
+  const { userSaved } = useUser();
 
   const show = (c: Child) => {
     SetChild(c);
@@ -36,7 +28,9 @@ function ListOfPeers() {
                 </p>
               ) : (
                 users
-                  .filter((c) => c.id !== undefined && c.id !== idInstituion)
+                  .filter(
+                    (c) => c.id !== undefined && c.id !== userSaved.idInstituion
+                  )
                   .map((user) => {
                     // Function to get agent label based on user type
                     const getAgentLabel = (type: string): string => {

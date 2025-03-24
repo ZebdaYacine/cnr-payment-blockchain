@@ -4,11 +4,11 @@ import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSourc
 import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../viewmodel/ProfileViewModel";
-import { useUserId } from "../../../../core/state/UserContext";
 import ListOfPeers from "../components/ListOfPeers";
 import FolderPage from "../../../folder/view/home/pages/Folder";
 import { Outlet, useParams } from "react-router";
 import { ToastContainer } from "react-toastify";
+import { useUser } from "../../../../core/state/UserContext";
 // import Phase from "../components/Phase";
 
 function ProfilePage() {
@@ -19,18 +19,17 @@ function ProfilePage() {
 
   const { getProfile, GetUsers, getCurrentPhase } =
     useProfileViewModel(profileUseCase);
-  const { username, email, permission, workAt, idInstituion, type } =
-    useUserId();
-  const userPermission = permission || localStorage.getItem("permission");
+  const { userSaved } = useUser();
 
   useEffect(() => {
-    if (userPermission)
-      getProfile({ permission: userPermission.toLowerCase() });
-  }, [getProfile, userPermission]);
+    if (userSaved.permission)
+      getProfile({ permission: userSaved.permission.toLowerCase() });
+  }, []);
 
   useEffect(() => {
-    if (userPermission) GetUsers({ permissions: userPermission.toLowerCase() });
-  }, [GetUsers, workAt, userPermission]);
+    if (userSaved.permission)
+      GetUsers({ permissions: userSaved.permission.toLowerCase() });
+  }, []);
 
   useEffect(() => {
     getCurrentPhase();
@@ -38,11 +37,8 @@ function ProfilePage() {
 
   return (
     <>
-      <NavBarComponent
-        user={{ username, email, permission, workAt, idInstituion, type }}
-      />
+      <NavBarComponent user={userSaved} />
       <ToastContainer />
-      {/* <Phase /> */}
       <div className="flex flex-col">
         {!folderName || !fileName ? (
           <div className="m-5">

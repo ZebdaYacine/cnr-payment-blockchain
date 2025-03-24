@@ -6,19 +6,19 @@ import { NotificationUseCase } from "../../feature/notification/domain/usecase/N
 import { NotificationDataSourceImpl } from "../../feature/notification/data/dataSource/NotificationAPIDataSource";
 import { NotificationRepositoryImpl } from "../../feature/notification/data/repository/NotificationRepositoryImpl";
 import { useNotificationViewModel } from "../../feature/notification/viewmodel/NotificationViewModel";
-import { useUserId } from "../state/UserContext";
+import { useUser } from "../state/UserContext";
 
 interface WarningProps {
   message: string;
-  notification?: boolean;
   userId?: string;
+  notification?: boolean;
   senderName?: string;
 }
 
 function Warning({
   message,
   notification = false,
-  userId: userId,
+  userId,
   senderName: senderName,
 }: WarningProps) {
   const notificationUseCase = new NotificationUseCase(
@@ -51,9 +51,9 @@ function Warning({
     setCommitSize(100 - newText.length);
   };
 
-  const { permission, username } = useUserId();
+  const { userSaved } = useUser();
 
-  const userPermission = permission || localStorage.getItem("permission");
+  const userPermission = userSaved.permission;
 
   const sendNotification = () => {
     addNotification({
@@ -61,8 +61,9 @@ function Warning({
       receiverId: [userId || ""],
       senderId: "",
       message: commitText,
-      title: `Nouvelle notification de  ${username} `,
+      title: `Nouvelle notification de  ${userSaved.id} `,
       time: new Date(),
+      path: "",
     });
     setCanSend(GetNotification() !== null);
   };

@@ -8,7 +8,7 @@ import ListOfFiles from "../components/ListOfFiles";
 // import { usePeer } from "../../../../../core/state/PeerContext";
 import { useFileMetaData } from "../../../../../core/state/FileContext";
 import { Outlet, useParams } from "react-router";
-import { useUserId } from "../../../../../core/state/UserContext";
+import { useUser } from "../../../../../core/state/UserContext";
 
 function FilesPage() {
   const { folderName, fileName } = useParams();
@@ -19,9 +19,9 @@ function FilesPage() {
 
   const { getFiles } = useFileViewModel(fileUseCase);
   const { getFilesList } = useFileMetaData();
-  const { permission } = useUserId();
+  const { userSaved } = useUser();
 
-  const userPermission = permission || localStorage.getItem("permission");
+  const userPermission = userSaved.permission;
 
   useEffect(() => {
     if (folderName && userPermission) {
@@ -37,7 +37,7 @@ function FilesPage() {
       const interval = setInterval(
         () =>
           getFiles({
-            permissions: permission.toLowerCase(),
+            permissions: userPermission.toLowerCase(),
             folder: folderName,
           }),
         10000

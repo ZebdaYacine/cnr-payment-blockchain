@@ -1,14 +1,6 @@
 import { User } from "../../../../core/dtos/data";
 
-export interface FileResponse {
-  message: string;
-  data: Data;
-}
 
-export interface FilesResponse {
-  message: string;
-  data: Data[];
-}
 
 export interface ChildResponse {
   message: string;
@@ -29,10 +21,7 @@ export interface InstitutionResponse {
   data: Institution[];
 }
 
-export interface FolderResponse {
-  message: string;
-  data: Folder[];
-}
+
 
 export interface ProfileResponse {
   message: string;
@@ -71,13 +60,7 @@ export interface Institution {
   name: string;
 }
 
-export interface Folder {
-  id: string;
-  name: string;
-  nbrItems: number;
-  createAt: string;
-  username: string;
-}
+
 
 export interface Child {
   id: string;

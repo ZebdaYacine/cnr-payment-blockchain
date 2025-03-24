@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import AvatarCnr from "../components/AvatarCnr";
 import LoginButton from "../components/LoginButton";
-import { FormEvent, useEffect, useRef } from "react";
-import { useUserId } from "../../../../../core/state/UserContext";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import UserNameInput from "../../../../../core/components/UserNameInput";
 import PasswordInput from "../../../../../core/components/PassWordInput";
-// import { useTheme } from "../../../../../core/state/ThemeContext";
 import { AuthDataSourceImpl } from "../../../data/dataSource/AuthAPIDataSource";
 import { AuthRepositoryImpl } from "../../../data/repository/AuthRepositoryImpl";
 import { LoginUseCase } from "../../../domain/UseCases/AuthUseCase";
@@ -20,54 +18,50 @@ const repository = new AuthRepositoryImpl(dataSource);
 const loginUseCase = new LoginUseCase(repository);
 
 function LoginPage() {
-  const { login, isPending, isSuccess } = useAuthViewModel(loginUseCase);
+  const { login, isPending, isError, isSuccess } =
+    useAuthViewModel(loginUseCase);
   const navigate = useNavigate();
-  // const { toggleLightMode } = useTheme();
-
-  const {
-    username: userName,
-    SetUsername: SetUserName,
-    password: password,
-    SetPassWord: SetPassWord,
-  } = useUserId();
 
   const { isAuthentificated } = useAuth();
 
-  const loginEvent = async (event: FormEvent) => {
-    event.preventDefault();
-    login({ username: userName, password: password });
-    if (isPending) {
-      ref.current?.continuousStart();
-    } else {
-      ref.current?.complete();
-      if (isSuccess) {
-        if (isAuthentificated) {
-          navigate("/home");
-        }
-      }
-    }
-  };
-
-  // useEffect(() => {
-  //   toggleLightMode();
-  // });
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   const ref = useRef<LoadingBarRef>(null);
+
+  useEffect(() => {
+    if (isPending) {
+      ref.current?.continuousStart();
+    } else if (isSuccess && isAuthentificated) {
+      ref.current?.complete();
+      navigate("/home");
+    } else if (isError) {
+      ref.current?.complete();
+    }
+  }, [isPending, isError, isSuccess, isAuthentificated]);
+
+  const loginEvent = async (event: FormEvent) => {
+    event.preventDefault();
+    ref.current?.continuousStart();
+    await login({ username, password });
+  };
 
   return (
     <>
       <LoadingBar color="#f11946" ref={ref} shadow={true} />
       <div className="flex flex-col items-center bg-slate-200 justify-center min-h-screen">
-        <form className="space-y-4 p-5 m-10  bg-slate-50 rounded shadow-md w-full max-w-screen-md">
+        <form
+          className="space-y-4 p-5 m-10 bg-slate-50 rounded shadow-md w-full max-w-screen-md"
+          onSubmit={loginEvent}
+        >
           <AvatarCnr />
           <UserNameInput
-            value={userName}
-            onChange={(e) => SetUserName(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
-          <PasswordInput onChange={(e) => SetPassWord(e.target.value)} />
+          <PasswordInput onChange={(e) => setPassword(e.target.value)} />
           <div className="flex justify-center">
-            <LoginButton loginEvent={loginEvent} name={"Login"} />
-            {/* <LoginButton loginEvent={loginEvent} name={"Cree"} /> */}
+            <LoginButton loginEvent={loginEvent} name="Login" />
           </div>
         </form>
         <ToastContainer />

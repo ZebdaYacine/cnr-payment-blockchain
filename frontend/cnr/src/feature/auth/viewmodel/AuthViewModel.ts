@@ -1,20 +1,21 @@
-import { LoginResponse } from '../../../services/model/auth';
+import { LoginResponse } from "../../../services/model/auth";
 import { useMutation } from "@tanstack/react-query";
 import { LoginUseCase } from "../domain/UseCases/AuthUseCase";
-import { useAuth } from '../../../core/state/AuthContext';
-import { useNotification } from '../../../services/useNotification';
-import { ErrorResponse } from '../../../services/model/commun';
-import { useUserId } from '../../../core/state/UserContext';
+import { useAuth } from "../../../core/state/AuthContext";
+import { useUser } from "../../../core/state/UserContext";
 
 export function useAuthViewModel(loginUseCase: LoginUseCase) {
   const { Userlogged } = useAuth();
-  const { error } = useNotification();
-  const {SetUsername,SetEmail,SetPermission ,SetWorkAt,SetidInstituion} = useUserId();
-  
+  const { SetUser } = useUser();
 
-  const { mutate,isPending, isSuccess, isError } = useMutation({
-    mutationFn: ({ username, password }: { username: string; password: string }) =>
-      loginUseCase.execute(username, password),
+  const { mutate, isPending, isSuccess, isError } = useMutation({
+    mutationFn: ({
+      username,
+      password,
+    }: {
+      username: string;
+      password: string;
+    }) => loginUseCase.execute(username, password),
 
     onSuccess: (data) => {
       if (data) {
@@ -23,17 +24,17 @@ export function useAuthViewModel(loginUseCase: LoginUseCase) {
           console.log("Token:", resp.data.token);
           console.log("User Data:", resp.data.userdata);
           Userlogged(resp.data.token);
-          const userData=resp.data.userdata
-          if(userData){
-           SetUsername(userData?.username)
-           SetEmail(userData?.email)
-           SetPermission(userData?.permission)
-           SetWorkAt(userData?.WorkAt)
-           SetidInstituion(userData?.idInstituion)
+          const userData = resp.data.userdata;
+          if (userData) {
+            SetUser({
+              id: userData.id,
+              username: userData.username,
+              email: userData.email,
+              permission: userData.permission,
+              workAt: userData.WorkAt,
+              idInstituion: userData.idInstituion,
+            });
           }
-        } else {
-          const errorResponse = data as ErrorResponse;
-          error(errorResponse.message || "Network error occurred during login", "colored");
         }
       }
     },
@@ -41,8 +42,6 @@ export function useAuthViewModel(loginUseCase: LoginUseCase) {
       console.error("Network Error:", error);
     },
   });
-
-
 
   return {
     login: mutate,

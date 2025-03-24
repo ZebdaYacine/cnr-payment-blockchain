@@ -4,7 +4,7 @@ import FileUploadModal from "./FileUploadModal";
 import { Child } from "../../../../profile/data/dtos/ProfileDtos";
 import Warning from "../../../../../core/components/Warning";
 import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
-import { useUserId } from "../../../../../core/state/UserContext";
+import { useUser } from "../../../../../core/state/UserContext";
 import FolderTable from "./FolderTable";
 import { FolderUseCase } from "../../../domain/usecase/FolderUseCase";
 import { FolderDataSourceImpl } from "../../../data/dataSource/FolderAPIDataSource";
@@ -27,18 +27,18 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState("");
 
-  const { workAt, wilaya, permission, userId } = useUserId();
+  const { userSaved } = useUser();
 
-  const userPermission = permission || localStorage.getItem("permission");
+  const userPermission = userSaved.permission;
 
   const fetchFolders = useCallback(() => {
-    console.log("Fetching folders with:", { peer, userId, selectedRadio });
+    console.log("Fetching folders with:", { peer, userSaved, selectedRadio });
 
     if (
       !peer?.id ||
-      !userId ||
+      !userSaved.id ||
       !peer?.org.name ||
-      !workAt ||
+      !userSaved.workAt ||
       selectedRadio === ""
     ) {
       console.warn(
@@ -53,10 +53,10 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
       switch (selectedRadio) {
         case "IN":
           receiverId = peer.id;
-          senderId = userId;
+          senderId = userSaved.id;
           break;
         case "OUT":
-          receiverId = userId;
+          receiverId = userSaved.id;
           senderId = peer.id;
           break;
         default:
@@ -76,13 +76,13 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
         permission: userPermission.toLowerCase(),
       });
     }
-  }, [getFolders, selectedRadio, peer?.id, userId, userPermission]);
+  }, [getFolders, selectedRadio, peer?.id, userSaved, userPermission]);
 
   useEffect(() => {
-    if (!selectedRadio || !userId || !peer?.id) {
+    if (!selectedRadio || !userSaved.id || !peer?.id) {
       console.warn("🚨 Not calling fetchFolders - missing values:", {
         selectedRadio,
-        userId,
+        userSaved,
         peer,
       });
       return;
@@ -90,17 +90,17 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
 
     console.log("✅ Calling fetchFolders on useEffect...");
     fetchFolders();
-  }, [fetchFolders, selectedRadio, userId, peer?.id]);
+  }, [fetchFolders, selectedRadio, userSaved.id, peer?.id]);
 
   useEffect(() => {
-    if (!selectedRadio || !userId || !peer?.id) {
+    if (!selectedRadio || !userSaved.id || !peer?.id) {
       console.warn("🚨 Skipping interval - missing values.");
       return;
     }
 
     const interval = setInterval(() => fetchFolders(), 10000);
     return () => clearInterval(interval);
-  }, [fetchFolders, selectedRadio, userId, peer?.id]);
+  }, [fetchFolders, selectedRadio, userSaved, peer?.id]);
 
   const handleRowClick = (folderName: string) => {
     console.log("Navigating to folder:", folderName);
@@ -111,10 +111,10 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
 
   return (
     <>
-      {peer?.name && workAt && (
+      {peer?.name && userSaved.workAt && (
         <FileUploadModal
           destination={`${peer.org.name} - ${peer.wilaya}`}
-          organisation={`${workAt} - ${wilaya}`}
+          organisation={`${userSaved.workAt} - ${userSaved.wilaya}`}
           reciverId={peer.id}
         />
       )}

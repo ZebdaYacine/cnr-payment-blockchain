@@ -4,7 +4,7 @@ import { AuthProvider } from "./core/state/AuthContext";
 import { ThemeProvider } from "./core/state/ThemeContext";
 import { UserProvider } from "./core/state/UserContext";
 import { FileProvider } from "./core/state/FileContext";
-import { ChildProvider } from "./core/state/InstitutionContext";
+// import { ChildProvider } from "./core/state/InstitutionContext";
 import { PeerProvider } from "./core/state/PeerContext";
 import { FolderProvider } from "./core/state/FolderContext";
 import { UsersListProvider } from "./core/state/ListOfUsersContext";
@@ -24,15 +24,13 @@ function App() {
                 <VersionMetaDataProvider>
                   <VersionProvider>
                     <UsersListProvider>
-                      <ChildProvider>
-                        <PeerProvider>
-                          <FolderProvider>
-                            <FileProvider>
-                              <AppRouter />
-                            </FileProvider>
-                          </FolderProvider>
-                        </PeerProvider>
-                      </ChildProvider>
+                      <PeerProvider>
+                        <FolderProvider>
+                          <FileProvider>
+                            <AppRouter />
+                          </FileProvider>
+                        </FolderProvider>
+                      </PeerProvider>
                     </UsersListProvider>
                   </VersionProvider>
                 </VersionMetaDataProvider>

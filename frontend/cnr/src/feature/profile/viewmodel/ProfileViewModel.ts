@@ -5,7 +5,7 @@ import { PofileUseCase } from "../domain/usecase/ProfileUseCase";
 import { ProfileResponse } from "../data/dtos/ProfileDtos";
 import { useNavigate } from "react-router";
 import { User } from "../../../core/dtos/data";
-import { useUserId } from "../../../core/state/UserContext";
+import { useUser } from "../../../core/state/UserContext";
 
 import { useListUsers } from "../../../core/state/ListOfUsersContext";
 import { usePhaseId } from "../../../core/state/PhaseContext";
@@ -17,18 +17,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const { setUsersList } = useListUsers();
   const { SetCurrentPhase } = usePhaseId();
 
-  const {
-    SetWilaya,
-    SetUserId,
-    SetUsername,
-    SetEmail,
-    SetPermission,
-    SetType,
-    SetWorkAt,
-    SetidInstituion,
-    SetPhases,
-    permission,
-  } = useUserId();
+  const { userSaved, SetUser } = useUser();
 
   const {
     mutate: getProfile,
@@ -46,15 +35,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const userData = resp.data as User;
         if (userData) {
           console.log("Profile fetched:", userData);
-          SetUsername(userData.username);
-          SetUserId(userData.id);
-          SetWilaya(userData.wilaya);
-          SetEmail(userData.email);
-          SetPermission(userData.permission);
-          SetWorkAt(userData.workAt);
-          SetType(userData.type);
-          SetidInstituion(userData.idInstituion);
-          SetPhases(userData.phases);
+          SetUser(userData);
         }
       }
     },
@@ -114,7 +95,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       const storedToken = GetAuthToken(navigate);
       return profileUseCase.GetCurrentPhase(
         storedToken,
-        permission.toLowerCase()
+        userSaved.permission.toLowerCase()
       );
     },
     onSuccess: (data) => {

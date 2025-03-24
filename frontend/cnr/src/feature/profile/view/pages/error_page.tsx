@@ -3,9 +3,9 @@ import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSourc
 import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../viewmodel/ProfileViewModel";
-import { useUserId } from "../../../../core/state/UserContext";
 import Neterr from "../../../../assets/404.png";
 import { useNavigate } from "react-router";
+import { useUser } from "../../../../core/state/UserContext";
 
 function ErrorPage() {
   const profileUseCase = new PofileUseCase(
@@ -13,8 +13,8 @@ function ErrorPage() {
   );
 
   const { getProfile, isProfileSuccess } = useProfileViewModel(profileUseCase);
-  const { permission } = useUserId();
-  const userPermission = permission || localStorage.getItem("permission");
+  const { userSaved } = useUser();
+  const userPermission = userSaved.permission;
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import { VersionRepositoryImpl } from "../../../data/repository/VersionRepositor
 import { VersionDataSourceImpl } from "../../../data/dataSource/VersionsDataSource";
 import { useVersionViewModel } from "../../../viewmodel/VersionViewModel";
 import { useEffect } from "react";
-import { useUserId } from "../../../../../core/state/UserContext";
+import { useUser } from "../../../../../core/state/UserContext";
 import { useVersionMetaData } from "../../../../../core/state/versionMetaDataContext";
 
 const dataSource = new VersionDataSourceImpl();
@@ -18,16 +18,16 @@ const versionUseCase = new VersionUseCase(repository);
 function VersionPage() {
   const { hashParent } = useVersion();
   const { folderName, fileName } = useParams();
-  const { permission } = useUserId();
+  const { userSaved } = useUser();
 
-  const userPermission = permission || localStorage.getItem("permission");
+  const userPermission = userSaved.permission;
 
   const { getVersion } = useVersionViewModel(versionUseCase);
   const { getFilesList } = useVersionMetaData();
 
   useEffect(() => {
     getVersion({
-      permission: permission,
+      permission: userPermission,
       folder: folderName || "",
       parent: fileName || "",
     });
@@ -38,7 +38,7 @@ function VersionPage() {
       const interval = setInterval(
         () =>
           getVersion({
-            permission: permission,
+            permission: userPermission,
             folder: folderName || "",
             parent: fileName || "",
           }),

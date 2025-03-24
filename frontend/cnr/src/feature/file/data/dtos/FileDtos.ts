@@ -1,5 +1,3 @@
-import { User } from "../../../../core/dtos/data";
-
 export interface FileResponse {
   message: string;
   data: Data;
@@ -8,35 +6,6 @@ export interface FileResponse {
 export interface FilesResponse {
   message: string;
   data: Data[];
-}
-
-export interface ChildResponse {
-  message: string;
-  data: Elements;
-}
-
-export interface Peer {
-  obj: unknown;
-  type: string;
-}
-export interface Elements {
-  institutiont: Peer;
-  child: Peer[];
-}
-
-export interface InstitutionResponse {
-  message: string;
-  data: Institution[];
-}
-
-export interface FolderResponse {
-  message: string;
-  data: Folder[];
-}
-
-export interface ProfileResponse {
-  message: string;
-  data: User;
 }
 
 export interface Data {
@@ -53,19 +22,4 @@ export interface Data {
   Status: string;
   TaggedUsers: string[];
   reciverId: string;
-}
-
-export interface Institution {
-  id: string;
-  name: string;
-}
-
-export interface Folder {
-  name: string;
-}
-
-export interface Child {
-  id: string;
-  name: string;
-  parent: Institution;
 }

@@ -1,7 +1,6 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import {
   ChildResponse,
-  FolderResponse,
   InstitutionResponse,
   PhaseResponse,
   ProfileResponse,
@@ -18,16 +17,12 @@ export interface ProfileDataSource {
     token: string,
     permission: string
   ): Promise<UsersResponse | ErrorResponse>;
- 
-  GetFolderApi(
-    token: string,
-    permission: string
-  ): Promise<FolderResponse | ErrorResponse>;
+
   GetCurrentPhaseApi(
     token: string,
     permission: string
   ): Promise<PhaseResponse | ErrorResponse>;
-  
+
   GetInstituaionApi(
     token: string,
     permission: string
@@ -73,19 +68,6 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     );
   }
 
-  async GetFolderApi(
-    token: string,
-    permission: string
-  ): Promise<FolderResponse | ErrorResponse> {
-    return ApiService.makeRequest<FolderResponse>(
-      "get",
-      `/${permission}/get-folders`,
-      token
-    );
-  }
-
-  
-
   GetInstituaionApi(
     token: string,
     permission: string
@@ -109,6 +91,4 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
       token
     );
   }
-
- 
 }

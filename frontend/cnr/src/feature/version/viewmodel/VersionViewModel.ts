@@ -6,7 +6,7 @@ import {
   VersionsResponse,
   VersionsUploadResponse,
 } from "../data/dtos/VersionsDtos";
-import { useUserId } from "../../../core/state/UserContext";
+import { useUser } from "../../../core/state/UserContext";
 import { useVersionMetaData } from "../../../core/state/versionMetaDataContext";
 import { useVersion } from "../../../core/state/versionContext";
 
@@ -21,7 +21,7 @@ function convertFileToBase64(file: File): Promise<string> {
 
 export function useVersionViewModel(versioneUseCase: VersionUseCase) {
   const { error } = useNotification();
-  const { permission } = useUserId();
+  const { userSaved } = useUser();
   const { setFilesList } = useVersionMetaData();
 
   const { SetLastVersion } = useVersion();
@@ -72,7 +72,7 @@ export function useVersionViewModel(versioneUseCase: VersionUseCase) {
         action,
         parent,
         version_seq,
-        permission.toLowerCase(),
+        userSaved.permission.toLowerCase(),
         commit,
         description,
         folderName,

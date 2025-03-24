@@ -1,6 +1,5 @@
 import {
   ChildResponse,
-  FolderResponse,
   InstitutionResponse,
   PhaseResponse,
   UsersResponse,
@@ -28,13 +27,6 @@ export class PofileUseCase {
     permission: string
   ): Promise<UsersResponse | ErrorResponse> {
     return await this.repository.GetUsers(token, permission);
-  }
-
-  async GetFolder(
-    token: string,
-    permission: string
-  ): Promise<FolderResponse | ErrorResponse> {
-    return await this.repository.GetFolder(token, permission);
   }
 
   async GetInstitutions(

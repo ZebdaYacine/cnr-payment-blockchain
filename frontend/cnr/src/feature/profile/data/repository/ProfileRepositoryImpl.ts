@@ -4,7 +4,6 @@ import { ProfileRepository } from "../../domain/repository/ProfileRepository";
 import { ProfileDataSource } from "../dataSource/ProfileAPIDataSource";
 import {
   ChildResponse,
-  FolderResponse,
   InstitutionResponse,
   ProfileResponse,
 } from "../dtos/ProfileDtos";
@@ -48,12 +47,6 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     return await this.datasource.GetUsersApi(token, permission);
   }
 
-  async GetFolder(
-    token: string,
-    permission: string
-  ): Promise<FolderResponse | ErrorResponse> {
-    return await this.datasource.GetFolderApi(token, permission);
-  }
  
 
   async GetCurrentPhase(
