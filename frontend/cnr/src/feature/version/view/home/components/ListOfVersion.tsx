@@ -5,7 +5,8 @@ import VersionUploadModal from "./VersionUploadModal";
 interface ListOfVersionProps {
   version: VersionData[];
 }
-function ListOfVersion({ version: version }: ListOfVersionProps) {
+
+function ListOfVersion({ version }: ListOfVersionProps) {
   const ITEMS_PER_PAGE = 5;
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -15,56 +16,94 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
   const displayVersionModal = () => {
     const modal = document.getElementById("version") as HTMLDialogElement;
     if (modal) {
       modal.showModal();
     }
   };
-  const storedVersion = localStorage.getItem("last-version") || "0";
+
+  function handleDateTime(dateTime: Date): string {
+    const formattedTime = dateTime.toLocaleString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    return formattedTime;
+  }
 
   return (
     <>
-      <div className="card bg-base-100  m-2 h-full">
+      <div className="card bg-base-100 m-2 h-full">
         <div className="card-body">
-          <div className="flex flex-wrap justify-between">
-            <h2 className="card-title text-center">
-              List of Versions:{storedVersion}
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 className="card-title text-lg sm:text-xl text-center sm:text-left">
+              List of Versions :{" "}
+              <span className="text-wrap">{version[0]?.LastVersion}</span>
             </h2>
-            <button className="btn btn-accent" onClick={displayVersionModal}>
+            <button
+              className="btn btn-accent self-center sm:self-auto"
+              onClick={displayVersionModal}
+            >
               Ajouter une version
             </button>
           </div>
-          <table className="table  sm:overflow-x-auto sm:table-sm w-full">
-            <thead>
-              <tr>
-                <th className="text-center">ID</th>
-                <th className="text-center">Fichier</th>
-                <th className="text-center">Utilisateur</th>
-                <th className="text-center">Temps</th>
-                <th className="text-center">Version actuelle</th>
-                <th className="text-center"> Nomber versions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedVersions.map((version) => (
-                <tr key={version.ID} className="cursor-pointer hover">
-                  <td className="text-center">{version.ID}</td>
-                  <td className="text-center">{version.FileName}</td>
-                  <td className="text-center">{version.UserID}</td>
-                  <td className="text-center">
-                    <div className="badge badge-primary">{version.Time}</div>
-                  </td>
-                  <td className="flex justify-center">
-                    <div className="badge badge-accent">
-                      <b> Veriosn - {version.Version}</b>
-                    </div>
-                  </td>
-                  <td className="text-center">{version.LastVersion}</td>
+
+          {/* Table container with horizontal scroll on small screens */}
+          <div className="overflow-x-auto mt-4">
+            <table className="table table-zebra w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-center">ID</th>
+                  <th className="text-center">Fichier</th>
+                  <th className="text-center">Utilisateur</th>
+                  <th className="text-center">Temps</th>
+                  <th className="text-center">Status</th>
+                  <th className="text-center">Version actuelle</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedVersions.map((version) => (
+                  <tr key={version.ID} className="cursor-pointer hover">
+                    <td className="text-center">{version.ID}</td>
+                    <td className="text-center break-all">
+                      {version.FileName}
+                    </td>
+                    <td className="text-center">{version.UserID}</td>
+                    <td className="text-center">
+                      <div className="badge  badge-primary">
+                        {handleDateTime(new Date(version.Time))}
+                      </div>
+                    </td>
+                    <td className="text-center">
+                      <div
+                        className={`badge ${
+                          version.Status === "Valid"
+                            ? "badge-accent"
+                            : "badge-secondary"
+                        }`}
+                      >
+                        {version.Status}
+                      </div>
+                    </td>
+                    <td className="text-center">
+                      <div className="badge badge-accent">
+                        <b>Version - {version.Version}</b>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
           <div className="flex justify-center mt-4">
             <div className="join">
               <button
@@ -98,6 +137,7 @@ function ListOfVersion({ version: version }: ListOfVersionProps) {
           </div>
         </div>
       </div>
+
       <VersionUploadModal />
     </>
   );

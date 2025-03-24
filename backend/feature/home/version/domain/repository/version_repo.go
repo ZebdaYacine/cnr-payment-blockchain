@@ -168,10 +168,10 @@ func (s *versionRepository) GetMetadataVersionByParentFile(c context.Context, fo
 	if !ok {
 		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
 	}
-	location := "../../ftp/" + folder + "/" + parent
+	// location := "../../ftp/" + folder + "/"
 	for i := range *files {
 		file := &(*files)[i]
-		filePath := location + file.FileName
+		filePath := file.Path
 		if !util.FileExists(filePath) {
 			log.Printf("File not found: %s", filePath)
 			file.Status = "Deleted"

@@ -45,7 +45,7 @@ function NavBarComponent({ user }: NavBarProps) {
           <UserInfoButton user={user} />
         </div>
 
-        <div className="flex-1 justify-end flex items-center space-x-2">
+        <div className="flex-1 justify-end flex items-center ">
           <TimeDisplay phaseDialogRef={phaseDialogRef} />
           <NotificationDropdown />
           <DarkModeToggle />

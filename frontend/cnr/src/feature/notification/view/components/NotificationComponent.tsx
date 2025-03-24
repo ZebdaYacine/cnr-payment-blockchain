@@ -87,7 +87,6 @@ function NotificationComponent({ notification }: NotificationProps) {
         </div>
       </div>
 
-      {/* Hover effect overlay */}
       <div
         className={`absolute inset-0 opacity-0 transition-opacity duration-300 
         ${isDarkMode ? "hover:bg-slate-800/50" : "hover:bg-slate-50/50"}`}

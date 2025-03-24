@@ -29,6 +29,7 @@ function ListOdCommits({ commits: commits }: ListOfCommitProps) {
                   workAt: "",
                   type: "",
                   wilaya: "",
+                  phases: [],
                 },
                 Time: commit.Time,
               }}
