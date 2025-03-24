@@ -8,8 +8,8 @@ type HTTPRequestConfig = AxiosRequestConfig;
 
 const api = (axios: AxiosInstance) => {
   return {
-    get: <T>(url: string,config: HTTPRequestConfig = {}) => {
-      return axios.get<T>(url,config);
+    get: <T>(url: string, config: HTTPRequestConfig = {}) => {
+      return axios.get<T>(url, config);
     },
     delete: <T>(url: string, config: HTTPRequestConfig = {}) => {
       return axios.delete<T>(url, config);
@@ -42,5 +42,19 @@ export function IsTokenExpired(token: string): boolean {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+export function GetAuthToken(navigate: Function): string {
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    navigate("/");
+    throw new Error("Authentication token not found");
+  }
+  if (IsTokenExpired(token)) {
+    localStorage.removeItem("authToken");
+    navigate("/");
+    throw new Error("Session expired. Please log in again.");
+  }
+  return token;
+}
 
 export const Http = api(instance);

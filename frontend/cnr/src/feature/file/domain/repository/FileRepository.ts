@@ -1,7 +1,26 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import {  FileResponse, FilesResponse  } from "../../data/dtos/FileDtos";
+import { FileResponse, FilesResponse } from "../../data/dtos/FileDtos";
 
 export interface FileRepository {
-  GetFiles(permission: string,token:string,folder:string): Promise<FilesResponse|ErrorResponse>;
-  UploadFile(permission: string,filename: string,codebase64: string,token:string,action :string,parent:string,folder:string,description:string,version:number): Promise<FileResponse|ErrorResponse>;
+  GetFiles(
+    token: string,
+    permission: string,
+    folderName: string
+  ): Promise<FilesResponse | ErrorResponse>;
+  UploadFile(
+    filename: string,
+    codebase64: string,
+    token: string,
+    action: string,
+    parent: string,
+    folder: string,
+    description: string,
+    organisation: string,
+    destination: string,
+    version: number,
+    permission: string,
+    reciverId: string,
+    tagged_users: string[],
+    phase: string
+  ): Promise<FileResponse | ErrorResponse>;
 }

@@ -1,8 +1,6 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import {
   ChildResponse,
-  FileResponse,
-  FilesResponse,
   FolderResponse,
   InstitutionResponse,
   PhaseResponse,
@@ -20,10 +18,7 @@ export interface ProfileDataSource {
     token: string,
     permission: string
   ): Promise<UsersResponse | ErrorResponse>;
-  GetFilesApi(
-    token: string,
-    permission: string
-  ): Promise<FilesResponse | ErrorResponse>;
+ 
   GetFolderApi(
     token: string,
     permission: string
@@ -32,22 +27,7 @@ export interface ProfileDataSource {
     token: string,
     permission: string
   ): Promise<PhaseResponse | ErrorResponse>;
-  UploadFileApi(
-    filename: string,
-    codebase64: string,
-    token: string,
-    action: string,
-    parent: string,
-    folder: string,
-    description: string,
-    organisation: string,
-    destination: string,
-    version: number,
-    permission: string,
-    reciverId: string,
-    tagged_users: string[],
-    phase: string
-  ): Promise<FileResponse | ErrorResponse>;
+  
   GetInstituaionApi(
     token: string,
     permission: string
@@ -104,16 +84,7 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     );
   }
 
-  async GetFilesApi(
-    token: string,
-    permission: string
-  ): Promise<FilesResponse | ErrorResponse> {
-    return ApiService.makeRequest<FilesResponse>(
-      "get",
-      `/${permission}/get-all-files-metadata`,
-      token
-    );
-  }
+  
 
   GetInstituaionApi(
     token: string,
@@ -139,40 +110,5 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     );
   }
 
-  async UploadFileApi(
-    filename: string,
-    codebase64: string,
-    token: string,
-    action: string,
-    parent: string,
-    folder: string,
-    description: string,
-    organisation: string,
-    destination: string,
-    version: number,
-    permission: string,
-    reciverId: string,
-    tagged_users: string[],
-    phase: string
-  ): Promise<FileResponse | ErrorResponse> {
-    return ApiService.makeRequest<FileResponse>(
-      "post",
-      `/${permission}/upload-file`,
-      token,
-      {
-        filename,
-        codebase64,
-        action,
-        parent,
-        folder,
-        description,
-        organisation,
-        destination,
-        version,
-        reciverId,
-        tagged_users,
-        phase,
-      }
-    );
-  }
+ 
 }

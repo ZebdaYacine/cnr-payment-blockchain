@@ -1,7 +1,7 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import { FileRepository } from "../../domain/repository/FileRepository";
 import { FileDataSource } from "../dataSource/FileAPIDataSource";
-import {  FileResponse, FilesResponse } from "../dtos/FileDtos";
+import { FileResponse, FilesResponse } from "../dtos/FileDtos";
 
 export class FileRepositoryImpl implements FileRepository {
   datasource: FileDataSource;
@@ -9,13 +9,46 @@ export class FileRepositoryImpl implements FileRepository {
   constructor(datasource: FileDataSource) {
     this.datasource = datasource;
   }
- 
 
-  async GetFiles(permission:string,token:string,folder:string): Promise<FilesResponse | ErrorResponse> {
-    return await this.datasource.GetFilesApi(permission,token,folder);
+  async GetFiles(
+    token: string,
+    permission: string,
+    folderName: string
+  ): Promise<FilesResponse | ErrorResponse> {
+    return await this.datasource.GetFilesApi(token, permission, folderName);
   }
 
-  async UploadFile(permission:string,filename: string,codebase64: string,token:string,action :string,parent:string,folder:string,description:string,version:number): Promise<FileResponse|ErrorResponse> {
-    return await this.datasource.UploadFileApi(permission,filename,codebase64,token,action,parent,folder,description,version);
+  async UploadFile(
+    filename: string,
+    codebase64: string,
+    token: string,
+    action: string,
+    parent: string,
+    folder: string,
+    description: string,
+    organisation: string,
+    destination: string,
+    version: number,
+    permission: string,
+    reciverId: string,
+    tagged_users: string[],
+    phase: string
+  ): Promise<FileResponse | ErrorResponse> {
+    return await this.datasource.UploadFileApi(
+      filename,
+      codebase64,
+      token,
+      action,
+      parent,
+      folder,
+      description,
+      organisation,
+      destination,
+      version,
+      permission,
+      reciverId,
+      tagged_users,
+      phase
+    );
   }
 }

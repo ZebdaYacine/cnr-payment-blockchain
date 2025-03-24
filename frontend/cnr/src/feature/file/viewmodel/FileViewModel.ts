@@ -5,6 +5,8 @@ import { useNotification } from "../../../services/useNotification";
 import { FileUseCase } from "../domain/usecase/FileUseCase";
 import { FilesResponse } from "../data/dtos/FileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
+import { GetAuthToken } from "../../../services/Http";
+import { useNavigate } from "react-router";
 
 function convertFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -18,18 +20,36 @@ function convertFileToBase64(file: File): Promise<string> {
 export function useFileViewModel(fileUseCase: FileUseCase) {
   const { error } = useNotification();
   const { setFilesList } = useFileMetaData();
+  const navigate = useNavigate();
 
   const uploadFileAsync = (
-    permission: string,
     file: File,
     parent: string,
     folder: string,
     description: string,
-    version: number
+    organisation: string,
+    destination: string,
+    version: number,
+    permission: string,
+    reciverId: string,
+    tagged_users: string[],
+    phase: string
   ): Promise<FileResponse> => {
     return new Promise((resolve, reject) => {
       uploadFile(
-        { permission, file, parent, folder, description, version },
+        {
+          file,
+          parent,
+          folder,
+          description,
+          organisation,
+          destination,
+          version,
+          permission,
+          reciverId,
+          tagged_users,
+          phase,
+        },
         {
           onSuccess: (data) => resolve(data as FileResponse),
           onError: (err) => reject(err),
@@ -46,29 +66,35 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     isError: uploadError,
   } = useMutation({
     mutationFn: async ({
-      permission,
       file,
       parent,
       folder,
       description,
+      organisation,
+      destination,
       version,
+      permission: permission,
+      reciverId,
+      tagged_users,
+      phase,
     }: {
-      permission: string;
       file: File;
       parent: string;
       folder: string;
       description: string;
+      organisation: string;
+      destination: string;
       version: number;
+      permission: string;
+      reciverId: string;
+      tagged_users: string[];
+      phase: string;
     }) => {
       const base64File = await convertFileToBase64(file);
       const filename = file.name;
       const action = "upload";
-      const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
+      const storedToken = GetAuthToken(navigate);
       return fileUseCase.UploadFile(
-        permission,
         filename,
         base64File,
         storedToken,
@@ -76,7 +102,13 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
         parent,
         folder,
         description,
-        version
+        organisation,
+        destination,
+        version,
+        permission,
+        reciverId,
+        tagged_users,
+        phase
       );
     },
     onSuccess: (data) => {
@@ -108,17 +140,14 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     isSuccess: isFetchSuccess,
   } = useMutation({
     mutationFn: async ({
-      permission,
-      folder,
+      permissions: permissions,
+      folder: folder,
     }: {
-      permission: string;
+      permissions: string;
       folder: string;
     }) => {
-      const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
-      return fileUseCase.GetFiles(permission, storedToken, folder);
+      const storedToken = GetAuthToken(navigate);
+      return fileUseCase.GetFiles(storedToken, permissions, folder);
     },
     onSuccess: (data) => {
       if (data && "data" in data) {

@@ -26,7 +26,7 @@ function FilesPage() {
   useEffect(() => {
     if (folderName && userPermission) {
       getFiles({
-        permission: userPermission.toLowerCase(),
+        permissions: userPermission.toLowerCase(),
         folder: folderName,
       });
     }
@@ -37,14 +37,14 @@ function FilesPage() {
       const interval = setInterval(
         () =>
           getFiles({
-            permission: permission.toLowerCase(),
+            permissions: permission.toLowerCase(),
             folder: folderName,
           }),
         10000
       );
       return () => clearInterval(interval);
     }
-  }, [folderName, getFiles]);
+  }, [folderName, fileName, getFiles]);
 
   return (
     <>
