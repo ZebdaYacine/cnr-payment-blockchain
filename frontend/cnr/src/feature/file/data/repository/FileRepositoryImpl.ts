@@ -1,7 +1,11 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import { FileRepository } from "../../domain/repository/FileRepository";
 import { FileDataSource } from "../dataSource/FileAPIDataSource";
-import { FileResponse, FilesResponse } from "../dtos/FileDtos";
+import {
+  FileResponse,
+  FilesResponse,
+  DownloadResponse,
+} from "../dtos/FileDtos";
 
 export class FileRepositoryImpl implements FileRepository {
   datasource: FileDataSource;
@@ -50,5 +54,13 @@ export class FileRepositoryImpl implements FileRepository {
       tagged_users,
       phase
     );
+  }
+
+  async DownloadFiles(
+    fileIds: string[],
+    token: string,
+    permission: string
+  ): Promise<DownloadResponse | ErrorResponse> {
+    return await this.datasource.DownloadFilesApi(fileIds, token, permission);
   }
 }

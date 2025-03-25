@@ -28,5 +28,9 @@ type UploadFile struct {
 	ReciverId    string   `json:"reciverId" bson:"reciverId"`
 	TaggedUser   []string `json:"tagged_users" bson:"tagged_users"`
 	Phase        string   `json:"phase" bson:"phase"`
-	Path string
+	Path         string
+}
+
+type DownloadFile struct {
+	FileIDs []string `json:"filePaths"`
 }

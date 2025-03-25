@@ -1,5 +1,9 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import { FileResponse, FilesResponse } from "../dtos/FileDtos";
+import {
+  FileResponse,
+  FilesResponse,
+  // DownloadResponse,
+} from "../dtos/FileDtos";
 import { ApiService } from "../../../../core/service/ApiService";
 
 export interface FileDataSource {
@@ -24,6 +28,17 @@ export interface FileDataSource {
     tagged_users: string[],
     phase: string
   ): Promise<FileResponse | ErrorResponse>;
+  // DownloadFilesApi(
+  //   fileIds: string[],
+  //   token: string,
+  //   permission: string
+  // ): Promise<DownloadResponse | ErrorResponse>;
+
+  DownloadFilesApi(
+    fileIds: string[],
+    token: string,
+    permission: string
+  ): Promise<void>;
 }
 
 export class FileDataSourceImpl implements FileDataSource {
@@ -74,5 +89,55 @@ export class FileDataSourceImpl implements FileDataSource {
         phase,
       }
     );
+  }
+
+  // async DownloadFilesApi(
+  //   filePaths: string[],
+  //   token: string,
+  //   permission: string
+  // ): Promise<DownloadResponse | ErrorResponse> {
+  //   return ApiService.makeRequest<DownloadResponse>(
+  //     "post",
+  //     `/${permission}/download-files`,
+  //     token,
+  //     {
+  //       filePaths,
+  //       token,
+  //       permission,
+  //     }
+  //   );
+  // }
+  async DownloadFilesApi(
+    filePaths: string[],
+    token: string,
+    permission: string
+  ): Promise<void> {
+    try {
+      const response = await ApiService.makeDownloadRequest(
+        "post",
+        `/${permission}/download-files`,
+        token,
+        { filePaths }
+      );
+
+      // Create blob and download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+
+      // Optional: parse filename from headers
+      const contentDisposition = response.headers["content-disposition"];
+      const fileName = contentDisposition
+        ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
+        : "files.zip";
+
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Download failed:", error);
+      // optionally toast or handle error
+    }
   }
 }

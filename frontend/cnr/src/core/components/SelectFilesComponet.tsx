@@ -1,12 +1,8 @@
 import { FaFileCirclePlus } from "react-icons/fa6";
 
 import { ToastContainer } from "react-toastify";
-import { useUser } from "../state/UserContext";
-import { usePhaseId } from "../state/PhaseContext";
 
 function SelectFilesComponent() {
-  const { userSaved } = useUser();
-  const { phase } = usePhaseId();
   const displayVersionModal = () => {
     const modal = document.getElementById("files") as HTMLDialogElement;
     if (modal) {

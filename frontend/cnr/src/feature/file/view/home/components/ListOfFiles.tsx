@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import { MdErrorOutline } from "react-icons/md";
-import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
 import { FaFolderTree } from "react-icons/fa6";
 import { useVersion } from "../../../../../core/state/versionContext";
 import { Data } from "../../../data/dtos/FileDtos";
+import DownloaderButton from "../../../../../core/components/DownloaderButton";
 
 interface ListOfFilesProps {
   files: Data[];
@@ -17,7 +17,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   const navigate = useNavigate();
   const { folderName } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRadio] = useState("");
+  const [checkedFiles, setCheckedFiles] = useState<Data[]>([]);
   const {
     SetLastVersion,
     SetHashParent,
@@ -33,6 +33,14 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  const handleCheckboxChange = (file: Data, checked: boolean) => {
+    if (checked) {
+      setCheckedFiles([...checkedFiles, file]);
+    } else {
+      setCheckedFiles(checkedFiles.filter((f) => f.path !== file.path));
+    }
+  };
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -75,21 +83,22 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
       <div className="card shadow-2xl w-full">
         <div className="card-body">
           <div className="flex flex-col">
-            <div className="flex flex-wrap justify-between">
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center gap-3">
-                  <FaFolderTree className="text-3xl" />
-                  <span className="font-medium text-3xl">
-                    {folderName ?? "Unknown"}
-                  </span>
-                </div>
+            <div className="flex flex-wrap justify-between ">
+              <div className="flex items-center gap-3">
+                <FaFolderTree className="text-3xl" />
+                <span className="font-medium text-3xl">
+                  {folderName ?? "Unknown"}
+                </span>
               </div>
-              {selectedRadio === "OUT" && (
+              <div className="flex">
+                <DownloaderButton checkedFiles={checkedFiles} />
+              </div>
+            </div>
+            {/* {selectedRadio === "OUT" && (
                 <div className="flex flex-row justify-center items-center">
                   <SelectFilesComponent />
                 </div>
-              )}
-            </div>
+              )} */}
           </div>
           <div className="divider"></div>
 
@@ -103,6 +112,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
               <table className="table table-auto">
                 <thead>
                   <tr>
+                    <th className="text-center"></th>
                     <th className="text-center">ID</th>
                     <th className="text-center">File</th>
                     <th className="text-center">User</th>
@@ -117,7 +127,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                     <tr
                       key={file.ID}
                       className="cursor-pointer hover"
-                      onClick={() =>
+                      onDoubleClick={() =>
                         handleRowClick(
                           file.FileName,
                           file.LastVersion,
@@ -129,6 +139,16 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                         )
                       }
                     >
+                      <td className="text-center">
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-primary"
+                          checked={checkedFiles.some((f) => f.ID === file.ID)}
+                          onChange={(e) =>
+                            handleCheckboxChange(file, e.target.checked)
+                          }
+                        />
+                      </td>
                       <td className="text-center">{file.ID}</td>
                       <td className="text-center">{file.FileName}</td>
                       <td className="text-center">{file.reciverId}</td>
@@ -209,19 +229,3 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
 }
 
 export default ListOfFiles;
-
-// const ListOfFiles = () => {
-//   const { lastVersion, SetLastVersion } = useVersion();
-
-//   return (
-//     <div>
-//       <p>Current Version: {lastVersion}</p>
-//       <button onClick={() => SetLastVersion(lastVersion + 1)}>
-//         Increment Version
-//       </button>
-//       <p>Stored Version in LocalStorage: {lastVersion}</p>
-//     </div>
-//   );
-// };
-
-// export default ListOfFiles;

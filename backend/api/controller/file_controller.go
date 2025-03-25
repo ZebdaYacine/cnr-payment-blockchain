@@ -1,8 +1,13 @@
 package controller
 
 import (
+	"archive/zip"
+	"bytes"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"scps-backend/api/controller/model"
 	"scps-backend/core"
 	"scps-backend/pkg"
@@ -63,4 +68,48 @@ func (ic *FileController) GetAllFilesMetaDataByFolderNameRequest(c *gin.Context)
 		Message: "GET ALL META DATA FILES WAS SUCCESSFULY",
 		Data:    resulat.Data,
 	})
+}
+func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
+	log.Println("************************ DOWNLOAD FILE  REQUEST ************************")
+
+	var req entities.DownloadFile
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+			"status":  http.StatusBadRequest,
+		})
+		return
+	}
+
+	files, err := ic.FileUsecase.DownloadFiles(c, req.FileIDs)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+			"status":  http.StatusInternalServerError,
+		})
+		return
+	}
+
+	var buffer bytes.Buffer
+	zipWriter := zip.NewWriter(&buffer)
+
+	for _, filePath := range files {
+		file, err := os.Open(filePath)
+		if err != nil {
+			log.Println("?????????????", err)
+			continue
+		}
+		defer file.Close()
+
+		info, _ := file.Stat()
+		header, _ := zip.FileInfoHeader(info)
+		header.Name = filepath.Base(filePath)
+
+		writer, _ := zipWriter.CreateHeader(header)
+		io.Copy(writer, file)
+	}
+	zipWriter.Close()
+
+	c.Header("Content-Disposition", "attachment; filename=files.zip")
+	c.Data(http.StatusOK, "application/zip", buffer.Bytes())
 }

@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { FileUseCase } from "../domain/usecase/FileUseCase";
-import { FilesResponse } from "../data/dtos/FileDtos";
+import { FilesResponse, DownloadResponse } from "../data/dtos/FileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
 import { GetAuthToken } from "../../../services/Http";
 import { useNavigate } from "react-router";
@@ -18,45 +18,9 @@ function convertFileToBase64(file: File): Promise<string> {
 }
 
 export function useFileViewModel(fileUseCase: FileUseCase) {
-  const { error } = useNotification();
+  const { error, success } = useNotification();
   const { setFilesList } = useFileMetaData();
   const navigate = useNavigate();
-
-  const uploadFileAsync = (
-    file: File,
-    parent: string,
-    folder: string,
-    description: string,
-    organisation: string,
-    destination: string,
-    version: number,
-    permission: string,
-    reciverId: string,
-    tagged_users: string[],
-    phase: string
-  ): Promise<FileResponse> => {
-    return new Promise((resolve, reject) => {
-      uploadFile(
-        {
-          file,
-          parent,
-          folder,
-          description,
-          organisation,
-          destination,
-          version,
-          permission,
-          reciverId,
-          tagged_users,
-          phase,
-        },
-        {
-          onSuccess: (data) => resolve(data as FileResponse),
-          onError: (err) => reject(err),
-        }
-      );
-    });
-  };
 
   const {
     mutate: uploadFile,
@@ -73,7 +37,7 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
       organisation,
       destination,
       version,
-      permission: permission,
+      permission,
       reciverId,
       tagged_users,
       phase,
@@ -140,8 +104,8 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     isSuccess: isFetchSuccess,
   } = useMutation({
     mutationFn: async ({
-      permissions: permissions,
-      folder: folder,
+      permissions,
+      folder,
     }: {
       permissions: string;
       folder: string;
@@ -172,6 +136,78 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     },
   });
 
+  const {
+    mutate: downloadFiles,
+    data: downloadMetadata,
+    isPending: isDownloading,
+    isSuccess: downloadSuccess,
+    isError: downloadError,
+  } = useMutation({
+    mutationFn: async ({
+      filePaths: filePaths,
+      permission,
+    }: {
+      filePaths: string[];
+      permission: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return fileUseCase.DownloadFiles(filePaths, storedToken, permission);
+    },
+    onSuccess: (response) => {
+      const downloadResponse = response as DownloadResponse;
+      // Download each file
+      downloadResponse.data.forEach(({ fileUrl, fileName }) => {
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+      success("Files downloaded successfully!", "colored");
+    },
+    onError: (err: unknown) => {
+      console.error("Download error:", err);
+      error("An error occurred during download. Please try again.", "colored");
+    },
+  });
+
+  const uploadFileAsync = (
+    file: File,
+    parent: string,
+    folder: string,
+    description: string,
+    organisation: string,
+    destination: string,
+    version: number,
+    permission: string,
+    reciverId: string,
+    tagged_users: string[],
+    phase: string
+  ): Promise<FileResponse> => {
+    return new Promise((resolve, reject) => {
+      uploadFile(
+        {
+          file,
+          parent,
+          folder,
+          description,
+          organisation,
+          destination,
+          version,
+          permission,
+          reciverId,
+          tagged_users,
+          phase,
+        },
+        {
+          onSuccess: (data) => resolve(data as FileResponse),
+          onError: (err) => reject(err),
+        }
+      );
+    });
+  };
+
   return {
     uploadFile,
     uploadMetadata,
@@ -185,5 +221,11 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     isFetchSuccess,
 
     uploadFileAsync,
+
+    downloadFiles,
+    downloadMetadata,
+    isDownloading,
+    downloadSuccess,
+    downloadError,
   };
 }

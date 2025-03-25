@@ -84,4 +84,31 @@ export class ApiService {
       ApiService.handleError(error); // ✅ Throws an error instead of returning an ErrorResponse
     }
   }
+
+  public static async makeDownloadRequest(
+    method: "get" | "post",
+    url: string,
+    token: string,
+    data?: object,
+    params?: Record<string, string>
+  ): Promise<import("axios").AxiosResponse<Blob>> {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: "blob" as const, // 👈 tell axios to expect binary data
+        params,
+      };
+
+      const response = await (method === "get"
+        ? Http.get<Blob>(url, config)
+        : Http.post<Blob>(url, data, config));
+
+      return response;
+    } catch (error) {
+      ApiService.handleError(error);
+    }
+  }
 }

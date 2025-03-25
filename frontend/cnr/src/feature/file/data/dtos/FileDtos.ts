@@ -10,16 +10,23 @@ export interface FilesResponse {
 
 export interface Data {
   ID: string;
-  HashFile: string;
-  UserID: string;
   FileName: string;
-  Parent: string;
+  HashFile: string;
+  Time: string;
+  Status: string;
   Version: number;
   LastVersion: number;
-  Action: string;
-  Time: string;
-  Organisation: string;
-  Status: string;
-  TaggedUsers: string[];
   reciverId: string;
+  Organisation?: string;
+  path?: string;
+  TaggedUsers?: string[];
+}
+
+export interface DownloadResponse {
+  data: {
+    fileUrl: string;
+    fileName: string;
+  }[];
+  message: string;
+  status: number;
 }

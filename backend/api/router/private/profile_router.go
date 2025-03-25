@@ -56,3 +56,12 @@ func NewGetCurrentPhaseRouter(db database.Database, group *gin.RouterGroup) {
 	}
 	group.GET("get-current-phase", ic.GetCurrentPhaseRequest)
 }
+
+func NewDownLoadRouter(db database.Database, group *gin.RouterGroup) {
+	ir := filerepo.NewFileRepository(db)
+	uc := fileusecase.NewFileUsecase(ir, "")
+	ic := &controller.FileController{
+		FileUsecase: uc,
+	}
+	group.POST("download-files", ic.DownloadFilesRequest)
+}
