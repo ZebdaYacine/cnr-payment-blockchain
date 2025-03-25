@@ -9,9 +9,8 @@
 /backend/*.db
 /backend/*.sqlite
 /backend/*.sqlite3
-/backend/*.pem
-/backend/*.key
-/backend/*.cert
+/backend/cert/
+
 
 
 # Gitignore for ReactJS (frontend)
