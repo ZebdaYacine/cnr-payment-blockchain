@@ -1,5 +1,6 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import {
+  Data,
   FileResponse,
   FilesResponse,
   // DownloadResponse,
@@ -35,7 +36,7 @@ export interface FileDataSource {
   // ): Promise<DownloadResponse | ErrorResponse>;
 
   DownloadFilesApi(
-    fileIds: string[],
+    files: Data[],
     token: string,
     permission: string
   ): Promise<boolean>;
@@ -108,7 +109,7 @@ export class FileDataSourceImpl implements FileDataSource {
   //   );
   // }
   async DownloadFilesApi(
-    filePaths: string[],
+    files: Data[],
     token: string,
     permission: string
   ): Promise<boolean> {
@@ -117,7 +118,7 @@ export class FileDataSourceImpl implements FileDataSource {
         "post",
         `/${permission}/download-files`,
         token,
-        { filePaths }
+        { files }
       );
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");

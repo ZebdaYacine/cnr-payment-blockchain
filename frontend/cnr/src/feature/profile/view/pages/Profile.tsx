@@ -10,7 +10,6 @@ import { Outlet, useParams } from "react-router";
 import { ToastContainer } from "react-toastify";
 import { useUser } from "../../../../core/state/UserContext";
 // import Phase from "../components/Phase";
-
 function ProfilePage() {
   const { folderName, fileName } = useParams();
   const profileUseCase = new PofileUseCase(

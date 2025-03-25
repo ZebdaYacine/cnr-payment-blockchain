@@ -24,7 +24,7 @@ type fileRepository struct {
 
 // GetAllDemand implements FileRepository.
 type FileRepository interface {
-	DownloadFiles(c context.Context, fileIDs []string) ([]string, error)
+	DownloadFiles(c context.Context, files []entities.Data) ([]string, error)
 	UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error)
 	GetMetadataFileByFolderName(c context.Context, foldername string) (*[]fabric.FileMetadata, error)
 }
@@ -243,11 +243,11 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 	return files, nil
 }
 
-func (r *fileRepository) DownloadFiles(c context.Context, filePaths []string) ([]string, error) {
+func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data) ([]string, error) {
 	var FilePaths []string
 
-	for _, fileID := range filePaths {
-		filePath := fileID
+	for _, file := range files {
+		filePath := *file.Path
 		_, err := os.Open(filePath)
 		if err == nil {
 			FilePaths = append(FilePaths, filePath)

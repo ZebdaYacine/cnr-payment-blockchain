@@ -81,7 +81,7 @@ func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
 		return
 	}
 
-	files, err := ic.FileUsecase.DownloadFiles(c, req.FileIDs)
+	files, err := ic.FileUsecase.DownloadFiles(c, req.Files)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -96,7 +96,6 @@ func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
 	for _, filePath := range files {
 		file, err := os.Open(filePath)
 		if err != nil {
-			log.Println("?????????????", err)
 			continue
 		}
 		defer file.Close()

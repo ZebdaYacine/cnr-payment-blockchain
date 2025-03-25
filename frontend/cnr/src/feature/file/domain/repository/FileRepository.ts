@@ -1,5 +1,5 @@
 import { ErrorResponse } from "../../../../services/model/commun";
-import { FileResponse, FilesResponse } from "../../data/dtos/FileDtos";
+import { Data, FileResponse, FilesResponse } from "../../data/dtos/FileDtos";
 
 export interface FileRepository {
   GetFiles(
@@ -24,7 +24,7 @@ export interface FileRepository {
     phase: string
   ): Promise<FileResponse | ErrorResponse>;
   DownloadFiles(
-    fileIds: string[],
+    files: Data[],
     token: string,
     permission: string
   ): Promise<boolean>;

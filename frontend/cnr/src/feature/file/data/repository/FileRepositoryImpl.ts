@@ -1,7 +1,7 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import { FileRepository } from "../../domain/repository/FileRepository";
 import { FileDataSource } from "../dataSource/FileAPIDataSource";
-import { FileResponse, FilesResponse } from "../dtos/FileDtos";
+import { Data, FileResponse, FilesResponse } from "../dtos/FileDtos";
 
 export class FileRepositoryImpl implements FileRepository {
   datasource: FileDataSource;
@@ -53,10 +53,10 @@ export class FileRepositoryImpl implements FileRepository {
   }
 
   async DownloadFiles(
-    fileIds: string[],
+    files: Data[],
     token: string,
     permission: string
   ): Promise<boolean> {
-    return await this.datasource.DownloadFilesApi(fileIds, token, permission);
+    return await this.datasource.DownloadFilesApi(files, token, permission);
   }
 }

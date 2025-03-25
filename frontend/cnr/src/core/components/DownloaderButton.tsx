@@ -25,9 +25,9 @@ function DownloaderButton({ checkedFiles }: DownloaderButtonProps) {
       return;
     }
 
-    const fileIds = checkedFiles.map((file) => file.path || "");
+    // const fileIds = checkedFiles.map((file) => file.path || "");
     downloadFiles({
-      filePaths: fileIds,
+      files: checkedFiles,
       permission: userPermission.toLowerCase(),
     });
   };

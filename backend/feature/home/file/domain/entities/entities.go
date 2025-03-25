@@ -31,6 +31,20 @@ type UploadFile struct {
 	Path         string
 }
 
+type Data struct {
+	ID           string   `json:"ID"`
+	FileName     string   `json:"FileName"`
+	HashFile     string   `json:"HashFile"`
+	Time         string   `json:"Time"`
+	Status       string   `json:"Status"`
+	Version      string   `json:"Version"`
+	LastVersion  string   `json:"LastVersion"`
+	ReciverId    string   `json:"reciverId"`
+	Organisation *string  `json:"Organisation,omitempty"`
+	Path         *string  `json:"path,omitempty"`
+	TaggedUsers  []string `json:"TaggedUsers,omitempty"`
+}
+
 type DownloadFile struct {
-	FileIDs []string `json:"filePaths"`
+	Files []Data `json:"files"`
 }

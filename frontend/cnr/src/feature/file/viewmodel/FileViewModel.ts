@@ -1,4 +1,4 @@
-import { FileResponse } from "../data/dtos/FileDtos";
+import { Data, FileResponse } from "../data/dtos/FileDtos";
 import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
@@ -144,14 +144,14 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     isError: downloadError,
   } = useMutation({
     mutationFn: async ({
-      filePaths: filePaths,
+      files: files,
       permission,
     }: {
-      filePaths: string[];
+      files: Data[];
       permission: string;
     }) => {
       const storedToken = GetAuthToken(navigate);
-      return fileUseCase.DownloadFiles(filePaths, storedToken, permission);
+      return fileUseCase.DownloadFiles(files, storedToken, permission);
     },
     onSuccess: (data) => {
       if (data) success("Files downloaded successfully!", "colored");

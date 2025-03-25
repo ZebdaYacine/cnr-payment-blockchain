@@ -1,4 +1,4 @@
-import { FileResponse } from "../../data/dtos/FileDtos";
+import { Data, FileResponse } from "../../data/dtos/FileDtos";
 import { ErrorResponse } from "../../../../services/model/commun";
 import { FilesResponse } from "../../data/dtos/FileDtos";
 import { FileRepository } from "../repository/FileRepository";
@@ -53,10 +53,10 @@ export class FileUseCase {
   }
 
   async DownloadFiles(
-    fileIds: string[],
+    file: Data[],
     token: string,
     permission: string
   ): Promise<boolean> {
-    return await this.repository.DownloadFiles(fileIds, token, permission);
+    return await this.repository.DownloadFiles(file, token, permission);
   }
 }

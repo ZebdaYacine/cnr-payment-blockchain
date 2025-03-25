@@ -6,7 +6,7 @@ import NotificationDropdown from "./NotificationDropdown";
 import { usePhaseId } from "../state/PhaseContext";
 import { useRef } from "react";
 import UserInfoButton from "./navbar/UserInfoButton";
-
+import Skeleton from "react-loading-skeleton";
 import { User } from "../dtos/data";
 import TimeDisplay from "./navbar/TimeDisplay";
 import DarkModeToggle from "./navbar/DarkModeToggle";
@@ -42,7 +42,11 @@ function NavBarComponent({ user }: NavBarProps) {
         }`}
       >
         <div className="flex-1">
-          <UserInfoButton user={user} />
+          {user ? (
+            <UserInfoButton user={user} />
+          ) : (
+            <Skeleton circle height={50} width={50} />
+          )}
         </div>
 
         <div className="flex-1 justify-end flex items-center ">

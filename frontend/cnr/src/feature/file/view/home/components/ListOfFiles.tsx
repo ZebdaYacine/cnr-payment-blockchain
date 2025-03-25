@@ -37,8 +37,20 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
   const handleCheckboxChange = (file: Data, checked: boolean) => {
     if (checked) {
       setCheckedFiles([...checkedFiles, file]);
+    } else setCheckedFiles(checkedFiles.filter((f) => f.ID !== file.ID));
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const newFiles = files.filter(
+        (file) => !checkedFiles.some((f) => f.ID === file.ID)
+      );
+      setCheckedFiles([...checkedFiles, ...newFiles]);
     } else {
-      setCheckedFiles(checkedFiles.filter((f) => f.path !== file.path));
+      const remaining = checkedFiles.filter(
+        (f) => !files.some((file) => file.ID === f.ID)
+      );
+      setCheckedFiles(remaining);
     }
   };
 
@@ -91,14 +103,23 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                 </span>
               </div>
               <div className="flex">
-                <DownloaderButton checkedFiles={checkedFiles} />
+                {checkedFiles.length > 0 ? (
+                  <>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="checkbox"
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                      />
+                      <span>Selectionner Tous</span>
+                    </label>
+                    <DownloaderButton checkedFiles={checkedFiles} />
+                  </>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
-            {/* {selectedRadio === "OUT" && (
-                <div className="flex flex-row justify-center items-center">
-                  <SelectFilesComponent />
-                </div>
-              )} */}
           </div>
           <div className="divider"></div>
 
@@ -141,6 +162,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                     >
                       <td className="text-center">
                         <input
+                          id={file.ID}
                           type="checkbox"
                           className="checkbox checkbox-primary"
                           checked={checkedFiles.some((f) => f.ID === file.ID)}

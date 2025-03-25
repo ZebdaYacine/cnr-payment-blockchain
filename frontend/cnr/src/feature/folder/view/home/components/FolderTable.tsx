@@ -1,4 +1,4 @@
-import { FaFolder } from "react-icons/fa";
+import { FaDownload, FaFolder } from "react-icons/fa";
 import ByUser from "./ByUser"; // Assuming ByUser is a separate component
 import AtTime from "./AtTime"; // Assuming AtTime is a separate component
 import { useState } from "react";
@@ -19,6 +19,19 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+  function handleDateTime(dateTime: Date): string {
+    const formattedTime = dateTime.toLocaleString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    return formattedTime;
+  }
+
   return (
     <>
       <table className="table table-auto w-full">
@@ -27,7 +40,7 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
             <tr
               key={folder.id}
               className="cursor-pointer hover:bg-gray-100 transition-all duration-200"
-              onClick={() => onRowClick(folder.name)}
+              onDoubleClick={() => onRowClick(folder.name)}
             >
               <td className="text-left p-4">
                 <div className="flex items-center gap-3">
@@ -50,7 +63,13 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
               </td>
 
               <td className="text-center p-4">
-                <AtTime value={folder.createAt} />
+                <AtTime value={handleDateTime(new Date(folder.createAt))} />
+              </td>
+              <td
+                className="text-xl hover:text-3xl"
+                onClick={() => onRowClick(folder.name)}
+              >
+                <FaDownload />{" "}
               </td>
             </tr>
           ))}
