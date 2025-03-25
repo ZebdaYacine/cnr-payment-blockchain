@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { FileUseCase } from "../domain/usecase/FileUseCase";
-import { FilesResponse, DownloadResponse } from "../data/dtos/FileDtos";
+import { FilesResponse } from "../data/dtos/FileDtos";
 import { useFileMetaData } from "../../../core/state/FileContext";
 import { GetAuthToken } from "../../../services/Http";
 import { useNavigate } from "react-router";
@@ -153,18 +153,14 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
       const storedToken = GetAuthToken(navigate);
       return fileUseCase.DownloadFiles(filePaths, storedToken, permission);
     },
-    onSuccess: (response) => {
-      const downloadResponse = response as DownloadResponse;
-      // Download each file
-      downloadResponse.data.forEach(({ fileUrl, fileName }) => {
-        const link = document.createElement("a");
-        link.href = fileUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-      success("Files downloaded successfully!", "colored");
+    onSuccess: (data) => {
+      if (data) success("Files downloaded successfully!", "colored");
+      else {
+        error(
+          "An error occurred during download. Please try again.",
+          "colored"
+        );
+      }
     },
     onError: (err: unknown) => {
       console.error("Download error:", err);

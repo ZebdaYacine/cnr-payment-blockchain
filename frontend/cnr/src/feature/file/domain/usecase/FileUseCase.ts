@@ -2,7 +2,6 @@ import { FileResponse } from "../../data/dtos/FileDtos";
 import { ErrorResponse } from "../../../../services/model/commun";
 import { FilesResponse } from "../../data/dtos/FileDtos";
 import { FileRepository } from "../repository/FileRepository";
-import { DownloadResponse } from "../../data/dtos/FileDtos";
 
 export class FileUseCase {
   repository: FileRepository;
@@ -57,7 +56,7 @@ export class FileUseCase {
     fileIds: string[],
     token: string,
     permission: string
-  ): Promise<DownloadResponse | ErrorResponse> {
+  ): Promise<boolean> {
     return await this.repository.DownloadFiles(fileIds, token, permission);
   }
 }

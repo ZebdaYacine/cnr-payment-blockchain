@@ -245,10 +245,8 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 
 func (r *fileRepository) DownloadFiles(c context.Context, filePaths []string) ([]string, error) {
 	var FilePaths []string
-	log.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>", FilePaths)
 
 	for _, fileID := range filePaths {
-		log.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>", fileID)
 		filePath := fileID
 		_, err := os.Open(filePath)
 		if err == nil {

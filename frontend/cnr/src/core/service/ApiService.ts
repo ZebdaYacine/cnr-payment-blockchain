@@ -98,7 +98,7 @@ export class ApiService {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        responseType: "blob" as const, // 👈 tell axios to expect binary data
+        responseType: "blob" as const, 
         params,
       };
 

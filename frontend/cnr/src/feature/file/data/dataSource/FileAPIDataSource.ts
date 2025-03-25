@@ -38,7 +38,7 @@ export interface FileDataSource {
     fileIds: string[],
     token: string,
     permission: string
-  ): Promise<void>;
+  ): Promise<boolean>;
 }
 
 export class FileDataSourceImpl implements FileDataSource {
@@ -111,7 +111,7 @@ export class FileDataSourceImpl implements FileDataSource {
     filePaths: string[],
     token: string,
     permission: string
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       const response = await ApiService.makeDownloadRequest(
         "post",
@@ -119,12 +119,9 @@ export class FileDataSourceImpl implements FileDataSource {
         token,
         { filePaths }
       );
-
-      // Create blob and download link
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
 
-      // Optional: parse filename from headers
       const contentDisposition = response.headers["content-disposition"];
       const fileName = contentDisposition
         ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
@@ -135,9 +132,10 @@ export class FileDataSourceImpl implements FileDataSource {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      return true;
     } catch (error) {
       console.error("Download failed:", error);
-      // optionally toast or handle error
+      return false;
     }
   }
 }
