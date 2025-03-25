@@ -61,7 +61,7 @@ function Warning({
       receiverId: [userId || ""],
       senderId: "",
       message: commitText,
-      title: `Nouvelle notification de  ${userSaved.id} `,
+      title: `Nouvelle notification de  ${userSaved.username} `,
       time: new Date(),
       path: "",
     });

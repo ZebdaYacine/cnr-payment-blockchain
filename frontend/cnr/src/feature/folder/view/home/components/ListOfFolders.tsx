@@ -87,7 +87,6 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
       });
       return;
     }
-
     console.log("✅ Calling fetchFolders on useEffect...");
     fetchFolders();
   }, [fetchFolders, selectedRadio, userSaved.id, peer?.id]);
@@ -97,7 +96,6 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
       console.warn("🚨 Skipping interval - missing values.");
       return;
     }
-
     const interval = setInterval(() => fetchFolders(), 10000);
     return () => clearInterval(interval);
   }, [fetchFolders, selectedRadio, userSaved, peer?.id]);

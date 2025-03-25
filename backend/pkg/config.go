@@ -90,3 +90,13 @@ func GET_BLOCKCHAIN_SETTIN() BLOCK_CHAIN {
 		CHAIN_CODE:   os.Getenv("CHAIN_CODE"),
 	}
 }
+
+func Is_TLS_Enabled() bool {
+	LoadEnv()
+	return os.Getenv("USE_TLS") == "true"
+}
+
+func Get_TLS_Paths() (cert string, key string) {
+	LoadEnv()
+	return os.Getenv("TLS_CERT_PATH"), os.Getenv("TLS_KEY_PATH")
+}

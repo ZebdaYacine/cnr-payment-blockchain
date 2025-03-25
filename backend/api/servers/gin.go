@@ -25,8 +25,10 @@ func InitServer(db database.Database, ServerName string) {
 
 func Gin(db database.Database) {
 	server := gin.Default()
+
 	router.Setup(db, server)
-	err := server.Run(pkg.Get_URL())
+	cert, key := pkg.Get_TLS_Paths()
+	err := server.RunTLS(pkg.Get_URL(), cert, key)
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 		return
