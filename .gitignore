@@ -8,7 +8,7 @@
 /backend/*.env
 /backend/*.db
 /backend/*.sqlite
-/backend/cert/
+/backend/cert/*
 
 
 
