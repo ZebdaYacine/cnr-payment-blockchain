@@ -1,27 +1,84 @@
 import { useState } from "react";
 import { VersionData } from "../../../data/dtos/VersionsDtos";
 import VersionUploadModal from "./VersionUploadModal";
+import { FileDataSourceImpl } from "../../../../file/data/dataSource/FileAPIDataSource";
+import { FileRepositoryImpl } from "../../../../file/data/repository/FileRepositoryImpl";
+import { FileUseCase } from "../../../../file/domain/usecase/FileUseCase";
+import { useFileViewModel } from "../../../../file/viewmodel/FileViewModel";
+import { useUser } from "../../../../../core/state/UserContext";
+import { Data } from "../../../../file/data/dtos/FileDtos";
 
 interface ListOfVersionProps {
   version: VersionData[];
 }
 
-function ListOfVersion({ version }: ListOfVersionProps) {
+function ListOfVersion({ version: versions }: ListOfVersionProps) {
   const ITEMS_PER_PAGE = 5;
 
   const [currentPage, setCurrentPage] = useState(1);
-  const safeFolders = version ?? [];
+  const safeFolders = versions ?? [];
   const totalPages = Math.ceil(safeFolders.length / ITEMS_PER_PAGE);
   const paginatedVersions = safeFolders.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+  const [checkedFiles, setCheckedFiles] = useState<VersionData[]>([]);
 
+  const handleCheckboxChange = (file: VersionData, checked: boolean) => {
+    if (checked) {
+      setCheckedFiles([...checkedFiles, file]);
+    } else setCheckedFiles(checkedFiles.filter((f) => f.ID !== file.ID));
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const newFiles = versions.filter(
+        (file) => !checkedFiles.some((f) => f.ID === file.ID)
+      );
+      const d = newFiles.filter(
+        (file) => !checkedFiles.some(() => file.Status === "Invalid")
+      );
+      setCheckedFiles([...checkedFiles, ...d]);
+    } else {
+      const remaining = checkedFiles.filter(
+        (f) => !versions.some((version) => version.ID === f.ID)
+      );
+      setCheckedFiles(remaining);
+    }
+  };
+
+  const fileDataSource = new FileDataSourceImpl();
+  const fileRepository = new FileRepositoryImpl(fileDataSource);
+  const fileUseCase = new FileUseCase(fileRepository);
+  const { downloadFiles, isDownloading } = useFileViewModel(fileUseCase);
+  const { userSaved } = useUser();
+  const userPermission = userSaved.permission;
   const displayVersionModal = () => {
     const modal = document.getElementById("version") as HTMLDialogElement;
     if (modal) {
       modal.showModal();
     }
+  };
+  // const convertVersionToData = (versions: VersionData[]): Data[] => {
+  //   return versions.map((v) => ({
+  //     ID: v.ID,
+  //     FileName: v.FileName,
+  //     HashFile: v.HashFile,
+  //     Time: v.Time,
+  //     Status: v.Status,
+  //     Version: Number(v.Version),
+  //     LastVersion: Number(v.LastVersion),
+  //     reciverId: v.UserID,
+  //     Organisation: v.Organisation,
+  //     path: v.Path,
+  //   }));
+  // };
+
+  const downloadVerions = () => {
+    downloadFiles({
+      files: checkedFiles as Data[],
+      permission: userPermission.toLowerCase(),
+    });
   };
 
   function handleDateTime(dateTime: Date): string {
@@ -45,14 +102,43 @@ function ListOfVersion({ version }: ListOfVersionProps) {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 className="card-title text-lg sm:text-xl text-center sm:text-left">
               List of Versions :{" "}
-              <span className="text-wrap">{version[0]?.LastVersion}</span>
+              <span className="text-wrap">{versions[0]?.LastVersion}</span>
             </h2>
-            <button
-              className="btn btn-accent self-center sm:self-auto"
-              onClick={displayVersionModal}
-            >
-              Ajouter une version
-            </button>
+            <div className="flex space-x-4">
+              <>
+                {checkedFiles.length > 0 ? (
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="checkbox"
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                    />
+                    <span>Selectionner Tous</span>
+                  </label>
+                ) : (
+                  ""
+                )}
+
+                <button
+                  className="btn btn-accent self-center sm:self-auto"
+                  onClick={
+                    checkedFiles.length > 0
+                      ? downloadVerions
+                      : displayVersionModal
+                  }
+                >
+                  {checkedFiles.length > 0
+                    ? isDownloading
+                      ? `Téléchargement de ${checkedFiles.length} fichier${
+                          checkedFiles.length > 1 ? "s" : ""
+                        }...`
+                      : `Téléchargement ${checkedFiles.length} fichier${
+                          checkedFiles.length > 1 ? "s" : ""
+                        }`
+                    : "Ajouter une version"}
+                </button>
+              </>
+            </div>
           </div>
 
           {/* Table container with horizontal scroll on small screens */}
@@ -60,6 +146,7 @@ function ListOfVersion({ version }: ListOfVersionProps) {
             <table className="table table-zebra w-full text-sm">
               <thead>
                 <tr>
+                  <th className="text-center"></th>
                   <th className="text-center">ID</th>
                   <th className="text-center">Fichier</th>
                   <th className="text-center">Utilisateur</th>
@@ -71,6 +158,23 @@ function ListOfVersion({ version }: ListOfVersionProps) {
               <tbody>
                 {paginatedVersions.map((version) => (
                   <tr key={version.ID} className="cursor-pointer hover">
+                    <td className="text-center">
+                      {version.Status === "Valid" ? (
+                        <input
+                          id={version.ID}
+                          type="checkbox"
+                          className="checkbox checkbox-primary"
+                          checked={checkedFiles.some(
+                            (f) => f.ID === version.ID
+                          )}
+                          onChange={(e) =>
+                            handleCheckboxChange(version, e.target.checked)
+                          }
+                        />
+                      ) : (
+                        ""
+                      )}
+                    </td>
                     <td className="text-center">{version.ID}</td>
                     <td className="text-center break-all">
                       {version.FileName}

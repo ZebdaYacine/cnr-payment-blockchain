@@ -45,7 +45,10 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
       const newFiles = files.filter(
         (file) => !checkedFiles.some((f) => f.ID === file.ID)
       );
-      setCheckedFiles([...checkedFiles, ...newFiles]);
+      const d = newFiles.filter(
+        (file) => !checkedFiles.some(() => file.Status === "Invalid")
+      );
+      setCheckedFiles([...checkedFiles, ...d]);
     } else {
       const remaining = checkedFiles.filter(
         (f) => !files.some((file) => file.ID === f.ID)
