@@ -281,7 +281,9 @@ func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data)
 		if file.Path != nil {
 			filePath := *file.Path
 			if _, err := os.Stat(filePath); err == nil {
-				allPaths = append(allPaths, filePath)
+				if file.Status == "Valid" {
+					allPaths = append(allPaths, filePath)
+				}
 			}
 		} else {
 			log.Println("file.Path is nil for file:", file.FileName)
@@ -298,7 +300,9 @@ func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data)
 			for _, version := range *versions {
 				if version.Path != "" {
 					if _, err := os.Stat(version.Path); err == nil {
-						allPaths = append(allPaths, version.Path)
+						if version.Status == "Valid" {
+							allPaths = append(allPaths, version.Path)
+						}
 					}
 				}
 			}

@@ -128,11 +128,11 @@ export class FileDataSourceImpl implements FileDataSource {
       );
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
-
+      const size = files.length;
       const contentDisposition = response.headers["content-disposition"];
       const fileName = contentDisposition
         ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
-        : "files.zip";
+        : `${size}.zip`;
 
       link.href = url;
       link.setAttribute("download", fileName);
