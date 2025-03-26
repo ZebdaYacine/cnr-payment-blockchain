@@ -3,6 +3,7 @@ package controller
 import (
 	"archive/zip"
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"scps-backend/core"
 	"scps-backend/pkg"
 	util "scps-backend/util/token"
+	"strings"
 
 	"scps-backend/feature/home/file/domain/entities"
 	"scps-backend/feature/home/file/usecase"
@@ -69,8 +71,53 @@ func (ic *FileController) GetAllFilesMetaDataByFolderNameRequest(c *gin.Context)
 		Data:    resulat.Data,
 	})
 }
+
+// func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
+// 	log.Println("************************ DOWNLOAD FILE  REQUEST ************************")
+
+// 	var req entities.DownloadFile
+// 	if err := c.ShouldBindJSON(&req); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"message": "Invalid request body",
+// 			"status":  http.StatusBadRequest,
+// 		})
+// 		return
+// 	}
+
+// 	files, err := ic.FileUsecase.DownloadFiles(c, req.Files)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"message": err.Error(),
+// 			"status":  http.StatusInternalServerError,
+// 		})
+// 		return
+// 	}
+
+// 	var buffer bytes.Buffer
+// 	zipWriter := zip.NewWriter(&buffer)
+
+// 	for _, filePath := range files {
+// 		file, err := os.Open(filePath)
+// 		if err != nil {
+// 			continue
+// 		}
+// 		defer file.Close()
+
+// 		info, _ := file.Stat()
+// 		header, _ := zip.FileInfoHeader(info)
+// 		header.Name = filepath.Base(filePath)
+
+// 		writer, _ := zipWriter.CreateHeader(header)
+// 		io.Copy(writer, file)
+// 	}
+// 	zipWriter.Close()
+
+// 	c.Header("Content-Disposition", "attachment; filename=files.zip")
+// 	c.Data(http.StatusOK, "application/zip", buffer.Bytes())
+// }
+
 func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
-	log.Println("************************ DOWNLOAD FILE  REQUEST ************************")
+	log.Println("************************ DOWNLOAD FILE REQUEST ************************")
 
 	var req entities.DownloadFile
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,7 +128,7 @@ func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
 		return
 	}
 
-	files, err := ic.FileUsecase.DownloadFiles(c, req.Files)
+	filesMap, err := ic.FileUsecase.DownloadFiles(c, req.Files)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -93,20 +140,69 @@ func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
 	var buffer bytes.Buffer
 	zipWriter := zip.NewWriter(&buffer)
 
-	for _, filePath := range files {
-		file, err := os.Open(filePath)
-		if err != nil {
-			continue
+	for fileName, paths := range filesMap {
+		baseName := strings.TrimSuffix(fileName, filepath.Ext(fileName))
+		ext := filepath.Ext(fileName)
+
+		if len(paths) == 1 {
+			// 🔹 No versions — file in root of zip
+			filePath := paths[0]
+			file, err := os.Open(filePath)
+			if err != nil {
+				log.Printf("Failed to open file: %v", err)
+				continue
+			}
+			defer file.Close()
+
+			info, _ := file.Stat()
+			header, _ := zip.FileInfoHeader(info)
+			header.Name = filepath.Base(filePath) // keep name as-is
+			header.Method = zip.Deflate
+
+			writer, err := zipWriter.CreateHeader(header)
+			if err != nil {
+				log.Printf("Failed to create zip entry: %v", err)
+				continue
+			}
+			io.Copy(writer, file)
+
+		} else {
+			// 🔹 Versions exist — create folder
+			versionFolder := fmt.Sprintf("versions_of_%s", baseName)
+
+			for i, filePath := range paths {
+				file, err := os.Open(filePath)
+				if err != nil {
+					log.Printf("Failed to open file: %v", err)
+					continue
+				}
+				defer file.Close()
+
+				info, _ := file.Stat()
+				header, _ := zip.FileInfoHeader(info)
+
+				var nameInZip string
+				if i == 0 {
+					// original file
+					nameInZip = fmt.Sprintf("%s/original_%s", versionFolder, filepath.Base(filePath))
+				} else {
+					// versioned file
+					nameInZip = fmt.Sprintf("%s/%s_v%d%s", versionFolder, baseName, i, ext)
+				}
+
+				header.Name = nameInZip
+				header.Method = zip.Deflate
+
+				writer, err := zipWriter.CreateHeader(header)
+				if err != nil {
+					log.Printf("Failed to create zip entry: %v", err)
+					continue
+				}
+				io.Copy(writer, file)
+			}
 		}
-		defer file.Close()
-
-		info, _ := file.Stat()
-		header, _ := zip.FileInfoHeader(info)
-		header.Name = filepath.Base(filePath)
-
-		writer, _ := zipWriter.CreateHeader(header)
-		io.Copy(writer, file)
 	}
+
 	zipWriter.Close()
 
 	c.Header("Content-Disposition", "attachment; filename=files.zip")

@@ -161,15 +161,19 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                       }
                     >
                       <td className="text-center">
-                        <input
-                          id={file.ID}
-                          type="checkbox"
-                          className="checkbox checkbox-primary"
-                          checked={checkedFiles.some((f) => f.ID === file.ID)}
-                          onChange={(e) =>
-                            handleCheckboxChange(file, e.target.checked)
-                          }
-                        />
+                        {file.Status === "Valid" ? (
+                          <input
+                            id={file.ID}
+                            type="checkbox"
+                            className="checkbox checkbox-primary"
+                            checked={checkedFiles.some((f) => f.ID === file.ID)}
+                            onChange={(e) =>
+                              handleCheckboxChange(file, e.target.checked)
+                            }
+                          />
+                        ) : (
+                          ""
+                        )}
                       </td>
                       <td className="text-center">{file.ID}</td>
                       <td className="text-center">{file.FileName}</td>

@@ -8,6 +8,7 @@ import (
 	"os"
 	"scps-backend/fabric"
 	"scps-backend/feature/home/file/domain/entities"
+	versionRepo "scps-backend/feature/home/version/domain/repository"
 	"scps-backend/pkg/database"
 	"scps-backend/util"
 	"strconv"
@@ -24,7 +25,7 @@ type fileRepository struct {
 
 // GetAllDemand implements FileRepository.
 type FileRepository interface {
-	DownloadFiles(c context.Context, files []entities.Data) ([]string, error)
+	DownloadFiles(c context.Context, files []entities.Data) (map[string][]string, error)
 	UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error)
 	GetMetadataFileByFolderName(c context.Context, foldername string) (*[]fabric.FileMetadata, error)
 }
@@ -243,15 +244,67 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 	return files, nil
 }
 
-func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data) ([]string, error) {
-	var FilePaths []string
+// func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data) ([]string, error) {
+// 	versionRepo := versionRepo.NewVersionRepository(r.database)
+// 	versions := &[]fabric.FileMetadata{}
+// 	var FilePaths []string
+// 	for _, file := range files {
+// 		filePath := *file.Path
+// 		_, err := os.Open(filePath)
+// 		if err == nil {
+// 			FilePaths = append(FilePaths, filePath)
+// 		}
+// 		versions, err = versionRepo.GetMetadataVersionByParentFile(c, "", file.FileName)
+// 		if err == nil {
+// 			if len(*versions) > 0 {
+// 				for _, version := range *versions {
+// 					_, err := os.Open(version.Path)
+// 					if err == nil {
+// 						FilePaths = append(FilePaths, version.Path)
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return FilePaths, nil
+// }
 
+func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data) (map[string][]string, error) {
+	versionRepo := versionRepo.NewVersionRepository(r.database)
+	result := make(map[string][]string)
+	versions := &[]fabric.FileMetadata{}
+	var err error
 	for _, file := range files {
-		filePath := *file.Path
-		_, err := os.Open(filePath)
-		if err == nil {
-			FilePaths = append(FilePaths, filePath)
+		var allPaths []string
+
+		if file.Path != nil {
+			filePath := *file.Path
+			if _, err := os.Stat(filePath); err == nil {
+				allPaths = append(allPaths, filePath)
+			}
+		} else {
+			log.Println("file.Path is nil for file:", file.FileName)
+			continue
 		}
+
+		versions, err = versionRepo.GetMetadataVersionByParentFile(c, "", file.FileName)
+		if err != nil {
+			log.Printf("Failed to get versions for %s: %v", file.FileName, err)
+			// continue
+		}
+
+		if versions != nil && len(*versions) > 0 {
+			for _, version := range *versions {
+				if version.Path != "" {
+					if _, err := os.Stat(version.Path); err == nil {
+						allPaths = append(allPaths, version.Path)
+					}
+				}
+			}
+		}
+
+		result[file.FileName] = allPaths
 	}
-	return FilePaths, nil
+
+	return result, nil
 }

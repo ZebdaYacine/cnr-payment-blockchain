@@ -47,7 +47,7 @@ function DownloaderButton({ checkedFiles }: DownloaderButtonProps) {
               {!isDownloading && <FaDownload />}
               {isDownloading
                 ? "Downloading..."
-                : `Download ${checkedFiles.length} File${
+                : `Telechargement ${checkedFiles.length} Fichiers${
                     checkedFiles.length > 1 ? "s" : ""
                   }`}
             </button>

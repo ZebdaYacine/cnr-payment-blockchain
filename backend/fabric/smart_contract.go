@@ -181,7 +181,8 @@ func getFileMetadataByParentName(contract *client.Contract, parent string) (*[]F
 
 	evaluateResult, err := contract.EvaluateTransaction("GetFileMetadataByParentName", parent)
 	if err != nil {
-		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+		// panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+		return nil, fmt.Errorf("failed to evaluate transaction: %w", err)
 	}
 	if len(evaluateResult) == 0 {
 		return nil, fmt.Errorf("❌ no metadata in blockchain network") // Return error instead of panicking

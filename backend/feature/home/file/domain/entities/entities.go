@@ -43,6 +43,7 @@ type Data struct {
 	Organisation *string  `json:"Organisation,omitempty"`
 	Path         *string  `json:"path,omitempty"`
 	TaggedUsers  []string `json:"TaggedUsers,omitempty"`
+	Parent       string   `json:"parent"`
 }
 
 type DownloadFile struct {
