@@ -184,7 +184,7 @@ func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
 				var nameInZip string
 				if i == 0 {
 					// original file
-					nameInZip = fmt.Sprintf("%s/original_%s", versionFolder, filepath.Base(filePath))
+					nameInZip = fmt.Sprintf("%s", filepath.Base(filePath))
 				} else {
 					// versioned file
 					nameInZip = fmt.Sprintf("%s/%s_v%d%s", versionFolder, baseName, i, ext)
