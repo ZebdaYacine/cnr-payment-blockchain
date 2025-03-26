@@ -59,20 +59,20 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
       modal.showModal();
     }
   };
-  // const convertVersionToData = (versions: VersionData[]): Data[] => {
-  //   return versions.map((v) => ({
-  //     ID: v.ID,
-  //     FileName: v.FileName,
-  //     HashFile: v.HashFile,
-  //     Time: v.Time,
-  //     Status: v.Status,
-  //     Version: Number(v.Version),
-  //     LastVersion: Number(v.LastVersion),
-  //     reciverId: v.UserID,
-  //     Organisation: v.Organisation,
-  //     path: v.Path,
-  //   }));
-  // };
+  const convertVersionToData = (versions: VersionData[]): Data[] => {
+    return versions.map((v) => ({
+      ID: v.ID,
+      FileName: v.FileName,
+      HashFile: v.HashFile,
+      Time: v.Time,
+      Status: v.Status,
+      Version: Number(v.Version),
+      LastVersion: Number(v.LastVersion),
+      reciverId: v.UserID,
+      Organisation: v.Organisation,
+      path: v.Path,
+    }));
+  };
 
   const downloadVerions = () => {
     downloadFiles({
