@@ -19,6 +19,7 @@ type FileUsecase interface {
 	UploadFile(c context.Context, data *FileParams) *FileResult
 	DownloadFiles(c context.Context, filePaths []entities.Data) (map[string][]string, error)
 	GetMetaDataFileByFolderName(c context.Context, foldername string) *FileResult
+	DownloadFilesOfFolder(c context.Context, folder string) (map[string][]string, error)
 }
 
 type fileUsecase struct {
@@ -54,4 +55,8 @@ func (p *fileUsecase) GetMetaDataFileByFolderName(c context.Context, foldername 
 
 func (uc *fileUsecase) DownloadFiles(c context.Context, filePaths []entities.Data) (map[string][]string, error) {
 	return uc.repo.DownloadFiles(c, filePaths)
+}
+
+func (uc *fileUsecase) DownloadFilesOfFolder(c context.Context, folder string) (map[string][]string, error) {
+	return uc.repo.DownloadFilesOfFolder(c, folder)
 }

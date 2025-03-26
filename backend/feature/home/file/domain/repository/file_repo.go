@@ -28,6 +28,7 @@ type FileRepository interface {
 	DownloadFiles(c context.Context, files []entities.Data) (map[string][]string, error)
 	UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error)
 	GetMetadataFileByFolderName(c context.Context, foldername string) (*[]fabric.FileMetadata, error)
+	DownloadFilesOfFolder(c context.Context, folder string) (map[string][]string, error)
 }
 
 func NewFileRepository(db database.Database) FileRepository {
@@ -304,6 +305,52 @@ func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data)
 		}
 
 		result[file.FileName] = allPaths
+	}
+
+	return result, nil
+}
+
+func (r *fileRepository) DownloadFilesOfFolder(c context.Context, folder string) (map[string][]string, error) {
+	versionRepo := versionRepo.NewVersionRepository(r.database)
+	result := make(map[string][]string)
+	versions := &[]fabric.FileMetadata{}
+	var err error
+
+	// Get all files in the folder
+	files, err := r.GetMetadataFileByFolderName(c, folder)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get files from folder: %v", err)
+	}
+
+	for _, file := range *files {
+		var allPaths []string
+
+		// Add the main file path if it exists
+		if file.Path != "" {
+			if _, err := os.Stat(file.Path); err == nil {
+				allPaths = append(allPaths, file.Path)
+			}
+		}
+
+		// Get and add version paths if they exist
+		versions, err = versionRepo.GetMetadataVersionByParentFile(c, "", file.FileName)
+		if err != nil {
+			log.Printf("Failed to get versions for %s: %v", file.FileName, err)
+		}
+
+		if versions != nil && len(*versions) > 0 {
+			for _, version := range *versions {
+				if version.Path != "" {
+					if _, err := os.Stat(version.Path); err == nil {
+						allPaths = append(allPaths, version.Path)
+					}
+				}
+			}
+		}
+
+		if len(allPaths) > 0 {
+			result[file.FileName] = allPaths
+		}
 	}
 
 	return result, nil

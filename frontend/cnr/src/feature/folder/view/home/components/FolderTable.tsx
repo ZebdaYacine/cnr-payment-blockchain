@@ -3,6 +3,11 @@ import ByUser from "./ByUser"; // Assuming ByUser is a separate component
 import AtTime from "./AtTime"; // Assuming AtTime is a separate component
 import { useState } from "react";
 import { Folder } from "../../../../../core/dtos/data";
+import { useFileViewModel } from "../../../../file/viewmodel/FileViewModel";
+import { FileUseCase } from "../../../../file/domain/usecase/FileUseCase";
+import { FileRepositoryImpl } from "../../../../file/data/repository/FileRepositoryImpl";
+import { FileDataSourceImpl } from "../../../../file/data/dataSource/FileAPIDataSource";
+import { useUser } from "../../../../../core/state/UserContext";
 
 interface FolderTableProps {
   listOfFolders: Folder[];
@@ -19,6 +24,14 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  // Initialize FileViewModel
+  const fileDataSource = new FileDataSourceImpl();
+  const fileRepository = new FileRepositoryImpl(fileDataSource);
+  const fileUseCase = new FileUseCase(fileRepository);
+  const { downloadFilesOfFolder, isDownloadingFolder } =
+    useFileViewModel(fileUseCase);
+
   function handleDateTime(dateTime: Date): string {
     const formattedTime = dateTime.toLocaleString("fr-FR", {
       weekday: "long",
@@ -31,6 +44,14 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
     });
     return formattedTime;
   }
+  const { userSaved } = useUser();
+
+  const handleDownloadFolder = (folderName: string) => {
+    downloadFilesOfFolder({
+      folder: folderName,
+      permission: userSaved.permission.toLowerCase(), // You might want to get this from your auth context
+    });
+  };
 
   return (
     <>
@@ -66,10 +87,15 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
                 <AtTime value={handleDateTime(new Date(folder.createAt))} />
               </td>
               <td
-                className="text-xl hover:text-3xl"
-                onClick={() => onRowClick(folder.name)}
+                className="text-xl hover:text-3xl cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownloadFolder(folder.name);
+                }}
               >
-                <FaDownload />{" "}
+                <FaDownload
+                  className={isDownloadingFolder ? "animate-pulse" : ""}
+                />
               </td>
             </tr>
           ))}

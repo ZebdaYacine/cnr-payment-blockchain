@@ -28,4 +28,9 @@ export interface FileRepository {
     token: string,
     permission: string
   ): Promise<boolean>;
+  DownloadFilesOfFolder(
+    folder: string,
+    token: string,
+    permission: string
+  ): Promise<boolean>;
 }

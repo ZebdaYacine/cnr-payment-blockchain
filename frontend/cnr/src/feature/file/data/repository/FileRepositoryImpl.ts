@@ -9,6 +9,17 @@ export class FileRepositoryImpl implements FileRepository {
   constructor(datasource: FileDataSource) {
     this.datasource = datasource;
   }
+  async DownloadFilesOfFolder(
+    folder: string,
+    token: string,
+    permission: string
+  ): Promise<boolean> {
+    return await this.datasource.DownloadFilesOfFolderApi(
+      folder,
+      token,
+      permission
+    );
+  }
 
   async GetFiles(
     token: string,

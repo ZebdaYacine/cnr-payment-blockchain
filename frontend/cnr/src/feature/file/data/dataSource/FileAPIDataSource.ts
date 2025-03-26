@@ -40,6 +40,12 @@ export interface FileDataSource {
     token: string,
     permission: string
   ): Promise<boolean>;
+
+  DownloadFilesOfFolderApi(
+    folder: string,
+    token: string,
+    permission: string
+  ): Promise<boolean>;
 }
 
 export class FileDataSourceImpl implements FileDataSource {
@@ -136,6 +142,38 @@ export class FileDataSourceImpl implements FileDataSource {
       return true;
     } catch (error) {
       console.error("Download failed:", error);
+      return false;
+    }
+  }
+
+  async DownloadFilesOfFolderApi(
+    folder: string,
+    token: string,
+    permission: string
+  ): Promise<boolean> {
+    try {
+      const response = await ApiService.makeDownloadRequest(
+        "post",
+        `/${permission}/download-folder`,
+        token,
+        { folder }
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+
+      const contentDisposition = response.headers["content-disposition"];
+      const fileName = contentDisposition
+        ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
+        : `${folder.split("/").pop() || "folder"}.zip`;
+
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      return true;
+    } catch (error) {
+      console.error("Folder download failed:", error);
       return false;
     }
   }

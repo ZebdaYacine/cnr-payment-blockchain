@@ -65,3 +65,12 @@ func NewDownLoadRouter(db database.Database, group *gin.RouterGroup) {
 	}
 	group.POST("download-files", ic.DownloadFilesRequest)
 }
+
+func NewDownLoadFolderRouter(db database.Database, group *gin.RouterGroup) {
+	ir := filerepo.NewFileRepository(db)
+	uc := fileusecase.NewFileUsecase(ir, "")
+	ic := &controller.FileController{
+		FileUsecase: uc,
+	}
+	group.POST("download-folder", ic.DownloadFilesOfFolderRequest)
+}

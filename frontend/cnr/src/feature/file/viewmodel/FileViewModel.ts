@@ -168,6 +168,38 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     },
   });
 
+  const {
+    mutate: downloadFilesOfFolder,
+    data: downloadFolderMetadata,
+    isPending: isDownloadingFolder,
+    isSuccess: downloadFolderSuccess,
+    isError: downloadFolderError,
+  } = useMutation({
+    mutationFn: async ({
+      folder,
+      permission,
+    }: {
+      folder: string;
+      permission: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return fileUseCase.DownloadFilesOfFolder(folder, storedToken, permission);
+    },
+    onSuccess: (data) => {
+      if (data) success("Folder files downloaded successfully!", "colored");
+      else {
+        error(
+          "An error occurred during folder download. Please try again.",
+          "colored"
+        );
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("Folder download error:", err);
+      error("An error occurred during folder download. Please try again.", "colored");
+    },
+  });
+
   const uploadFileAsync = (
     file: File,
     parent: string,
@@ -223,5 +255,11 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     isDownloading,
     downloadSuccess,
     downloadError,
+
+    downloadFilesOfFolder,
+    downloadFolderMetadata,
+    isDownloadingFolder,
+    downloadFolderSuccess,
+    downloadFolderError,
   };
 }

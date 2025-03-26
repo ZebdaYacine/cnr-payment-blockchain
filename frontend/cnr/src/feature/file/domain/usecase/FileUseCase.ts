@@ -59,4 +59,16 @@ export class FileUseCase {
   ): Promise<boolean> {
     return await this.repository.DownloadFiles(file, token, permission);
   }
+
+  async DownloadFilesOfFolder(
+    folder: string,
+    token: string,
+    permission: string
+  ): Promise<boolean> {
+    return await this.repository.DownloadFilesOfFolder(
+      folder,
+      token,
+      permission
+    );
+  }
 }
