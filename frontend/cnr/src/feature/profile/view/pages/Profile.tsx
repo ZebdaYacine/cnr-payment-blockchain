@@ -9,6 +9,7 @@ import FolderPage from "../../../folder/view/home/pages/Folder";
 import { Outlet, useParams } from "react-router";
 import { ToastContainer } from "react-toastify";
 import { useUser } from "../../../../core/state/UserContext";
+import FooterComponent from "../../../../core/components/FooterComponent";
 // import Phase from "../components/Phase";
 function ProfilePage() {
   const { folderName, fileName } = useParams();
@@ -49,6 +50,7 @@ function ProfilePage() {
           <Outlet />
         )}
       </div>
+      {/* <FooterComponent /> */}
     </>
   );
 }

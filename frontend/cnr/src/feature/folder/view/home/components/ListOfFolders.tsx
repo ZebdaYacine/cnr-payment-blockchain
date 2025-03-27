@@ -120,7 +120,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
         <div className="card-body">
           <div className="flex flex-col">
             <div className="flex flex-wrap justify-between">
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col space-y-3 w-full">
                 {peer ? (
                   <div className="flex flex-col justify-between  p-6 ">
                     <p className="text-3xl font-extrabold text-gray-500 ">
@@ -134,34 +134,48 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
                   "Aucune organisation sélectionnée."
                 )}
                 {peer && (
-                  <div className="flex items-center space-x-4">
-                    <label className="flex items-center cursor-pointer gap-2 p-2">
-                      <input
-                        type="radio"
-                        name="radio-2"
-                        className="radio radio-primary"
-                        onChange={() => setSelectedRadio("OUT")}
-                      />
-                      <span className="font-semibold">OUT</span>
-                    </label>
+                  <div className="  flex flex-wrap items-center justify-between  px-5 md:space-y-0 space-y-1">
+                    <div className=" flex flex-row space-x-4 ">
+                      <label className="flex items-center cursor-pointer gap-2 p-2">
+                        <input
+                          type="radio"
+                          name="radio-2"
+                          className="radio radio-primary"
+                          onChange={() => setSelectedRadio("OUT")}
+                        />
+                        <span className="font-semibold">OUT</span>
+                      </label>
 
-                    <label className="flex items-center cursor-pointer gap-2 p-2">
-                      <input
-                        type="radio"
-                        name="radio-2"
-                        className="radio radio-primary"
-                        onChange={() => setSelectedRadio("IN")}
-                      />
-                      <span className="font-semibold">IN</span>
-                    </label>
+                      <label className="flex items-center cursor-pointer gap-2 p-2">
+                        <input
+                          type="radio"
+                          name="radio-2"
+                          className="radio radio-primary"
+                          onChange={() => setSelectedRadio("IN")}
+                        />
+                        <span className="font-semibold">IN</span>
+                      </label>
+                    </div>
+                    {selectedRadio === "IN" && (
+                      <div>
+                        <SelectFilesComponent />
+                      </div>
+                    )}
+                    {selectedRadio === "OUT" && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          Accepter les conditions
+                        </span>
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="checkbox checkbox-primary"
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-              {selectedRadio === "IN" && (
-                <div className="flex flex-row justify-center items-center">
-                <SelectFilesComponent />
-                </div>
-              )}
             </div>
           </div>
           <div className="divider"></div>
