@@ -30,7 +30,7 @@ function SelectFilesComponent() {
               onClick={displayVersionModal}
               multiple
               className="hidden"
-              disabled={!userSaved.phases.includes(phase?.id || "")}
+              // disabled={!userSaved.phases.includes(phase?.id || "")}
             />
           </label>
         </div>

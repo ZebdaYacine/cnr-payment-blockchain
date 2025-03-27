@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useEffect, useState, useCallback } from "react";
 import FileUploadModal from "./FileUploadModal";
 import { Child } from "../../../../profile/data/dtos/ProfileDtos";
@@ -99,10 +99,27 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
     const interval = setInterval(() => fetchFolders(), 10000);
     return () => clearInterval(interval);
   }, [fetchFolders, selectedRadio, userSaved, peer?.id]);
-
+  const userId = useParams();
   const handleRowClick = (folderName: string) => {
     console.log("Navigating to folder:", folderName);
-    navigate(`/home/${folderName}`);
+    navigate(`/peer/${userId}/${folderName}`);
+  };
+
+  const getAgentLabel = (type: string): string => {
+    switch (type) {
+      case "CAL":
+        return "Calculateur";
+      case "FINC":
+        return "Vérificateur financier";
+      case "VAL":
+        return "Vérificateur";
+      case "IT":
+        return "Agent Informatique";
+      case "RESP-SFTP":
+        return "Responsable SFTP";
+      default:
+        return `Agent ${type}`;
+    }
   };
 
   const foldersList = getFoldersList();
@@ -120,22 +137,22 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
         <div className="card-body">
           <div className="flex flex-col">
             <div className="flex flex-wrap justify-between">
-              <div className="flex flex-col space-y-3 w-full">
+              <div className="flex flex-col  w-full">
                 {peer ? (
-                  <div className="flex flex-col justify-between  p-6 ">
+                  <div className="flex flex-col justify-between  p-2">
                     <p className="text-3xl font-extrabold text-gray-500 ">
-                      {peer.org.name} - {peer.wilaya}
+                      {peer.name} - {getAgentLabel(peer.type)}
                     </p>
                     <p className="text-xl font-bold text-gray-400 mt-2 ">
-                      {peer.name} - {peer.type}
+                      {peer.org.name} - {peer.wilaya}
                     </p>
                   </div>
                 ) : (
                   "Aucune organisation sélectionnée."
                 )}
                 {peer && (
-                  <div className="  flex flex-wrap items-center justify-between  px-5 md:space-y-0 space-y-1">
-                    <div className=" flex flex-row space-x-4 ">
+                  <div className="  flex flex-wrap items-center justify-between ">
+                    <div className=" flex flex-row ">
                       <label className="flex items-center cursor-pointer gap-2 p-2">
                         <input
                           type="radio"

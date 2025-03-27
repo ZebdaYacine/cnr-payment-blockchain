@@ -2,12 +2,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../core/state/AuthContext";
 import LoginPage from "../feature/auth/view/login/pages/Login";
 import ProfilePage from "../feature/profile/view/pages/Profile";
-// import VersionPage from "../feature/version/view/home/pages/VersionPage";
-// import FilesPage from "../feature/file/view/home/pages/Files";
 import ErrorPage from "../feature/profile/view/pages/error_page";
 import SettingsPage from "../feature/profile/view/pages/Setting";
 import SchedulerPage from "../feature/profile/view/pages/SchedulerPage";
 import PeerPage from "../feature/profile/view/pages/PeerPage";
+import FilesPage from "../feature/file/view/home/pages/Files";
+import VersionPage from "../feature/version/view/home/pages/VersionPage";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -29,17 +29,7 @@ function AppRouter() {
           isAuthentificated ? <ProfilePage /> : <Navigate to="/" replace />
         }
       >
-        {/* Folder-level navigation
-        <Route path=":folderName" element={<FilesPage />}>
-          <Route
-            path=":fileName"
-            element={
-              isAuthentificated ? <VersionPage /> : <Navigate to="/" replace />
-            }
-          />
-        </Route> */}
-
-        {/* Nested route: must be relative (not /calender) */}
+        {/* Sub-routes rendered inside ProfilePage */}
         <Route
           path="calender"
           element={isAuthentificated ? <SchedulerPage /> : <ErrorPage />}
@@ -47,7 +37,20 @@ function AppRouter() {
         <Route
           path="peer/:userId"
           element={isAuthentificated ? <PeerPage /> : <ErrorPage />}
-        />
+        >
+          <Route path=":folderName" element={<FilesPage />}>
+            <Route
+              path=":fileName"
+              element={
+                isAuthentificated ? (
+                  <VersionPage />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+          </Route>
+        </Route>
       </Route>
 
       {/* Settings - not nested */}
