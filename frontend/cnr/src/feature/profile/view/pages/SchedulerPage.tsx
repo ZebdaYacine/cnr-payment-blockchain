@@ -4,19 +4,16 @@ import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSourc
 import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../viewmodel/ProfileViewModel";
-import ListOfPeers from "../components/ListOfPeers";
-import FolderPage from "../../../folder/view/home/pages/Folder";
-import { Outlet, useParams } from "react-router";
-import { ToastContainer } from "react-toastify";
+
 import { useUser } from "../../../../core/state/UserContext";
+import SchedulerGrid from "./SchedulerComponent";
 // import Phase from "../components/Phase";
-function ProfilePage() {
-  const { folderName, fileName } = useParams();
+function SchedulerPage() {
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
 
-  const { getProfile, GetUsers, getCurrentPhase } =
+  const { getProfile, GetUsers } =
     useProfileViewModel(profileUseCase);
   const { userSaved } = useUser();
 
@@ -30,28 +27,15 @@ function ProfilePage() {
       GetUsers({ permissions: userSaved.permission.toLowerCase() });
   }, []);
 
-  useEffect(() => {
-    getCurrentPhase();
-  }, [getCurrentPhase]);
+
 
   return (
     <>
       <NavBarComponent user={userSaved} />
-      <ToastContainer />
-      <div className="flex flex-col">
-        {!folderName || !fileName ? (
-          <div className="m-5">
-            {!folderName && !fileName && <ListOfPeers />}
-            {!folderName && <FolderPage />}
-            <Outlet />
-          </div>
-        ) : (
-          <Outlet />
-        )}
-      </div>
-      {/* <SchedulerGrid /> */}
+
+      <SchedulerGrid />
     </>
   );
 }
 
-export default ProfilePage;
+export default SchedulerPage;

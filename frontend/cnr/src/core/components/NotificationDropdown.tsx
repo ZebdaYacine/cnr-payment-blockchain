@@ -49,7 +49,7 @@ const NotificationDropdown = () => {
       setCanPlaySound(true);
       if (audioRef.current) {
         audioRef.current.load(); // preload sound
-        audioRef.current.volume = 2.5;
+        audioRef.current.volume = 1;
       }
       document.removeEventListener("click", handleFirstInteraction);
       document.removeEventListener("touchstart", handleFirstInteraction);

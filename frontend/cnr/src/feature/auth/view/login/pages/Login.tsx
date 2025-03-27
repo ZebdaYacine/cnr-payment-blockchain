@@ -34,7 +34,7 @@ function LoginPage() {
       ref.current?.continuousStart();
     } else if (isSuccess && isAuthentificated) {
       ref.current?.complete();
-      navigate("/home");
+      navigate("/calender");
     } else if (isError) {
       ref.current?.complete();
     }

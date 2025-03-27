@@ -6,6 +6,7 @@ import VersionPage from "../feature/version/view/home/pages/VersionPage";
 import FilesPage from "../feature/file/view/home/pages/Files";
 import ErrorPage from "../feature/profile/view/pages/error_page";
 import SettingsPage from "../feature/profile/view/pages/Setting";
+import SchedulerPage from "../feature/profile/view/pages/SchedulerPage";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -36,6 +37,10 @@ function AppRouter() {
       <Route
         path="/settings"
         element={isAuthentificated ? <SettingsPage /> : <ErrorPage />}
+      />
+      <Route
+        path="/calender"
+        element={isAuthentificated ? <SchedulerPage /> : <ErrorPage />}
       />
       <Route
         path="/error-page"

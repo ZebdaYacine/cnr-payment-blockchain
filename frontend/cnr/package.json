@@ -11,6 +11,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aldabil/react-scheduler": "^3.0.5",
+    "@mui/material": "^7.0.0",
+    "@mui/private-theming": "^7.0.0",
+    "@mui/system": "^7.0.0",
     "@react-router/dev": "^7.1.1",
     "@tanstack/react-query": "^5.63.0",
     "@types/jest": "^29.5.14",
