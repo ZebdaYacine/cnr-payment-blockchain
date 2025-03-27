@@ -193,7 +193,7 @@ const SchedulerGrid: React.FC = () => {
                       )}
                       <p className="text-md font-bold">{event.name}</p>
                     </div>
-                    <div className="text font-semibold text-sm">
+                    <div className="text font-semibold text-xs">
                       {event.description}
                     </div>
                     <div

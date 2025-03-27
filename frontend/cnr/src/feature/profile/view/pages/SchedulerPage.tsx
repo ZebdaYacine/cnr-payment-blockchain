@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import NavBarComponent from "../../../../core/components/NavBar";
 import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
@@ -13,8 +12,7 @@ function SchedulerPage() {
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
 
-  const { getProfile, GetUsers } =
-    useProfileViewModel(profileUseCase);
+  const { getProfile, GetUsers } = useProfileViewModel(profileUseCase);
   const { userSaved } = useUser();
 
   useEffect(() => {
@@ -27,11 +25,9 @@ function SchedulerPage() {
       GetUsers({ permissions: userSaved.permission.toLowerCase() });
   }, []);
 
-
-
   return (
     <>
-      <NavBarComponent user={userSaved} />
+      {/* <NavBarComponent user={userSaved} /> */}
 
       <SchedulerGrid />
     </>

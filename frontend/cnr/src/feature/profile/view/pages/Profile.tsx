@@ -9,6 +9,9 @@ import FolderPage from "../../../folder/view/home/pages/Folder";
 import { Outlet, useParams } from "react-router";
 import { ToastContainer } from "react-toastify";
 import { useUser } from "../../../../core/state/UserContext";
+import ResponsiveDrawer from "../../../../core/components/ResponsiveDrawer";
+import Layout from "../../../../core/components/ResponsiveDrawer";
+import ResponsiveLayout from "../../../../core/components/ResponsiveDrawer";
 // import Phase from "../components/Phase";
 function ProfilePage() {
   const { folderName, fileName } = useParams();
@@ -36,7 +39,7 @@ function ProfilePage() {
 
   return (
     <>
-      <NavBarComponent user={userSaved} />
+      {/* <NavBarComponent user={userSaved} />
       <ToastContainer />
       <div className="flex flex-col">
         {!folderName || !fileName ? (
@@ -48,7 +51,8 @@ function ProfilePage() {
         ) : (
           <Outlet />
         )}
-      </div>
+      </div> */}
+      <ResponsiveDrawer />
       {/* <SchedulerGrid /> */}
     </>
   );
