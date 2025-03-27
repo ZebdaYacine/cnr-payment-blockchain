@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"scps-backend/fabric"
 	"scps-backend/feature"
 	"scps-backend/feature/home/profile/domain/entities"
 	"scps-backend/pkg/database"
 	"time"
+
+	"encoding/base64"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -20,11 +23,12 @@ type profileRepository struct {
 	database database.Database
 }
 
-// GetAllDemand implements ProfileRepository.
 type ProfileRepository interface {
 	GetProfile(c context.Context, userId string) (*feature.User, error)
 	GetFolders(c context.Context, folder *fabric.FolderMetadata) (*[]entities.Folder, error)
 	GetCurrentPhase(c context.Context) (*entities.Phase, error)
+	GetRandomString() (string, error)
+	VerifySigitalSignature(signature string) bool
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -147,4 +151,18 @@ func (r *profileRepository) GetCurrentPhase(c context.Context) (*entities.Phase,
 
 	log.Printf("✅ Found current phase: %s\n", phase.Name)
 	return &phase, nil
+}
+
+func (r *profileRepository) GetRandomString() (string, error) {
+	bytes := make([]byte, 32)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("failed to generate random string: %w", err)
+	}
+	return base64.URLEncoding.EncodeToString(bytes), nil
+}
+
+func (r *profileRepository) VerifySigitalSignature(signature string) bool {
+	// Validate inputs
+
+	return true
 }

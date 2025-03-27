@@ -1,4 +1,5 @@
 import { RefObject } from "react";
+import { useNavigate } from "react-router";
 
 interface Props {
   profileDialogRef: RefObject<HTMLDialogElement>;
@@ -6,6 +7,7 @@ interface Props {
 }
 
 export default function ProfileDropdown({ profileDialogRef, onLogout }: Props) {
+  const navigate = useNavigate();
   return (
     <div className="dropdown dropdown-end">
       <div
@@ -31,7 +33,13 @@ export default function ProfileDropdown({ profileDialogRef, onLogout }: Props) {
           </a>
         </li>
         <li>
-          <a>Settings</a>
+          <a
+            onClick={() => {
+              navigate("/settings");
+            }}
+          >
+            Settings
+          </a>
         </li>
         <li>
           <a onClick={onLogout}>Logout</a>

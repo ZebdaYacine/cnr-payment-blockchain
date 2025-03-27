@@ -159,7 +159,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
               </div>
               {selectedRadio === "IN" && (
                 <div className="flex flex-row justify-center items-center">
-                  <SelectFilesComponent />
+                <SelectFilesComponent />
                 </div>
               )}
             </div>
