@@ -236,7 +236,10 @@ const ResponsiveDrawer: React.FC = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to="/home/post" className="flex items-center gap-2">
+                    <Link
+                      to="/home/PK-manager/get-keys"
+                      className="flex items-center gap-2"
+                    >
                       <FaKey />
                       Cles Publique
                     </Link>

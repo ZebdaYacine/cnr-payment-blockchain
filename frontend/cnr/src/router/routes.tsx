@@ -12,6 +12,7 @@ import ReglementationPage from "../feature/profile/view/pages/peers/Reglementati
 import PeerPage from "../feature/profile/view/pages/peers/PeerPage";
 import ProfileUpdatePage from "../feature/profile/view/pages/editProfile/ProfileUpdatePage";
 import PasswordUpdatePage from "../feature/profile/view/pages/editProfile/PasswordUpdatePage";
+import PKeyPage from "../feature/profile/view/pages/editProfile/PKeyPage";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -49,6 +50,10 @@ function AppRouter() {
         <Route
           path="update-password"
           element={isAuthentificated ? <PasswordUpdatePage /> : <ErrorPage />}
+        />
+        <Route
+          path="PK-manager/:action"
+          element={isAuthentificated ? <PKeyPage /> : <ErrorPage />}
         />
         <Route
           path="ccr"
