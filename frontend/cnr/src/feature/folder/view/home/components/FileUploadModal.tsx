@@ -176,7 +176,7 @@ function FileUploadModal({
         message: `Il ya ${i} nouveaux fichiers ont été téléchargés dans le dossier "${folderName}"`,
         title: "Nouveaux fichiers téléchargés",
         time: now,
-        path: `${folderName}`,
+        path: `peer/${userSaved.id}/${folderName}`,
       });
 
       SetFinishUploading(true);

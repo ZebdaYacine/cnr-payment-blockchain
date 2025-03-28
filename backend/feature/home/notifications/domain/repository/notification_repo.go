@@ -61,7 +61,7 @@ func (s *notificationRepository) AddNotification(c context.Context, notification
 		if !strings.HasPrefix(linkPath, "/home") {
 			linkPath = "/home/" + linkPath
 		}
-		linkHTML = fmt.Sprintf(`<p><a href="http://localhost:5173%s">Cliquez ici pour voir plus de détails</a></p>`, linkPath)
+		linkHTML = fmt.Sprintf(`<p><a href="https://cnr:5173/%s">Cliquez ici pour voir plus de détails</a></p>`, linkPath)
 	}
 
 	emailBody := fmt.Sprintf(`

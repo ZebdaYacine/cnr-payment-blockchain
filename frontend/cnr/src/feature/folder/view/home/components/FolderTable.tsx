@@ -8,6 +8,7 @@ import { FileUseCase } from "../../../../file/domain/usecase/FileUseCase";
 import { FileRepositoryImpl } from "../../../../file/data/repository/FileRepositoryImpl";
 import { FileDataSourceImpl } from "../../../../file/data/dataSource/FileAPIDataSource";
 import { useUser } from "../../../../../core/state/UserContext";
+import { HandleDateTime } from "../../../../../services/Utils";
 
 interface FolderTableProps {
   listOfFolders: Folder[];
@@ -32,18 +33,7 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
   const { downloadFilesOfFolder, isDownloadingFolder } =
     useFileViewModel(fileUseCase);
 
-  function handleDateTime(dateTime: Date): string {
-    const formattedTime = dateTime.toLocaleString("fr-FR", {
-      weekday: "long",
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-    return formattedTime;
-  }
+ 
   const { userSaved } = useUser();
 
   const handleDownloadFolder = (folderName: string) => {
@@ -84,7 +74,7 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
               </td>
 
               <td className="text-center p-4">
-                <AtTime value={handleDateTime(new Date(folder.createAt))} />
+                <AtTime value={HandleDateTime(new Date(folder.createAt))} />
               </td>
               <td
                 className="text-xl hover:text-3xl cursor-pointer"

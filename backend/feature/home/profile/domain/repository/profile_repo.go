@@ -76,7 +76,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		Wilaya:       result["wilaya"].(string),
 		Phases:       phases,
 		PublicKey:    result["publicKey"].(string),
-		CreateAt:     result["createAt"].(string),
+		CreateAt:     result["createAt"].(primitive.DateTime).Time(),
 	}
 
 	return &user, nil
@@ -177,27 +177,22 @@ func (r *profileRepository) SendDigitalSignature(fileId string, signature string
 }
 
 func (r *profileRepository) AddPK(userId string, pk string) error {
-	// Convert userId to ObjectID
 	id, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
 		return fmt.Errorf("invalid user ID: %w", err)
 	}
 
-	// Create filter to find the user
 	filter := bson.D{{Key: "_id", Value: id}}
 
-	// Create update to set the public key
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "publicKey", Value: pk},
-			{Key: "createAt", Value: time.Now().String()},
+			{Key: "createAt", Value: time.Now()},
 		}},
 	}
 
-	// Get the users collection
 	collection := r.database.Collection(database.USER.String())
 
-	// Update the user document
 	result, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)

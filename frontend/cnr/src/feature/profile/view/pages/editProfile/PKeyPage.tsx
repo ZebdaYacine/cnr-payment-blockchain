@@ -2,6 +2,7 @@ import { useParams } from "react-router";
 import PKeyComponents from "../../../../../core/components/PKeyComponents";
 import AddPKeyForm from "../../../../../core/components/AddPkeyComponent";
 import { useUser } from "../../../../../core/state/UserContext";
+import { HandleDateTime } from "../../../../../services/Utils";
 
 const PKeyPage = () => {
   const { action } = useParams();
@@ -12,7 +13,7 @@ const PKeyPage = () => {
         <PKeyComponents
           email={userSaved.email}
           hash={userSaved.publicKey}
-          addedDate={userSaved.CreateAt}
+          addedDate={HandleDateTime(new Date(userSaved.createAt))}
           onDelete={() => alert("You clicked delete")}
         />
       ) : (

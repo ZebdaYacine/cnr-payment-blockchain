@@ -112,7 +112,7 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 			Message:   notificationMessage,
 			Time:      time.Now(),
 			SenderId:  file.UserId,
-			Path:      filepath.Join("/home", file.Folder, file.Parent),
+			Path:      filepath.Join("/home/peer", file.UserId, file.Folder, file.Parent),
 		}
 		_, err = nr.AddNotification(c, *receiverNotification)
 		if err != nil {
