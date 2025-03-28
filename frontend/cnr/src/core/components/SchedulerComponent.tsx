@@ -10,12 +10,12 @@ import {
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import { FaClock } from "react-icons/fa6";
-import { useProfileViewModel } from "../../viewmodel/ProfileViewModel";
-import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
-import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSource";
-import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
-import { usePhaseId } from "../../../../core/state/PhaseContext";
-import { useUser } from "../../../../core/state/UserContext";
+import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileViewModel";
+import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
+import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
+import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
+import { usePhaseId } from "../state/PhaseContext";
+import { useUser } from "../state/UserContext";
 
 interface EventItem {
   id: number;
@@ -178,11 +178,30 @@ const SchedulerGrid: React.FC = () => {
                   {dayEvents.map((event, index) => (
                     <div
                       key={index}
-                      className="badge badge-soft hover:badge-outline badge-primary font-semibold cursor-pointer"
+                      className="badge badge-soft  font-semibold  gap-2"
                     >
+                      {isSameDay(currentDate, currentDaySelected) && (
+                        <div className="w-4 h-4 rounded-full bg-green-600 animate-pulse "></div>
+                      )}
                       {event.name}
                     </div>
                   ))}
+                  <div
+                    className={`badge font-semibold text-sm text-center gap-2 p-3  ${
+                      isSameDay(currentDate, currentDaySelected)
+                        ? "badge-ghost badge-outline"
+                        : isAfterDate(currentDate, currentDaySelected)
+                        ? "badge-secondary"
+                        : "badge-accent"
+                    }`}
+                  >
+                    <FaClock />
+                    {isSameDay(currentDate, currentDaySelected)
+                      ? "Aujourd'hui"
+                      : isAfterDate(currentDate, currentDaySelected)
+                      ? "Dépassée"
+                      : "À venir"}
+                  </div>
                 </div>
               ) : (
                 dayEvents.map((event, index) => (

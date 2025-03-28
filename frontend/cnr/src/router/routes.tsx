@@ -3,14 +3,15 @@ import { useAuth } from "../core/state/AuthContext";
 import LoginPage from "../feature/auth/view/login/pages/Login";
 import ProfilePage from "../feature/profile/view/pages/Profile";
 import ErrorPage from "../feature/profile/view/pages/error_page";
-import SettingsPage from "../feature/profile/view/pages/Setting";
-import SchedulerPage from "../feature/profile/view/pages/SchedulerPage";
-import PeerPage from "../feature/profile/view/pages/PeerPage";
+import SchedulerPage from "../feature/profile/view/pages/items/SchedulerPage";
 import FilesPage from "../feature/file/view/home/pages/Files";
 import VersionPage from "../feature/version/view/home/pages/VersionPage";
-import DashboardPage from "../feature/profile/view/pages/DashboardPage";
-import EditProfilePage from "../feature/profile/view/pages/EditProfilePage";
+import DashboardPage from "../feature/profile/view/pages/items/DashboardPage";
 import NotYet from "../core/components/NotYet";
+import ReglementationPage from "../feature/profile/view/pages/peers/ReglementationPage";
+import PeerPage from "../feature/profile/view/pages/peers/PeerPage";
+import ProfileUpdatePage from "../feature/profile/view/pages/editProfile/ProfileUpdatePage";
+import PasswordUpdatePage from "../feature/profile/view/pages/editProfile/PasswordUpdatePage";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -42,8 +43,12 @@ function AppRouter() {
           element={isAuthentificated ? <DashboardPage /> : <ErrorPage />}
         />
         <Route
-          path="edit-profile"
-          element={isAuthentificated ? <EditProfilePage /> : <ErrorPage />}
+          path="general-information"
+          element={isAuthentificated ? <ProfileUpdatePage /> : <ErrorPage />}
+        />
+        <Route
+          path="update-password"
+          element={isAuthentificated ? <PasswordUpdatePage /> : <ErrorPage />}
         />
         <Route
           path="ccr"
@@ -74,13 +79,11 @@ function AppRouter() {
             />
           </Route>
         </Route>
+        <Route
+          path="reglementaion/:codeReglementation"
+          element={isAuthentificated ? <ReglementationPage /> : <ErrorPage />}
+        />
       </Route>
-
-      {/* Settings - not nested */}
-      <Route
-        path="/settings"
-        element={isAuthentificated ? <SettingsPage /> : <ErrorPage />}
-      />
 
       {/* Fallback route */}
       <Route

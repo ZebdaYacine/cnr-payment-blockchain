@@ -11,6 +11,7 @@ import { FolderDataSourceImpl } from "../../../data/dataSource/FolderAPIDataSour
 import { FolderRepositoryImpl } from "../../../data/repository/FolderRepositoryImpl";
 import { useFoldersMetaData } from "../../../../../core/state/FolderContext";
 import { useFolderViewModel } from "../../../viewmodel/FolderViewModel";
+import { GetAgentLabel } from "../../../../../services/Utils";
 
 interface ListOfFoldersProps {
   peer: Child;
@@ -106,23 +107,6 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
     navigate(`/home/peer/${userId}/${folderNameEncoded}`);
   };
 
-  const getAgentLabel = (type: string): string => {
-    switch (type) {
-      case "CAL":
-        return "Calculateur";
-      case "FINC":
-        return "Vérificateur financier";
-      case "VAL":
-        return "Vérificateur";
-      case "IT":
-        return "Agent Informatique";
-      case "RESP-SFTP":
-        return "Responsable SFTP";
-      default:
-        return `Agent ${type}`;
-    }
-  };
-
   const foldersList = getFoldersList();
 
   return (
@@ -142,7 +126,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
                 {peer ? (
                   <div className="flex flex-col justify-between  p-2">
                     <p className="text-3xl font-extrabold text-gray-500 ">
-                      {peer.name} - {getAgentLabel(peer.type)}
+                      {peer.name} - {GetAgentLabel(peer.type)}
                     </p>
                     <p className="text-xl font-bold text-gray-400 mt-2 ">
                       {peer.org.name} - {peer.wilaya}

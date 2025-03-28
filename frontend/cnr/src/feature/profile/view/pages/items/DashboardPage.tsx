@@ -1,4 +1,4 @@
-import NotYet from "../../../../core/components/NotYet";
+import NotYet from "../../../../../core/components/NotYet";
 
 function DashboardPage() {
   return <NotYet />;

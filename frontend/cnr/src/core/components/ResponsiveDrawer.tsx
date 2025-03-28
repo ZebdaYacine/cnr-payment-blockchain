@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { MdDashboard, MdCalendarToday } from "react-icons/md";
 import { HiMiniUserGroup } from "react-icons/hi2";
-import { FaUserEdit } from "react-icons/fa";
+import { FaKey, FaUserEdit } from "react-icons/fa";
 import { SiAwsorganizations } from "react-icons/si";
 import { useListUsers } from "../state/ListOfUsersContext";
 import { User } from "../dtos/data";
@@ -17,6 +17,9 @@ import { usePhaseId } from "../state/PhaseContext";
 import { useAuth } from "../state/AuthContext";
 import { TiThMenu } from "react-icons/ti";
 import { useTheme } from "../state/ThemeContext";
+import { GetAgentLabel } from "../../services/Utils";
+import { BsFillClipboard2DataFill } from "react-icons/bs";
+import { TbLockPassword, TbLogout2 } from "react-icons/tb";
 const ResponsiveDrawer: React.FC = () => {
   const { users } = useListUsers();
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -104,18 +107,22 @@ const ResponsiveDrawer: React.FC = () => {
           }`}
         >
           <div
-            className={`rounded-xl shadow-md p-5 m-2 transition-all ${
+            className={` rounded-xl shadow-md p-5 m-2 transition-all space-y-3 ${
               isDarkMode ? "bg-slate-800 text-white" : "bg-white text-gray-800"
             }`}
           >
             <h2 className="text-lg font-bold mb-1">👤 {userSaved.username}</h2>
             <p className="text-sm">
-              <span className="font-semibold">📍 Wilaya:</span>{" "}
-              {userSaved.wilaya}
-            </p>
-            <p className="text-sm">
               <span className="font-semibold">🏢 Organisation:</span>{" "}
               {userSaved.workAt}
+            </p>
+            <p className="text-sm">
+              <span className="font-semibold">🎖️ Rôle:</span>{" "}
+              {GetAgentLabel(userSaved.type)}
+            </p>
+            <p className="text-sm">
+              <span className="font-semibold">📍 Wilaya:</span>{" "}
+              {userSaved.wilaya}
             </p>
             <p className="text-sm">
               <span className="font-semibold">🧩 Rôle:</span>{" "}
@@ -156,9 +163,21 @@ const ResponsiveDrawer: React.FC = () => {
                       )
                       .map((user) => (
                         <li key={user.id}>
-                          <Link to={`/home/peer/${user.id}`} className="block">
+                          <button
+                            onClick={() => {
+                              if (
+                                user.phases.includes(phase?.id || "") &&
+                                userSaved.phases.includes(phase?.id || "")
+                              ) {
+                                navigate(`/home/peer/${user.id}`);
+                              } else {
+                                navigate(`/home/reglementaion/COM-001`);
+                              }
+                            }}
+                            className="block text-left w-full"
+                          >
                             {user.username} – {user.workAt} / {user.wilaya}
-                          </Link>
+                          </button>
                         </li>
                       ))
                   )}
@@ -190,12 +209,54 @@ const ResponsiveDrawer: React.FC = () => {
                 </ul>
               </details>
             </li>
-
             <li>
-              <Link to="/home/edit-profile" className="flex items-center gap-3">
-                <FaUserEdit className="text-xl" />
-                Profile
-              </Link>
+              <details className="group">
+                <summary className="flex items-center gap-3 cursor-pointer">
+                  <FaUserEdit className="text-xl" />
+                  Profile
+                </summary>
+                <ul className="pl-8 mt-2 space-y-2">
+                  <li>
+                    <Link
+                      to="/home/general-information"
+                      className="flex items-center gap-2"
+                    >
+                      <BsFillClipboard2DataFill />
+                      Informations Generale
+                    </Link>
+                  </li>
+
+                  <li>
+                    <Link
+                      to="/home/update-password"
+                      className="flex items-center gap-2"
+                    >
+                      <TbLockPassword />
+                      Mots de passe
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/home/post" className="flex items-center gap-2">
+                      <FaKey />
+                      Cles Publique
+                    </Link>
+                  </li>
+                </ul>
+              </details>
+            </li>
+            <li>
+              <button
+                onClick={() => {
+                  if (isAuthentificated) {
+                    Userlogout();
+                    navigate(`/login`);
+                  }
+                }}
+                className=" flex items-center gap-2"
+              >
+                <TbLogout2 />
+                déconnexion
+              </button>
             </li>
           </ul>
         </aside>

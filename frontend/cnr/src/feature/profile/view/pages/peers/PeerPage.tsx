@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { Outlet, useParams } from "react-router-dom";
-import { useListUsers } from "../../../../core/state/ListOfUsersContext";
-import ListOfFolders from "../../../folder/view/home/components/ListOfFolders";
-import { usePhaseId } from "../../../../core/state/PhaseContext";
+import { usePhaseId } from "../../../../../core/state/PhaseContext";
+import { useListUsers } from "../../../../../core/state/ListOfUsersContext";
+import ListOfFolders from "../../../../folder/view/home/components/ListOfFolders";
 
 const PeerPage = () => {
   const { userId, folderName, fileName } = useParams();

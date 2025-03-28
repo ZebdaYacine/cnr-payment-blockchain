@@ -32,21 +32,7 @@ function ProfilePage() {
 
   return (
     <>
-      {/* <NavBarComponent user={userSaved} />
-      <ToastContainer />
-      <div className="flex flex-col">
-        {!folderName || !fileName ? (
-          <div className="m-5">
-            {!folderName && !fileName && <ListOfPeers />}
-            {!folderName && <FolderPage />}
-            <Outlet />
-          </div>
-        ) : (
-          <Outlet />
-        )}
-      </div> */}
       <ResponsiveDrawer />
-      {/* <SchedulerGrid /> */}
     </>
   );
 }

@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSource";
-import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
-import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
-import { useProfileViewModel } from "../../viewmodel/ProfileViewModel";
+import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
+import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
+import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
+import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 
-import { useUser } from "../../../../core/state/UserContext";
-import SchedulerGrid from "./SchedulerComponent";
+import { useUser } from "../../../../../core/state/UserContext";
+import SchedulerGrid from "../../../../../core/components/SchedulerComponent";
 // import Phase from "../components/Phase";
 function SchedulerPage() {
   const profileUseCase = new PofileUseCase(
