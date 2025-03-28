@@ -1,20 +1,13 @@
 import { useEffect } from "react";
-import NavBarComponent from "../../../../core/components/NavBar";
 import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../viewmodel/ProfileViewModel";
-import ListOfPeers from "../components/ListOfPeers";
-import FolderPage from "../../../folder/view/home/pages/Folder";
-import { Outlet, useParams } from "react-router";
-import { ToastContainer } from "react-toastify";
+
 import { useUser } from "../../../../core/state/UserContext";
 import ResponsiveDrawer from "../../../../core/components/ResponsiveDrawer";
-import Layout from "../../../../core/components/ResponsiveDrawer";
-import ResponsiveLayout from "../../../../core/components/ResponsiveDrawer";
 // import Phase from "../components/Phase";
 function ProfilePage() {
-  const { folderName, fileName } = useParams();
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );

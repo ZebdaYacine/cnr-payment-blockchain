@@ -37,8 +37,8 @@ function NavBarComponent({ user }: NavBarProps) {
   return (
     <>
       <div
-        className={`flex navbar ${
-          isDarkMode ? "bg-slate-950 text-white" : "bg-blue-600 text-black"
+        className={`flex navbar shadow px-4 h-16 ${
+          isDarkMode ? "text-white border-r border-gray-700" : ""
         }`}
       >
         <div className="flex-1">
@@ -49,7 +49,7 @@ function NavBarComponent({ user }: NavBarProps) {
           )}
         </div>
 
-        <div className="flex-1 justify-end flex items-center ">
+        <div className="flex-1 justify-end flex items-center gap-4">
           <TimeDisplay phaseDialogRef={phaseDialogRef} />
           <NotificationDropdown />
           <DarkModeToggle />
@@ -59,7 +59,6 @@ function NavBarComponent({ user }: NavBarProps) {
           />
         </div>
       </div>
-
       <ProfileModal user={user} profileDialogRef={profileDialogRef} />
       <PhaseModal phase={phase || null} phaseDialogRef={phaseDialogRef} />
     </>

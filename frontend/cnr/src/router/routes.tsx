@@ -8,6 +8,9 @@ import SchedulerPage from "../feature/profile/view/pages/SchedulerPage";
 import PeerPage from "../feature/profile/view/pages/PeerPage";
 import FilesPage from "../feature/file/view/home/pages/Files";
 import VersionPage from "../feature/version/view/home/pages/VersionPage";
+import DashboardPage from "../feature/profile/view/pages/DashboardPage";
+import EditProfilePage from "../feature/profile/view/pages/EditProfilePage";
+import NotYet from "../core/components/NotYet";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -33,6 +36,26 @@ function AppRouter() {
         <Route
           path="calender"
           element={isAuthentificated ? <SchedulerPage /> : <ErrorPage />}
+        />
+        <Route
+          path="dashboard"
+          element={isAuthentificated ? <DashboardPage /> : <ErrorPage />}
+        />
+        <Route
+          path="edit-profile"
+          element={isAuthentificated ? <EditProfilePage /> : <ErrorPage />}
+        />
+        <Route
+          path="ccr"
+          element={isAuthentificated ? <NotYet /> : <ErrorPage />}
+        />
+        <Route
+          path="agence"
+          element={isAuthentificated ? <NotYet /> : <ErrorPage />}
+        />
+        <Route
+          path="post"
+          element={isAuthentificated ? <NotYet /> : <ErrorPage />}
         />
         <Route
           path="peer/:userId"

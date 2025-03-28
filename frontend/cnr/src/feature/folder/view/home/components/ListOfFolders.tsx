@@ -99,10 +99,11 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
     const interval = setInterval(() => fetchFolders(), 10000);
     return () => clearInterval(interval);
   }, [fetchFolders, selectedRadio, userSaved, peer?.id]);
-  const userId = useParams();
+  const { userId } = useParams();
   const handleRowClick = (folderName: string) => {
     console.log("Navigating to folder:", folderName);
-    navigate(`/peer/${userId}/${folderName}`);
+    const folderNameEncoded = encodeURIComponent(folderName);
+    navigate(`/home/peer/${userId}/${folderNameEncoded}`);
   };
 
   const getAgentLabel = (type: string): string => {

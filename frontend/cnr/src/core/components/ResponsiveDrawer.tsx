@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { MdDashboard, MdCalendarToday } from "react-icons/md";
 import { HiMiniUserGroup } from "react-icons/hi2";
@@ -7,11 +7,33 @@ import { SiAwsorganizations } from "react-icons/si";
 import { useListUsers } from "../state/ListOfUsersContext";
 import { User } from "../dtos/data";
 import { useUser } from "../state/UserContext";
+import NotificationDropdown from "./NotificationDropdown";
+import DarkModeToggle from "./navbar/DarkModeToggle";
+import ProfileDropdown from "./navbar/ProfileDropdown";
+import ProfileModal from "./navbar/ProfileModal";
+import PhaseModal from "./navbar/PhaseModal";
+import { useLogger } from "../../services/useLogger";
+import { usePhaseId } from "../state/PhaseContext";
+import { useAuth } from "../state/AuthContext";
+import { TiThMenu } from "react-icons/ti";
+import { useTheme } from "../state/ThemeContext";
 const ResponsiveDrawer: React.FC = () => {
   const { users } = useListUsers();
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const { userSaved } = useUser();
+  const { isAuthentificated, Userlogout } = useAuth();
+  const { debug } = useLogger();
 
+  const profileDialogRef = useRef<HTMLDialogElement>(null);
+  const phaseDialogRef = useRef<HTMLDialogElement>(null);
+  const { phase } = usePhaseId();
+  const { userSaved } = useUser();
+  const { isDarkMode } = useTheme();
+
+  const logoutEvent = () => {
+    Userlogout();
+    debug("USER IS AUTHENTIFICATED : " + isAuthentificated);
+    if (!isAuthentificated) navigate("/");
+  };
   useEffect(() => {
     setFilteredUsers(users);
   }, [users]);
@@ -23,34 +45,41 @@ const ResponsiveDrawer: React.FC = () => {
       {/* Page Layout */}
       <div className="drawer-content flex flex-col">
         {/* Navbar */}
-        <header className="fixed top-0 left-0 w-full z-50 bg-white shadow h-16 flex items-center px-4">
+        <header
+          className={`fixed top-0 left-0 w-full z-50 navbar 
+          ${
+            isDarkMode ? "" : "bg-primary "
+          } shadow h-16 flex items-center px-4`}
+        >
           <label
             htmlFor="my-drawer-2"
             className="btn btn-ghost btn-square drawer-button lg:hidden"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
+            <TiThMenu className="w-6 h-6 text-cyan-50" />
           </label>
-          <span
-            className="ml-4 text-xl font-bold btn"
+          <div
+            className={`btn btn-outline font-bold text-xl ${
+              isDarkMode ? "" : "text-white"
+            }`}
             onClick={() => {
-              navigate("/home");
+              navigate("/home/dashboard");
             }}
           >
             CNR-Payement
-          </span>
+          </div>
+          {/* <TimeDisplay phaseDialogRef={phaseDialogRef} /> */}
+          <div className="flex-1 justify-end flex items-center ">
+            {/* <TimeDisplay phaseDialogRef={phaseDialogRef} /> */}
+            <NotificationDropdown />
+            <DarkModeToggle />
+            <ProfileDropdown
+              profileDialogRef={profileDialogRef}
+              onLogout={logoutEvent}
+            />
+          </div>
+
+          <ProfileModal user={userSaved} profileDialogRef={profileDialogRef} />
+          <PhaseModal phase={phase || null} phaseDialogRef={phaseDialogRef} />
         </header>
 
         {/* Push content below navbar */}
@@ -66,13 +95,37 @@ const ResponsiveDrawer: React.FC = () => {
       <div className="drawer-side">
         <label
           htmlFor="my-drawer-2"
-          className="drawer-overlay lg:hidden"
+          className="drawer-overlay lg:hidden "
           aria-label="close sidebar"
         />
-        <aside className="w-96 h-full bg-gray-100 pt-16 p-4">
+        <aside
+          className={`w-80 h-full pt-16 p-4 ${
+            isDarkMode ? "" : "bg-gray-50 text-gray-800"
+          }`}
+        >
+          <div
+            className={`rounded-xl shadow-md p-5 m-2 transition-all ${
+              isDarkMode ? "bg-slate-800 text-white" : "bg-white text-gray-800"
+            }`}
+          >
+            <h2 className="text-lg font-bold mb-1">👤 {userSaved.username}</h2>
+            <p className="text-sm">
+              <span className="font-semibold">📍 Wilaya:</span>{" "}
+              {userSaved.wilaya}
+            </p>
+            <p className="text-sm">
+              <span className="font-semibold">🏢 Organisation:</span>{" "}
+              {userSaved.workAt}
+            </p>
+            <p className="text-sm">
+              <span className="font-semibold">🧩 Rôle:</span>{" "}
+              {userSaved.permission}
+            </p>
+          </div>
+          <div className="divider" />
           <ul className="menu space-y-2 text-base font-medium">
             <li>
-              <Link to="/home" className="flex items-center gap-3">
+              <Link to="/home/dashboard" className="flex items-center gap-3">
                 <MdDashboard className="text-xl" />
                 Dashboard
               </Link>
@@ -91,7 +144,7 @@ const ResponsiveDrawer: React.FC = () => {
                 </summary>
                 <ul className="pl-8 mt-2 space-y-2 max-h-64 overflow-y-auto pr-2">
                   {filteredUsers.length === 0 ? (
-                    <p className="text-lg font-semibold text-gray-400">
+                    <p className="text-lg font-semibold ">
                       Aucun utilisateur disponible
                     </p>
                   ) : (
@@ -120,17 +173,17 @@ const ResponsiveDrawer: React.FC = () => {
                 </summary>
                 <ul className="pl-8 mt-2 space-y-2">
                   <li>
-                    <Link to="/peers/frontend" className="block">
+                    <Link to="/home/ccr" className="block">
                       CCR
                     </Link>
                   </li>
                   <li>
-                    <Link to="/peers/backend" className="block">
+                    <Link to="/home/agence" className="block">
                       Agences
                     </Link>
                   </li>
                   <li>
-                    <Link to="/peers/design" className="block">
+                    <Link to="/home/post" className="block">
                       POSTS
                     </Link>
                   </li>
@@ -139,7 +192,7 @@ const ResponsiveDrawer: React.FC = () => {
             </li>
 
             <li>
-              <Link to="/profile" className="flex items-center gap-3">
+              <Link to="/home/edit-profile" className="flex items-center gap-3">
                 <FaUserEdit className="text-xl" />
                 Profile
               </Link>

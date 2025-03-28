@@ -1,10 +1,11 @@
-import { useParams } from "react-router-dom";
+/* eslint-disable react-hooks/rules-of-hooks */
+import { Outlet, useParams } from "react-router-dom";
 import { useListUsers } from "../../../../core/state/ListOfUsersContext";
-import FolderPage from "../../../folder/view/home/pages/Folder";
 import ListOfFolders from "../../../folder/view/home/components/ListOfFolders";
+import { usePhaseId } from "../../../../core/state/PhaseContext";
 
 const PeerPage = () => {
-  const { userId } = useParams();
+  const { userId, folderName, fileName } = useParams();
   const { users } = useListUsers();
 
   if (!userId) {
@@ -12,43 +13,59 @@ const PeerPage = () => {
   }
 
   const user = users.find((u) => u.id === userId);
+  const { phase } = usePhaseId();
+  const rest = Number(phase?.endAt) - new Date().getDate();
 
   if (!user) {
     return <p>Aucun utilisateur trouvé avec cet ID.</p>;
   }
 
   return (
-    <div>
-      {/* <h1 className="text-2xl font-bold mb-4">Détails de l'utilisateur</h1>
-      <p>
-        <strong>ID:</strong> {user.id}
-      </p>
-      <p>
-        <strong>Nom:</strong> {user.username}
-      </p>
-      <p>
-        <strong>Type:</strong> {user.type}
-      </p>
-      <p>
-        <strong>Structure:</strong> {user.workAt}
-      </p>
-      <p>
-        <strong>Wilaya:</strong> {user.wilaya}
-      </p> */}
-      {/* Add more user fields as needed */}
-      <ListOfFolders
-        peer={{
-          id: user.id,
-          name: user.username,
-          type: user.type,
-          wilaya: user.wilaya,
-          org: {
-            id: user.idInstituion,
-            name: user.workAt,
-          },
-        }}
-      />
-    </div>
+    <>
+      <div className="card shadow-2xl w-full">
+        <div className="card-body">
+          <div className="flex flex-col space-y-3">
+            <div className="flex flex-wrap items-center justify-between w-full px-5 md:space-y-0 space-y-1">
+              <div className="flex flex-col">
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded-full bg-green-600 animate-pulse"></div>
+                  <p className="text-xl font-bold text-gray-500">
+                    Phase : {phase?.name}
+                  </p>
+                </div>
+                <em className="text-xs text-gray-500 mt-2">
+                  {rest > 0 ? (
+                    <>
+                      Rest <b>{rest} Jours</b> pour finaliser la phase.
+                    </>
+                  ) : (
+                    "Ce dernier jour de cette phase"
+                  )}
+                </em>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {userId && !folderName && !fileName ? (
+        <ListOfFolders
+          peer={{
+            id: user.id,
+            name: user.username,
+            type: user.type,
+            wilaya: user.wilaya,
+            org: {
+              id: user.idInstituion,
+              name: user.workAt,
+            },
+          }}
+        />
+      ) : folderName && !fileName ? (
+        <Outlet />
+      ) : (
+        fileName && <Outlet />
+      )}
+    </>
   );
 };
 

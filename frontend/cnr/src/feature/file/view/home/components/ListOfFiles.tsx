@@ -90,7 +90,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
     SetTaggedUsers(taggedUsers);
 
     console.log("Navigating to file version:", fileName);
-    navigate(`/home/${folderName}/${fileName}`);
+    navigate(`/home/peer/${userId}/${folderName}/${fileName}`);
   };
 
   return (
@@ -258,5 +258,3 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
 }
 
 export default ListOfFiles;
-
-

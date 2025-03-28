@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useCallback, useState } from "react";
 import { IoNotificationsSharp } from "react-icons/io5";
-import NotificationComponent from "../../feature/notification/view/components/NotificationComponent";
 import { useNotificationContext } from "../state/NotificationContext";
 import { useTheme } from "../state/ThemeContext";
 import { NotificationUseCase } from "../../feature/notification/domain/usecase/NotificationUseCase";
@@ -8,6 +7,7 @@ import { NotificationDataSourceImpl } from "../../feature/notification/data/data
 import { NotificationRepositoryImpl } from "../../feature/notification/data/repository/NotificationRepositoryImpl";
 import { useNotificationViewModel } from "../../feature/notification/viewmodel/NotificationViewModel";
 import { useUser } from "../state/UserContext";
+import NotificationComponent from "../../feature/notification/view/components/NotificationComponent";
 
 const NotificationDropdown = () => {
   const { userSaved } = useUser();
@@ -16,10 +16,9 @@ const NotificationDropdown = () => {
   const notifications = GetNotificationsList() || [];
 
   const [canPlaySound, setCanPlaySound] = useState(false);
-  const prevNotificationCount = useRef<number>(notifications.length);
+  const prevNotificationCount = useRef(notifications.length);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Prepare Notification UseCase (only once)
   const notificationUseCase = useMemo(() => {
     return new NotificationUseCase(
       new NotificationRepositoryImpl(new NotificationDataSourceImpl())
@@ -29,103 +28,85 @@ const NotificationDropdown = () => {
   const { getNotifications, isNotificationsLoading, isNotificationError } =
     useNotificationViewModel(notificationUseCase);
 
-  // Fetch notifications initially and every 10 seconds
-  useEffect(() => {
+  // Memoized fetch function
+  const fetchNotifications = useCallback(() => {
     if (!userSaved?.permission) return;
-    const permission = userSaved.permission.toLowerCase();
-
-    getNotifications({ permission }); // Initial fetch
-
-    const interval = setInterval(() => {
-      getNotifications({ permission });
-    }, 10 * 1000);
-
-    return () => clearInterval(interval);
+    getNotifications({ permission: userSaved.permission.toLowerCase() });
   }, [getNotifications, userSaved?.permission]);
 
-  // Detect first user interaction to unlock audio (browser policy)
+  // Initial + periodic fetch
   useEffect(() => {
-    const handleFirstInteraction = () => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  // Unlock sound on first interaction
+  useEffect(() => {
+    const unlockSound = () => {
       setCanPlaySound(true);
-      if (audioRef.current) {
-        audioRef.current.load(); // preload sound
-        audioRef.current.volume = 1;
-      }
-      document.removeEventListener("click", handleFirstInteraction);
-      document.removeEventListener("touchstart", handleFirstInteraction);
+      audioRef.current?.load();
+      audioRef.current!.volume = 1;
+      document.removeEventListener("click", unlockSound);
+      document.removeEventListener("touchstart", unlockSound);
     };
-
-    document.addEventListener("click", handleFirstInteraction);
-    document.addEventListener("touchstart", handleFirstInteraction);
-
+    document.addEventListener("click", unlockSound);
+    document.addEventListener("touchstart", unlockSound);
     return () => {
-      document.removeEventListener("click", handleFirstInteraction);
-      document.removeEventListener("touchstart", handleFirstInteraction);
+      document.removeEventListener("click", unlockSound);
+      document.removeEventListener("touchstart", unlockSound);
     };
   }, []);
 
-  // Play sound if new notifications arrive
+  // Play sound when new notifications arrive
   useEffect(() => {
-    const currentCount = notifications.length;
+    const current = notifications.length;
+    const prev = prevNotificationCount.current;
 
-    if (currentCount > prevNotificationCount.current) {
-      console.log("🔔 New notification received!");
-
-      if (canPlaySound && audioRef.current) {
-        audioRef.current.currentTime = 0;
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((err) => {
-            console.warn("Audio playback failed:", err);
-          });
-        }
-      }
+    if (current > prev && canPlaySound && audioRef.current) {
+      const playPromise = audioRef.current.play();
+      playPromise?.catch((err) =>
+        console.warn("🔇 Audio playback failed:", err)
+      );
     }
 
-    prevNotificationCount.current = currentCount;
+    prevNotificationCount.current = current;
   }, [notifications, canPlaySound]);
 
   return (
     <>
-      {/* 🔊 Hidden audio element */}
       <audio
         ref={audioRef}
         src="/sounds/snap-notification.mp3"
         preload="auto"
-        loop={false}
       />
 
-      {/* 🔽 Notification Dropdown */}
       <div className="dropdown dropdown-end">
-        {/* 🔘 Notification Bell */}
         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
           <div className="indicator">
-            <IoNotificationsSharp className="h-5 w-5" />
+            <IoNotificationsSharp
+              className={`h-5 w-5 ${isDarkMode ? "" : "text-gray-200"}`}
+            />
             <span className="badge badge-sm indicator-item">
               {isNotificationsLoading ? "..." : notifications.length}
             </span>
           </div>
         </div>
 
-        {/* 📋 Dropdown Content */}
         <ul
           tabIndex={0}
-          className={`dropdown-content shadow-2xl rounded-2xl 
-            w-72 sm:w-[400px] md:w-[450px] min-h-[200px] 
-            max-h-[calc(100vh-60px)] sm:max-h-[70vh]
-            overflow-y-auto overflow-x-hidden z-50
-            ${
-              isDarkMode
-                ? "bg-slate-800/95 border border-slate-700"
-                : "bg-white/95 border border-gray-200"
-            }`}
+          className={`dropdown-content shadow-2xl rounded-2xl w-72 sm:w-[400px] md:w-[450px] min-h-[200px] max-h-[70vh] overflow-y-auto overflow-x-hidden z-50 ${
+            isDarkMode
+              ? "bg-slate-800/95 border border-slate-700"
+              : "bg-white/95 border border-gray-200"
+          }`}
           style={{
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
             height: notifications.length ? "auto" : "300px",
           }}
         >
-          {/* 🧾 Header */}
+          {/* Header */}
           <div
             className={`sticky top-0 z-10 px-4 py-3 border-b w-full ${
               isDarkMode
@@ -135,11 +116,11 @@ const NotificationDropdown = () => {
           >
             <div className="flex justify-between items-center">
               <h3
-                className={`text-base sm:text-lg font-bold flex items-center gap-2 ${
+                className={`text-lg font-bold ${
                   isDarkMode ? "text-white" : "text-gray-800"
                 }`}
               >
-                📌 Liste des Notifications
+                📌 Notifications
               </h3>
               <span
                 className={`text-sm px-3 py-1.5 rounded-full ${
@@ -152,48 +133,45 @@ const NotificationDropdown = () => {
                   ? "..."
                   : isNotificationError
                   ? "Erreur"
-                  : `${notifications.length}`}{" "}
-                notifications
+                  : `${notifications.length}`}
               </span>
             </div>
           </div>
 
-          {/* 📬 Notification List or Empty State */}
-          <div className="w-full">
-            {notifications.length ? (
-              <div className="divide-y w-full">
-                {notifications.map((notif) => (
-                  <div key={notif.id} className="w-full px-4 py-3">
-                    <NotificationComponent notification={notif} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div
-                className={`flex flex-col items-center justify-center h-[200px] w-full ${
-                  isDarkMode ? "bg-slate-800/95" : "bg-white/95"
-                }`}
-              >
-                <div className="flex flex-col items-center space-y-4 px-4">
-                  <span className="text-5xl sm:text-4xl mb-2">🔔</span>
-                  <p
-                    className={`text-xl sm:text-lg font-semibold ${
-                      isDarkMode ? "text-slate-300" : "text-gray-700"
-                    }`}
-                  >
-                    Aucune notification
-                  </p>
-                  <p
-                    className={`text-base sm:text-sm text-center ${
-                      isDarkMode ? "text-slate-400" : "text-gray-500"
-                    }`}
-                  >
-                    Vous n'avez pas de nouvelles notifications
-                  </p>
+          {/* List or Empty State */}
+          {notifications.length ? (
+            <div className="divide-y">
+              {notifications.map((notif) => (
+                <div key={notif.id} className="px-4 py-3">
+                  <NotificationComponent notification={notif} />
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div
+              className={`flex flex-col items-center justify-center h-[200px] w-full ${
+                isDarkMode ? "bg-slate-800/95" : "bg-white/95"
+              }`}
+            >
+              <div className="flex flex-col items-center space-y-3 px-4">
+                <span className="text-5xl">🔔</span>
+                <p
+                  className={`text-lg font-semibold ${
+                    isDarkMode ? "text-slate-300" : "text-gray-700"
+                  }`}
+                >
+                  Aucune notification
+                </p>
+                <p
+                  className={`text-sm text-center ${
+                    isDarkMode ? "text-slate-400" : "text-gray-500"
+                  }`}
+                >
+                  Vous n'avez pas de nouvelles notifications.
+                </p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </ul>
       </div>
     </>

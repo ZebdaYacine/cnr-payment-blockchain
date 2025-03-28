@@ -27,9 +27,7 @@ export default function ProfileModal({ user, profileDialogRef }: Props) {
               <p className="text-lg font-semibold">
                 {user.username || "Unknown User"}
               </p>
-              <p className="text-sm text-gray-500">
-                {user.email || "No email provided"}
-              </p>
+              <p className="text-sm ">{user.email || "No email provided"}</p>
             </div>
           </div>
 
