@@ -29,6 +29,8 @@ type ProfileRepository interface {
 	GetCurrentPhase(c context.Context) (*entities.Phase, error)
 	GetRandomString() (string, error)
 	VerifySigitalSignature(signature string) bool
+	SendDigitalSignature(fileId string, signature string, cert string, token string, permission string) error
+	AddPK(userId string, pk string) error
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -165,4 +167,42 @@ func (r *profileRepository) VerifySigitalSignature(signature string) bool {
 	// Validate inputs
 
 	return true
+}
+
+func (r *profileRepository) SendDigitalSignature(fileId string, signature string, cert string, token string, permission string) error {
+	// Implementation of SendDigitalSignature method
+	return nil
+}
+
+func (r *profileRepository) AddPK(userId string, pk string) error {
+	// Convert userId to ObjectID
+	id, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return fmt.Errorf("invalid user ID: %w", err)
+	}
+
+	// Create filter to find the user
+	filter := bson.D{{Key: "_id", Value: id}}
+
+	// Create update to set the public key
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "publicKey", Value: pk},
+		}},
+	}
+
+	// Get the users collection
+	collection := r.database.Collection(database.USER.String())
+
+	// Update the user document
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
 }

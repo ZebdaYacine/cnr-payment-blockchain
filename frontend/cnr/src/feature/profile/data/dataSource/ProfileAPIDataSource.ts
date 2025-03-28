@@ -33,9 +33,33 @@ export interface ProfileDataSource {
     token: string,
     permission: string
   ): Promise<ChildResponse | ErrorResponse>;
+  AddPKApi(
+    token: string,
+    permission: string,
+    Pk: string
+  ): Promise<boolean | ErrorResponse>;
 }
 
 export class ProfileDataSourceImpl implements ProfileDataSource {
+  async AddPKApi(
+    token: string,
+    permission: string,
+    pk: string
+  ): Promise<boolean | ErrorResponse> {
+    try {
+      const response = await ApiService.makeRequest<boolean>(
+        "post",
+        `/${permission}/add-pk`,
+        token,
+        { pk }
+      );
+      return response;
+    } catch (error) {
+      return {
+        message: error instanceof Error ? error.message : "Erreur inconnue",
+      };
+    }
+  }
   GetCurrentPhaseApi(
     token: string,
     permission: string

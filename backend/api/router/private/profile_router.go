@@ -74,3 +74,12 @@ func NewDownLoadFolderRouter(db database.Database, group *gin.RouterGroup) {
 	}
 	group.POST("download-folder", ic.DownloadFilesOfFolderRequest)
 }
+
+func NewAddPKRouter(db database.Database, group *gin.RouterGroup) {
+	ir := profilerepo.NewProfileRepository(db)
+	uc := profileusecase.NewProfileUsecase(ir, "")
+	ic := &controller.ProfileController{
+		ProfileUsecase: uc,
+	}
+	group.POST("add-pk", ic.AddPKRequest)
+}

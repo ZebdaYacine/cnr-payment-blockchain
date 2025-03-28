@@ -47,12 +47,18 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     return await this.datasource.GetUsersApi(token, permission);
   }
 
- 
-
   async GetCurrentPhase(
     token: string,
     permission: string
   ): Promise<PhaseResponse | ErrorResponse> {
     return await this.datasource.GetCurrentPhaseApi(token, permission);
+  }
+
+  async AddPk(
+    token: string,
+    permission: string,
+    pk: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.datasource.AddPKApi(token, permission, pk);
   }
 }

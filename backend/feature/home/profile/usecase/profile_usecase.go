@@ -19,6 +19,7 @@ type ProfileUsecase interface {
 	GetProfile(c context.Context, data *ProfileParams) *ProfileResult
 	GetFolders(c context.Context, folder *fabric.FolderMetadata) *ProfileResult
 	GetCurrentPhase(c context.Context) *ProfileResult
+	AddPK(c context.Context, userId string, pk string) *ProfileResult
 }
 
 type profileUsecase struct {
@@ -58,4 +59,12 @@ func (p *profileUsecase) GetCurrentPhase(c context.Context) *ProfileResult {
 		return &ProfileResult{Err: err}
 	}
 	return &ProfileResult{Data: phase}
+}
+
+func (p *profileUsecase) AddPK(c context.Context, userId string, pk string) *ProfileResult {
+	err := p.repo.AddPK(userId, pk)
+	if err != nil {
+		return &ProfileResult{Err: err}
+	}
+	return &ProfileResult{Data: "Public key added successfully"}
 }

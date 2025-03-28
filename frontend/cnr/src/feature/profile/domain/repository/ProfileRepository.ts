@@ -32,4 +32,10 @@ export interface ProfileRepository {
     token: string,
     permission: string
   ): Promise<PhaseResponse | ErrorResponse>;
+
+  AddPk(
+    token: string,
+    permission: string,
+    pk: string
+  ): Promise<boolean | ErrorResponse>;
 }

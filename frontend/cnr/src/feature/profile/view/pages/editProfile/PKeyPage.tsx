@@ -1,9 +1,16 @@
 import { useParams } from "react-router";
 import PKeyComponents from "../../../../../core/components/PKeyComponents";
 import AddPKeyForm from "../../../../../core/components/AddPkeyComponent";
+import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
+import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
+import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
+import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
 
 const PKeyPage = () => {
   const { action } = useParams();
+  const profileUseCase = new PofileUseCase(
+    new ProfileRepositoryImpl(new ProfileDataSourceImpl())
+  );
   return (
     <div className=" mt-7 ">
       {action === "get-keys" ? (

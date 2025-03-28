@@ -65,7 +65,7 @@ const ResponsiveDrawer: React.FC = () => {
               isDarkMode ? "" : "text-white"
             }`}
             onClick={() => {
-              navigate("/home/dashboard");
+              navigate("/home/welcome");
             }}
           >
             CNR-Payement

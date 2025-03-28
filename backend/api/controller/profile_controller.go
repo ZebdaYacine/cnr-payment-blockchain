@@ -17,6 +17,10 @@ type ProfileController struct {
 	ProfileUsecase usecase.ProfileUsecase
 }
 
+type AddPKRequest struct {
+	PK string `json:"pk" binding:"required"`
+}
+
 func (ic *ProfileController) GetProfileRequest(c *gin.Context) {
 	log.Println("************************ GET PROFILE REQUEST ************************")
 	userId := core.GetIdUser(c)
@@ -101,6 +105,31 @@ func (ic *ProfileController) GetCurrentPhaseRequest(c *gin.Context) {
 
 	c.JSON(http.StatusOK, model.SuccessResponse{
 		Message: "GET CURRENT PHASE SUCCESSFULLY",
+		Data:    result.Data,
+	})
+}
+
+func (ic *ProfileController) AddPKRequest(c *gin.Context) {
+	log.Println("************************ ADD PK REQUEST ************************")
+
+	var req AddPKRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: "Invalid request body",
+		})
+		return
+	}
+	userId := core.GetIdUser(c)
+	result := ic.ProfileUsecase.AddPK(c, userId, req.PK)
+	if err := result.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "Public key added successfully",
 		Data:    result.Data,
 	})
 }

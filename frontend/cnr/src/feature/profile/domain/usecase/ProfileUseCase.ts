@@ -55,4 +55,12 @@ export class PofileUseCase {
   ): Promise<PhaseResponse | ErrorResponse> {
     return await this.repository.GetCurrentPhase(token, permission);
   }
+
+  async AddPk(
+    token: string,
+    permission: string,
+    pk: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.repository.AddPk(token, permission, pk);
+  }
 }

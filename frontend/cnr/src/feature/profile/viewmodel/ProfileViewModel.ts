@@ -115,6 +115,36 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
+  const {
+    mutate: addPk,
+    isPending: isPKLoading,
+    isSuccess: isPKSuccess,
+    isError: isPKError,
+  } = useMutation({
+    mutationFn: async ({ pk }: { pk: string }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.AddPk(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        pk
+      );
+    },
+    onSuccess: (data) => {
+      if (typeof data === "boolean" && data === true) {
+        // Clé ajoutée avec succès
+      } else {
+        error("Erreur : Clé invalide ou rejetée par le serveur.", "colored");
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("Add PK error:", err);
+      error(
+        "Une erreur s'est produite lors de l'ajout de la clé publique. Veuillez réessayer.",
+        "colored"
+      );
+    },
+  });
+
   return {
     getProfile,
     isProfileLoading,
@@ -131,5 +161,10 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     currentPhase,
     isPhaseLoading,
     isPhaseSuccess,
+
+    addPk,
+    isPKLoading,
+    isPKSuccess,
+    isPKError,
   };
 }

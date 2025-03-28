@@ -13,6 +13,7 @@ import PeerPage from "../feature/profile/view/pages/peers/PeerPage";
 import ProfileUpdatePage from "../feature/profile/view/pages/editProfile/ProfileUpdatePage";
 import PasswordUpdatePage from "../feature/profile/view/pages/editProfile/PasswordUpdatePage";
 import PKeyPage from "../feature/profile/view/pages/editProfile/PKeyPage";
+import WelcomePage from "../feature/profile/view/pages/WelcomePage";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -35,6 +36,10 @@ function AppRouter() {
         }
       >
         {/* Sub-routes rendered inside ProfilePage */}
+        <Route
+          path="welcome"
+          element={isAuthentificated ? <WelcomePage /> : <ErrorPage />}
+        />
         <Route
           path="calender"
           element={isAuthentificated ? <SchedulerPage /> : <ErrorPage />}
