@@ -75,6 +75,8 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		Type:         result["type"].(string),
 		Wilaya:       result["wilaya"].(string),
 		Phases:       phases,
+		PublicKey:    result["publicKey"].(string),
+		CreateAt:     result["createAt"].(string),
 	}
 
 	return &user, nil
@@ -188,6 +190,7 @@ func (r *profileRepository) AddPK(userId string, pk string) error {
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "publicKey", Value: pk},
+			{Key: "createAt", Value: time.Now().String()},
 		}},
 	}
 

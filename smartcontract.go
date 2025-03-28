@@ -27,6 +27,7 @@ type FileMetadata struct {
 	Time         string   `json:"Time"`
 	Organisation string   `json:"Organisation"`
 	Path         string   `json:"Path"`
+	Phase        string   `json:"Phase"`
 	Destination  string   `json:"Destination"`
 	ReciverId    string   `json:"ReciverId"`
 	TaggedUser   []string `json:"TaggedUsers"`
@@ -39,6 +40,7 @@ type FolderMetadata struct {
 	UserID       string   `json:"UserID"`
 	Name         string   `json:"Name"`
 	Path         string   `json:"Path" `
+	Phase        string   `json:"Phase"`
 	NbrItems     int      `json:"NbrItems"`
 	Destination  string   `json:"Destination"`
 	Organisation string   `json:"Organisation"`
@@ -59,7 +61,7 @@ func isValidAction(action string) bool {
 }
 
 // CreateFileMetadata creates a new FileMetadata entry in the ledger
-func (s *SmartContract) CreateFileMetadata(ctx contractapi.TransactionContextInterface, id, hashFile, userID, FileName, Parent, Version, LastVersion, action, organisation, FolderName, Path, Destination, ReciverId, taggedUsersJSON string) error {
+func (s *SmartContract) CreateFileMetadata(ctx contractapi.TransactionContextInterface, id, hashFile, userID, FileName, Parent, Version, LastVersion, action, organisation, FolderName, Path, Destination, ReciverId, taggedUsersJSON, phase string) error {
 	if !isValidAction(action) {
 		return fmt.Errorf("invalid action: %s. Valid actions are 'upload' or 'download'", action)
 	}
@@ -87,6 +89,7 @@ func (s *SmartContract) CreateFileMetadata(ctx contractapi.TransactionContextInt
 		LastVersion:  LastVersion,
 		Folder:       FolderName,
 		Path:         Path,
+		Phase:        phase,
 		Time:         time.Now().Format(time.RFC3339),
 		Organisation: organisation,
 		Destination:  Destination,
@@ -169,7 +172,7 @@ func (s *SmartContract) ReadFileMetadata(ctx contractapi.TransactionContextInter
 }
 
 // UpdateFileMetadata updates an existing FileMetadata entry
-func (s *SmartContract) UpdateFileMetadata(ctx contractapi.TransactionContextInterface, id, hashFile, userID, action, FileName, Parent, Version, LastVersion, organisation, FolderName, Path, Destination string, ReciverId string, TaggedUserJson, description, commit string) error {
+func (s *SmartContract) UpdateFileMetadata(ctx contractapi.TransactionContextInterface, id, hashFile, userID, action, FileName, Parent, Version, LastVersion, organisation, FolderName, Path, Destination string, ReciverId string, TaggedUserJson, description, commit, phase string) error {
 	if !isValidAction(action) {
 		return fmt.Errorf("invalid action: %s. Valid actions are 'upload' or 'download'", action)
 	}
@@ -203,6 +206,7 @@ func (s *SmartContract) UpdateFileMetadata(ctx contractapi.TransactionContextInt
 		LastVersion:  LastVersion,
 		Folder:       FolderName,
 		Path:         Path,
+		Phase:        phase,
 		Time:         time.Now().Format(time.RFC3339),
 		Organisation: organisation,
 		Destination:  Destination,
@@ -265,7 +269,7 @@ func (s *SmartContract) UpdateLastVersionFile(ctx contractapi.TransactionContext
 		file.LastVersion = lastVersion
 		return s.UpdateFileMetadata(ctx, file.ID, file.HashFile, file.UserID, file.Action,
 			file.FileName, file.Parent, file.Version, file.LastVersion,
-			file.Organisation, file.Folder, file.Path, file.Destination, file.ReciverId, taggedUser, file.Description, file.Commit)
+			file.Organisation, file.Folder, file.Path, file.Destination, file.ReciverId, taggedUser, file.Description, file.Commit, file.Phase)
 	}
 
 	for _, file := range files {
@@ -474,7 +478,7 @@ func (s *SmartContract) TransferFileMetadata(ctx contractapi.TransactionContextI
 }
 
 // CreateFolderMetadata creates a new FolderMetadata entry in the ledger
-func (s *SmartContract) CreateFolderMetadata(ctx contractapi.TransactionContextInterface, id, userID, name, path, Destination, Organisation, ReciverId string, TaggedUserJson string) error {
+func (s *SmartContract) CreateFolderMetadata(ctx contractapi.TransactionContextInterface, id, userID, name, path, Destination, Organisation, ReciverId string, TaggedUserJson, phase string) error {
 	exists, err := s.FolderMetadataExists(ctx, name)
 	if err != nil {
 		return err
@@ -498,6 +502,7 @@ func (s *SmartContract) CreateFolderMetadata(ctx contractapi.TransactionContextI
 		UserID:       userID,
 		Name:         name,
 		Path:         path,
+		Phase:        phase,
 		Destination:  Destination,
 		Organisation: Organisation,
 		NbrItems:     1,

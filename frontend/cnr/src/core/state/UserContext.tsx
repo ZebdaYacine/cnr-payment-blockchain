@@ -30,6 +30,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           permission: "",
           wilaya: "",
           phases: [],
+          publicKey: "",
+          CreateAt: "",
         };
   });
 

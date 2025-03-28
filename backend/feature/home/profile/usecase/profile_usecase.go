@@ -66,5 +66,5 @@ func (p *profileUsecase) AddPK(c context.Context, userId string, pk string) *Pro
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}
-	return &ProfileResult{Data: "Public key added successfully"}
+	return &ProfileResult{Data: true}
 }

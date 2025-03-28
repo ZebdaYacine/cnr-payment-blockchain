@@ -8,6 +8,8 @@ export interface User {
   type: string;
   permission: string;
   wilaya: string;
+  publicKey: string;
+  CreateAt: string;
   phases: string[];
 }
 

@@ -24,6 +24,8 @@ type User struct {
 	Permission   string             `json:"permission" bson:"permission"`
 	Wilaya       string             `json:"wilaya" bson:"wilaya"`
 	Phases       []string           `json:"phases" bson:"phases"`
+	PublicKey    string             `json:"publicKey" bson:"publicKey"`
+	CreateAt     string             `json:"createAt" bson:"createAt"`
 }
 
 type Notification struct {

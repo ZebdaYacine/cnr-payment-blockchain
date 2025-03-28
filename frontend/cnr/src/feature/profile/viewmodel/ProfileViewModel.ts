@@ -13,7 +13,7 @@ import { GetAuthToken } from "../../../services/Http";
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const navigate = useNavigate();
-  const { error } = useNotification();
+  const { error, success } = useNotification();
   const { setUsersList } = useListUsers();
   const { SetCurrentPhase } = usePhaseId();
 
@@ -117,6 +117,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
 
   const {
     mutate: addPk,
+    data: rslt,
     isPending: isPKLoading,
     isSuccess: isPKSuccess,
     isError: isPKError,
@@ -130,18 +131,15 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       );
     },
     onSuccess: (data) => {
-      if (typeof data === "boolean" && data === true) {
-        // Clé ajoutée avec succès
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean"
+      ) {
+        success("Votre clé publique a été ajoutée avec succès.", "colored");
       } else {
-        error("Erreur : Clé invalide ou rejetée par le serveur.", "colored");
+        error("Clé invalide ou rejetée par le serveur.", "colored");
       }
-    },
-    onError: (err: unknown) => {
-      console.error("Add PK error:", err);
-      error(
-        "Une erreur s'est produite lors de l'ajout de la clé publique. Veuillez réessayer.",
-        "colored"
-      );
     },
   });
 
@@ -163,6 +161,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isPhaseSuccess,
 
     addPk,
+    rslt,
     isPKLoading,
     isPKSuccess,
     isPKError,

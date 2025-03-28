@@ -49,7 +49,7 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
   const handleDownloadFolder = (folderName: string) => {
     downloadFilesOfFolder({
       folder: folderName,
-      permission: userSaved.permission.toLowerCase(), // You might want to get this from your auth context
+      permission: userSaved.permission.toLowerCase(),
     });
   };
 
