@@ -1,3 +1,8 @@
+import { useFileMetaData } from "../core/state/FileContext";
+import { useFoldersMetaData } from "../core/state/FolderContext";
+import { useListUsers } from "../core/state/ListOfUsersContext";
+import { useTheme } from "../core/state/ThemeContext";
+
 export const GetAgentLabel = (type: string): string => {
   switch (type) {
     case "CAL":
@@ -26,4 +31,15 @@ export const HandleDateTime = (dateTime: Date): string => {
     second: "2-digit",
   });
   return formattedTime;
+};
+
+export const ResetState = () => {
+  const { setFilesList } = useFileMetaData();
+  const { setFoldersList } = useFoldersMetaData();
+  const { setUsersList } = useListUsers();
+  const { toggleLightMode } = useTheme();
+  setFilesList([]);
+  setFoldersList([]);
+  setUsersList([]);
+  toggleLightMode();
 };

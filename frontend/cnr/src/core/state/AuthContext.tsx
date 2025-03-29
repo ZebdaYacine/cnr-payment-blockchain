@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
 } from "react";
+import { ResetState } from "../../services/Utils";
 
 interface AuthContextType {
   isAuthentificated: boolean;
@@ -37,6 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const Userlogout = () => {
     setToken(null);
+    ResetState();
     localStorage.removeItem("authToken");
   };
 
