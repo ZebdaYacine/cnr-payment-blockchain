@@ -1,7 +1,11 @@
 import React from "react";
 import { useParams } from "react-router";
+import { useTheme } from "../../../../../core/state/ThemeContext";
 
 const ReglementationPage: React.FC = () => {
+  const { isDarkMode } = useTheme();
+  const { codeReglementation } = useParams();
+
   const REGLEMENTATIONS = [
     {
       code: "COM-001",
@@ -30,25 +34,36 @@ Cela garantit :
 3. Les canaux de messagerie sont à usage professionnel uniquement.`,
     },
   ];
-
-  const { codeReglementation } = useParams();
   const reglement = REGLEMENTATIONS.find((r) => r.code === codeReglementation);
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
+    <div
+      className={`flex flex-col items-center justify-center min-h-[70vh] px-4 text-center transition-colors duration-300 `}
+    >
       <div className="text-6xl mb-4">📜</div>
 
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-white mb-2">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2">
         Règlementations de Communication
       </h1>
 
-      <p className="text-gray-500 dark:text-gray-300 mb-6 max-w-xl">
+      <p
+        className={`font-bold text-lg mb-6 max-w-xl ${
+          isDarkMode ? "text-gray-300" : "text-gray-600"
+        }`}
+      >
         {reglement
           ? "Veuillez consulter la description de cette règle ci-dessous."
           : "Aucune règlementation correspondante trouvée."}
       </p>
 
       {reglement && (
-        <pre className="w-full bg-gray-100 dark:bg-slate-800 text-left text-sm rounded-xl p-4 w-full max-w-2xl overflow-x-auto text-gray-800 dark:text-gray-100 shadow-inner">
+        <pre
+          className={`w-full text-left text-sm rounded-xl p-4 max-w-2xl overflow-x-auto border shadow-sm ${
+            isDarkMode
+              ? "bg-gray-800 text-gray-200 border-gray-700"
+              : "bg-gray-100 text-gray-900"
+          }`}
+        >
           <code>{reglement.description}</code>
         </pre>
       )}

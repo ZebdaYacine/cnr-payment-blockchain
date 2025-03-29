@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MdDashboard, MdCalendarToday } from "react-icons/md";
 import { HiMiniUserGroup } from "react-icons/hi2";
 import { FaKey, FaUserEdit } from "react-icons/fa";
@@ -20,12 +20,13 @@ import { useTheme } from "../state/ThemeContext";
 import { GetAgentLabel } from "../../services/Utils";
 import { BsFillClipboard2DataFill } from "react-icons/bs";
 import { TbLockPassword, TbLogout2 } from "react-icons/tb";
+import WelcomePage from "../../feature/profile/view/pages/WelcomePage";
 const ResponsiveDrawer: React.FC = () => {
   const { users } = useListUsers();
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const { isAuthentificated, Userlogout } = useAuth();
   const { debug } = useLogger();
-
+  const location = useLocation();
   const profileDialogRef = useRef<HTMLDialogElement>(null);
   const phaseDialogRef = useRef<HTMLDialogElement>(null);
   const { phase } = usePhaseId();
@@ -90,7 +91,7 @@ const ResponsiveDrawer: React.FC = () => {
 
         {/* Page Content */}
         <main className="p-6">
-          <Outlet />
+          {location.pathname === "/home" ? <WelcomePage /> : <Outlet />}
         </main>
       </div>
 

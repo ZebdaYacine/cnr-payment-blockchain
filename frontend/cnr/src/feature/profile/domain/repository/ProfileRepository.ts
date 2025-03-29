@@ -38,4 +38,18 @@ export interface ProfileRepository {
     permission: string,
     pk: string
   ): Promise<boolean | ErrorResponse>;
+
+  UpdateFirstLastName(
+    token: string,
+    permission: string,
+    firstName: string,
+    lastName: string
+  ): Promise<boolean | ErrorResponse>;
+
+  UpdatePassword(
+    token: string,
+    permission: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<boolean | ErrorResponse>;
 }

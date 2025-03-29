@@ -26,6 +26,8 @@ type User struct {
 	Phases       []string           `json:"phases" bson:"phases"`
 	PublicKey    string             `json:"publicKey" bson:"publicKey"`
 	CreateAt     time.Time          `json:"createAt" bson:"createAt"`
+	LastName     string             `json:"last_name" bson:"last_name"`
+	FirstName    string             `json:"first_name" bson:"first_name"`
 }
 
 type Notification struct {

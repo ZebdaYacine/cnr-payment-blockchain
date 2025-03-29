@@ -21,6 +21,16 @@ type AddPKRequest struct {
 	PK string `json:"pk" binding:"required"`
 }
 
+type UpdateFirstLastNameRequest struct {
+	FirstName string `json:"firstName" binding:"required"`
+	LastName  string `json:"lastName" binding:"required"`
+}
+
+type UpdatePasswordRequest struct {
+	OldPassword string `json:"oldPassword" binding:"required"`
+	NewPassword string `json:"newPassword" binding:"required"`
+}
+
 func (ic *ProfileController) GetProfileRequest(c *gin.Context) {
 	log.Println("************************ GET PROFILE REQUEST ************************")
 	userId := core.GetIdUser(c)
@@ -130,6 +140,56 @@ func (ic *ProfileController) AddPKRequest(c *gin.Context) {
 
 	c.JSON(http.StatusOK, model.SuccessResponse{
 		Message: "Public key added successfully",
+		Data:    result.Data,
+	})
+}
+
+func (ic *ProfileController) UpdateFirstLastNameRequest(c *gin.Context) {
+	log.Println("************************ UPDATE FIRST LAST NAME REQUEST ************************")
+
+	var req UpdateFirstLastNameRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: "Invalid request body",
+		})
+		return
+	}
+	userId := core.GetIdUser(c)
+	result := ic.ProfileUsecase.UpdateFirstLastName(c, userId, req.FirstName, req.LastName)
+	if err := result.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "User name updated successfully",
+		Data:    result.Data,
+	})
+}
+
+func (ic *ProfileController) UpdatePasswordRequest(c *gin.Context) {
+	log.Println("************************ UPDATE PASSWORD REQUEST ************************")
+
+	var req UpdatePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: "Invalid request body",
+		})
+		return
+	}
+	userId := core.GetIdUser(c)
+	result := ic.ProfileUsecase.UpdatePassword(c, userId, req.OldPassword, req.NewPassword)
+	if err := result.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "Password updated successfully",
 		Data:    result.Data,
 	})
 }

@@ -63,4 +63,32 @@ export class PofileUseCase {
   ): Promise<boolean | ErrorResponse> {
     return await this.repository.AddPk(token, permission, pk);
   }
+
+  async UpdateFirstLastName(
+    token: string,
+    permission: string,
+    firstName: string,
+    lastName: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.repository.UpdateFirstLastName(
+      token,
+      permission,
+      firstName,
+      lastName
+    );
+  }
+
+  async UpdatePassword(
+    token: string,
+    permission: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.repository.UpdatePassword(
+      token,
+      permission,
+      oldPassword,
+      newPassword
+    );
+  }
 }

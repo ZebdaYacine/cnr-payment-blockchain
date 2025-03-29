@@ -61,4 +61,32 @@ export class ProfileRepositoryImpl implements ProfileRepository {
   ): Promise<boolean | ErrorResponse> {
     return await this.datasource.AddPKApi(token, permission, pk);
   }
+
+  async UpdateFirstLastName(
+    token: string,
+    permission: string,
+    firstName: string,
+    lastName: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.datasource.UpdateFirstLastNameApi(
+      token,
+      permission,
+      firstName,
+      lastName
+    );
+  }
+
+  async UpdatePassword(
+    token: string,
+    permission: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.datasource.UpdatePasswordApi(
+      token,
+      permission,
+      oldPassword,
+      newPassword
+    );
+  }
 }

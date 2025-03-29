@@ -20,6 +20,8 @@ type ProfileUsecase interface {
 	GetFolders(c context.Context, folder *fabric.FolderMetadata) *ProfileResult
 	GetCurrentPhase(c context.Context) *ProfileResult
 	AddPK(c context.Context, userId string, pk string) *ProfileResult
+	UpdateFirstLastName(c context.Context, userId string, firstName string, lastName string) *ProfileResult
+	UpdatePassword(c context.Context, userId string, oldPassword string, newPassword string) *ProfileResult
 }
 
 type profileUsecase struct {
@@ -63,6 +65,22 @@ func (p *profileUsecase) GetCurrentPhase(c context.Context) *ProfileResult {
 
 func (p *profileUsecase) AddPK(c context.Context, userId string, pk string) *ProfileResult {
 	err := p.repo.AddPK(userId, pk)
+	if err != nil {
+		return &ProfileResult{Err: err}
+	}
+	return &ProfileResult{Data: true}
+}
+
+func (p *profileUsecase) UpdateFirstLastName(c context.Context, userId string, firstName string, lastName string) *ProfileResult {
+	err := p.repo.UpdateFirstLastName(userId, firstName, lastName)
+	if err != nil {
+		return &ProfileResult{Err: err}
+	}
+	return &ProfileResult{Data: true}
+}
+
+func (p *profileUsecase) UpdatePassword(c context.Context, userId string, oldPassword string, newPassword string) *ProfileResult {
+	err := p.repo.UpdatePassword(userId, oldPassword, newPassword)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}

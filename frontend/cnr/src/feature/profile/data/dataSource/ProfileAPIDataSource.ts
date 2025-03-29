@@ -38,6 +38,18 @@ export interface ProfileDataSource {
     permission: string,
     Pk: string
   ): Promise<boolean | ErrorResponse>;
+  UpdateFirstLastNameApi(
+    token: string,
+    permission: string,
+    firstName: string,
+    lastName: string
+  ): Promise<boolean | ErrorResponse>;
+  UpdatePasswordApi(
+    token: string,
+    permission: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<boolean | ErrorResponse>;
 }
 
 export class ProfileDataSourceImpl implements ProfileDataSource {
@@ -114,5 +126,47 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
       `/${permission}/get-child-institutions?id=${id}&workAt=${name}`,
       token
     );
+  }
+
+  async UpdateFirstLastNameApi(
+    token: string,
+    permission: string,
+    first_name: string,
+    last_name: string
+  ): Promise<boolean | ErrorResponse> {
+    try {
+      const response = await ApiService.makeRequest<boolean>(
+        "post",
+        `/${permission}/update-name`,
+        token,
+        { firstName: first_name, lastName: last_name }
+      );
+      return response;
+    } catch (error) {
+      return {
+        message: error instanceof Error ? error.message : "Erreur inconnue",
+      };
+    }
+  }
+
+  async UpdatePasswordApi(
+    token: string,
+    permission: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<boolean | ErrorResponse> {
+    try {
+      const response = await ApiService.makeRequest<boolean>(
+        "post",
+        `/${permission}/update-password`,
+        token,
+        { oldPassword, newPassword }
+      );
+      return response;
+    } catch (error) {
+      return {
+        message: error instanceof Error ? error.message : "Erreur inconnue",
+      };
+    }
   }
 }

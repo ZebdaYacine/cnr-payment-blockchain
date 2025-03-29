@@ -11,6 +11,8 @@ export interface User {
   publicKey: string;
   createAt: string;
   phases: string[];
+  last_name: string;
+  first_name: string;
 }
 
 export interface Folder {

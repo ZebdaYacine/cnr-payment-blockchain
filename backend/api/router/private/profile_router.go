@@ -83,3 +83,21 @@ func NewAddPKRouter(db database.Database, group *gin.RouterGroup) {
 	}
 	group.POST("add-pk", ic.AddPKRequest)
 }
+
+func NewUpdateFirstLastNameRouter(db database.Database, group *gin.RouterGroup) {
+	ir := profilerepo.NewProfileRepository(db)
+	uc := profileusecase.NewProfileUsecase(ir, "")
+	ic := &controller.ProfileController{
+		ProfileUsecase: uc,
+	}
+	group.POST("update-name", ic.UpdateFirstLastNameRequest)
+}
+
+func NewUpdatePasswordRouter(db database.Database, group *gin.RouterGroup) {
+	ir := profilerepo.NewProfileRepository(db)
+	uc := profileusecase.NewProfileUsecase(ir, "")
+	ic := &controller.ProfileController{
+		ProfileUsecase: uc,
+	}
+	group.POST("update-password", ic.UpdatePasswordRequest)
+}

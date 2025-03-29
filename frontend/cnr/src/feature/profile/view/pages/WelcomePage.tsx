@@ -17,12 +17,12 @@ const WelcomePage: React.FC = () => {
         Bienvenue sur CNR-Payement
       </h1>
 
-      <p className="text-gray-600 dark:text-gray-300 max-w-xl mb-8 text-lg">
+      <p className="text-xl font-semibold max-w-3xl mb-8 mt-5">
         Cette plateforme vous permet d'échanger des fichiers de manière
         sécurisée entre différentes entités en toute simplicité. 🤝
       </p>
 
-      <p className="text-lg text-gray-500 dark:text-gray-300 mb-4">
+      <p className="text-lg font-semibold mb-4">
         👀 Consulter la vidéo pour savoir comment l'utiliser.
       </p>
 

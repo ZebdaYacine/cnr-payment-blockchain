@@ -134,12 +134,105 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       if (
         typeof data === "object" &&
         "data" in data &&
-        typeof data.data === "boolean"
+        typeof data.data === "boolean" &&
+        data.data === true
       ) {
+        getProfile({ permission: userSaved.permission.toLowerCase() });
         success("Votre clé publique a été ajoutée avec succès.", "colored");
       } else {
         error("Clé invalide ou rejetée par le serveur.", "colored");
       }
+    },
+  });
+
+  const {
+    mutate: updateFirstLastName,
+    isPending: isUpdatingName,
+    isSuccess: isNameUpdateSuccess,
+    isError: isNameUpdateError,
+  } = useMutation({
+    mutationFn: async ({
+      firstName,
+      lastName,
+    }: {
+      firstName: string;
+      lastName: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.UpdateFirstLastName(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        firstName,
+        lastName
+      );
+    },
+    onSuccess: (data) => {
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        getProfile({ permission: userSaved.permission.toLowerCase() });
+        success("Votre nom a été mis à jour avec succès.", "colored");
+      } else {
+        error("Erreur lors de la mise à jour du nom.", "colored");
+      }
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
+            : err.message
+          : "Une erreur inconnue s'est produite lors de la mise à jour du nom.";
+
+      error(errorMessage, "colored");
+    },
+  });
+
+  const {
+    mutate: updatePassword,
+    isPending: isUpdatingPassword,
+    isSuccess: isPasswordUpdateSuccess,
+    isError: isPasswordUpdateError,
+  } = useMutation({
+    mutationFn: async ({
+      oldPassword,
+      newPassword,
+    }: {
+      oldPassword: string;
+      newPassword: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.UpdatePassword(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        oldPassword,
+        newPassword
+      );
+    },
+    onSuccess: (data) => {
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        success("Votre mot de passe a été mis à jour avec succès.", "colored");
+      } else {
+        error("Erreur lors de la mise à jour du mot de passe.", "colored");
+      }
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
+            : err.message
+          : "Une erreur inconnue s'est produite lors de la mise à jour du mot de passe.";
+
+      error(errorMessage, "colored");
     },
   });
 
@@ -165,5 +258,15 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isPKLoading,
     isPKSuccess,
     isPKError,
+
+    updateFirstLastName,
+    isUpdatingName,
+    isNameUpdateSuccess,
+    isNameUpdateError,
+
+    updatePassword,
+    isUpdatingPassword,
+    isPasswordUpdateSuccess,
+    isPasswordUpdateError,
   };
 }

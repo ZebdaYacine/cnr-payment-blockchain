@@ -48,6 +48,8 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewDownLoadRouter(db, userRouter)
 	private.NewDownLoadFolderRouter(db, userRouter)
 	private.NewAddPKRouter(db, userRouter)
+	private.NewUpdateFirstLastNameRouter(db, userRouter)
+	private.NewUpdatePasswordRouter(db, userRouter)
 
 	// Superuser-specific routes with middleware
 	adminRouter := gin.Group("/admin")
@@ -69,5 +71,7 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewDownLoadRouter(db, adminRouter)
 	private.NewDownLoadFolderRouter(db, adminRouter)
 	private.NewAddPKRouter(db, adminRouter)
+	private.NewUpdateFirstLastNameRouter(db, adminRouter)
+	private.NewUpdatePasswordRouter(db, adminRouter)
 
 }

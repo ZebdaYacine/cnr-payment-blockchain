@@ -31,6 +31,8 @@ type ProfileRepository interface {
 	VerifySigitalSignature(signature string) bool
 	SendDigitalSignature(fileId string, signature string, cert string, token string, permission string) error
 	AddPK(userId string, pk string) error
+	UpdateFirstLastName(userId string, firstName string, lastName string) error
+	UpdatePassword(userId string, oldPassword string, newPassword string) error
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -77,6 +79,8 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		Phases:       phases,
 		PublicKey:    result["publicKey"].(string),
 		CreateAt:     result["createAt"].(primitive.DateTime).Time(),
+		LastName:     result["last_name"].(string),
+		FirstName:    result["first_name"].(string),
 	}
 
 	return &user, nil
@@ -196,6 +200,73 @@ func (r *profileRepository) AddPK(userId string, pk string) error {
 	result, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
+}
+
+func (r *profileRepository) UpdateFirstLastName(userId string, firstName string, lastName string) error {
+	id, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return fmt.Errorf("invalid user ID: %w", err)
+	}
+
+	filter := bson.D{{Key: "_id", Value: id}}
+
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "first_name", Value: firstName},
+			{Key: "last_name", Value: lastName},
+		}},
+	}
+
+	collection := r.database.Collection(database.USER.String())
+
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
+}
+
+func (r *profileRepository) UpdatePassword(userId string, oldPassword string, newPassword string) error {
+	id, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return fmt.Errorf("invalid user ID: %w", err)
+	}
+
+	filter := bson.D{{Key: "_id", Value: id}}
+
+	// First verify the old password
+	var user bson.M
+	collection := r.database.Collection(database.USER.String())
+	err = collection.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		return fmt.Errorf("user not found: %w", err)
+	}
+
+	if user["password"].(string) != oldPassword {
+		return fmt.Errorf("old pwd  not correct: %w", err)
+
+	}
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "password", Value: newPassword},
+		}},
+	}
+
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to update password: %w", err)
 	}
 
 	if result.MatchedCount == 0 {

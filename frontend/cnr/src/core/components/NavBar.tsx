@@ -47,7 +47,7 @@ function NavBarComponent({ user }: NavBarProps) {
           ) : (
             <Skeleton circle height={50} width={50} />
           )}
-          </div>
+        </div>
 
         <div className="flex-1 justify-end flex items-center gap-4">
           <TimeDisplay phaseDialogRef={phaseDialogRef} />
