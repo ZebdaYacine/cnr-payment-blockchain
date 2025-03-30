@@ -42,6 +42,8 @@ const AddPRKComponent: React.FC = () => {
         {/* Display content after file upload */}
         {fileContent && (
           <div className="flex flex-col space-y-2">
+            <div className="divider" />
+
             <div className="bg-base-200 p-4 rounded text-sm text-gray-700 whitespace-pre-wrap max-h-64 overflow-auto border">
               {fileContent}
             </div>

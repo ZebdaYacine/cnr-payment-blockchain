@@ -9,6 +9,7 @@ export interface User {
   permission: string;
   wilaya: string;
   publicKey: string;
+  privateKey: string;
   createAt: string;
   phases: string[];
   last_name: string;

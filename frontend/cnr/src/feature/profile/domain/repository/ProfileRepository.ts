@@ -52,4 +52,16 @@ export interface ProfileRepository {
     oldPassword: string,
     newPassword: string
   ): Promise<boolean | ErrorResponse>;
+
+  SendOTP(
+    token: string,
+    permission: string,
+    email: string
+  ): Promise<boolean | ErrorResponse>;
+
+  ConfirmOTP(
+    token: string,
+    permission: string,
+    otp: string
+  ): Promise<boolean | ErrorResponse>;
 }

@@ -89,4 +89,20 @@ export class ProfileRepositoryImpl implements ProfileRepository {
       newPassword
     );
   }
+
+  async SendOTP(
+    token: string,
+    permission: string,
+    email: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.datasource.SendOTPApi(token, permission, email);
+  }
+
+  async ConfirmOTP(
+    token: string,
+    permission: string,
+    otp: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.datasource.ConfirmOTPApi(token, permission, otp);
+  }
 }

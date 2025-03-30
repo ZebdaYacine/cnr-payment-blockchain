@@ -91,4 +91,20 @@ export class PofileUseCase {
       newPassword
     );
   }
+
+  async SendOTP(
+    token: string,
+    permission: string,
+    email: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.repository.SendOTP(token, permission, email);
+  }
+
+  async ConfirmOTP(
+    token: string,
+    permission: string,
+    otp: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.repository.ConfirmOTP(token, permission, otp);
+  }
 }

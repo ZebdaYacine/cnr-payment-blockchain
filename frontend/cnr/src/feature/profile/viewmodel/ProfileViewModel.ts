@@ -10,12 +10,14 @@ import { useUser } from "../../../core/state/UserContext";
 import { useListUsers } from "../../../core/state/ListOfUsersContext";
 import { usePhaseId } from "../../../core/state/PhaseContext";
 import { GetAuthToken } from "../../../services/Http";
+import { useOTP } from "../../../core/state/OTPContext";
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const navigate = useNavigate();
   const { error, success } = useNotification();
   const { setUsersList } = useListUsers();
   const { SetCurrentPhase } = usePhaseId();
+  const { setOTPSent, setOTPConfirmed } = useOTP();
 
   const { userSaved, SetUser } = useUser();
 
@@ -236,6 +238,78 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
+  const {
+    mutate: sendOTP,
+    isPending: isSendingOTP,
+    isSuccess: isOTPSentSuccess,
+    isError: isOTPSentError,
+  } = useMutation({
+    mutationFn: async ({ email }: { email: string }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.SendOTP(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        email
+      );
+    },
+    onSuccess: (data) => {
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        setOTPSent(true);
+        success("OTP envoyé avec succès.", "colored");
+      } else {
+        error("Erreur lors de l'envoi de l'OTP.", "colored");
+      }
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
+            : err.message
+          : "Une erreur inconnue s'est produite lors de l'envoi de l'OTP.";
+
+      error(errorMessage, "colored");
+    },
+  });
+
+  const {
+    mutate: ConfirmOTP,
+    isPending: isConfirmingOTP,
+    isSuccess: isOTPCofirmedSuccess,
+    isError: isOTPConfirmedError,
+  } = useMutation({
+    mutationFn: async ({ otp }: { otp: string }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.ConfirmOTP(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        otp
+      );
+    },
+    onSuccess: (data) => {
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        setOTPConfirmed(true);
+      } else {
+        setOTPConfirmed(false);
+        error("OTP INCCORECT ", "colored");
+      }
+    },
+    onError: (err) => {
+      setOTPSent(false);
+      error(err.message, "colored");
+    },
+  });
+
   return {
     getProfile,
     isProfileLoading,
@@ -268,5 +342,15 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isUpdatingPassword,
     isPasswordUpdateSuccess,
     isPasswordUpdateError,
+
+    sendOTP,
+    isSendingOTP,
+    isOTPSentSuccess,
+    isOTPSentError,
+
+    ConfirmOTP,
+    isConfirmingOTP,
+    isOTPCofirmedSuccess,
+    isOTPConfirmedError,
   };
 }

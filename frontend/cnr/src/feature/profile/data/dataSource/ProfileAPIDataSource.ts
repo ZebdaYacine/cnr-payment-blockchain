@@ -50,6 +50,16 @@ export interface ProfileDataSource {
     oldPassword: string,
     newPassword: string
   ): Promise<boolean | ErrorResponse>;
+  SendOTPApi(
+    token: string,
+    permission: string,
+    email: string
+  ): Promise<boolean | ErrorResponse>;
+  ConfirmOTPApi(
+    token: string,
+    permission: string,
+    otp: string
+  ): Promise<boolean | ErrorResponse>;
 }
 
 export class ProfileDataSourceImpl implements ProfileDataSource {
@@ -161,6 +171,46 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
         `/${permission}/update-password`,
         token,
         { oldPassword, newPassword }
+      );
+      return response;
+    } catch (error) {
+      return {
+        message: error instanceof Error ? error.message : "Erreur inconnue",
+      };
+    }
+  }
+
+  async SendOTPApi(
+    token: string,
+    permission: string,
+    email: string
+  ): Promise<boolean | ErrorResponse> {
+    try {
+      const response = await ApiService.makeRequest<boolean>(
+        "post",
+        `/set-email`,
+        token,
+        { email }
+      );
+      return response;
+    } catch (error) {
+      return {
+        message: error instanceof Error ? error.message : "Erreur inconnue",
+      };
+    }
+  }
+
+  async ConfirmOTPApi(
+    token: string,
+    permission: string,
+    otp: string
+  ): Promise<boolean | ErrorResponse> {
+    try {
+      const response = await ApiService.makeRequest<boolean>(
+        "post",
+        `/confirm-otp`,
+        token,
+        { otp }
       );
       return response;
     } catch (error) {

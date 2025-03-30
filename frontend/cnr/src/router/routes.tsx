@@ -16,9 +16,12 @@ import PKeyPage from "../feature/profile/view/pages/editProfile/PKeyPage";
 import WelcomePage from "../feature/profile/view/pages/WelcomePage";
 import OtpInput from "../core/components/OtpInput";
 import NotFound from "../core/components/NotFound";
+import { useOTP } from "../core/state/OTPContext";
+import GoBack from "./GoBack";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
+  const { isOTPSent } = useOTP();
 
   return (
     <Routes>
@@ -40,48 +43,62 @@ function AppRouter() {
       >
         {/* Sub-routes rendered inside ProfilePage */}
         <Route
+          path="error-page"
+          element={isAuthentificated ? <ErrorPage /> : <LoginPage />}
+        />
+        <Route
           path="welcome"
-          element={isAuthentificated ? <WelcomePage /> : <ErrorPage />}
+          element={isAuthentificated ? <WelcomePage /> : <LoginPage />}
         />
         <Route
           path="calender"
-          element={isAuthentificated ? <SchedulerPage /> : <ErrorPage />}
+          element={isAuthentificated ? <SchedulerPage /> : <LoginPage />}
         />
         <Route
           path="dashboard"
-          element={isAuthentificated ? <DashboardPage /> : <ErrorPage />}
+          element={isAuthentificated ? <DashboardPage /> : <LoginPage />}
         />
         <Route
           path="general-information"
-          element={isAuthentificated ? <ProfileUpdatePage /> : <ErrorPage />}
+          element={isAuthentificated ? <ProfileUpdatePage /> : <LoginPage />}
         />
         <Route
           path="update-password"
-          element={isAuthentificated ? <PasswordUpdatePage /> : <ErrorPage />}
+          element={isAuthentificated ? <PasswordUpdatePage /> : <LoginPage />}
         />
         <Route
           path="PK-manager/:action"
-          element={isAuthentificated ? <PKeyPage /> : <ErrorPage />}
+          element={isAuthentificated ? <PKeyPage /> : <LoginPage />}
         />
         <Route
-          path="PK-manager/:action/check-otp"
-          element={isAuthentificated ? <OtpInput /> : <ErrorPage />}
+          path="PK-manager/check-otp"
+          element={
+            isAuthentificated ? (
+              isOTPSent ? (
+                <OtpInput />
+              ) : (
+                <GoBack />
+              )
+            ) : (
+              <LoginPage />
+            )
+          }
         />
         <Route
           path="ccr"
-          element={isAuthentificated ? <NotYet /> : <ErrorPage />}
+          element={isAuthentificated ? <NotYet /> : <LoginPage />}
         />
         <Route
           path="agence"
-          element={isAuthentificated ? <NotYet /> : <ErrorPage />}
+          element={isAuthentificated ? <NotYet /> : <LoginPage />}
         />
         <Route
           path="post"
-          element={isAuthentificated ? <NotYet /> : <ErrorPage />}
+          element={isAuthentificated ? <NotYet /> : <LoginPage />}
         />
         <Route
           path="peer/:userId"
-          element={isAuthentificated ? <PeerPage /> : <ErrorPage />}
+          element={isAuthentificated ? <PeerPage /> : <LoginPage />}
         >
           <Route path=":folderName" element={<FilesPage />}>
             <Route
@@ -98,15 +115,9 @@ function AppRouter() {
         </Route>
         <Route
           path="reglementaion/:codeReglementation"
-          element={isAuthentificated ? <ReglementationPage /> : <ErrorPage />}
+          element={isAuthentificated ? <ReglementationPage /> : <LoginPage />}
         />
       </Route>
-
-      {/* Fallback route */}
-      <Route
-        path="/error-page"
-        element={isAuthentificated ? <ErrorPage /> : <LoginPage />}
-      />
     </Routes>
   );
 }

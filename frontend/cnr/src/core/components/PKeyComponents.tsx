@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FaKey } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
+import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
+import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileViewModel";
+import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
+import { useUser } from "../state/UserContext";
+import { useOTP } from "../state/OTPContext";
 
 interface PKeyComponentsProps {
   email: string;
@@ -16,6 +22,19 @@ const PKeyComponents: React.FC<PKeyComponentsProps> = ({
   onDelete,
 }) => {
   const navigate = useNavigate();
+  const profileUseCase = new PofileUseCase(
+    new ProfileRepositoryImpl(new ProfileDataSourceImpl())
+  );
+  const { sendOTP, isOTPSentSuccess } = useProfileViewModel(profileUseCase);
+  const { userSaved } = useUser();
+  const { setOTPSent } = useOTP();
+
+  useEffect(() => {
+    if (isOTPSentSuccess) {
+      setOTPSent(true);
+      navigate("/home/PK-manager/check-otp");
+    }
+  }, [isOTPSentSuccess, setOTPSent]);
 
   return (
     <>
@@ -24,7 +43,7 @@ const PKeyComponents: React.FC<PKeyComponentsProps> = ({
         <button
           className="btn btn-success btn-outline"
           onClick={() => {
-            navigate("/home/PK-manager/add-public-key");
+            sendOTP({ email: userSaved.email });
           }}
         >
           Add new

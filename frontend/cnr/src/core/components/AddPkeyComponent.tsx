@@ -1,21 +1,37 @@
-import React, { useState } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router";
 import { useKeys } from "../state/PublicKeyContext";
 import { useTimer } from "../state/TimerContext";
+import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
+import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
+import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
+import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileViewModel";
 
-const AjouterCleSSHForm: React.FC = () => {
+const AddPKComponent: React.FC = () => {
   const [cle, setCle] = useState("");
   const navigate = useNavigate();
   const { setPublicKey } = useKeys();
   const { resetTimer } = useTimer();
+  const profileUseCase = new PofileUseCase(
+    new ProfileRepositoryImpl(new ProfileDataSourceImpl())
+  );
+  const { addPk, isPKSuccess, isPKError, isPKLoading } =
+    useProfileViewModel(profileUseCase);
 
   const AddKey = () => {
     if (!cle.trim()) return;
     resetTimer();
-    setPublicKey(cle);
-    navigate("check-otp");
+    addPk({ pk: cle });
   };
+
+  useEffect(() => {
+    if (isPKSuccess) {
+      navigate("/home/PK-manager/add-private-key");
+      setPublicKey(cle);
+    }
+  }, [isPKSuccess]);
 
   return (
     <>
@@ -28,7 +44,7 @@ const AjouterCleSSHForm: React.FC = () => {
 
           <div className="form-control">
             <textarea
-              className="textarea textarea-bordered min-h-[140px]"
+              className="textarea textarea-bordered min-h-[140px] "
               placeholder="Entrez votre clé publique..."
               value={cle}
               onChange={(e) => setCle(e.target.value)}
@@ -46,4 +62,4 @@ const AjouterCleSSHForm: React.FC = () => {
   );
 };
 
-export default AjouterCleSSHForm;
+export default AddPKComponent;
