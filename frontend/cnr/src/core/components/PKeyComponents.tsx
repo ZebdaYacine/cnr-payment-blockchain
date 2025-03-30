@@ -24,7 +24,7 @@ const PKeyComponents: React.FC<PKeyComponentsProps> = ({
         <button
           className="btn btn-success btn-outline"
           onClick={() => {
-            navigate("/home/PK-manager/add-keys");
+            navigate("/home/PK-manager/add-public-key");
           }}
         >
           Add new

@@ -14,6 +14,8 @@ import ProfileUpdatePage from "../feature/profile/view/pages/editProfile/Profile
 import PasswordUpdatePage from "../feature/profile/view/pages/editProfile/PasswordUpdatePage";
 import PKeyPage from "../feature/profile/view/pages/editProfile/PKeyPage";
 import WelcomePage from "../feature/profile/view/pages/WelcomePage";
+import OtpInput from "../core/components/OtpInput";
+import NotFound from "../core/components/NotFound";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -27,6 +29,7 @@ function AppRouter() {
           isAuthentificated ? <Navigate to="/home" replace /> : <LoginPage />
         }
       />
+      <Route path="*" element={<NotFound />} />
 
       {/* Protected Profile Layout */}
       <Route
@@ -59,6 +62,10 @@ function AppRouter() {
         <Route
           path="PK-manager/:action"
           element={isAuthentificated ? <PKeyPage /> : <ErrorPage />}
+        />
+        <Route
+          path="PK-manager/:action/check-otp"
+          element={isAuthentificated ? <OtpInput /> : <ErrorPage />}
         />
         <Route
           path="ccr"

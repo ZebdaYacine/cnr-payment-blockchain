@@ -13,34 +13,37 @@ import { VersionMetaDataProvider } from "./core/state/versionMetaDataContext";
 import { NotificationProvider } from "./core/state/NotificationContext";
 import { PhaseProvider } from "./core/state/PhaseContext";
 import { TimerProvider } from "./core/state/TimerContext";
+import { KeysProvider } from "./core/state/PublicKeyContext";
 
 function App() {
   return (
     <BrowserRouter>
       <TimerProvider>
-        <ThemeProvider>
-          <AuthProvider>
-            <UserProvider>
-              <PhaseProvider>
-                <NotificationProvider>
-                  <VersionMetaDataProvider>
-                    <VersionProvider>
-                      <UsersListProvider>
-                        <PeerProvider>
-                          <FolderProvider>
-                            <FileProvider>
-                              <AppRouter />
-                            </FileProvider>
-                          </FolderProvider>
-                        </PeerProvider>
-                      </UsersListProvider>
-                    </VersionProvider>
-                  </VersionMetaDataProvider>
-                </NotificationProvider>
-              </PhaseProvider>
-            </UserProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <KeysProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <UserProvider>
+                <PhaseProvider>
+                  <NotificationProvider>
+                    <VersionMetaDataProvider>
+                      <VersionProvider>
+                        <UsersListProvider>
+                          <PeerProvider>
+                            <FolderProvider>
+                              <FileProvider>
+                                <AppRouter />
+                              </FileProvider>
+                            </FolderProvider>
+                          </PeerProvider>
+                        </UsersListProvider>
+                      </VersionProvider>
+                    </VersionMetaDataProvider>
+                  </NotificationProvider>
+                </PhaseProvider>
+              </UserProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </KeysProvider>
       </TimerProvider>
     </BrowserRouter>
   );

@@ -1,19 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaHourglassHalf } from "react-icons/fa";
 import { useTimer } from "../state/TimerContext";
+import { useKeys } from "../state/PublicKeyContext";
+import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
+import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
+import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
+import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileViewModel";
 
 interface OtpInputProps {
   length?: number;
-  onComplete?: (otp: string) => void;
   onResend?: () => void;
 }
 
-const OtpInput: React.FC<OtpInputProps> = ({
-  length = 6,
-  onComplete,
-  onResend,
-}) => {
-  const { timeLeft, startTimer } = useTimer();
+const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onResend }) => {
+  const { timeLeft, startTimer, hasStarted } = useTimer();
+  const { publicKey } = useKeys();
+
   const [otp, setOtp] = useState<string[]>(Array(length).fill(""));
   const [disabled, setDisabled] = useState<boolean>(false);
   const [validated, setValidated] = useState<boolean>(false);
@@ -21,12 +23,22 @@ const OtpInput: React.FC<OtpInputProps> = ({
 
   const isOtpComplete = otp.every((digit) => digit !== "");
 
+  const profileUseCase = new PofileUseCase(
+    new ProfileRepositoryImpl(new ProfileDataSourceImpl())
+  );
+  const { addPk } = useProfileViewModel(profileUseCase);
+
   useEffect(() => {
     setDisabled(timeLeft === 0);
   }, [timeLeft]);
 
+  useEffect(() => {
+    if (!hasStarted) startTimer();
+  }, []);
+
   const handleChange = (value: string, index: number) => {
     if (!/^[0-9]?$/.test(value)) return;
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -49,11 +61,13 @@ const OtpInput: React.FC<OtpInputProps> = ({
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").slice(0, length).split("");
     const newOtp = [...otp];
+
     for (let i = 0; i < pasted.length; i++) {
       if (/^[0-9]$/.test(pasted[i])) {
         newOtp[i] = pasted[i];
       }
     }
+
     setOtp(newOtp);
     inputsRef.current[Math.min(pasted.length, length - 1)]?.focus();
   };
@@ -67,14 +81,18 @@ const OtpInput: React.FC<OtpInputProps> = ({
 
   const handleValidate = () => {
     if (isOtpComplete) {
-      onComplete?.(otp.join(""));
-      setValidated(true); // Hide timer & resend
-      startTimer(); // Reset timer
+      setValidated(true);
+      addPk({ pk: publicKey });
+      startTimer();
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-4">
+      <h1 className="text-2xl font-bold">Enter OTP</h1>
+
+      <div className="text-sm text-gray-400">{publicKey}</div>
+
       <div className="flex gap-2">
         {otp.map((digit, index) => (
           <input
@@ -93,22 +111,17 @@ const OtpInput: React.FC<OtpInputProps> = ({
         ))}
       </div>
 
-      {!validated && (
-        <>
-          {timeLeft > 0 ? (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <FaHourglassHalf className="text-yellow-500 animate-pulse" />
-              <span>Resend code in {timeLeft}s</span>
-            </div>
-          ) : (
-            <button
-              className="btn btn-link text-primary"
-              onClick={handleResend}
-            >
-              Resend OTP
-            </button>
-          )}
-        </>
+      {timeLeft > 0 ? (
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <FaHourglassHalf className="text-yellow-500 animate-pulse" />
+          <span>Resend code in {timeLeft}s</span>
+        </div>
+      ) : (
+        validated && (
+          <button className="btn btn-link text-primary" onClick={handleResend}>
+            Resend OTP
+          </button>
+        )
       )}
 
       {isOtpComplete && (

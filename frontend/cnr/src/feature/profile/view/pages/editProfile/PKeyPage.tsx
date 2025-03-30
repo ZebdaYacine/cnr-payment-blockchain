@@ -3,6 +3,8 @@ import PKeyComponents from "../../../../../core/components/PKeyComponents";
 import AddPKeyForm from "../../../../../core/components/AddPkeyComponent";
 import { useUser } from "../../../../../core/state/UserContext";
 import { HandleDateTime } from "../../../../../services/Utils";
+import AddPRKComponent from "../../../../../core/components/AddPRKComponent";
+import NotFound from "../../../../../core/components/NotFound";
 
 const PKeyPage = () => {
   const { action } = useParams();
@@ -10,15 +12,19 @@ const PKeyPage = () => {
 
   return (
     <div className=" mt-7 ">
-      {action === "get-keys" ? (
+      {action === "get-public-key" ? (
         <PKeyComponents
           email={userSaved.email}
           hash={userSaved.publicKey}
           addedDate={HandleDateTime(new Date(userSaved.createAt))}
           onDelete={() => alert("You clicked delete")}
         />
-      ) : (
+      ) : action == "add-public-key" ? (
         <AddPKeyForm />
+      ) : action == "add-private-key" ? (
+        <AddPRKComponent />
+      ) : (
+        <NotFound />
       )}
     </div>
   );

@@ -4,6 +4,7 @@ interface TimerContextType {
   timeLeft: number;
   startTimer: () => void;
   resetTimer: () => void;
+  hasStarted: boolean;
 }
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
@@ -11,41 +12,45 @@ const TimerContext = createContext<TimerContextType | undefined>(undefined);
 export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [timeLeft, setTimeLeft] = useState<number>(() => {
-    const stored = localStorage.getItem("otp_timer");
-    return stored ? parseInt(stored, 10) : 60;
-  });
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("otp_timer", timeLeft.toString());
   }, [timeLeft]);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    const saved = localStorage.getItem("otp_timer");
+    if (saved) {
+      setTimeLeft(parseInt(saved));
+    }
+  }, []);
 
-    const timer = setInterval(() => {
+  const startTimer = () => {
+    if (hasStarted) return;
+
+    setHasStarted(true);
+    setTimeLeft(60);
+    const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
+          clearInterval(interval);
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft]);
-
-  const startTimer = () => {
-    setTimeLeft(60);
   };
 
   const resetTimer = () => {
-    setTimeLeft(0);
+    setHasStarted(false);
+    setTimeLeft(60);
   };
 
   return (
-    <TimerContext.Provider value={{ timeLeft, startTimer, resetTimer }}>
+    <TimerContext.Provider
+      value={{ timeLeft, startTimer, resetTimer, hasStarted }}
+    >
       {children}
     </TimerContext.Provider>
   );
@@ -53,8 +58,6 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export const useTimer = () => {
   const context = useContext(TimerContext);
-  if (!context) {
-    throw new Error("useTimer must be used within a TimerProvider");
-  }
+  if (!context) throw new Error("useTimer must be used within TimerProvider");
   return context;
 };
