@@ -41,7 +41,7 @@ const PKeyComponents: React.FC<PKeyComponentsProps> = ({
           {hash}
         </div>
         <div className="text-sm text-gray-500">
-          <span className="font-semibold"> Added on {addedDate}</span>
+          <span className="font-semibold"> Ajoutee le {addedDate}</span>
         </div>
 
         <div className="text-right ">

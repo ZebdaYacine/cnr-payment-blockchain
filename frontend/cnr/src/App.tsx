@@ -12,33 +12,36 @@ import { VersionProvider } from "./core/state/versionContext";
 import { VersionMetaDataProvider } from "./core/state/versionMetaDataContext";
 import { NotificationProvider } from "./core/state/NotificationContext";
 import { PhaseProvider } from "./core/state/PhaseContext";
+import { TimerProvider } from "./core/state/TimerContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <UserProvider>
-            <PhaseProvider>
-              <NotificationProvider>
-                <VersionMetaDataProvider>
-                  <VersionProvider>
-                    <UsersListProvider>
-                      <PeerProvider>
-                        <FolderProvider>
-                          <FileProvider>
-                            <AppRouter />
-                          </FileProvider>
-                        </FolderProvider>
-                      </PeerProvider>
-                    </UsersListProvider>
-                  </VersionProvider>
-                </VersionMetaDataProvider>
-              </NotificationProvider>
-            </PhaseProvider>
-          </UserProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <TimerProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <UserProvider>
+              <PhaseProvider>
+                <NotificationProvider>
+                  <VersionMetaDataProvider>
+                    <VersionProvider>
+                      <UsersListProvider>
+                        <PeerProvider>
+                          <FolderProvider>
+                            <FileProvider>
+                              <AppRouter />
+                            </FileProvider>
+                          </FolderProvider>
+                        </PeerProvider>
+                      </UsersListProvider>
+                    </VersionProvider>
+                  </VersionMetaDataProvider>
+                </NotificationProvider>
+              </PhaseProvider>
+            </UserProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </TimerProvider>
     </BrowserRouter>
   );
 }
