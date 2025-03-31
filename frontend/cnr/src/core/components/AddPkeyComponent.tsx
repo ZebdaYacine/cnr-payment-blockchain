@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router";
-import { useKeys } from "../state/PublicKeyContext";
+import { useKeys } from "../state/KeyContext";
 import { useTimer } from "../state/TimerContext";
 import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
 import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";

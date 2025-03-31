@@ -43,10 +43,6 @@ function AppRouter() {
       >
         {/* Sub-routes rendered inside ProfilePage */}
         <Route
-          path="error-page"
-          element={isAuthentificated ? <ErrorPage /> : <LoginPage />}
-        />
-        <Route
           path="welcome"
           element={isAuthentificated ? <WelcomePage /> : <LoginPage />}
         />
@@ -118,6 +114,10 @@ function AppRouter() {
           element={isAuthentificated ? <ReglementationPage /> : <LoginPage />}
         />
       </Route>
+      <Route
+        path="/error-page"
+        element={isAuthentificated ? <ErrorPage /> : <LoginPage />}
+      />
     </Routes>
   );
 }

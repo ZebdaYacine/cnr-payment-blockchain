@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaHourglassHalf } from "react-icons/fa";
 import { useTimer } from "../state/TimerContext";
-import { useKeys } from "../state/PublicKeyContext";
+import { useKeys } from "../state/KeyContext";
 import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
 import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
@@ -115,7 +115,7 @@ const OtpInput: React.FC<{ length?: number; onResend?: () => void }> = ({
               onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={handlePaste}
               ref={(el) => (inputsRef.current[index] = el)}
-              disabled={disabled || isConfirmingOTP}
+              disabled={disabled}
             />
           ))}
         </div>

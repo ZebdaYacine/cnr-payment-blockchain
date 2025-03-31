@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-interface PublicKeyContextType {
+interface KeyContextType {
   publicKey: string;
   setPublicKey: (key: string) => void;
   privateKey: string;
   setPrivateKey: (key: string) => void;
 }
 
-const KeysContext = createContext<PublicKeyContextType | undefined>(undefined);
+const KeysContext = createContext<KeyContextType | undefined>(undefined);
 
 export const KeysProvider: React.FC<{ children: React.ReactNode }> = ({
   children,

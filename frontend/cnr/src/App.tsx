@@ -13,7 +13,7 @@ import { VersionMetaDataProvider } from "./core/state/versionMetaDataContext";
 import { NotificationProvider } from "./core/state/NotificationContext";
 import { PhaseProvider } from "./core/state/PhaseContext";
 import { TimerProvider } from "./core/state/TimerContext";
-import { KeysProvider } from "./core/state/PublicKeyContext";
+import { KeysProvider } from "./core/state/KeyContext";
 import { OTPProvider } from "./core/state/OTPContext";
 
 function App() {

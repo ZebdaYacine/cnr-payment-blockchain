@@ -3,7 +3,7 @@ import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSourc
 import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../viewmodel/ProfileViewModel";
-import Neterr from "../../../../assets/404.png";
+import Neterr from "../../../../assets/server-off.png";
 import { useNavigate } from "react-router";
 import { useUser } from "../../../../core/state/UserContext";
 
