@@ -101,3 +101,12 @@ func NewUpdatePasswordRouter(db database.Database, group *gin.RouterGroup) {
 	}
 	group.POST("update-password", ic.UpdatePasswordRequest)
 }
+
+func NewVerifyDigitalSignatureRouter(db database.Database, group *gin.RouterGroup) {
+	ir := profilerepo.NewProfileRepository(db)
+	uc := profileusecase.NewProfileUsecase(ir, "")
+	ic := &controller.ProfileController{
+		ProfileUsecase: uc,
+	}
+	group.POST("verify-signature", ic.VerifyDigitalSignature)
+}

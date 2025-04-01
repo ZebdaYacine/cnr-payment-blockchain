@@ -50,7 +50,7 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewAddPKRouter(db, userRouter)
 	private.NewUpdateFirstLastNameRouter(db, userRouter)
 	private.NewUpdatePasswordRouter(db, userRouter)
-
+	private.NewVerifyDigitalSignatureRouter(db, userRouter)
 	// Superuser-specific routes with middleware
 	adminRouter := gin.Group("/admin")
 	adminRouter.Use(middleware.JwtAuthMiddleware(
@@ -73,5 +73,6 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewAddPKRouter(db, adminRouter)
 	private.NewUpdateFirstLastNameRouter(db, adminRouter)
 	private.NewUpdatePasswordRouter(db, adminRouter)
+	private.NewVerifyDigitalSignatureRouter(db, adminRouter)
 
 }

@@ -2,6 +2,10 @@ package repository
 
 import (
 	"context"
+	"crypto"
+	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"log"
@@ -13,6 +17,7 @@ import (
 	"time"
 
 	"encoding/base64"
+	"encoding/pem"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -28,7 +33,7 @@ type ProfileRepository interface {
 	GetFolders(c context.Context, folder *fabric.FolderMetadata) (*[]entities.Folder, error)
 	GetCurrentPhase(c context.Context) (*entities.Phase, error)
 	GetRandomString() (string, error)
-	VerifySigitalSignature(signature string) bool
+	VerifyDigitalSignature(signature string, randomValue string, publicKey string) bool
 	SendDigitalSignature(fileId string, signature string, cert string, token string, permission string) error
 	AddPK(userId string, pk string) error
 	UpdateFirstLastName(userId string, firstName string, lastName string) error
@@ -169,9 +174,46 @@ func (r *profileRepository) GetRandomString() (string, error) {
 	return base64.URLEncoding.EncodeToString(bytes), nil
 }
 
-func (r *profileRepository) VerifySigitalSignature(signature string) bool {
-	// Validate inputs
+func (r *profileRepository) VerifyDigitalSignature(signature string, randomValue string, publicKeyPem string) bool {
+	// Decode the base64 signature
+	signatureBytes, err := base64.StdEncoding.DecodeString(signature)
+	if err != nil {
+		log.Printf("❌ Error decoding signature: %v\n", err)
+		return false
+	}
 
+	// Decode the PEM-formatted public key
+	block, _ := pem.Decode([]byte(publicKeyPem))
+	if block == nil || block.Type != "PUBLIC KEY" {
+		log.Println("❌ Failed to decode PEM block containing public key")
+		return false
+	}
+
+	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		log.Printf("❌ Error parsing public key: %v\n", err)
+		return false
+	}
+
+	pubKey, ok := pubInterface.(*rsa.PublicKey)
+	if !ok {
+		log.Println("❌ Not an RSA public key")
+		return false
+	}
+
+	// Hash the random value
+	hasher := sha256.New()
+	hasher.Write([]byte(randomValue))
+	hashed := hasher.Sum(nil)
+
+	// Verify the signature
+	err = rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed, signatureBytes)
+	if err != nil {
+		log.Printf("❌ Signature verification failed: %v\n", err)
+		return false
+	}
+
+	log.Println("✅ Signature verified successfully")
 	return true
 }
 

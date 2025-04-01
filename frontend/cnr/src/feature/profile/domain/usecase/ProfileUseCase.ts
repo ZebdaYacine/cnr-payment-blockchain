@@ -107,4 +107,18 @@ export class PofileUseCase {
   ): Promise<boolean | ErrorResponse> {
     return await this.repository.ConfirmOTP(token, permission, otp);
   }
+
+  async VerifySignature(
+    token: string,
+    permission: string,
+    signature: string,
+    randomValue: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.repository.VerifySignature(
+      token,
+      permission,
+      signature,
+      randomValue
+    );
+  }
 }

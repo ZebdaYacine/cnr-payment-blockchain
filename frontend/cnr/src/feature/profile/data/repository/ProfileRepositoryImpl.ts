@@ -105,4 +105,18 @@ export class ProfileRepositoryImpl implements ProfileRepository {
   ): Promise<boolean | ErrorResponse> {
     return await this.datasource.ConfirmOTPApi(token, permission, otp);
   }
+
+  async VerifySignature(
+    token: string,
+    permission: string,
+    signature: string,
+    randomValue: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.datasource.VerifySignatureApi(
+      token,
+      permission,
+      signature,
+      randomValue
+    );
+  }
 }

@@ -1,13 +1,38 @@
-import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileViewModel";
+import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
+import { toast, ToastContainer } from "react-toastify";
+import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
+import { useState } from "react";
+import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
 import { useKeys } from "../state/KeyContext";
 
 const AddPRKComponent: React.FC = () => {
-  const [fileContent, setFileContent] = useState<string>("");
-  const [randomNumber, setRandomNumber] = useState<string>("");
-  const [signature, setSignature] = useState<string>("");
+  const [fileContent, setFileContent] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [randomNumber, setRandomNumber] = useState<string | null>(null);
+  const [signature, setSignature] = useState<string | null>(null);
+  const profileUseCase = new PofileUseCase(
+    new ProfileRepositoryImpl(new ProfileDataSourceImpl())
+  );
+  const { verifySignature, isVerifyingSignature } =
+    useProfileViewModel(profileUseCase);
 
   const { setPrivateKey } = useKeys();
+
+  const pemToArrayBuffer = (pem: string): ArrayBuffer => {
+    const b64 = pem
+      .replace(/-----BEGIN [^-]+-----/, "")
+      .replace(/-----END [^-]+-----/, "")
+      .replace(/\s/g, "");
+    const binary = atob(b64);
+    const len = binary.length;
+    const buffer = new ArrayBuffer(len);
+    const view = new Uint8Array(buffer);
+    for (let i = 0; i < len; i++) {
+      view[i] = binary.charCodeAt(i);
+    }
+    return buffer;
+  };
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -26,50 +51,73 @@ const AddPRKComponent: React.FC = () => {
   };
 
   const handleVerify = async () => {
+    if (!fileContent) {
+      toast.error("Veuillez d'abord télécharger votre clé privée.");
+      return;
+    }
+
     try {
-      const random = Math.floor(
-        1000000000 + Math.random() * 9000000000
-      ).toString();
-      setRandomNumber(random);
+      setIsVerifying(true);
 
-      const encoder = new TextEncoder();
-      const data = encoder.encode(random);
-
-      // SAFER: Clean the PEM properly
-      const pemBody = fileContent
-        .replace("-----BEGIN PRIVATE KEY-----", "")
-        .replace("-----END PRIVATE KEY-----", "")
-        .replace(/\r?\n|\r/g, "")
-        .trim();
-
-      const binaryDer = Uint8Array.from(atob(pemBody), (c) => c.charCodeAt(0));
+      const keyBuffer = pemToArrayBuffer(fileContent);
 
       const key = await window.crypto.subtle.importKey(
         "pkcs8",
-        binaryDer.buffer,
+        keyBuffer,
         {
-          name: "RSASSA-PKCS1-v1_5",
-          hash: { name: "SHA-256" },
+          name: "ECDSA",
+          namedCurve: "P-256",
         },
         false,
         ["sign"]
       );
 
+      const randomValue = Math.floor(Math.random() * 1000000).toString();
+      setRandomNumber(randomValue);
+
+      const encoder = new TextEncoder();
+      const data = encoder.encode(randomValue);
+
       const signatureBuffer = await window.crypto.subtle.sign(
-        "RSASSA-PKCS1-v1_5",
+        {
+          name: "ECDSA",
+          hash: "SHA-256",
+        },
         key,
         data
       );
 
-      const signatureArray = new Uint8Array(signatureBuffer);
-      const base64Signature = btoa(String.fromCharCode(...signatureArray));
-      setSignature(base64Signature);
+      const signatureBase64 = btoa(
+        String.fromCharCode(...new Uint8Array(signatureBuffer))
+      );
+      setSignature(signatureBase64);
+
+      await verifySignature({
+        signature: signatureBase64,
+        randomValue: randomValue,
+      });
     } catch (error) {
-      toast.error("Erreur lors de la signature !");
-      console.error("Error during signing:", error);
+      console.error("Error during verification:", error);
+      if (error instanceof Error) {
+        if (error.message.includes("Unsupported key format")) {
+          toast.error(
+            "Format de clé non supporté. Veuillez utiliser une clé PKCS8."
+          );
+        } else if (error.message.includes("Failed to sign")) {
+          toast.error(
+            "Erreur lors de la signature. Veuillez vérifier votre clé."
+          );
+        } else {
+          toast.error(error.message);
+        }
+      } else {
+        toast.error("Une erreur inconnue s'est produite.");
+      }
+    } finally {
+      setIsVerifying(false);
     }
   };
-
+  
   return (
     <>
       <ToastContainer />
@@ -97,9 +145,12 @@ const AddPRKComponent: React.FC = () => {
             </div>
             <button
               onClick={handleVerify}
-              className="btn btn-outline btn-secondary"
+              disabled={isVerifying || isVerifyingSignature}
+              className="btn btn-secondary px-4 py-2 rounded "
             >
-              Vérifier la compatibilité avec la clé publique
+              {isVerifying || isVerifyingSignature
+                ? "Vérification en cours..."
+                : "Vérifier"}
             </button>
 
             {randomNumber && (

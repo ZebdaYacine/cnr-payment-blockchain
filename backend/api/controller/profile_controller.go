@@ -31,6 +31,11 @@ type UpdatePasswordRequest struct {
 	NewPassword string `json:"newPassword" binding:"required"`
 }
 
+type VerifyDigitalSignatureRequest struct {
+	Signature   string `json:"signature" binding:"required"`
+	RandomValue string `json:"randomValue" binding:"required"`
+}
+
 func (ic *ProfileController) GetProfileRequest(c *gin.Context) {
 	log.Println("************************ GET PROFILE REQUEST ************************")
 	userId := core.GetIdUser(c)
@@ -191,5 +196,31 @@ func (ic *ProfileController) UpdatePasswordRequest(c *gin.Context) {
 	c.JSON(http.StatusOK, model.SuccessResponse{
 		Message: "Password updated successfully",
 		Data:    result.Data,
+	})
+}
+
+func (ic *ProfileController) VerifyDigitalSignature(c *gin.Context) {
+	log.Println("🔐 VerifyDigitalSignature API called")
+
+	var req VerifyDigitalSignatureRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: "Invalid request body",
+		})
+		return
+	}
+
+	userId := core.GetIdUser(c)
+
+	isValid := ic.ProfileUsecase.VerifyDigitalSignature(
+		c,
+		userId,
+		req.Signature,
+		req.RandomValue,
+	)
+
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "Signature verified",
+		Data:    isValid,
 	})
 }

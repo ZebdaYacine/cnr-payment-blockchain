@@ -64,4 +64,11 @@ export interface ProfileRepository {
     permission: string,
     otp: string
   ): Promise<boolean | ErrorResponse>;
+
+  VerifySignature(
+    token: string,
+    permission: string,
+    signature: string,
+    randomValue: string
+  ): Promise<boolean | ErrorResponse>;
 }

@@ -11,6 +11,7 @@ import { useListUsers } from "../../../core/state/ListOfUsersContext";
 import { usePhaseId } from "../../../core/state/PhaseContext";
 import { GetAuthToken } from "../../../services/Http";
 import { useOTP } from "../../../core/state/OTPContext";
+import { useKeys } from "../../../core/state/KeyContext";
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const { setOTPSent, setOTPConfirmed } = useOTP();
 
   const { userSaved, SetUser } = useUser();
+  const { setIsDigitalSignatureConfirmed, setDigitalSignature } = useKeys();
 
   const {
     mutate: getProfile,
@@ -310,6 +312,53 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
+  const {
+    mutate: verifySignature,
+    isPending: isVerifyingSignature,
+    isSuccess: isSignatureVerified,
+    isError: isSignatureVerificationError,
+  } = useMutation({
+    mutationFn: async ({
+      signature,
+      randomValue,
+    }: {
+      signature: string;
+      randomValue: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.VerifySignature(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        signature,
+        randomValue
+      );
+    },
+    onSuccess: (data, variables) => {
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        success("Signature vérifiée avec succès.", "colored");
+        setIsDigitalSignatureConfirmed(true);
+        setDigitalSignature(variables.signature);
+      } else {
+        error("Échec de la vérification de la signature.", "colored");
+      }
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
+            : err.message
+          : "Une erreur inconnue s'est produite lors de la vérification de la signature.";
+
+      error(errorMessage, "colored");
+    },
+  });
+
   return {
     getProfile,
     isProfileLoading,
@@ -352,5 +401,10 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isConfirmingOTP,
     isOTPCofirmedSuccess,
     isOTPConfirmedError,
+
+    verifySignature,
+    isVerifyingSignature,
+    isSignatureVerified,
+    isSignatureVerificationError,
   };
 }

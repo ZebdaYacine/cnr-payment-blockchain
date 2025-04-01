@@ -60,6 +60,12 @@ export interface ProfileDataSource {
     permission: string,
     otp: string
   ): Promise<boolean | ErrorResponse>;
+  VerifySignatureApi(
+    token: string,
+    permission: string,
+    signature: string,
+    randomValue: string
+  ): Promise<boolean | ErrorResponse>;
 }
 
 export class ProfileDataSourceImpl implements ProfileDataSource {
@@ -211,6 +217,27 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
         `/confirm-otp`,
         token,
         { otp }
+      );
+      return response;
+    } catch (error) {
+      return {
+        message: error instanceof Error ? error.message : "Erreur inconnue",
+      };
+    }
+  }
+
+  async VerifySignatureApi(
+    token: string,
+    permission: string,
+    signature: string,
+    randomValue: string
+  ): Promise<boolean | ErrorResponse> {
+    try {
+      const response = await ApiService.makeRequest<boolean>(
+        "post",
+        `/${permission}/verify-signature`,
+        token,
+        { signature, randomValue }
       );
       return response;
     } catch (error) {
