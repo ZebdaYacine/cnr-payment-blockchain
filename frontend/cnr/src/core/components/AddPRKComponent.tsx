@@ -45,7 +45,8 @@ const AddPRKComponent: React.FC = () => {
         toast.error("Signature invalide !");
       }
     } catch (err) {
-      toast.error("Erreur lors de la vérification.", err);
+      console.log(err);
+      toast.error("Erreur lors de la vérification");
     } finally {
       setIsVerifying(false);
     }
