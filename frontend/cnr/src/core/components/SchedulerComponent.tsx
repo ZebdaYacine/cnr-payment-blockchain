@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { format, addDays, startOfMonth, isSameDay, subDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { FaClock } from "react-icons/fa6";
@@ -6,8 +6,6 @@ import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileView
 import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
 import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
-import { usePhaseId } from "../state/PhaseContext";
-import { useUser } from "../state/UserContext";
 
 interface EventItem {
   id: number;
@@ -75,7 +73,7 @@ const rawJson = [
   },
 ];
 
-const generateEventsFromJson = (month: number, year: number) => {
+const generateEventsFromJson = (month: number, year: number): EventItem[] => {
   const events: EventItem[] = [];
   rawJson.forEach((item) => {
     for (let day = item.startAt; day <= item.endAt; day++) {
@@ -107,8 +105,8 @@ const getBadgeLabel = (day: Date) => {
 const getBadgeClass = (day: Date) => {
   if (!isCurrentMonth(day)) return "badge-neutral";
   if (isSameDay(day, new Date())) return "badge-primary";
-  if (day < new Date()) return "badge-secondary"; // Dépassée
-  return "badge-accent"; // À venir
+  if (day < new Date()) return "badge-secondary";
+  return "badge-accent";
 };
 
 const SchedulerGrid: React.FC = () => {
@@ -116,22 +114,22 @@ const SchedulerGrid: React.FC = () => {
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
   const { getCurrentPhase } = useProfileViewModel(profileUseCase);
-  const { phase } = usePhaseId();
-  const { userSaved } = useUser();
+
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const modalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     getCurrentPhase();
-  }, [getCurrentPhase]);
+  }, []);
 
-  const [currentDate] = useState<Date>(
-    () => new Date(format(new Date(), "yyyy-MM-dd"))
-  );
-
-  const [events] = useState<EventItem[]>(generateEventsFromJson(4, 2025)); // Avril 2025
+  const [currentDate] = useState<Date>(new Date());
+  const [events] = useState<EventItem[]>(generateEventsFromJson(4, 2025));
 
   const handleDayClick = (date: Date) => {
-    if (userSaved.phases.includes(phase?.id || "")) {
-      console.log("You can navigate to your profile", date);
+    const match = events.find((e) => isSameDay(e.date, date));
+    if (match && isSameDay(date, new Date())) {
+      setSelectedEvent(match);
+      modalRef.current?.showModal();
     }
   };
 
@@ -146,7 +144,6 @@ const SchedulerGrid: React.FC = () => {
       const dayEvents = events.filter((event) =>
         isSameDay(event.date, currentDaySelected)
       );
-
       const hasEvents = dayEvents.length > 0;
 
       days.push(
@@ -157,37 +154,32 @@ const SchedulerGrid: React.FC = () => {
               ? "hover:border-black transition-transform duration-300 ease-in-out transform hover:scale-105"
               : ""
           }`}
-          onClick={() =>
-            handleDayClick(new Date(format(currentDaySelected, "yyyy-MM-dd")))
-          }
+          onClick={() => handleDayClick(currentDaySelected)}
         >
           <div
             className={`card-body p-2 ${
               hasEvents
-                ? isSameDay(day, new Date())
+                ? isSameDay(currentDaySelected, new Date())
                   ? "bg-primary text-white"
                   : ""
                 : "bg-base-100 text-base-content/30"
             }`}
           >
-            <div className="font-bold">{format(currentDaySelected, "dd")}</div>
+            <div className="font-bold text-xl">
+              {format(currentDaySelected, "dd")}
+            </div>
 
             {hasEvents &&
-              (dayEvents.length > 1 ? (
-                <div className="flex flex-col space-y-2 mt-2">
-                  {dayEvents.map((event, index) => (
-                    <div
-                      key={index}
-                      className="badge badge-soft font-semibold gap-2"
-                    >
-                      {isSameDay(currentDaySelected, new Date()) && (
-                        <div className="w-4 h-4 rounded-full bg-green-600 animate-pulse" />
-                      )}
-                      {event.name}
-                    </div>
-                  ))}
+              dayEvents.map((event, index) => (
+                <div key={index} className="mt-2 space-y-3">
+                  <div className="flex items-center space-x-1">
+                    {isSameDay(currentDaySelected, new Date()) && (
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    )}
+                    <span className="font-semibold text-md">{event.name}</span>
+                  </div>
                   <div
-                    className={`badge font-semibold text-sm text-center gap-2 p-3 ${getBadgeClass(
+                    className={`badge mt-1 font-semibold text-md text-center gap-2 p-2 ${getBadgeClass(
                       currentDaySelected
                     )}`}
                   >
@@ -195,32 +187,11 @@ const SchedulerGrid: React.FC = () => {
                     {getBadgeLabel(currentDaySelected)}
                   </div>
                 </div>
-              ) : (
-                dayEvents.map((event, index) => (
-                  <div key={index} className="flex flex-col space-y-3 mt-2">
-                    <div className="flex items-center space-x-2">
-                      {isSameDay(currentDaySelected, new Date()) && (
-                        <div className="w-4 h-4 rounded-full bg-green-600 animate-pulse" />
-                      )}
-                      <p className="text-md font-bold">{event.name}</p>
-                    </div>
-                    <div className="text font-semibold text-xs">
-                      {event.description}
-                    </div>
-                    <div
-                      className={`badge font-semibold text-sm text-center gap-2 p-3 ${getBadgeClass(
-                        currentDaySelected
-                      )}`}
-                    >
-                      <FaClock />
-                      {getBadgeLabel(currentDaySelected)}
-                    </div>
-                  </div>
-                ))
               ))}
           </div>
         </div>
       );
+
       day = addDays(day, 1);
     }
 
@@ -238,7 +209,24 @@ const SchedulerGrid: React.FC = () => {
           {format(currentDate, "MMMM yyyy", { locale: fr })}
         </div>
       </div>
+
       {renderMonthView()}
+
+      <dialog id="my_modal_3" className="modal" ref={modalRef}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">{selectedEvent?.name}</h3>
+          <p className="py-2 text-sm text-gray-500">
+            {selectedEvent &&
+              format(selectedEvent.date, "PPPP", { locale: fr })}
+          </p>
+          <p className="py-2">{selectedEvent?.description}</p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn btn-sm btn-primary">Fermer</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 };
