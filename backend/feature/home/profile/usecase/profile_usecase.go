@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"log"
 	"scps-backend/fabric"
 	profileRepo "scps-backend/feature/home/profile/domain/repository"
 )
@@ -90,7 +91,6 @@ func (p *profileUsecase) UpdatePassword(c context.Context, userId string, oldPas
 }
 
 func (p *profileUsecase) VerifyDigitalSignature(c context.Context, userId string, signature string, randomValue string) *ProfileResult {
-	// Get user's public key
 	user, err := p.repo.GetProfile(c, userId)
 	if err != nil {
 		return &ProfileResult{Err: fmt.Errorf("failed to get user profile: %w", err)}
@@ -99,8 +99,8 @@ func (p *profileUsecase) VerifyDigitalSignature(c context.Context, userId string
 	if user.PublicKey == "" {
 		return &ProfileResult{Err: fmt.Errorf("user has no public key")}
 	}
+	log.Println(user.PublicKey)
 
-	// Verify the signature
 	isValid := p.repo.VerifyDigitalSignature(signature, randomValue, user.PublicKey)
 	if !isValid {
 		return &ProfileResult{Err: fmt.Errorf("invalid signature")}

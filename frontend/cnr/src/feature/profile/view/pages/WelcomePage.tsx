@@ -14,7 +14,7 @@ const WelcomePage: React.FC = () => {
       </motion.div>
 
       <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-4">
-        Bienvenue sur CNR-Payement
+        Bienvenue sur CNR-Paiement
       </h1>
 
       <p className="text-xl font-semibold max-w-3xl mb-8 mt-5">

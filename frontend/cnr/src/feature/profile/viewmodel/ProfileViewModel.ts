@@ -12,6 +12,7 @@ import { usePhaseId } from "../../../core/state/PhaseContext";
 import { GetAuthToken } from "../../../services/Http";
 import { useOTP } from "../../../core/state/OTPContext";
 import { useKeys } from "../../../core/state/KeyContext";
+import { da } from "date-fns/locale";
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const navigate = useNavigate();
@@ -334,17 +335,28 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       );
     },
     onSuccess: (data, variables) => {
+      const d = data as boolean;
+      console.log(d);
       if (
         typeof data === "object" &&
         "data" in data &&
-        typeof data.data === "boolean" &&
-        data.data === true
+        typeof data.data === "object"
       ) {
-        success("Signature vérifiée avec succès.", "colored");
-        setIsDigitalSignatureConfirmed(true);
-        setDigitalSignature(variables.signature);
+        const isVerified = data.data?.Data;
+        console.log(">>>>>>>>>>>>>>>>>>>", isVerified);
+        if (isVerified === true) {
+          setIsDigitalSignatureConfirmed(true);
+          setDigitalSignature(variables.signature);
+          success("votre signature est acceptee.", "colored");
+        } else {
+          setIsDigitalSignatureConfirmed(false);
+          setDigitalSignature(variables.signature);
+          error("votre signature n'est pas acceptee.", "colored");
+        }
       } else {
-        error("Échec de la vérification de la signature.", "colored");
+        setIsDigitalSignatureConfirmed(false);
+        setDigitalSignature(variables.signature);
+        error("votre signature n'est pas acceptee.", "colored");
       }
     },
     onError: (err) => {

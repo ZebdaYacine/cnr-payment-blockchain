@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { MdDashboard, MdCalendarToday } from "react-icons/md";
+import { MdDashboard, MdCalendarToday, MdError } from "react-icons/md";
 import { HiMiniUserGroup } from "react-icons/hi2";
-import { FaKey, FaUserEdit } from "react-icons/fa";
+import { FaCheckCircle, FaKey, FaUserEdit } from "react-icons/fa";
 import { SiAwsorganizations } from "react-icons/si";
 import { useListUsers } from "../state/ListOfUsersContext";
 import { User } from "../dtos/data";
@@ -21,6 +21,8 @@ import { GetAgentLabel } from "../../services/Utils";
 import { BsFillClipboard2DataFill } from "react-icons/bs";
 import { TbLockPassword, TbLogout2 } from "react-icons/tb";
 import WelcomePage from "../../feature/profile/view/pages/WelcomePage";
+import { useKeys } from "../state/KeyContext";
+import { GrValidate } from "react-icons/gr";
 const ResponsiveDrawer: React.FC = () => {
   const { users } = useListUsers();
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -32,6 +34,7 @@ const ResponsiveDrawer: React.FC = () => {
   const { phase } = usePhaseId();
   const { userSaved } = useUser();
   const { isDarkMode } = useTheme();
+  const { isDigitalSignatureConfirmed } = useKeys();
 
   const logoutEvent = () => {
     Userlogout();
@@ -69,7 +72,7 @@ const ResponsiveDrawer: React.FC = () => {
               navigate("/home/welcome");
             }}
           >
-            CNR-Payement
+            CNR-Paiement
           </div>
           {/* <TimeDisplay phaseDialogRef={phaseDialogRef} /> */}
           <div className="flex-1 justify-end flex items-center ">
@@ -128,6 +131,14 @@ const ResponsiveDrawer: React.FC = () => {
             <p className="text-sm">
               <span className="font-semibold">🧩 Rôle:</span>{" "}
               {userSaved.permission}
+            </p>
+            <p className="text-sm flex items-center gap-2">
+              <span className="font-semibold">🔐 Signature numérique : </span>
+              {isDigitalSignatureConfirmed ? (
+                <FaCheckCircle className="text-blue-700 font-bold text-xl" />
+              ) : (
+                <MdError className="text-xl text-red-700 animate-pulse" />
+              )}
             </p>
           </div>
           <div className="divider" />

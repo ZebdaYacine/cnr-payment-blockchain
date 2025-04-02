@@ -27,9 +27,10 @@ const PKeyComponents: React.FC<PKeyComponentsProps> = ({
   );
   const { sendOTP, isOTPSentSuccess } = useProfileViewModel(profileUseCase);
   const { userSaved } = useUser();
-  const { setOTPSent } = useOTP();
+  const { setOTPSent, setOTPConfirmed } = useOTP();
 
   useEffect(() => {
+    setOTPConfirmed(false);
     if (isOTPSentSuccess) {
       setOTPSent(true);
       navigate("/home/PK-manager/check-otp");
