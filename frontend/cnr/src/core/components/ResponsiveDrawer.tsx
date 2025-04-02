@@ -22,7 +22,6 @@ import { BsFillClipboard2DataFill } from "react-icons/bs";
 import { TbLockPassword, TbLogout2 } from "react-icons/tb";
 import WelcomePage from "../../feature/profile/view/pages/WelcomePage";
 import { useKeys } from "../state/KeyContext";
-import { GrValidate } from "react-icons/gr";
 const ResponsiveDrawer: React.FC = () => {
   const { users } = useListUsers();
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
