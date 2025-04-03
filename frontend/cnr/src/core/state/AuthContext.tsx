@@ -10,8 +10,6 @@ import { ResetState } from "../../services/Utils";
 interface AuthContextType {
   isAuthentificated: boolean;
   token: string | null;
-  messageError: string | null;
-  setMessageError: (msg: string | null) => void;
   Userlogged: (token: string) => void;
   Userlogout: () => void;
 }
@@ -22,8 +20,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("authToken")
   );
-  const [messageError, setMessageError] = useState<string | null>(null);
   const isAuthentificated = !!token;
+
+  // const clearLocalStorage = () => {
+  //   const keysToRemove = [
+  //     "token",
+  //     "user",
+  //     "otpSent",
+  //     "otpConfirmed",
+  //     "privateKey",
+  //     "digitalSignature",
+  //     "digitalSignatureConfirmed",
+  //     "currentPhase",
+  //     "files",
+  //     "notifications",
+  //     "version",
+  //     "folders",
+  //     "versionMetaData",
+  //     "listOfUsers",
+  //     "peer",
+  //     "theme",
+  //   ];
+  //   keysToRemove.forEach((key) => localStorage.removeItem(key));
+  // };
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -37,26 +56,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const Userlogged = (newToken: string) => {
     setToken(newToken);
     localStorage.setItem("authToken", newToken);
-    setMessageError(null); // clear error on success
   };
 
   const Userlogout = () => {
+    localStorage.clear();
     setToken(null);
     ResetState();
+    // clearLocalStorage();
     localStorage.removeItem("authToken");
-    setMessageError(null); // reset error on logout
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        isAuthentificated,
-        token,
-        messageError,
-        setMessageError,
-        Userlogged,
-        Userlogout,
-      }}
+      value={{ isAuthentificated, token, Userlogged, Userlogout }}
     >
       {children}
     </AuthContext.Provider>

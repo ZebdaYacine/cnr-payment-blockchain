@@ -12,7 +12,10 @@ const ReglementationPage: React.FC = () => {
       description: `
 # Règlementation COM-001
 
-⚠️ Il est strictement interdit de communiquer avec un utilisateur qui **ne participe plus à la même phase** que vous.
+⚠️ Il est strictement interdit de communiquer avec un 
+utilisateur qui **ne participe 
+plus à la même phase** que vous.
+Ou vous n'appartenez pas à l'étape actuelle.
 
 ---
 

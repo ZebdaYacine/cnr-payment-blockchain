@@ -160,7 +160,7 @@ const SchedulerGrid: React.FC = () => {
             className={`card-body p-2 ${
               hasEvents
                 ? isSameDay(currentDaySelected, new Date())
-                  ? "bg-primary text-white"
+                  ? "bg-primary text-white "
                   : ""
                 : "bg-base-100 text-base-content/30"
             }`}

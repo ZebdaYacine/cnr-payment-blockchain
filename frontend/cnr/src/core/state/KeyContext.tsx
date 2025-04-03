@@ -22,7 +22,6 @@ export const KeysProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isDigitalSignatureConfirmed, setIsDigitalSignatureConfirmedState] =
     useState<boolean>(false);
 
-  // Load keys and signature from localStorage on mount
   useEffect(() => {
     const storedPublic = localStorage.getItem("publicKey");
     const storedPrivate = localStorage.getItem("privateKey");

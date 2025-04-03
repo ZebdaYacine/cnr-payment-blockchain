@@ -15,7 +15,7 @@ const PKeyPage = () => {
       {action === "get-public-key" ? (
         <PKeyComponents
           email={userSaved.email}
-          hash={userSaved.publicKey}
+          hash={userSaved.publicKey.slice(26, 140)}
           addedDate={HandleDateTime(new Date(userSaved.createAt))}
           onDelete={() => alert("You clicked delete")}
         />

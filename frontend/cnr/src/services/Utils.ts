@@ -1,5 +1,6 @@
 import { useFileMetaData } from "../core/state/FileContext";
 import { useFoldersMetaData } from "../core/state/FolderContext";
+import { useKeys } from "../core/state/KeyContext";
 import { useListUsers } from "../core/state/ListOfUsersContext";
 import { useTheme } from "../core/state/ThemeContext";
 
@@ -38,8 +39,18 @@ export const ResetState = () => {
   const { setFoldersList } = useFoldersMetaData();
   const { setUsersList } = useListUsers();
   const { toggleLightMode } = useTheme();
+  const {
+    setDigitalSignature,
+    setIsDigitalSignatureConfirmed,
+    setPrivateKey,
+    setPublicKey,
+  } = useKeys();
   setFilesList([]);
   setFoldersList([]);
   setUsersList([]);
   toggleLightMode();
+  setDigitalSignature("");
+  setIsDigitalSignatureConfirmed(false);
+  setPrivateKey("");
+  setPublicKey("");
 };
