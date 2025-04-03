@@ -9,7 +9,10 @@ export class LoginUseCase {
     this.repository = repository;
   }
 
-  async execute(username: string, password: string): Promise<LoginResponse|ErrorResponse> {
-    return await this.repository.Login(username, password);
+  async execute(
+    email: string,
+    password: string
+  ): Promise<LoginResponse | ErrorResponse> {
+    return await this.repository.Login(email, password);
   }
 }

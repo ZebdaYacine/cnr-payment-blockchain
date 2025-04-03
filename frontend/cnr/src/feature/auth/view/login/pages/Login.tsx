@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import AvatarCnr from "../components/AvatarCnr";
 import LoginButton from "../components/LoginButton";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import UserNameInput from "../../../../../core/components/UserNameInput";
+import EmailInput from "../../../../../core/components/EmailInput";
 import PasswordInput from "../../../../../core/components/PassWordInput";
 import { AuthDataSourceImpl } from "../../../data/dataSource/AuthAPIDataSource";
 import { AuthRepositoryImpl } from "../../../data/repository/AuthRepositoryImpl";
@@ -18,32 +18,36 @@ const repository = new AuthRepositoryImpl(dataSource);
 const loginUseCase = new LoginUseCase(repository);
 
 function LoginPage() {
-  const { login, isPending, isError, isSuccess } =
+  const { login, isPending, isSuccess, isError } =
     useAuthViewModel(loginUseCase);
   const navigate = useNavigate();
-
   const { isAuthentificated } = useAuth();
 
-  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const ref = useRef<LoadingBarRef>(null);
 
   useEffect(() => {
     if (isPending) {
       ref.current?.continuousStart();
-    } else if (isSuccess && isAuthentificated) {
-      ref.current?.complete();
-      navigate("/home/welcome");
-    } else if (isError) {
+    } else {
       ref.current?.complete();
     }
-  }, [isPending, isError, isSuccess, isAuthentificated]);
+
+    if (isSuccess && isAuthentificated) {
+      navigate("/home/welcome");
+    }
+  }, [isPending, isSuccess, isError, isAuthentificated]);
 
   const loginEvent = async (event: FormEvent) => {
     event.preventDefault();
-    ref.current?.continuousStart();
-    await login({ username, password });
+    setIsSubmitted(true);
+
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    if (!password.trim()) return;
+
+    await login({ username: email, password });
   };
 
   return (
@@ -55,13 +59,18 @@ function LoginPage() {
           onSubmit={loginEvent}
         >
           <AvatarCnr />
-          <UserNameInput
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+          <EmailInput
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            validate={isSubmitted}
           />
-          <PasswordInput onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            validate={isSubmitted}
+          />
           <div className="flex justify-center">
-            <LoginButton loginEvent={loginEvent} name="Login" />
+            <LoginButton loginEvent={loginEvent} name="Se connecter" />
           </div>
         </form>
         <ToastContainer />

@@ -7,7 +7,7 @@ type Register struct {
 }
 
 type Login struct {
-	UserName string `json:"username"`
+	UserName string `json:"email"`
 	Password string `json:"password"`
 }
 

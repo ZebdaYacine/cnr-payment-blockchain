@@ -10,6 +10,8 @@ import { ResetState } from "../../services/Utils";
 interface AuthContextType {
   isAuthentificated: boolean;
   token: string | null;
+  messageError: string | null;
+  setMessageError: (msg: string | null) => void;
   Userlogged: (token: string) => void;
   Userlogout: () => void;
 }
@@ -20,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("authToken")
   );
+  const [messageError, setMessageError] = useState<string | null>(null);
   const isAuthentificated = !!token;
 
   useEffect(() => {
@@ -34,17 +37,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const Userlogged = (newToken: string) => {
     setToken(newToken);
     localStorage.setItem("authToken", newToken);
+    setMessageError(null); // clear error on success
   };
 
   const Userlogout = () => {
     setToken(null);
     ResetState();
     localStorage.removeItem("authToken");
+    setMessageError(null); // reset error on logout
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthentificated, token, Userlogged, Userlogout }}
+      value={{
+        isAuthentificated,
+        token,
+        messageError,
+        setMessageError,
+        Userlogged,
+        Userlogout,
+      }}
     >
       {children}
     </AuthContext.Provider>
