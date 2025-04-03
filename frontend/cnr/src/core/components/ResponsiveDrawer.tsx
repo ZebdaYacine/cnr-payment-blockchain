@@ -71,7 +71,7 @@ const ResponsiveDrawer: React.FC = () => {
                 navigate("/home/welcome");
               }}
             >
-              CNR-Paiement {new String(isDigitalSignatureConfirmed)}
+              CNR-Paiement
             </div>
             {/* <TimeDisplay phaseDialogRef={phaseDialogRef} /> */}
             <div className="flex-1 justify-end flex items-center ">
