@@ -15,7 +15,7 @@ import (
 func Setup(db database.Database, gin *gin.Engine) {
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"} // Change to your Flutter web app's URL
+	config.AllowOrigins = []string{"*"} 
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
 	gin.Use(cors.New(config))

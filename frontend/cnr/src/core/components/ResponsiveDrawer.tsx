@@ -182,14 +182,15 @@ const ResponsiveDrawer: React.FC = () => {
                           <li key={user.id}>
                             <button
                               onClick={() => {
-                                if (
-                                  user.phases.includes(phase?.id || "") &&
-                                  userSaved.phases.includes(phase?.id || "")
-                                ) {
-                                  navigate(`/home/peer/${user.id}`);
-                                } else {
-                                  navigate(`/home/reglementaion/COM-001`);
-                                }
+                                navigate(`/home/peer/${user.id}`);
+                                // if (
+                                //   user.phases.includes(phase?.id || "") &&
+                                //   userSaved.phases.includes(phase?.id || "")
+                                // ) {
+                                //   navigate(`/home/peer/${user.id}`);
+                                // } else {
+                                //   navigate(`/home/reglementaion/COM-001`);
+                                // }
                               }}
                               className="block text-left w-full"
                             >

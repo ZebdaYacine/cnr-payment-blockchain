@@ -57,11 +57,9 @@ func (ic *ProfileController) GetProfileRequest(c *gin.Context) {
 func (ic *ProfileController) GetFoldersRequest(c *gin.Context) {
 	log.Println("************************ GET FOLDERS REQUEST ************************")
 
-	// ✅ Extract query parameters safely
 	receiverId := c.Query("receiverId")
 	senderId := c.Query("senderId")
 
-	// ✅ Validate input (both parameters are required)
 	if receiverId == "" {
 		log.Println("🚨 Missing required parameter: receiverId")
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
@@ -77,10 +75,8 @@ func (ic *ProfileController) GetFoldersRequest(c *gin.Context) {
 
 	log.Printf("📂 Fetching folders for Organisation: %s, Destination: %s\n", folder.Organisation, folder.Destination)
 
-	// ✅ Call use case to get folders
 	resulat := ic.ProfileUsecase.GetFolders(c, folder)
 
-	// ✅ Handle errors from use case
 	if err := resulat.Err; err != nil {
 		log.Println("🚨 Error retrieving folders:", err)
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
@@ -89,18 +85,16 @@ func (ic *ProfileController) GetFoldersRequest(c *gin.Context) {
 		return
 	}
 
-	// ✅ Check if no folders were found
 	folders, ok := resulat.Data.(*[]entities.Folder)
 	if !ok || folders == nil || len(*folders) == 0 {
 		log.Println("⚠️ No folders found for the given criteria.")
 		c.JSON(http.StatusOK, model.SuccessResponse{
 			Message: "No folders found",
-			Data:    []interface{}{}, // ✅ Return empty array instead of nil
+			Data:    []interface{}{}, // 
 		})
 		return
 	}
 
-	// ✅ Success response
 	c.JSON(http.StatusOK, model.SuccessResponse{
 		Message: "GET FOLDERS SUCCESSFULLY",
 		Data:    resulat.Data,

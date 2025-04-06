@@ -16,9 +16,9 @@ const PeerPage = () => {
   const { phase } = usePhaseId();
   const rest = Number(phase?.endAt) - new Date().getDate();
 
-  if (!user) {
-    return <p>Aucun utilisateur trouvé avec cet ID.</p>;
-  }
+  // if (!user) {
+  //   return <p>Aucun utilisateur trouvé avec cet ID.</p>;
+  // }
 
   return (
     <>
@@ -50,13 +50,13 @@ const PeerPage = () => {
       {userId && !folderName && !fileName ? (
         <ListOfFolders
           peer={{
-            id: user.id,
-            name: user.username,
-            type: user.type,
-            wilaya: user.wilaya,
+            id: user?.id as string,
+            name: user?.username as string,
+            type: user?.type as string,
+            wilaya: user?.wilaya as string,
             org: {
-              id: user.idInstituion,
-              name: user.workAt,
+              id: user?.idInstituion as string,
+              name: user?.workAt as string,
             },
           }}
         />

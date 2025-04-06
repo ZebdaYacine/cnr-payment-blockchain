@@ -5,16 +5,16 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    https: {
-      key: fs.readFileSync(
-        path.resolve(__dirname, "../../backend/cert/cnr-key.pem")
-      ),
-      cert: fs.readFileSync(
-        path.resolve(__dirname, "../../backend/cert/cnr.pem")
-      ),
-    },
-    host: "localhost",
-    port: 5173,
-  },
+  // server: {
+  //   https: {
+  //     key: fs.readFileSync(
+  //       path.resolve(__dirname, "../../backend/cert/cnr-key.pem")
+  //     ),
+  //     cert: fs.readFileSync(
+  //       path.resolve(__dirname, "../../backend/cert/cnr.pem")
+  //     ),
+  //   },
+  //   host: "localhost",
+  //   port: 5173,
+  // },
 });

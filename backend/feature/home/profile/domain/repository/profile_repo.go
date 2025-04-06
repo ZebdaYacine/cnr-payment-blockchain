@@ -206,14 +206,8 @@ func (r *profileRepository) VerifyDigitalSignature(signature string, randomValue
 	hasher.Write([]byte(randomValue))
 	hashed := hasher.Sum(nil)
 
-	// Verify the signature
-	err = rsa.VerifyPSS(
-		pubKey,
-		crypto.SHA256,
-		hashed,
-		signatureBytes,
-		&rsa.PSSOptions{SaltLength: 32, Hash: crypto.SHA256},
-	)
+	// ✅ Correct: Verify using PKCS#1 v1.5 (default in node-forge)
+	err = rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed, signatureBytes)
 	if err != nil {
 		log.Printf("❌ Signature verification failed: %v\n", err)
 		return false
