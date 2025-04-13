@@ -49,7 +49,7 @@ function FilesPage() {
   return (
     <>
       {!fileName && folderName && <ListOfFiles files={getFilesList()} />}
-      {fileName && <Outlet />} {/* Show Outlet only if a file is selected */}
+      {fileName && <Outlet />} 
     </>
   );
 }

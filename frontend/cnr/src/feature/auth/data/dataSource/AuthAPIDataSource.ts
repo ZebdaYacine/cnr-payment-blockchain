@@ -19,8 +19,8 @@ export class AuthDataSourceImpl implements AuthDataSource {
       const response = await Http.post<LoginResponse>(
         "/login",
         {
-          email: email,
-          password: password,
+          email,
+          password,
         },
         {
           headers: {
@@ -31,11 +31,18 @@ export class AuthDataSourceImpl implements AuthDataSource {
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        const err = error.response?.data?.message as string;
+        if (!error.response) {
+          return {
+            message:
+              "Le serveur est inaccessible. Veuillez vérifier votre connexion Internet ou réessayer ultérieurement. ",
+          };
+        }
+
         return {
-          message: err,
+          message: error.response.data?.message,
         };
       }
+
       return {
         message: "An unexpected error occurred",
       };

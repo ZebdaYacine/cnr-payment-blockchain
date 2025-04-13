@@ -36,6 +36,8 @@ export function useAuthViewModel(loginUseCase: LoginUseCase) {
         success("Connexion réussie", "colored");
       } else if (data && "message" in data) {
         error(data.message, "colored");
+      } else {
+        error("server  deconnecter", "colored");
       }
     },
 

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const GoBack = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    navigate(-1); // Go to previous page
+    navigate(-1);
   }, [navigate]);
 
   return null;

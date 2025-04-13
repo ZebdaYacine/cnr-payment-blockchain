@@ -6,6 +6,7 @@ import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileView
 import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
 import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
+import TimeDisplay from "./navbar/TimeDisplay";
 
 interface EventItem {
   id: number;
@@ -76,34 +77,45 @@ const rawJson = [
 const generateEventsFromJson = (month: number, year: number): EventItem[] => {
   const events: EventItem[] = [];
   rawJson.forEach((item) => {
+    let eventMonth = month;
+    let eventYear = year;
+
+    // Move "Ouverture Echéance" to previous month
+    if (item.number === 1) {
+      const prevMonthDate = new Date(year, month - 1, 1);
+      prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+      eventMonth = prevMonthDate.getMonth() + 1;
+      eventYear = prevMonthDate.getFullYear();
+    }
+
     for (let day = item.startAt; day <= item.endAt; day++) {
       events.push({
         id: item.number,
         name: item.name,
         description: item.description,
-        date: new Date(year, month - 1, day),
+        date: new Date(eventYear, eventMonth - 1, day),
       });
     }
   });
   return events;
 };
 
-const isCurrentMonth = (date: Date) => {
-  const today = new Date();
-  return (
-    today.getFullYear() === date.getFullYear() &&
-    today.getMonth() === date.getMonth()
-  );
-};
+// const isCurrentMonth = (date: Date) => {
+//   const today = new Date();
+//   return (
+//     today.getFullYear() === date.getFullYear() &&
+//     today.getMonth() === date.getMonth()
+//   );
+// };
 
 const getBadgeLabel = (day: Date) => {
   if (isSameDay(day, new Date())) return "Aujourd'hui";
-  if (!isCurrentMonth(day)) return "Hors période";
+  // if (!isCurrentMonth(day)) return "Hors période";
   return day > new Date() ? "À venir" : "Dépassée";
 };
 
 const getBadgeClass = (day: Date) => {
-  if (!isCurrentMonth(day)) return "badge-neutral";
+  // if (!isCurrentMonth(day)) return "badge-neutral";
   if (isSameDay(day, new Date())) return "badge-primary";
   if (day < new Date()) return "badge-secondary";
   return "badge-accent";
@@ -123,7 +135,9 @@ const SchedulerGrid: React.FC = () => {
   }, []);
 
   const [currentDate] = useState<Date>(new Date());
-  const [events] = useState<EventItem[]>(generateEventsFromJson(4, 2025));
+  const [events] = useState<EventItem[]>(
+    generateEventsFromJson(4, 2025) // Change month and year here
+  );
 
   const handleDayClick = (date: Date) => {
     const match = events.find((e) => isSameDay(e.date, date));
@@ -206,7 +220,8 @@ const SchedulerGrid: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-center mb-6">
         <div className="text-xl font-semibold">
-          {format(currentDate, "MMMM yyyy", { locale: fr })}
+          {TimeDisplay()}
+          {/* {format(currentDate, "MMMM yyyy", { locale: fr })} */}
         </div>
       </div>
 

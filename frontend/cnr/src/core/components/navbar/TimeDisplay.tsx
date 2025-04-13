@@ -1,10 +1,10 @@
-import { RefObject, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-interface Props {
-  phaseDialogRef: RefObject<HTMLDialogElement>;
-}
+// interface Props {
+//   phaseDialogRef?: RefObject<HTMLDialogElement>;
+// }
 
-export default function TimeDisplay({ phaseDialogRef }: Props) {
+export default function TimeDisplay(/*{ phaseDialogRef? }: Props*/) {
   const [dateTime, setDateTime] = useState(new Date());
 
   useEffect(() => {
@@ -24,8 +24,8 @@ export default function TimeDisplay({ phaseDialogRef }: Props) {
 
   return (
     <p
-      className="rounded hover:rounded-btn font-bold sm:text-xl md:text-xl text-cyan-50 hover:cursor-pointer border p-2"
-      onClick={() => phaseDialogRef.current?.showModal()}
+      className="  font-bold sm:text-xl md:text-3xl "
+      // onClick={() => phaseDialogRef.current?.showModal()}
     >
       {formattedTime}
     </p>

@@ -9,6 +9,8 @@ import { FileRepositoryImpl } from "../../../../file/data/repository/FileReposit
 import { FileDataSourceImpl } from "../../../../file/data/dataSource/FileAPIDataSource";
 import { useUser } from "../../../../../core/state/UserContext";
 import { HandleDateTime } from "../../../../../services/Utils";
+import { useKeys } from "../../../../../core/state/KeyContext";
+import { useNotification } from "../../../../../services/useNotification";
 
 interface FolderTableProps {
   listOfFolders: Folder[];
@@ -33,14 +35,25 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
   const { downloadFilesOfFolder, isDownloadingFolder } =
     useFileViewModel(fileUseCase);
 
- 
   const { userSaved } = useUser();
+  const { error } = useNotification();
+  const { isDigitalSignatureConfirmed } = useKeys();
 
   const handleDownloadFolder = (folderName: string) => {
-    downloadFilesOfFolder({
-      folder: folderName,
-      permission: userSaved.permission.toLowerCase(),
-    });
+    if (isDigitalSignatureConfirmed) {
+      downloadFilesOfFolder({
+        folder: folderName,
+        permission: userSaved.permission.toLowerCase(),
+      });
+    } else {
+      alert(
+        "voter signature electronique pas encore confirmé svp uploadr votre cle privee"
+      );
+      error(
+        "voter signature electronique pas encore confirmé svp uploadr votre cle privee",
+        "colored"
+      );
+    }
   };
 
   return (

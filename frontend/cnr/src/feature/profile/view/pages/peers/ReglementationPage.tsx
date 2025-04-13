@@ -34,15 +34,32 @@ Cela garantit :
 
 1. Les emails doivent utiliser un langage professionnel.
 2. Aucune pièce jointe non chiffrée ne doit être envoyée.
-3. Les canaux de messagerie sont à usage professionnel uniquement.`,
+3. Les canaux de messagerie sont à usage professionnel uniquement.
+`,
+    },
+    {
+      code: "COM-003",
+      description: `
+# Règlementation COM-003
+
+🔐 Votre clé privée **n'est pas valide** ou **n'est pas encore enregistrée**.
+
+Vous devez :
+- Fournir une **signature électronique valide**
+- Recharger votre **clé privée** dans votre espace utilisateur
+
+---
+
+Cela garantit l'authenticité et la sécurité des actions effectuées dans le système.
+Sans cela, certaines fonctionnalités (comme le téléchargement sécurisé) vous seront inaccessibles.
+`,
     },
   ];
+
   const reglement = REGLEMENTATIONS.find((r) => r.code === codeReglementation);
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center min-h-[70vh] px-4 text-center transition-colors duration-300 `}
-    >
+    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center transition-colors duration-300">
       <div className="text-6xl mb-4">📜</div>
 
       <h1 className="text-2xl sm:text-3xl font-bold mb-2">

@@ -12,6 +12,8 @@ import { FolderRepositoryImpl } from "../../../data/repository/FolderRepositoryI
 import { useFoldersMetaData } from "../../../../../core/state/FolderContext";
 import { useFolderViewModel } from "../../../viewmodel/FolderViewModel";
 import { GetAgentLabel } from "../../../../../services/Utils";
+import { ToastContainer } from "react-toastify";
+import { useKeys } from "../../../../../core/state/KeyContext";
 
 interface ListOfFoldersProps {
   peer: Child;
@@ -31,7 +33,12 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
   const { userSaved } = useUser();
 
   const userPermission = userSaved.permission;
-
+  const { isDigitalSignatureConfirmed } = useKeys();
+  useEffect(() => {
+    if (!isDigitalSignatureConfirmed) {
+      navigate(`/home/reglementaion/COM-003`);
+    }
+  }, [isDigitalSignatureConfirmed]);
   const fetchFolders = useCallback(() => {
     console.log("Fetching folders with:", { peer, userSaved, selectedRadio });
 
@@ -163,7 +170,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
                         <SelectFilesComponent />
                       </div>
                     )}
-                    {selectedRadio === "OUT" && (
+                    {/* {selectedRadio === "OUT" && (
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-gray-700">
                           Accepter les conditions
@@ -174,7 +181,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
                           className="checkbox checkbox-primary"
                         />
                       </div>
-                    )}
+                    )} */}
                   </div>
                 )}
               </div>
@@ -205,6 +212,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
           )}
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 }

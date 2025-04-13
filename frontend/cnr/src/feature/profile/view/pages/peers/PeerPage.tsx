@@ -30,7 +30,9 @@ const PeerPage = () => {
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 rounded-full bg-green-600 animate-pulse"></div>
                   <p className="text-xl font-bold text-gray-500">
-                    Phase : {phase?.name}
+                    Phase :{" "}
+                    {phase?.name ||
+                      "Il n'y a aucun travail à faire pour ce jour."}
                   </p>
                 </div>
                 <em className="text-xs text-gray-500 mt-2">
@@ -38,8 +40,10 @@ const PeerPage = () => {
                     <>
                       Rest <b>{rest} Jours</b> pour finaliser la phase.
                     </>
-                  ) : (
+                  ) : phase ? (
                     "Ce dernier jour de cette phase"
+                  ) : (
+                    ""
                   )}
                 </em>
               </div>
