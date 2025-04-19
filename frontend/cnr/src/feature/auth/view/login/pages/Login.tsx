@@ -57,6 +57,7 @@ function LoginPage() {
         <form
           className="space-y-4 p-5 m-10 bg-slate-50 rounded shadow-md w-full max-w-screen-md"
           onSubmit={loginEvent}
+          autoComplete="on"
         >
           <AvatarCnr />
           <EmailInput

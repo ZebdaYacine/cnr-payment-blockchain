@@ -9,35 +9,46 @@ import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileView
 import { useNavigate } from "react-router";
 import { useOTP } from "../state/OTPContext";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useUser } from "../state/UserContext";
 
-const OtpInput: React.FC<{ length?: number; onResend?: () => void }> = ({
-  length = 6,
-  onResend,
-}) => {
+const OtpInput: React.FC<{ length?: number }> = ({ length = 6 }) => {
   const { timeLeft, startTimer, hasStarted } = useTimer();
   const { publicKey } = useKeys();
+  const { userSaved } = useUser();
+  const { isOTPConfirmed } = useOTP();
+  const navigate = useNavigate();
+
   const [otp, setOtp] = useState<string[]>(Array(length).fill(""));
   const [disabled, setDisabled] = useState<boolean>(false);
-  const [validated, setValidated] = useState<boolean>(false);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
-  const navigate = useNavigate();
-  const { isOTPConfirmed } = useOTP();
 
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
-  const { ConfirmOTP, isConfirmingOTP, isOTPConfirmedError } =
-    useProfileViewModel(profileUseCase);
+
+  const {
+    ConfirmOTP,
+    isConfirmingOTP,
+    isOTPConfirmedError,
+    sendOTP,
+    isOTPSentSuccess,
+  } = useProfileViewModel(profileUseCase);
 
   const isOtpComplete = otp.every((digit) => digit !== "");
 
   useEffect(() => {
-    setDisabled(timeLeft === 0);
-  }, [timeLeft]);
+    if (!hasStarted) startTimer();
+    // else resetTimer();
+  }, []);
+
+  // useEffect(() => {
+  //   resetTimer();
+  // }, []);
 
   useEffect(() => {
-    if (!hasStarted) startTimer();
-  }, []);
+    setDisabled(timeLeft === 0);
+  }, [timeLeft]);
 
   const handleChange = (value: string, index: number) => {
     if (!/^[0-9]?$/.test(value)) return;
@@ -71,24 +82,40 @@ const OtpInput: React.FC<{ length?: number; onResend?: () => void }> = ({
     inputsRef.current[Math.min(pasted.length, length - 1)]?.focus();
   };
 
+  const { setOTPSent } = useOTP();
+
+  useEffect(() => {
+    if (isOTPSentSuccess) {
+      setOTPSent(true);
+    }
+  }, [isOTPSentSuccess, setOTPSent]);
+
   const handleResend = () => {
     setOtp(Array(length).fill(""));
-    setValidated(false);
+    sendOTP({ email: userSaved.email });
+    // resetTimer();
     startTimer();
-    onResend?.();
   };
 
   const handleValidate = () => {
     if (isOtpComplete) {
-      setValidated(true);
       ConfirmOTP({ otp: otp.join("") });
-      startTimer();
     }
   };
 
+  // useEffect(() => {
+  //   if (isOTPSentSuccess) {
+  //     toast.success("Nouveau code OTP envoyé !", { autoClose: 2000 });
+  //   }
+  // }, [isOTPSentSuccess]);
+
   useEffect(() => {
     if (isOTPConfirmed) {
-      navigate("/home/PK-manager/add-public-key");
+      if (userSaved.publicKey) {
+        navigate("/home/PK-manager/add-private-key");
+      } else {
+        navigate("/home/PK-manager/add-public-key");
+      }
     } else if (isOTPConfirmedError) {
       navigate("/home/error-page");
     }
@@ -98,9 +125,9 @@ const OtpInput: React.FC<{ length?: number; onResend?: () => void }> = ({
     <>
       <ToastContainer />
       <div className="flex flex-col items-center gap-4">
-        <h1 className="text-2xl font-bold">Enter OTP</h1>
+        <h1 className="text-2xl font-bold">Entrer le code OTP</h1>
 
-        <div className="text-sm text-gray-400">{publicKey}</div>
+        <div className="text-sm text-gray-400 break-all">{publicKey}</div>
 
         <div className="flex gap-2">
           {otp.map((digit, index) => (
@@ -123,27 +150,25 @@ const OtpInput: React.FC<{ length?: number; onResend?: () => void }> = ({
         {timeLeft > 0 ? (
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <FaHourglassHalf className="text-yellow-500 animate-pulse" />
-            <span>Resend code in {timeLeft}s</span>
+            <span>Envoyer le code dans {timeLeft}s</span>
           </div>
         ) : (
-          validated && (
-            <button
-              className="btn btn-link text-primary"
-              onClick={handleResend}
-            >
-              Resend OTP
-            </button>
-          )
+          <button
+            className="btn btn-link text-primary"
+            onClick={handleResend}
+            disabled={isConfirmingOTP}
+          >
+            Renvoyer le code
+          </button>
         )}
 
-        {/* Validation Button */}
         {isOtpComplete && (
           <button
             className="btn btn-primary mt-2"
             onClick={handleValidate}
             disabled={isConfirmingOTP}
           >
-            {isConfirmingOTP ? "Vérification..." : "Validate OTP"}
+            {isConfirmingOTP ? "Vérification..." : "Valider OTP"}
           </button>
         )}
       </div>

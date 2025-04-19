@@ -17,8 +17,9 @@ function ProfilePage() {
   const { userSaved } = useUser();
 
   useEffect(() => {
-    if (userSaved.permission)
+    if (userSaved.permission) {
       getProfile({ permission: userSaved.permission.toLowerCase() });
+    }
   }, []);
 
   useEffect(() => {

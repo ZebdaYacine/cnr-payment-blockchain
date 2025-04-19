@@ -53,4 +53,5 @@ export const ResetState = () => {
   setIsDigitalSignatureConfirmed(false);
   setPrivateKey("");
   setPublicKey("");
+  setDigitalSignature("");
 };

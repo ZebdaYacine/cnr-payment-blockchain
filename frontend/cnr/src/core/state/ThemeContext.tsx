@@ -18,30 +18,33 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    if (isDarkMode) {
-      localStorage.setItem("isDarkMode", "");
-      document.documentElement.setAttribute("data-theme", "light");
-    } else {
-      localStorage.setItem("isDarkMode", "true");
-      document.documentElement.setAttribute("data-theme", "dark");
-    }
+    setIsDarkMode((prev) => {
+      const newMode = !prev;
+      localStorage.setItem("isDarkMode", newMode ? "true" : "false");
+      document.documentElement.setAttribute(
+        "data-theme",
+        newMode ? "dark" : "light"
+      );
+      return newMode;
+    });
+  };
+
+  const toggleLightMode = () => {
+    setIsDarkMode(false);
+    localStorage.setItem("isDarkMode", "false");
+    document.documentElement.setAttribute("data-theme", "light");
   };
 
   useEffect(() => {
     const storedMode = localStorage.getItem("isDarkMode");
-    if (storedMode === "") {
-      document.documentElement.setAttribute("data-theme", "light");
-    } else {
-      document.documentElement.classList.add("dark");
+    if (storedMode === "true") {
+      setIsDarkMode(true);
       document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.setAttribute("data-theme", "light");
     }
   }, []);
-
-  const toggleLightMode = () => {
-    setIsDarkMode(false);
-    document.documentElement.setAttribute("data-theme", "light");
-  };
 
   return (
     <ThemeContext.Provider

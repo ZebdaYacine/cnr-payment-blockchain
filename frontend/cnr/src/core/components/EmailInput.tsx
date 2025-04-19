@@ -30,8 +30,9 @@ function EmailInput({ value, onChange, validate = false }: EmailInputProps) {
           <input
             value={value}
             onChange={onChange}
+            name="email"
+            autoComplete="email"
             type="email"
-            // autoComplete="email"
             className="grow focus:outline-none text-sm md:text-base"
             placeholder="Adresse e-mail"
           />

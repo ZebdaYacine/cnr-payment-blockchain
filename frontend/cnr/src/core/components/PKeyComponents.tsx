@@ -7,6 +7,7 @@ import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileView
 import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
 import { useUser } from "../state/UserContext";
 import { useOTP } from "../state/OTPContext";
+import { useTimer } from "../state/TimerContext";
 
 interface PKeyComponentsProps {
   email: string;
@@ -28,11 +29,13 @@ const PKeyComponents: React.FC<PKeyComponentsProps> = ({
   const { sendOTP, isOTPSentSuccess } = useProfileViewModel(profileUseCase);
   const { userSaved } = useUser();
   const { setOTPSent, setOTPConfirmed } = useOTP();
+  const { resetTimer } = useTimer();
 
   useEffect(() => {
     setOTPConfirmed(false);
     if (isOTPSentSuccess) {
       setOTPSent(true);
+      resetTimer();
       navigate("/home/PK-manager/check-otp");
     }
   }, [isOTPSentSuccess, setOTPSent]);
@@ -40,14 +43,16 @@ const PKeyComponents: React.FC<PKeyComponentsProps> = ({
   return (
     <>
       <div className="flex flex-row justify-between items-center">
-        <p className="text font-semibold text-xl">🔐 Public Key</p>
+        <p className="text font-semibold text-xl">
+          🔐 {userSaved.publicKey ? "Cle Privee" : "Cle Publique"}
+        </p>
         <button
           className="btn btn-success btn-outline"
           onClick={() => {
             sendOTP({ email: userSaved.email });
           }}
         >
-          Add new
+          Ajouter une cle
         </button>
       </div>
       <div className="divider" />

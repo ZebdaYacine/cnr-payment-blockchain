@@ -27,8 +27,7 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const startTimer = () => {
-    if (hasStarted) return;
-
+    // if (hasStarted) return;
     setHasStarted(true);
     setTimeLeft(60);
     const interval = setInterval(() => {

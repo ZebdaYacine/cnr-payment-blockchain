@@ -176,12 +176,13 @@ func (r *profileRepository) GetRandomString() (string, error) {
 
 func (r *profileRepository) VerifyDigitalSignature(signature string, randomValue string, publicKeyPem string) bool {
 	// Decode the base64 signature
+	log.Println("SE----------------", signature)
+	log.Println("RV----------------", randomValue)
 	signatureBytes, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
 		log.Printf("❌ Error decoding signature: %v\n", err)
 		return false
 	}
-
 	// Decode the PEM-formatted public key
 	block, _ := pem.Decode([]byte(publicKeyPem))
 	if block == nil || block.Type != "PUBLIC KEY" {
