@@ -6,11 +6,13 @@ import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/Pro
 import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
 import { useKeys } from "../state/KeyContext";
 import { useSignatureVerifier } from "../../services/digitalSignutre"; // 👈 Assure-toi que le chemin est correct
+import { useNotification } from "../../services/useNotification";
 
 const AddPRKComponent: React.FC = () => {
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const { setPrivateKey } = useKeys();
+  const { error } = useNotification();
 
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
@@ -42,7 +44,12 @@ const AddPRKComponent: React.FC = () => {
       setIsVerifying(true);
       const isValid = await verify(fileContent);
       if (!isValid) {
-        toast.error("Signature invalide !");
+        error(
+          "An error occurred while fetching the current phase. Please try again.",
+          "colored"
+        );
+        // toast.error("Signature invalide !");
+        // setIsVerifying(false);
       }
     } catch (err) {
       console.log(err);
@@ -54,7 +61,6 @@ const AddPRKComponent: React.FC = () => {
 
   return (
     <>
-      <ToastContainer />
       <div className="rounded-xl shadow bg-base-100 p-6 space-y-6">
         <div className="flex justify-between items-center flex-wrap gap-4">
           <h2 className="text-2xl font-semibold">
@@ -88,6 +94,7 @@ const AddPRKComponent: React.FC = () => {
             </button>
           </div>
         )}
+        <ToastContainer />
       </div>
     </>
   );

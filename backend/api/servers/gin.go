@@ -25,7 +25,6 @@ func InitServer(db database.Database, ServerName string) {
 
 func Gin(db database.Database) {
 	server := gin.Default()
-
 	router.Setup(db, server)
 	// cert, key := pkg.Get_TLS_Paths()
 	// err := server.RunTLS(pkg.Get_URL(), cert, key)

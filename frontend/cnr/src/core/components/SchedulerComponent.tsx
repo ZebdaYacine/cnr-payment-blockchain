@@ -135,9 +135,7 @@ const SchedulerGrid: React.FC = () => {
   }, []);
 
   const [currentDate] = useState<Date>(new Date());
-  const [events] = useState<EventItem[]>(
-    generateEventsFromJson(4, 2025) // Change month and year here
-  );
+  const [events] = useState<EventItem[]>(generateEventsFromJson(4, 2025));
 
   const handleDayClick = (date: Date) => {
     const match = events.find((e) => isSameDay(e.date, date));

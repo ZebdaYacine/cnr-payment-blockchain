@@ -42,6 +42,21 @@ type BLOCK_CHAIN struct {
 	CHAIN_CODE   string
 }
 
+type SFTP struct {
+	SFTP_HOST string
+	SFTP_USER string
+	SFTP_PASS string
+}
+
+func GET_SFTP_SEETING() SFTP {
+	LoadEnv()
+	return SFTP{
+		SFTP_HOST: os.Getenv("SFTP_HOST"),
+		SFTP_USER: os.Getenv("SFTP_USER"),
+		SFTP_PASS: os.Getenv("SFTP_PASS"),
+	}
+}
+
 func GET_ROOT_SERVER_SEETING() ROOT_SERVER {
 	LoadEnv()
 	return ROOT_SERVER{

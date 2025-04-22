@@ -12,7 +12,6 @@ import { usePhaseId } from "../../../core/state/PhaseContext";
 import { GetAuthToken } from "../../../services/Http";
 import { useOTP } from "../../../core/state/OTPContext";
 import { useKeys } from "../../../core/state/KeyContext";
-import { da } from "date-fns/locale";
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const navigate = useNavigate();
