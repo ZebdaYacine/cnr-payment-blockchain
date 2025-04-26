@@ -52,7 +52,7 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 	}
 
 	output := folderPath + "/" + file.Name
-	AccessToSFTP(output, output)
+	AccessBase64ToSFTP(output, file.CodeBase64)
 
 	err = util.Base64ToFile(file.CodeBase64, output)
 	if err != nil {

@@ -1,47 +1,15 @@
 package repository
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
-	"os"
 	"scps-backend/pkg"
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 )
-
-func AccessToSFTP(localFilePath, remoteFileName string) error {
-	// Step 1: Connect to SFTP server
-	sftpClient, err := connectSFTP()
-	if err != nil {
-		return fmt.Errorf("SFTP connection error: %w", err)
-	}
-	defer sftpClient.Close()
-	fmt.Println("SFTP connection established.")
-
-	// Step 2: Open local file
-	localFile, err := os.Open(localFilePath)
-	if err != nil {
-		return fmt.Errorf("cannot open local file: %w", err)
-	}
-	defer localFile.Close()
-
-	// Step 3: Create remote file
-	remotePath := "/home/" + os.Getenv("SFTP_USER")
-	remoteFile, err := sftpClient.Create(remotePath)
-	if err != nil {
-		return fmt.Errorf("cannot create remote file: %w", err)
-	}
-	defer remoteFile.Close()
-
-	// Step 4: Copy local to remote
-	if _, err := io.Copy(remoteFile, localFile); err != nil {
-		return fmt.Errorf("cannot upload file: %w", err)
-	}
-
-	fmt.Println("✅ File uploaded successfully to", remotePath)
-	return nil
-}
 
 func connectSFTP() (*sftp.Client, error) {
 	host := pkg.GET_SFTP_SEETING().SFTP_HOST
@@ -71,4 +39,32 @@ func connectSFTP() (*sftp.Client, error) {
 	}
 
 	return client, nil
+}
+
+func AccessBase64ToSFTP(base64Content, remoteFilePath string) error {
+	sftpClient, err := connectSFTP()
+	if err != nil {
+		return fmt.Errorf("SFTP connection error: %w", err)
+	}
+	defer sftpClient.Close()
+	fmt.Println("SFTP connection established.")
+
+	decodedContent, err := base64.StdEncoding.DecodeString(base64Content)
+	if err != nil {
+		return fmt.Errorf("error decoding base64: %w", err)
+	}
+
+	remoteFile, err := sftpClient.Create(remoteFilePath)
+	if err != nil {
+		return fmt.Errorf("cannot create remote file: %w", err)
+	}
+	defer remoteFile.Close()
+
+	reader := bytes.NewReader(decodedContent)
+	if _, err := io.Copy(remoteFile, reader); err != nil {
+		return fmt.Errorf("cannot upload base64 decoded content: %w", err)
+	}
+
+	fmt.Println("✅ Base64 file uploaded successfully to", remoteFilePath)
+	return nil
 }

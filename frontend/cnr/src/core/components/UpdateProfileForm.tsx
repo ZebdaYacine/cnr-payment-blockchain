@@ -30,8 +30,8 @@ const UpdateProfileForm: React.FC = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setProfilePic(file);
       setPreview(URL.createObjectURL(file));
+      setProfilePic(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
@@ -44,17 +44,18 @@ const UpdateProfileForm: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log({ firstName, lastName, profilePic });
-    updateFirstLastName({ 
-      firstName: firstName, 
-      lastName: lastName , 
+    updateFirstLastName({
+      firstName: firstName,
+      lastName: lastName,
       avatar: base64Image || undefined,
-});
+    });
   };
 
   useEffect(() => {
     if (userSaved) {
       setFirstName(userSaved.first_name || "");
       setLastName(userSaved.last_name || "");
+      setPreview(userSaved.avatar);
     }
   }, [userSaved]);
 
