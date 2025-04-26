@@ -1,10 +1,10 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRouter from "./router/routes";
+
 import { AuthProvider } from "./core/state/AuthContext";
 import { ThemeProvider } from "./core/state/ThemeContext";
 import { UserProvider } from "./core/state/UserContext";
 import { FileProvider } from "./core/state/FileContext";
-// import { ChildProvider } from "./core/state/InstitutionContext";
 import { PeerProvider } from "./core/state/PeerContext";
 import { FolderProvider } from "./core/state/FolderContext";
 import { UsersListProvider } from "./core/state/ListOfUsersContext";
@@ -18,26 +18,28 @@ import { OTPProvider } from "./core/state/OTPContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <OTPProvider>
-        <TimerProvider>
+    <FileProvider>
+      <FolderProvider>
+        <UsersListProvider>
           <KeysProvider>
             <ThemeProvider>
               <AuthProvider>
+                {" "}
+                {/* ✅ Now safely inside all contexts it needs */}
                 <UserProvider>
                   <PhaseProvider>
                     <NotificationProvider>
                       <VersionMetaDataProvider>
                         <VersionProvider>
-                          <UsersListProvider>
-                            <PeerProvider>
-                              <FolderProvider>
-                                <FileProvider>
+                          <PeerProvider>
+                            <TimerProvider>
+                              <OTPProvider>
+                                <BrowserRouter>
                                   <AppRouter />
-                                </FileProvider>
-                              </FolderProvider>
-                            </PeerProvider>
-                          </UsersListProvider>
+                                </BrowserRouter>
+                              </OTPProvider>
+                            </TimerProvider>
+                          </PeerProvider>
                         </VersionProvider>
                       </VersionMetaDataProvider>
                     </NotificationProvider>
@@ -46,9 +48,9 @@ function App() {
               </AuthProvider>
             </ThemeProvider>
           </KeysProvider>
-        </TimerProvider>
-      </OTPProvider>
-    </BrowserRouter>
+        </UsersListProvider>
+      </FolderProvider>
+    </FileProvider>
   );
 }
 

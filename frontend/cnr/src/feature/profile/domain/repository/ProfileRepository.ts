@@ -43,7 +43,8 @@ export interface ProfileRepository {
     token: string,
     permission: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    avatar: string | undefined
   ): Promise<boolean | ErrorResponse>;
 
   UpdatePassword(

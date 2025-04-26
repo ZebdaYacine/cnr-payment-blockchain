@@ -12,24 +12,45 @@ const UpdateProfileForm: React.FC = () => {
   const [lastName, setLastName] = useState("");
   const [profilePic, setProfilePic] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [base64Image, setBase64Image] = useState<string | null>(null);
+
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
   const { updateFirstLastName, isUpdatingName } =
     useProfileViewModel(profileUseCase);
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     setProfilePic(file);
+  //     setPreview(URL.createObjectURL(file));
+  //   }
+  // };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setProfilePic(file);
       setPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setBase64Image(base64String);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log({ firstName, lastName, profilePic });
-    updateFirstLastName({ firstName: firstName, lastName: lastName });
+    updateFirstLastName({ 
+      firstName: firstName, 
+      lastName: lastName , 
+      avatar: base64Image || undefined,
+});
   };
+
   useEffect(() => {
     if (userSaved) {
       setFirstName(userSaved.first_name || "");
@@ -67,7 +88,6 @@ const UpdateProfileForm: React.FC = () => {
             />
           </label>
         </div>
-        {/* First Name */}
         <div className="form-control">
           <label className="label">
             <span className="label-text font-semibold">🧍‍♂️ Prénom</span>
@@ -80,7 +100,6 @@ const UpdateProfileForm: React.FC = () => {
             className="input input-bordered w-full text-lg font-semibold text-gray-700"
           />
         </div>
-        {/* Last Name */}
         <div className="form-control">
           <label className="label">
             <span className="label-text font-semibold">👤 Nom</span>

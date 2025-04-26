@@ -25,7 +25,6 @@ function AppRouter() {
 
   return (
     <Routes>
-      {/* Login or redirect to home */}
       <Route
         path="/"
         element={
@@ -34,14 +33,12 @@ function AppRouter() {
       />
       <Route path="*" element={<NotFound />} />
 
-      {/* Protected Profile Layout */}
       <Route
         path="/home"
         element={
           isAuthentificated ? <ProfilePage /> : <Navigate to="/" replace />
         }
       >
-        {/* Sub-routes rendered inside ProfilePage */}
         <Route
           path="welcome"
           element={isAuthentificated ? <WelcomePage /> : <LoginPage />}

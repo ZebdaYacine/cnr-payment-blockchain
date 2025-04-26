@@ -53,6 +53,7 @@ export const KeysProvider: React.FC<{ children: React.ReactNode }> = ({
   const setIsDigitalSignatureConfirmed = (confirmed: boolean) => {
     setIsDigitalSignatureConfirmedState(confirmed);
     localStorage.setItem("isDigitalSignatureConfirmed", confirmed.toString());
+    console.log("isDigitalSignatureConfirmed", confirmed.toString());
   };
 
   return (

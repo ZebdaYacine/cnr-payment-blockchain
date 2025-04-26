@@ -42,7 +42,8 @@ export interface ProfileDataSource {
     token: string,
     permission: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    avatar: string | undefined
   ): Promise<boolean | ErrorResponse>;
   UpdatePasswordApi(
     token: string,
@@ -148,14 +149,15 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     token: string,
     permission: string,
     first_name: string,
-    last_name: string
+    last_name: string,
+    avatar: string | undefined
   ): Promise<boolean | ErrorResponse> {
     try {
       const response = await ApiService.makeRequest<boolean>(
         "post",
         `/${permission}/update-name`,
         token,
-        { firstName: first_name, lastName: last_name }
+        { firstName: first_name, lastName: last_name, avatar: avatar }
       );
       return response;
     } catch (error) {

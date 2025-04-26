@@ -6,6 +6,7 @@ import { useProfileViewModel } from "../../viewmodel/ProfileViewModel";
 
 import { useUser } from "../../../../core/state/UserContext";
 import ResponsiveDrawer from "../../../../core/components/ResponsiveDrawer";
+import { useKeys } from "../../../../core/state/KeyContext";
 // import Phase from "../components/Phase";
 function ProfilePage() {
   const profileUseCase = new PofileUseCase(
@@ -15,6 +16,8 @@ function ProfilePage() {
   const { getProfile, GetUsers, getCurrentPhase } =
     useProfileViewModel(profileUseCase);
   const { userSaved } = useUser();
+  const { setIsDigitalSignatureConfirmed, isDigitalSignatureConfirmed } =
+    useKeys();
 
   useEffect(() => {
     if (userSaved.permission) {
@@ -25,6 +28,13 @@ function ProfilePage() {
   useEffect(() => {
     if (userSaved.permission)
       GetUsers({ permissions: userSaved.permission.toLowerCase() });
+  }, []);
+  useEffect(() => {
+    if (!userSaved.publicKey) {
+      setIsDigitalSignatureConfirmed(false);
+    } else {
+      console.log(isDigitalSignatureConfirmed);
+    }
   }, []);
 
   useEffect(() => {

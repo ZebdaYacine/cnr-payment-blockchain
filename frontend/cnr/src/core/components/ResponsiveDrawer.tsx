@@ -44,6 +44,11 @@ const ResponsiveDrawer: React.FC = () => {
     setFilteredUsers(users);
   }, [users]);
   const navigate = useNavigate();
+  // useEffect(() => {
+  //   if (!isDigitalSignatureConfirmed) {
+  //     navigate(`/home/reglementaion/COM-003`);
+  //   }
+  // }, [isDigitalSignatureConfirmed]);
   return (
     <>
       <div className="drawer lg:drawer-open min-h-screen">
@@ -182,15 +187,19 @@ const ResponsiveDrawer: React.FC = () => {
                           <li key={user.id}>
                             <button
                               onClick={() => {
-                                navigate(`/home/peer/${user.id}`);
-                                // if (
-                                //   user.phases.includes(phase?.id || "") &&
-                                //   userSaved.phases.includes(phase?.id || "")
-                                // ) {
-                                //   navigate(`/home/peer/${user.id}`);
-                                // } else {
-                                //   navigate(`/home/reglementaion/COM-001`);
-                                // }
+                                if (!isDigitalSignatureConfirmed) {
+                                  navigate(`/home/reglementaion/COM-003`);
+                                } else {
+                                  navigate(`/home/peer/${user.id}`);
+                                  // if (
+                                  //   user.phases.includes(phase?.id || "") &&
+                                  //   userSaved.phases.includes(phase?.id || "")
+                                  // ) {
+                                  //   navigate(`/home/peer/${user.id}`);
+                                  // } else {
+                                  //   navigate(`/home/reglementaion/COM-001`);
+                                  // }
+                                }
                               }}
                               className="block text-left w-full"
                             >

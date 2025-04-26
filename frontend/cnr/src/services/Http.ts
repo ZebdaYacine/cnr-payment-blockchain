@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://192.168.71.207:3000",
 });
 
 type HTTPRequestConfig = AxiosRequestConfig;
@@ -28,17 +28,17 @@ const api = (axios: AxiosInstance) => {
 
 export function IsTokenExpired(token: string): boolean {
   try {
-    const base64Url = token.split(".")[1]; 
+    const base64Url = token.split(".")[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const decodedPayload = JSON.parse(atob(base64));
 
     if (!decodedPayload.exp) return false;
 
-    const expirationTime = decodedPayload.exp * 1000; 
+    const expirationTime = decodedPayload.exp * 1000;
     return Date.now() >= expirationTime;
   } catch (error) {
     console.error("Error decoding token:", error);
-    return true; 
+    return true;
   }
 }
 

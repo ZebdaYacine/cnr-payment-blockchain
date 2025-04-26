@@ -22,7 +22,7 @@ type ProfileUsecase interface {
 	GetFolders(c context.Context, folder *fabric.FolderMetadata) *ProfileResult
 	GetCurrentPhase(c context.Context) *ProfileResult
 	AddPK(c context.Context, userId string, pk string) *ProfileResult
-	UpdateFirstLastName(c context.Context, userId string, firstName string, lastName string) *ProfileResult
+	UpdateFirstLastName(c context.Context, userId string, firstName string, lastName string, avatar string) *ProfileResult
 	UpdatePassword(c context.Context, userId string, oldPassword string, newPassword string) *ProfileResult
 	VerifyDigitalSignature(c context.Context, userId string, signature string, randomValue string) *ProfileResult
 }
@@ -74,8 +74,8 @@ func (p *profileUsecase) AddPK(c context.Context, userId string, pk string) *Pro
 	return &ProfileResult{Data: true}
 }
 
-func (p *profileUsecase) UpdateFirstLastName(c context.Context, userId string, firstName string, lastName string) *ProfileResult {
-	err := p.repo.UpdateFirstLastName(userId, firstName, lastName)
+func (p *profileUsecase) UpdateFirstLastName(c context.Context, userId string, firstName string, lastName string, avatar string) *ProfileResult {
+	err := p.repo.UpdateFirstLastName(userId, firstName, lastName, avatar)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}

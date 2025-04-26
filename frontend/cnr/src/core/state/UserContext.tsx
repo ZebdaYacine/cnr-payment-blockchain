@@ -32,6 +32,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           phases: [],
           publicKey: "",
           CreateAt: "",
+          avatar: "",
         };
   });
 

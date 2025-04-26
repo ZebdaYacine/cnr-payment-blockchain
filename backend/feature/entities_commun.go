@@ -28,6 +28,7 @@ type User struct {
 	CreateAt     time.Time          `json:"createAt" bson:"createAt"`
 	LastName     string             `json:"last_name" bson:"last_name"`
 	FirstName    string             `json:"first_name" bson:"first_name"`
+	Avatar       string             `json:"avatar" bson:"avatar"`
 }
 
 type Notification struct {

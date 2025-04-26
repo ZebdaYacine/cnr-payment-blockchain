@@ -1,5 +1,6 @@
 import { RefObject } from "react";
 import { useNavigate } from "react-router";
+import { useUser } from "../../state/UserContext";
 
 interface Props {
   profileDialogRef: RefObject<HTMLDialogElement>;
@@ -8,6 +9,7 @@ interface Props {
 
 export default function ProfileDropdown({ profileDialogRef, onLogout }: Props) {
   const navigate = useNavigate();
+  const { userSaved } = useUser();
   return (
     <div className="dropdown dropdown-end">
       <div
@@ -16,10 +18,7 @@ export default function ProfileDropdown({ profileDialogRef, onLogout }: Props) {
         className="btn btn-ghost btn-circle avatar"
       >
         <div className="w-10 rounded-full">
-          <img
-            alt="User Profile"
-            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-          />
+          <img alt="User Profile" src={userSaved.avatar} />
         </div>
       </div>
       <ul

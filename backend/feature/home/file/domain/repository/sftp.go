@@ -1,4 +1,4 @@
-package servers
+package repository
 
 import (
 	"fmt"
@@ -27,7 +27,7 @@ func AccessToSFTP(localFilePath, remoteFileName string) error {
 	defer localFile.Close()
 
 	// Step 3: Create remote file
-	remotePath := "/home/" + os.Getenv("SFTP_USER") + "/" + remoteFileName
+	remotePath := "/home/" + os.Getenv("SFTP_USER")
 	remoteFile, err := sftpClient.Create(remotePath)
 	if err != nil {
 		return fmt.Errorf("cannot create remote file: %w", err)

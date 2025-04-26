@@ -36,7 +36,7 @@ type ProfileRepository interface {
 	VerifyDigitalSignature(signature string, randomValue string, publicKey string) bool
 	SendDigitalSignature(fileId string, signature string, cert string, token string, permission string) error
 	AddPK(userId string, pk string) error
-	UpdateFirstLastName(userId string, firstName string, lastName string) error
+	UpdateFirstLastName(userId string, firstName string, lastName string, avatar string) error
 	UpdatePassword(userId string, oldPassword string, newPassword string) error
 }
 
@@ -86,6 +86,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		CreateAt:     result["createAt"].(primitive.DateTime).Time(),
 		LastName:     result["last_name"].(string),
 		FirstName:    result["first_name"].(string),
+		Avatar:       result["avatar"].(string),
 	}
 
 	return &user, nil
@@ -252,7 +253,7 @@ func (r *profileRepository) AddPK(userId string, pk string) error {
 	return nil
 }
 
-func (r *profileRepository) UpdateFirstLastName(userId string, firstName string, lastName string) error {
+func (r *profileRepository) UpdateFirstLastName(userId string, firstName string, lastName string, avatar string) error {
 	id, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
 		return fmt.Errorf("invalid user ID: %w", err)
@@ -264,6 +265,7 @@ func (r *profileRepository) UpdateFirstLastName(userId string, firstName string,
 		{Key: "$set", Value: bson.D{
 			{Key: "first_name", Value: firstName},
 			{Key: "last_name", Value: lastName},
+			{Key: "avatar", Value: avatar},
 		}},
 	}
 

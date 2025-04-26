@@ -52,13 +52,14 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 	}
 
 	output := folderPath + "/" + file.Name
-	// servers.AccessToSFTP(output, output)
+	AccessToSFTP(output, output)
 
 	err = util.Base64ToFile(file.CodeBase64, output)
 	if err != nil {
 		return nil, fmt.Errorf("error converting Base64 to file: %v", err)
 	}
 	checksum, err := util.CalculateChecksum(output)
+
 	if err != nil {
 		return nil, fmt.Errorf("error calculating checksum: %v", err)
 	}

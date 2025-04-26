@@ -34,7 +34,7 @@ export const HandleDateTime = (dateTime: Date): string => {
   return formattedTime;
 };
 
-export const ResetState = () => {
+export const useResetState = () => {
   const { setFilesList } = useFileMetaData();
   const { setFoldersList } = useFoldersMetaData();
   const { setUsersList } = useListUsers();
@@ -45,13 +45,15 @@ export const ResetState = () => {
     setPrivateKey,
     setPublicKey,
   } = useKeys();
-  setFilesList([]);
-  setFoldersList([]);
-  setUsersList([]);
-  toggleLightMode();
-  setDigitalSignature("");
-  setIsDigitalSignatureConfirmed(false);
-  setPrivateKey("");
-  setPublicKey("");
-  setDigitalSignature("");
+
+  return () => {
+    setFilesList([]);
+    setFoldersList([]);
+    setUsersList([]);
+    toggleLightMode();
+    setDigitalSignature("");
+    setIsDigitalSignatureConfirmed(false);
+    setPrivateKey("");
+    setPublicKey("");
+  };
 };

@@ -66,13 +66,15 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     token: string,
     permission: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    avatar: string | undefined
   ): Promise<boolean | ErrorResponse> {
     return await this.datasource.UpdateFirstLastNameApi(
       token,
       permission,
       firstName,
-      lastName
+      lastName,
+      avatar
     );
   }
 

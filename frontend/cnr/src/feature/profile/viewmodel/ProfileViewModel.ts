@@ -158,16 +158,19 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     mutationFn: async ({
       firstName,
       lastName,
+      avatar,
     }: {
       firstName: string;
       lastName: string;
+      avatar: string | undefined;
     }) => {
       const storedToken = GetAuthToken(navigate);
       return profileUseCase.UpdateFirstLastName(
         storedToken,
         userSaved.permission.toLowerCase(),
         firstName,
-        lastName
+        lastName,
+        avatar
       );
     },
     onSuccess: (data) => {

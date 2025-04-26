@@ -68,13 +68,15 @@ export class PofileUseCase {
     token: string,
     permission: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    avatar: string | undefined
   ): Promise<boolean | ErrorResponse> {
     return await this.repository.UpdateFirstLastName(
       token,
       permission,
       firstName,
-      lastName
+      lastName,
+      avatar
     );
   }
 

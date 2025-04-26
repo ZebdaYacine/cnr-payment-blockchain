@@ -14,6 +14,7 @@ export interface User {
   phases: string[];
   last_name: string;
   first_name: string;
+  avatar: string;
 }
 
 export interface Folder {

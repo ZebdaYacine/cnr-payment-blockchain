@@ -1,5 +1,6 @@
 import { RefObject } from "react";
 import { User } from "../../dtos/data";
+import { useUser } from "../../state/UserContext";
 
 interface Props {
   user: User;
@@ -7,6 +8,9 @@ interface Props {
 }
 
 export default function ProfileModal({ user, profileDialogRef }: Props) {
+  const full_name = user.last_name + " " + user.first_name;
+    const { userSaved } = useUser();
+  
   return (
     <dialog ref={profileDialogRef} className="modal">
       <div className="modal-box">
@@ -20,12 +24,12 @@ export default function ProfileModal({ user, profileDialogRef }: Props) {
           <div className="flex items-center space-x-3">
             <img
               className="w-16 h-16 rounded-full border"
-              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+              src={userSaved.avatar}
               alt="Profile"
             />
             <div>
               <p className="text-lg font-semibold">
-                {user.username || "Unknown User"}
+                {full_name || "Unknown User"}
               </p>
               <p className="text-sm ">{user.email || "No email provided"}</p>
             </div>
