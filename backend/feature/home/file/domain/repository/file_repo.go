@@ -57,19 +57,6 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		return nil, fmt.Errorf("invalid base64 format")
 	}
 
-	// folderPath := "../../ftp/" + file.Folder
-	// err := os.MkdirAll(folderPath, os.ModePerm)
-	// if err != nil {
-	// 	fmt.Println("Error creating folder:", err)
-	// 	return nil, err
-	// }
-
-	// output := folderPath + "/" + file.Name
-
-	// err = util.Base64ToFile(file.CodeBase64, output)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("error converting Base64 to file: %v", err)
-	// }
 	decodedContent, err := base64.StdEncoding.DecodeString(parts[1])
 	if err != nil {
 		return nil, fmt.Errorf("error decoding base64: %v", err)
@@ -83,8 +70,8 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
 	fmt.Printf("USER ID: %s\n", file.UserId)
 
-	remoteFilePath := "/cnr/uploads/" + file.Folder + "/" + file.Name
 	remoteFolderPath := "/cnr/uploads/" + file.Folder
+	remoteFilePath := remoteFolderPath + "/" + file.Name
 
 	fileMetaData := &fabric.FileMetadata{
 		ID:           fileID.String(),
@@ -119,6 +106,7 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		CreateAt:     time.Now().Format(time.RFC3339),
 		Phase:        file.Phase,
 	}
+	
 	log.Println(fileMetaData)
 
 	_, err = fabric.SdkProvider("add-file", fileMetaData)
@@ -269,17 +257,7 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 			file.Status = "ChecksumError"
 			continue
 		}
-		// if !util.FileExists(filePath) {
-		// 	log.Printf("File not found: %s", filePath)
-		// 	file.Status = "Deleted"
-		// 	continue
-		// }
-		// checksum, err := util.CalculateChecksum(filePath)
-		// if err != nil {
-		// 	log.Printf("Error calculating checksum for %s: %v\n", file.FileName, err)
-		// 	file.Status = "ChecksumError"
-		// 	continue
-		// }
+
 		fmt.Printf("(Recalculation)  Checksum: %s\n", checksum)
 		fmt.Printf("(Blockchain) Checksum: %s\n", file.HashFile)
 		if file.HashFile == checksum {
@@ -301,12 +279,9 @@ func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data)
 	for _, file := range files {
 		var allPaths []string
 		if file.Path != nil {
-			// filePath := *file.Path
-			// if _, err := os.Stat(filePath); err == nil {
 			if file.Status == "Valid" {
 				allPaths = append(allPaths, *file.Path)
 			}
-			// }
 		} else {
 			log.Println("file.Path is nil for file:", file.FileName)
 			continue
@@ -320,11 +295,9 @@ func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data)
 		if versions != nil && len(*versions) > 0 {
 			for _, version := range *versions {
 				if version.Path != "" {
-					// if _, err := os.Stat(version.Path); err == nil {
 					if version.Status == "Valid" {
 						allPaths = append(allPaths, version.Path)
 					}
-					// }
 				}
 			}
 		}

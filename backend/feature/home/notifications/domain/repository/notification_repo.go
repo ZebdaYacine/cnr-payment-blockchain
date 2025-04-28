@@ -31,7 +31,6 @@ func NewNotificationRepository(db database.Database) NotificationRepository {
 func (s *notificationRepository) AddNotification(c context.Context, notifications feature.Notification) (*feature.Notification, error) {
 	pr := profileRepo.NewProfileRepository(s.database)
 
-	// Get sender profile
 	sender, err := pr.GetProfile(c, notifications.SenderId)
 	if err != nil {
 		log.Printf("Error getting sender profile: %v", err)
@@ -39,10 +38,8 @@ func (s *notificationRepository) AddNotification(c context.Context, notification
 	}
 	notifications.Sender = *sender
 
-	// Collect all user emails (receivers + tagged users)
 	var userEmails []string
 
-	// Get receivers' emails
 	for _, receiverId := range notifications.Receivers {
 		receiver, err := pr.GetProfile(c, receiverId)
 		if err != nil {
@@ -54,14 +51,13 @@ func (s *notificationRepository) AddNotification(c context.Context, notification
 		}
 	}
 
-	// Send email to each user
 	var linkHTML string
 	if notifications.Path != "" {
 		linkPath := notifications.Path + "/"
 		if !strings.HasPrefix(linkPath, "/home") {
 			linkPath = "/home/" + linkPath
 		}
-		linkHTML = fmt.Sprintf(`<p><a href="https://cnr:5173/%s">Cliquez ici pour voir plus de détails</a></p>`, linkPath)
+		linkHTML = fmt.Sprintf(`<p><a href="http://localhost:5173%s">Cliquez ici pour voir plus de détails</a></p>`, linkPath)
 	}
 
 	emailBody := fmt.Sprintf(`

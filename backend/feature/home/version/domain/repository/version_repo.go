@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"path/filepath"
 	"scps-backend/fabric"
@@ -67,24 +68,13 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
 	fmt.Printf("USER ID: %s\n", file.UserId)
 
-	remoteVersionPath := "/cnr/uploads/" + file.Folder + "/Versions_Of_" + file.Parent
-	// versionPath := "../../ftp/" + file.Folder + "/" + "Versions_Of_" + file.Parent
-	err = s.sftpClient.MkdirAll(remoteVersionPath)
-	if err != nil {
-		fmt.Println("Error creating folder:", err)
-		return nil, err
+	slisces := strings.Split(file.Parent, ".")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("error in split extension of version parent")
 	}
 
-	// output := versionPath + "/" + file.Name
-	// err = util.Base64ToFile(file.CodeBase64, output)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("error converting Base64 to file: %v", err)
-	// }
-
-	// checksum, err := util.CalculateChecksum(output)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("error calculating checksum: %v", err)
-	// }
+	remoteFolderPath := "/cnr/uploads/" + file.Folder + "/Versions_Of_" + slisces[0] + "/"
+	remoteVersionPath := remoteFolderPath + file.Name
 
 	fmt.Printf("SHA-256 Version Checksum: %s\n", checksum)
 	fmt.Printf("USER ID: %s\n", file.UserId)
@@ -100,7 +90,7 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 		Commit:       file.Commit,
 		Time:         time.Now().Format(time.RFC3339),
 		Action:       file.Action,
-		Folder:       remoteVersionPath,
+		Folder:       remoteFolderPath,
 		Description:  file.Description,
 		Organisation: file.Organisation,
 		Path:         remoteVersionPath,
@@ -122,6 +112,12 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 		return nil, err
 	}
 	fmt.Println("Inserted file metadata into MongoDB:", fileIDMongo)
+
+	err = AccessBase64ToSFTP(parts[1], remoteVersionPath, s.sftpClient)
+	if err != nil {
+		log.Panic("error sftp : %v", err)
+		return nil, fmt.Errorf("error sftp : %v", err)
+	}
 
 	// Send notifications to tagged users and receiver
 	notificationMessage := fmt.Sprintf("Nouvelle version du fichier '%s' a été ajoutée", file.Name)
@@ -187,6 +183,9 @@ func (s *versionRepository) addFileToDB(c context.Context, metadata fabric.FileM
 }
 
 func (s *versionRepository) GetMetadataVersionByParentFile(c context.Context, folder string, parent string) (*[]fabric.FileMetadata, error) {
+	if s.sftpClient == nil {
+		return nil, fmt.Errorf("sftp client is not initialized")
+	}
 	result, err := fabric.SdkProvider("get-version", parent)
 	if err != nil {
 		return nil, err
@@ -196,15 +195,24 @@ func (s *versionRepository) GetMetadataVersionByParentFile(c context.Context, fo
 		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
 	}
 	// location := "../../ftp/" + folder + "/"
+
 	for i := range *files {
 		file := &(*files)[i]
 		filePath := file.Path
-		if !util.FileExists(filePath) {
-			log.Printf("File not found: %s", filePath)
+		remoteFile, err := s.sftpClient.Open(filePath)
+		if err != nil {
+			log.Printf("File not found on SFTP: %s\n", remoteFile)
 			file.Status = "Deleted"
 			continue
 		}
-		checksum, err := util.CalculateChecksum(filePath)
+		fileContent, err := io.ReadAll(remoteFile)
+		remoteFile.Close()
+		if err != nil {
+			log.Printf("Error reading file from SFTP: %s, %v\n", remoteFile, err)
+			file.Status = "ReadError"
+			continue
+		}
+		checksum, err := util.CalculateChecksumFromBytes(fileContent)
 		if err != nil {
 			log.Printf("Error calculating checksum for %s: %v\n", file.FileName, err)
 			file.Status = "ChecksumError"
@@ -217,6 +225,7 @@ func (s *versionRepository) GetMetadataVersionByParentFile(c context.Context, fo
 		} else {
 			file.Status = "Invalid"
 		}
+		(*files)[i] = *file
 		(*files)[i] = *file
 
 	}

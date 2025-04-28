@@ -73,190 +73,6 @@ func (ic *FileController) GetAllFilesMetaDataByFolderNameRequest(c *gin.Context)
 	})
 }
 
-// func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
-// 	log.Println("************************ DOWNLOAD FILE REQUEST ************************")
-
-// 	var req entities.DownloadFile
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"message": "Invalid request body",
-// 			"status":  http.StatusBadRequest,
-// 		})
-// 		return
-// 	}
-
-// 	filesMap, err := ic.FileUsecase.DownloadFiles(c, req.Files)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"message": err.Error(),
-// 			"status":  http.StatusInternalServerError,
-// 		})
-// 		return
-// 	}
-
-// 	var buffer bytes.Buffer
-// 	zipWriter := zip.NewWriter(&buffer)
-
-// 	for fileName, paths := range filesMap {
-// 		baseName := strings.TrimSuffix(fileName, filepath.Ext(fileName))
-// 		ext := filepath.Ext(fileName)
-
-// 		if len(paths) == 1 {
-// 			// 🔹 No versions — file in root of zip
-// 			filePath := paths[0]
-// 			file, err := os.Open(filePath)
-// 			if err != nil {
-// 				log.Printf("Failed to open file: %v", err)
-// 				continue
-// 			}
-// 			defer file.Close()
-
-// 			info, _ := file.Stat()
-// 			header, _ := zip.FileInfoHeader(info)
-// 			header.Name = filepath.Base(filePath) // keep name as-is
-// 			header.Method = zip.Deflate
-
-// 			writer, err := zipWriter.CreateHeader(header)
-// 			if err != nil {
-// 				log.Printf("Failed to create zip entry: %v", err)
-// 				continue
-// 			}
-// 			io.Copy(writer, file)
-
-// 		} else {
-// 			// 🔹 Versions exist — create folder
-// 			versionFolder := fmt.Sprintf("versions_of_%s", baseName)
-
-// 			for i, filePath := range paths {
-// 				file, err := os.Open(filePath)
-// 				if err != nil {
-// 					log.Printf("Failed to open file: %v", err)
-// 					continue
-// 				}
-// 				defer file.Close()
-
-// 				info, _ := file.Stat()
-// 				header, _ := zip.FileInfoHeader(info)
-
-// 				var nameInZip string
-// 				if i == 0 {
-// 					// original file
-// 					nameInZip = fmt.Sprintf("%s", filepath.Base(filePath))
-// 				} else {
-// 					// versioned file
-// 					nameInZip = fmt.Sprintf("%s/%s_v%d%s", versionFolder, baseName, i, ext)
-// 				}
-
-// 				header.Name = nameInZip
-// 				header.Method = zip.Deflate
-
-// 				writer, err := zipWriter.CreateHeader(header)
-// 				if err != nil {
-// 					log.Printf("Failed to create zip entry: %v", err)
-// 					continue
-// 				}
-// 				io.Copy(writer, file)
-// 			}
-// 		}
-// 	}
-
-// 	zipWriter.Close()
-
-// 	c.Header("Content-Disposition", "attachment; filename=files.zip")
-// 	c.Data(http.StatusOK, "application/zip", buffer.Bytes())
-// }
-
-// func (ic *FileController) DownloadFilesOfFolderRequest(c *gin.Context) {
-// 	log.Println("************************ DOWNLOAD FOLDER REQUEST ************************")
-
-// 	var req struct {
-// 		Folder string `json:"folder"`
-// 	}
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"message": "Invalid request body",
-// 			"status":  http.StatusBadRequest,
-// 		})
-// 		return
-// 	}
-
-// 	filesMap, err := ic.FileUsecase.DownloadFilesOfFolder(c, req.Folder)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"message": err.Error(),
-// 			"status":  http.StatusInternalServerError,
-// 		})
-// 		return
-// 	}
-
-// 	var buffer bytes.Buffer
-// 	zipWriter := zip.NewWriter(&buffer)
-
-// 	for fileName, paths := range filesMap {
-// 		baseName := strings.TrimSuffix(fileName, filepath.Ext(fileName))
-// 		ext := filepath.Ext(fileName)
-// 		if len(paths) == 1 {
-// 			filePath := paths[0]
-// 			file, err := os.Open(filePath)
-// 			if err != nil {
-// 				log.Printf("Failed to open file: %v", err)
-// 				continue
-// 			}
-// 			defer file.Close()
-
-// 			info, _ := file.Stat()
-// 			header, _ := zip.FileInfoHeader(info)
-// 			header.Name = filepath.Base(filePath)
-// 			header.Method = zip.Deflate
-
-// 			writer, err := zipWriter.CreateHeader(header)
-// 			if err != nil {
-// 				log.Printf("Failed to create zip entry: %v", err)
-// 				continue
-// 			}
-// 			io.Copy(writer, file)
-
-// 		} else {
-// 			versionFolder := fmt.Sprintf("versions_of_%s", baseName)
-// 			for i, filePath := range paths {
-// 				file, err := os.Open(filePath)
-// 				if err != nil {
-// 					log.Printf("Failed to open file: %v", err)
-// 					continue
-// 				}
-// 				defer file.Close()
-
-// 				info, _ := file.Stat()
-// 				header, _ := zip.FileInfoHeader(info)
-
-// 				var nameInZip string
-// 				if i == 0 {
-// 					// original file
-// 					nameInZip = fmt.Sprintf("%s", filepath.Base(filePath))
-// 				} else {
-// 					// versioned file
-// 					nameInZip = fmt.Sprintf("%s/%s_v%d%s", versionFolder, baseName, i, ext)
-// 				}
-
-// 				header.Name = nameInZip
-// 				header.Method = zip.Deflate
-
-// 				writer, err := zipWriter.CreateHeader(header)
-// 				if err != nil {
-// 					log.Printf("Failed to create zip entry: %v", err)
-// 					continue
-// 				}
-// 				io.Copy(writer, file)
-// 			}
-// 		}
-// 	}
-
-// 	zipWriter.Close()
-
-// 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.zip", filepath.Base(req.Folder)))
-// 	c.Data(http.StatusOK, "application/zip", buffer.Bytes())
-// }
-
 func (ic *FileController) DownloadFilesOfFolderRequest(c *gin.Context) {
 	log.Println("************************ DOWNLOAD FOLDER REQUEST ************************")
 
@@ -331,7 +147,6 @@ func (ic *FileController) DownloadFilesOfFolderRequest(c *gin.Context) {
 			remoteFile.Close()
 
 		} else {
-			// Multiple versions
 			versionFolder := fmt.Sprintf("versions_of_%s", baseName)
 
 			for i, filePath := range paths {
@@ -416,7 +231,6 @@ func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
 		ext := filepath.Ext(fileName)
 
 		if len(paths) == 1 {
-			//  No versions — file in root of zip
 			filePath := paths[0]
 			remoteFile, err := ic.SftpClient.Open(filePath)
 			if err != nil {
