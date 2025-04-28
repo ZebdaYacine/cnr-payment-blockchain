@@ -294,7 +294,7 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 }
 
 func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data) (map[string][]string, error) {
-	versionRepo := versionRepo.NewVersionRepository(r.database)
+	versionRepo := versionRepo.NewVersionRepository(r.database, r.sftpClient)
 	result := make(map[string][]string)
 	versions := &[]fabric.FileMetadata{}
 	var err error
@@ -336,7 +336,7 @@ func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data)
 }
 
 func (r *fileRepository) DownloadFilesOfFolder(c context.Context, folder string) (map[string][]string, error) {
-	versionRepo := versionRepo.NewVersionRepository(r.database)
+	versionRepo := versionRepo.NewVersionRepository(r.database, r.sftpClient)
 	result := make(map[string][]string)
 	versions := &[]fabric.FileMetadata{}
 	var err error

@@ -2,14 +2,15 @@ package repository
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 	"scps-backend/fabric"
 	"scps-backend/feature"
 	notificationsRepo "scps-backend/feature/home/notifications/domain/repository"
+	"strings"
 
 	"scps-backend/feature/home/version/domain/entities"
 
@@ -19,11 +20,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/pkg/sftp"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type versionRepository struct {
-	database database.Database
+	database   database.Database
+	sftpClient *sftp.Client
 }
 
 // GetAllDemand implements VersionRepository.
@@ -32,32 +35,56 @@ type VersionRepository interface {
 	GetMetadataVersionByParentFile(c context.Context, folder string, parent string) (*[]fabric.FileMetadata, error)
 }
 
-func NewVersionRepository(db database.Database) VersionRepository {
+func NewVersionRepository(db database.Database, sftpClient *sftp.Client) VersionRepository {
 	return &versionRepository{
-		database: db,
+		database:   db,
+		sftpClient: sftpClient,
 	}
 }
 
 func (s *versionRepository) UploadVersion(c context.Context, file entities.UploadVersion) (*fabric.FileMetadata, error) {
 	fileID := uuid.New()
 
-	versionPath := "../../ftp/" + file.Folder + "/" + "Versions_Of_" + file.Parent
-	err := os.MkdirAll(versionPath, os.ModePerm)
+	if s.sftpClient == nil {
+		return nil, fmt.Errorf("sftp client is not initialized")
+	}
+
+	parts := strings.Split(file.CodeBase64, ",")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid base64 format")
+	}
+
+	decodedContent, err := base64.StdEncoding.DecodeString(parts[1])
+	if err != nil {
+		return nil, fmt.Errorf("error decoding base64: %v", err)
+	}
+	checksum, err := util.CalculateChecksumFromBytes(decodedContent)
+
+	if err != nil {
+		return nil, fmt.Errorf("error calculating checksum: %v", err)
+	}
+
+	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
+	fmt.Printf("USER ID: %s\n", file.UserId)
+
+	remoteVersionPath := "/cnr/uploads/" + file.Folder + "/Versions_Of_" + file.Parent
+	// versionPath := "../../ftp/" + file.Folder + "/" + "Versions_Of_" + file.Parent
+	err = s.sftpClient.MkdirAll(remoteVersionPath)
 	if err != nil {
 		fmt.Println("Error creating folder:", err)
 		return nil, err
 	}
 
-	output := versionPath + "/" + file.Name
-	err = util.Base64ToFile(file.CodeBase64, output)
-	if err != nil {
-		return nil, fmt.Errorf("error converting Base64 to file: %v", err)
-	}
+	// output := versionPath + "/" + file.Name
+	// err = util.Base64ToFile(file.CodeBase64, output)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error converting Base64 to file: %v", err)
+	// }
 
-	checksum, err := util.CalculateChecksum(output)
-	if err != nil {
-		return nil, fmt.Errorf("error calculating checksum: %v", err)
-	}
+	// checksum, err := util.CalculateChecksum(output)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error calculating checksum: %v", err)
+	// }
 
 	fmt.Printf("SHA-256 Version Checksum: %s\n", checksum)
 	fmt.Printf("USER ID: %s\n", file.UserId)
@@ -73,10 +100,10 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 		Commit:       file.Commit,
 		Time:         time.Now().Format(time.RFC3339),
 		Action:       file.Action,
-		Folder:       versionPath,
+		Folder:       remoteVersionPath,
 		Description:  file.Description,
 		Organisation: file.Organisation,
-		Path:         output,
+		Path:         remoteVersionPath,
 		Destination:  file.Destination,
 		ReciverId:    file.ReciverId,
 		TaggedUsers:  file.TaggedUser,
