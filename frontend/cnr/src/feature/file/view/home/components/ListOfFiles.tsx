@@ -204,7 +204,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                           version - {file.Version}
                         </div>
                       </td>
-                      <td className="text-center">
+                      <td className="text-center ">
                         <div
                           className={`badge ${
                             file.Version > 1

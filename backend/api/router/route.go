@@ -10,9 +10,10 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/sftp"
 )
 
-func Setup(db database.Database, gin *gin.Engine) {
+func Setup(db database.Database, gin *gin.Engine, sftpClient *sftp.Client) {
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"*"}
@@ -35,8 +36,8 @@ func Setup(db database.Database, gin *gin.Engine) {
 		"USER"))
 	private.NewGetProfileuRouter(db, userRouter)
 	private.NewGetFoldersRouter(db, userRouter)
-	private.NewUploadFileRouter(db, userRouter)
-	private.NewGetAllMetaDataFileRouter(db, userRouter)
+	private.NewUploadFileRouter(db, userRouter, sftpClient)
+	private.NewGetAllMetaDataFileRouter(db, userRouter, sftpClient)
 	private.NewUploadVersionRouter(db, userRouter)
 	private.NewGetVersionRouter(db, userRouter)
 	private.NewGetInstitutionRouter(db, userRouter)
@@ -45,8 +46,8 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewAddNotificationRouter(db, userRouter)
 	private.NewGetNotificationsRouter(db, userRouter)
 	private.NewGetCurrentPhaseRouter(db, userRouter)
-	private.NewDownLoadRouter(db, userRouter)
-	private.NewDownLoadFolderRouter(db, userRouter)
+	private.NewDownLoadRouter(db, userRouter, sftpClient)
+	private.NewDownLoadFolderRouter(db, userRouter, sftpClient)
 	private.NewAddPKRouter(db, userRouter)
 	private.NewUpdateFirstLastNameRouter(db, userRouter)
 	private.NewUpdatePasswordRouter(db, userRouter)
@@ -58,8 +59,8 @@ func Setup(db database.Database, gin *gin.Engine) {
 		"ADMIN"))
 	private.NewGetProfileuRouter(db, adminRouter)
 	private.NewGetFoldersRouter(db, adminRouter)
-	private.NewUploadFileRouter(db, adminRouter)
-	private.NewGetAllMetaDataFileRouter(db, adminRouter)
+	private.NewUploadFileRouter(db, adminRouter, sftpClient)
+	private.NewGetAllMetaDataFileRouter(db, adminRouter, sftpClient)
 	private.NewUploadVersionRouter(db, adminRouter)
 	private.NewGetInstitutionRouter(db, adminRouter)
 	private.NewGetChildOfInstitutiosRouter(db, adminRouter)
@@ -68,8 +69,8 @@ func Setup(db database.Database, gin *gin.Engine) {
 	private.NewAddNotificationRouter(db, adminRouter)
 	private.NewGetNotificationsRouter(db, adminRouter)
 	private.NewGetCurrentPhaseRouter(db, adminRouter)
-	private.NewDownLoadRouter(db, adminRouter)
-	private.NewDownLoadFolderRouter(db, adminRouter)
+	private.NewDownLoadRouter(db, adminRouter, sftpClient)
+	private.NewDownLoadFolderRouter(db, adminRouter, sftpClient)
 	private.NewAddPKRouter(db, adminRouter)
 	private.NewUpdateFirstLastNameRouter(db, adminRouter)
 	private.NewUpdatePasswordRouter(db, adminRouter)

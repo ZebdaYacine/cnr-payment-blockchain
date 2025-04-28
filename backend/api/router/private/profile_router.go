@@ -10,6 +10,7 @@ import (
 	"scps-backend/pkg/database"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/sftp"
 )
 
 func NewGetProfileuRouter(db database.Database, group *gin.RouterGroup) {
@@ -21,8 +22,8 @@ func NewGetProfileuRouter(db database.Database, group *gin.RouterGroup) {
 	group.GET("get-profile", ic.GetProfileRequest)
 }
 
-func NewUploadFileRouter(db database.Database, group *gin.RouterGroup) {
-	ir := filerepo.NewFileRepository(db)
+func NewUploadFileRouter(db database.Database, group *gin.RouterGroup, sftpClient *sftp.Client) {
+	ir := filerepo.NewFileRepository(db, sftpClient)
 	uc := fileusecase.NewFileUsecase(ir, "")
 	ic := &controller.FileController{
 		FileUsecase: uc,
@@ -39,8 +40,8 @@ func NewGetFoldersRouter(db database.Database, group *gin.RouterGroup) {
 	group.GET("get-folders", ic.GetFoldersRequest)
 }
 
-func NewGetAllMetaDataFileRouter(db database.Database, group *gin.RouterGroup) {
-	ir := filerepo.NewFileRepository(db)
+func NewGetAllMetaDataFileRouter(db database.Database, group *gin.RouterGroup, sftpClient *sftp.Client) {
+	ir := filerepo.NewFileRepository(db, sftpClient)
 	uc := fileusecase.NewFileUsecase(ir, "")
 	ic := &controller.FileController{
 		FileUsecase: uc,
@@ -57,20 +58,22 @@ func NewGetCurrentPhaseRouter(db database.Database, group *gin.RouterGroup) {
 	group.GET("get-current-phase", ic.GetCurrentPhaseRequest)
 }
 
-func NewDownLoadRouter(db database.Database, group *gin.RouterGroup) {
-	ir := filerepo.NewFileRepository(db)
+func NewDownLoadRouter(db database.Database, group *gin.RouterGroup, sftpClient *sftp.Client) {
+	ir := filerepo.NewFileRepository(db, sftpClient)
 	uc := fileusecase.NewFileUsecase(ir, "")
 	ic := &controller.FileController{
 		FileUsecase: uc,
+		SftpClient:  sftpClient,
 	}
 	group.POST("download-files", ic.DownloadFilesRequest)
 }
 
-func NewDownLoadFolderRouter(db database.Database, group *gin.RouterGroup) {
-	ir := filerepo.NewFileRepository(db)
+func NewDownLoadFolderRouter(db database.Database, group *gin.RouterGroup, sftpClient *sftp.Client) {
+	ir := filerepo.NewFileRepository(db, sftpClient)
 	uc := fileusecase.NewFileUsecase(ir, "")
 	ic := &controller.FileController{
 		FileUsecase: uc,
+		SftpClient:  sftpClient,
 	}
 	group.POST("download-folder", ic.DownloadFilesOfFolderRequest)
 }

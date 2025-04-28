@@ -70,7 +70,12 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 	} else {
 		log.Printf("⚠️ Could not cast phases for user %s\n", userId)
 	}
-
+	var avatar string
+	if result["avatar"] == nil {
+		avatar = ""
+	} else {
+		avatar = result["avatar"].(string)
+	}
 	user := feature.User{
 		ID:           id,
 		Id:           userId,
@@ -86,7 +91,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		CreateAt:     result["createAt"].(primitive.DateTime).Time(),
 		LastName:     result["last_name"].(string),
 		FirstName:    result["first_name"].(string),
-		Avatar:       result["avatar"].(string),
+		Avatar:       avatar,
 	}
 
 	return &user, nil

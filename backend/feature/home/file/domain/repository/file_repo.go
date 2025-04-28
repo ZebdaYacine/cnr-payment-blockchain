@@ -2,25 +2,29 @@ package repository
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"log"
-	"os"
 	"scps-backend/fabric"
 	"scps-backend/feature/home/file/domain/entities"
 	versionRepo "scps-backend/feature/home/version/domain/repository"
 	"scps-backend/pkg/database"
 	"scps-backend/util"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/pkg/sftp"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type fileRepository struct {
-	database database.Database
+	database   database.Database
+	sftpClient *sftp.Client
 }
 
 // GetAllDemand implements FileRepository.
@@ -31,34 +35,46 @@ type FileRepository interface {
 	DownloadFilesOfFolder(c context.Context, folder string) (map[string][]string, error)
 }
 
-func NewFileRepository(db database.Database) FileRepository {
+func NewFileRepository(db database.Database, sftpClient *sftp.Client) FileRepository {
 	return &fileRepository{
-		database: db,
+		database:   db,
+		sftpClient: sftpClient,
 	}
 }
 func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile) (*fabric.FileMetadata, error) {
 	fileID := uuid.New()
 	folderID := uuid.New()
+	if s.sftpClient == nil {
+		return nil, fmt.Errorf("sftp client is not initialized")
+	}
 
 	if file.Folder == "" {
 		file.Folder = fmt.Sprintf("%02d-%02d", time.Now().Month(), time.Now().Day())
 	}
 
-	folderPath := "../../ftp/" + file.Folder
-	err := os.MkdirAll(folderPath, os.ModePerm)
-	if err != nil {
-		fmt.Println("Error creating folder:", err)
-		return nil, err
+	parts := strings.Split(file.CodeBase64, ",")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid base64 format")
 	}
 
-	output := folderPath + "/" + file.Name
-	AccessBase64ToSFTP(output, file.CodeBase64)
+	// folderPath := "../../ftp/" + file.Folder
+	// err := os.MkdirAll(folderPath, os.ModePerm)
+	// if err != nil {
+	// 	fmt.Println("Error creating folder:", err)
+	// 	return nil, err
+	// }
 
-	err = util.Base64ToFile(file.CodeBase64, output)
+	// output := folderPath + "/" + file.Name
+
+	// err = util.Base64ToFile(file.CodeBase64, output)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error converting Base64 to file: %v", err)
+	// }
+	decodedContent, err := base64.StdEncoding.DecodeString(parts[1])
 	if err != nil {
-		return nil, fmt.Errorf("error converting Base64 to file: %v", err)
+		return nil, fmt.Errorf("error decoding base64: %v", err)
 	}
-	checksum, err := util.CalculateChecksum(output)
+	checksum, err := util.CalculateChecksumFromBytes(decodedContent)
 
 	if err != nil {
 		return nil, fmt.Errorf("error calculating checksum: %v", err)
@@ -66,6 +82,9 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 
 	fmt.Printf("SHA-256 File Checksum: %s\n", checksum)
 	fmt.Printf("USER ID: %s\n", file.UserId)
+
+	remoteFilePath := "/cnr/uploads/" + file.Folder + "/" + file.Name
+	remoteFolderPath := "/cnr/uploads/" + file.Folder
 
 	fileMetaData := &fabric.FileMetadata{
 		ID:           fileID.String(),
@@ -80,7 +99,7 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		Folder:       file.Folder,
 		Description:  file.Description,
 		Organisation: file.Organisation,
-		Path:         output,
+		Path:         remoteFilePath,
 		Destination:  file.Destination,
 		ReciverId:    file.ReciverId,
 		TaggedUsers:  file.TaggedUser,
@@ -90,7 +109,7 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 	folderMetaData := &fabric.FolderMetadata{
 		ID:           folderID.String(),
 		Name:         file.Folder,
-		Path:         folderPath,
+		Path:         remoteFolderPath,
 		NbrItems:     1,
 		UserId:       file.UserId,
 		Destination:  file.Destination,
@@ -125,6 +144,12 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		return nil, err
 	}
 	fmt.Println("Inserted file metadata into MongoDB:", fileIDMongo)
+
+	err = AccessBase64ToSFTP(parts[1], remoteFilePath, s.sftpClient)
+	if err != nil {
+		log.Panic("error sftp : %v", err)
+		return nil, fmt.Errorf("error sftp : %v", err)
+	}
 
 	return fileMetaData, nil
 }
@@ -204,6 +229,9 @@ func (s *fileRepository) updateNbrItemsInFolder(c context.Context, foldername st
 
 func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, foldername string) (*[]fabric.FileMetadata, error) {
 	// fabric.SdkProvider("deleteAll")
+	if s.sftpClient == nil {
+		return nil, fmt.Errorf("sftp client is not initialized")
+	}
 	folder := &fabric.FolderMetadata{
 		Name: foldername,
 	}
@@ -216,24 +244,42 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 	if !ok {
 		return nil, fmt.Errorf("failed to convert result to []fabric.FileMetadata")
 	}
-	location := "../../ftp/" + folder.Name + "/"
+	location := "/cnr/uploads/" + folder.Name + "/"
+
 	for i := range *files {
-
 		file := &(*files)[i]
-		log.Println(">>>>>>>>>>>>>>>>>>>>>>", file.LastVersion)
-
 		filePath := location + file.FileName
-		if !util.FileExists(filePath) {
-			log.Printf("File not found: %s", filePath)
+
+		remoteFile, err := s.sftpClient.Open(filePath)
+		if err != nil {
+			log.Printf("File not found on SFTP: %s\n", remoteFile)
 			file.Status = "Deleted"
 			continue
 		}
-		checksum, err := util.CalculateChecksum(filePath)
+		fileContent, err := io.ReadAll(remoteFile)
+		remoteFile.Close()
+		if err != nil {
+			log.Printf("Error reading file from SFTP: %s, %v\n", remoteFile, err)
+			file.Status = "ReadError"
+			continue
+		}
+		checksum, err := util.CalculateChecksumFromBytes(fileContent)
 		if err != nil {
 			log.Printf("Error calculating checksum for %s: %v\n", file.FileName, err)
 			file.Status = "ChecksumError"
 			continue
 		}
+		// if !util.FileExists(filePath) {
+		// 	log.Printf("File not found: %s", filePath)
+		// 	file.Status = "Deleted"
+		// 	continue
+		// }
+		// checksum, err := util.CalculateChecksum(filePath)
+		// if err != nil {
+		// 	log.Printf("Error calculating checksum for %s: %v\n", file.FileName, err)
+		// 	file.Status = "ChecksumError"
+		// 	continue
+		// }
 		fmt.Printf("(Recalculation)  Checksum: %s\n", checksum)
 		fmt.Printf("(Blockchain) Checksum: %s\n", file.HashFile)
 		if file.HashFile == checksum {
@@ -254,14 +300,13 @@ func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data)
 	var err error
 	for _, file := range files {
 		var allPaths []string
-
 		if file.Path != nil {
-			filePath := *file.Path
-			if _, err := os.Stat(filePath); err == nil {
-				if file.Status == "Valid" {
-					allPaths = append(allPaths, filePath)
-				}
+			// filePath := *file.Path
+			// if _, err := os.Stat(filePath); err == nil {
+			if file.Status == "Valid" {
+				allPaths = append(allPaths, *file.Path)
 			}
+			// }
 		} else {
 			log.Println("file.Path is nil for file:", file.FileName)
 			continue
@@ -275,11 +320,11 @@ func (r *fileRepository) DownloadFiles(c context.Context, files []entities.Data)
 		if versions != nil && len(*versions) > 0 {
 			for _, version := range *versions {
 				if version.Path != "" {
-					if _, err := os.Stat(version.Path); err == nil {
-						if version.Status == "Valid" {
-							allPaths = append(allPaths, version.Path)
-						}
+					// if _, err := os.Stat(version.Path); err == nil {
+					if version.Status == "Valid" {
+						allPaths = append(allPaths, version.Path)
 					}
+					// }
 				}
 			}
 		}
@@ -305,11 +350,11 @@ func (r *fileRepository) DownloadFilesOfFolder(c context.Context, folder string)
 		var allPaths []string
 
 		if file.Path != "" {
-			if _, err := os.Stat(file.Path); err == nil {
-				if file.Status == "Valid" {
-					allPaths = append(allPaths, file.Path)
-				}
+			// if _, err := os.Stat(file.Path); err == nil {
+			if file.Status == "Valid" {
+				allPaths = append(allPaths, file.Path)
 			}
+			// }
 		}
 
 		versions, err = versionRepo.GetMetadataVersionByParentFile(c, "", file.FileName)
@@ -320,11 +365,11 @@ func (r *fileRepository) DownloadFilesOfFolder(c context.Context, folder string)
 		if versions != nil && len(*versions) > 0 {
 			for _, version := range *versions {
 				if version.Path != "" {
-					if _, err := os.Stat(version.Path); err == nil {
-						if version.Status == "Valid" {
-							allPaths = append(allPaths, version.Path)
-						}
+					// if _, err := os.Stat(version.Path); err == nil {
+					if version.Status == "Valid" {
+						allPaths = append(allPaths, version.Path)
 					}
+					// }
 				}
 			}
 		}

@@ -77,3 +77,12 @@ func CalculateChecksum(filePath string) (string, error) {
 	checksum := hasher.Sum(nil)
 	return hex.EncodeToString(checksum), nil
 }
+
+func CalculateChecksumFromBytes(data []byte) (string, error) {
+	hash := sha256.New()
+	_, err := hash.Write(data)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(hash.Sum(nil)), nil
+}
