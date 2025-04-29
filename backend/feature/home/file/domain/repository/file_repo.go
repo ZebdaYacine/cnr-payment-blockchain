@@ -106,21 +106,9 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		CreateAt:     time.Now().Format(time.RFC3339),
 		Phase:        file.Phase,
 	}
-	
+
 	log.Println(fileMetaData)
 
-	_, err = fabric.SdkProvider("add-file", fileMetaData)
-	if err != nil {
-		fmt.Println("Error adding file to Fabric Ledger:", err)
-		return nil, err
-	}
-
-	_, err = fabric.SdkProvider("add-folder", folderMetaData)
-	if err != nil {
-		fmt.Println("Error adding folder to Fabric Ledger:", err)
-		fabric.SdkProvider("deleteAll")
-		return nil, err
-	}
 	Id, err := s.addFolderToDB(c, *folderMetaData)
 	if err != nil {
 		return nil, err
@@ -137,6 +125,19 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 	if err != nil {
 		log.Panic("error sftp : %v", err)
 		return nil, fmt.Errorf("error sftp : %v", err)
+	}
+
+	_, err = fabric.SdkProvider("add-file", fileMetaData)
+	if err != nil {
+		fmt.Println("Error adding file to Fabric Ledger:", err)
+		return nil, err
+	}
+
+	_, err = fabric.SdkProvider("add-folder", folderMetaData)
+	if err != nil {
+		fmt.Println("Error adding folder to Fabric Ledger:", err)
+		fabric.SdkProvider("deleteAll")
+		return nil, err
 	}
 
 	return fileMetaData, nil

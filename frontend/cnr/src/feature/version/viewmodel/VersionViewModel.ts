@@ -20,10 +20,9 @@ function convertFileToBase64(file: File): Promise<string> {
 }
 
 export function useVersionViewModel(versioneUseCase: VersionUseCase) {
-  const { error } = useNotification();
   const { userSaved } = useUser();
   const { setFilesList } = useVersionMetaData();
-
+  const { success, error } = useNotification();
   const { SetLastVersion } = useVersion();
 
   const {
@@ -89,6 +88,7 @@ export function useVersionViewModel(versioneUseCase: VersionUseCase) {
         if (resp) {
           const v = resp.data;
           console.log("Version uploaded successfully:", v);
+          success("version est chargee", "colored");
           if (v?.LastVersion) {
             const newVersion = Number(v.LastVersion);
             console.log("Setting new lastVersion:", newVersion);
@@ -99,10 +99,13 @@ export function useVersionViewModel(versioneUseCase: VersionUseCase) {
         }
       } else {
         const errorResponse = data as ErrorResponse;
-        error(
-          errorResponse.message || "Network error occurred during upload",
-          "colored"
-        );
+        console.log(errorResponse.message);
+        error(errorResponse.message, "colored");
+
+        // error(
+        //   errorResponse.message || "Network error occurred during upload",
+        //   "colored"
+        // );
       }
     },
     onError: (err: unknown) => {

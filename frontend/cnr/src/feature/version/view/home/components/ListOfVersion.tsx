@@ -101,7 +101,7 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 className="card-title text-lg sm:text-xl text-center sm:text-left">
-              List of Versions :{" "}
+              List des Versions :{" "}
               <span className="text-wrap">{versions[0]?.LastVersion}</span>
             </h2>
             <div className="flex space-x-4">
@@ -181,7 +181,7 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
                     </td>
                     <td className="text-center">{version.UserID}</td>
                     <td className="text-center">
-                      <div className="badge  badge-primary">
+                      <div className="badge  badge-primary ">
                         {handleDateTime(new Date(version.Time))}
                       </div>
                     </td>

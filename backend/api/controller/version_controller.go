@@ -38,7 +38,7 @@ func (ic *VersionController) UploadVersionRequestt(c *gin.Context) {
 	versionParams.Data = uploadFile
 	resulat := ic.VersionUsecase.UploadVersion(c, versionParams)
 	if err := resulat.Err; err != nil {
-		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+		c.JSON(http.StatusOK, model.ErrorResponse{
 			Message: err.Error(),
 		})
 		return

@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type notificationRepository struct {
@@ -189,9 +190,13 @@ func (s *notificationRepository) AddNotification(c context.Context, notification
 }
 
 func (s *notificationRepository) GetNotifications(c context.Context, receiverId string) ([]*feature.Notification, error) {
-	filter := bson.M{"receiverId": receiverId}
+	filter := bson.M{
+		"receiverId": receiverId,
+		"is_read":    false,
+	}
 	collection := s.database.Collection(database.NOTIFICATION.String())
-	cursor, err := collection.Find(c, filter)
+	opts := options.Find().SetSort(bson.D{{"time", -1}})
+	cursor, err := collection.Find(c, filter, opts)
 	if err != nil {
 		return nil, err
 	}

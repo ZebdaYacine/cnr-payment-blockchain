@@ -45,7 +45,7 @@ func NewVersionRepository(db database.Database, sftpClient *sftp.Client) Version
 
 func (s *versionRepository) UploadVersion(c context.Context, file entities.UploadVersion) (*fabric.FileMetadata, error) {
 	fileID := uuid.New()
-
+	// teste if sdtp instance found
 	if s.sftpClient == nil {
 		return nil, fmt.Errorf("sftp client is not initialized")
 	}
@@ -101,12 +101,6 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 
 	log.Println(fileMetaData)
 
-	_, err = fabric.SdkProvider("add-version", fileMetaData, file.HashParent)
-	if err != nil {
-		fmt.Println("Error adding version to Fabric Ledger:", err)
-		return nil, err
-	}
-
 	fileIDMongo, err := s.addFileToDB(c, *fileMetaData)
 	if err != nil {
 		return nil, err
@@ -117,6 +111,12 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 	if err != nil {
 		log.Panic("error sftp : %v", err)
 		return nil, fmt.Errorf("error sftp : %v", err)
+	}
+
+	_, err = fabric.SdkProvider("add-version", fileMetaData, file.HashParent)
+	if err != nil {
+		fmt.Println("Error adding version to Fabric Ledger:", err)
+		return nil, err
 	}
 
 	// Send notifications to tagged users and receiver
