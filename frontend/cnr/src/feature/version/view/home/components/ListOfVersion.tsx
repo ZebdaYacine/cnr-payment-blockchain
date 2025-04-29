@@ -7,6 +7,7 @@ import { FileUseCase } from "../../../../file/domain/usecase/FileUseCase";
 import { useFileViewModel } from "../../../../file/viewmodel/FileViewModel";
 import { useUser } from "../../../../../core/state/UserContext";
 import { Data } from "../../../../file/data/dtos/FileDtos";
+import { useTypeTransaction } from "../../../../../core/state/TypeTransactionContext";
 
 interface ListOfVersionProps {
   version: VersionData[];
@@ -17,6 +18,7 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
 
   const [currentPage, setCurrentPage] = useState(1);
   const safeFolders = versions ?? [];
+  const { targetType } = useTypeTransaction();
   const totalPages = Math.ceil(safeFolders.length / ITEMS_PER_PAGE);
   const paginatedVersions = safeFolders.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -59,20 +61,20 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
       modal.showModal();
     }
   };
-  const convertVersionToData = (versions: VersionData[]): Data[] => {
-    return versions.map((v) => ({
-      ID: v.ID,
-      FileName: v.FileName,
-      HashFile: v.HashFile,
-      Time: v.Time,
-      Status: v.Status,
-      Version: Number(v.Version),
-      LastVersion: Number(v.LastVersion),
-      reciverId: v.UserID,
-      Organisation: v.Organisation,
-      path: v.Path,
-    }));
-  };
+  // const convertVersionToData = (versions: VersionData[]): Data[] => {
+  //   return versions.map((v) => ({
+  //     ID: v.ID,
+  //     FileName: v.FileName,
+  //     HashFile: v.HashFile,
+  //     Time: v.Time,
+  //     Status: v.Status,
+  //     Version: Number(v.Version),
+  //     LastVersion: Number(v.LastVersion),
+  //     reciverId: v.UserID,
+  //     Organisation: v.Organisation,
+  //     path: v.Path,
+  //   }));
+  // };
 
   const downloadVerions = () => {
     downloadFiles({
@@ -118,25 +120,26 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
                 ) : (
                   ""
                 )}
-
-                <button
-                  className="btn btn-accent self-center sm:self-auto"
-                  onClick={
-                    checkedFiles.length > 0
-                      ? downloadVerions
-                      : displayVersionModal
-                  }
-                >
-                  {checkedFiles.length > 0
-                    ? isDownloading
-                      ? `Téléchargement de ${checkedFiles.length} fichier${
-                          checkedFiles.length > 1 ? "s" : ""
-                        }...`
-                      : `Téléchargement ${checkedFiles.length} fichier${
-                          checkedFiles.length > 1 ? "s" : ""
-                        }`
-                    : "Ajouter une version"}
-                </button>
+                {targetType === "IN" && (
+                  <button
+                    className="btn btn-accent self-center sm:self-auto"
+                    onClick={
+                      checkedFiles.length > 0
+                        ? downloadVerions
+                        : displayVersionModal
+                    }
+                  >
+                    {checkedFiles.length > 0
+                      ? isDownloading
+                        ? `Téléchargement de ${checkedFiles.length} fichier${
+                            checkedFiles.length > 1 ? "s" : ""
+                          }...`
+                        : `Téléchargement ${checkedFiles.length} fichier${
+                            checkedFiles.length > 1 ? "s" : ""
+                          }`
+                      : "Ajouter une version"}
+                  </button>
+                )}
               </>
             </div>
           </div>

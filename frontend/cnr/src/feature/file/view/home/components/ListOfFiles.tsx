@@ -6,7 +6,7 @@ import { FaFolderTree } from "react-icons/fa6";
 import { useVersion } from "../../../../../core/state/versionContext";
 import { Data } from "../../../data/dtos/FileDtos";
 import DownloaderButton from "../../../../../core/components/DownloaderButton";
-import { useKeys } from "../../../../../core/state/KeyContext";
+// import { useKeys } from "../../../../../core/state/KeyContext";
 
 interface ListOfFilesProps {
   files: Data[];
@@ -34,12 +34,12 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-  const { isDigitalSignatureConfirmed } = useKeys();
-  useEffect(() => {
-    if (!isDigitalSignatureConfirmed) {
-      navigate(`/home/reglementaion/COM-003`);
-    }
-  }, [isDigitalSignatureConfirmed]);
+  // const { isDigitalSignatureConfirmed } = useKeys();
+  // useEffect(() => {
+  //   if (!isDigitalSignatureConfirmed) {
+  //     navigate(`/home/reglementaion/COM-003`);
+  //   }
+  // }, [isDigitalSignatureConfirmed]);
   const handleCheckboxChange = (file: Data, checked: boolean) => {
     if (checked) {
       setCheckedFiles([...checkedFiles, file]);

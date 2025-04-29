@@ -15,42 +15,43 @@ import { PhaseProvider } from "./core/state/PhaseContext";
 import { TimerProvider } from "./core/state/TimerContext";
 import { KeysProvider } from "./core/state/KeyContext";
 import { OTPProvider } from "./core/state/OTPContext";
+import { TypeTransactionProvider } from "./core/state/TypeTransactionContext";
 
 function App() {
   return (
-    <FileProvider>
-      <FolderProvider>
-        <UsersListProvider>
-          <KeysProvider>
-            <ThemeProvider>
-              <AuthProvider>
-                {" "}
-                {/* ✅ Now safely inside all contexts it needs */}
-                <UserProvider>
-                  <PhaseProvider>
-                    <NotificationProvider>
-                      <VersionMetaDataProvider>
-                        <VersionProvider>
-                          <PeerProvider>
-                            <TimerProvider>
-                              <OTPProvider>
-                                <BrowserRouter>
-                                  <AppRouter />
-                                </BrowserRouter>
-                              </OTPProvider>
-                            </TimerProvider>
-                          </PeerProvider>
-                        </VersionProvider>
-                      </VersionMetaDataProvider>
-                    </NotificationProvider>
-                  </PhaseProvider>
-                </UserProvider>
-              </AuthProvider>
-            </ThemeProvider>
-          </KeysProvider>
-        </UsersListProvider>
-      </FolderProvider>
-    </FileProvider>
+    <TypeTransactionProvider>
+      <FileProvider>
+        <FolderProvider>
+          <UsersListProvider>
+            <KeysProvider>
+              <ThemeProvider>
+                <AuthProvider>
+                  <UserProvider>
+                    <PhaseProvider>
+                      <NotificationProvider>
+                        <VersionMetaDataProvider>
+                          <VersionProvider>
+                            <PeerProvider>
+                              <TimerProvider>
+                                <OTPProvider>
+                                  <BrowserRouter>
+                                    <AppRouter />
+                                  </BrowserRouter>
+                                </OTPProvider>
+                              </TimerProvider>
+                            </PeerProvider>
+                          </VersionProvider>
+                        </VersionMetaDataProvider>
+                      </NotificationProvider>
+                    </PhaseProvider>
+                  </UserProvider>
+                </AuthProvider>
+              </ThemeProvider>
+            </KeysProvider>
+          </UsersListProvider>
+        </FolderProvider>
+      </FileProvider>
+    </TypeTransactionProvider>
   );
 }
 

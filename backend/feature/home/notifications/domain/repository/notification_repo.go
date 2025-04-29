@@ -192,7 +192,7 @@ func (s *notificationRepository) AddNotification(c context.Context, notification
 func (s *notificationRepository) GetNotifications(c context.Context, receiverId string) ([]*feature.Notification, error) {
 	filter := bson.M{
 		"receiverId": receiverId,
-		"is_read":    false,
+		// "is_read":    false,
 	}
 	collection := s.database.Collection(database.NOTIFICATION.String())
 	opts := options.Find().SetSort(bson.D{{"time", -1}})

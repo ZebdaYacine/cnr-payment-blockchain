@@ -74,10 +74,7 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
               </td>
 
               <td className="text-center text-gray-600 p-4">
-                <ByUser
-                  name={folder.user}
-                  avatar="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                />
+                <ByUser name={folder.user} avatar={userSaved.avatar} />
               </td>
 
               <td className="text-center p-4">

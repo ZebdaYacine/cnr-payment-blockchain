@@ -13,6 +13,7 @@ import { useFoldersMetaData } from "../../../../../core/state/FolderContext";
 import { useFolderViewModel } from "../../../viewmodel/FolderViewModel";
 import { GetAgentLabel } from "../../../../../services/Utils";
 import { ToastContainer } from "react-toastify";
+import { useTypeTransaction } from "../../../../../core/state/TypeTransactionContext";
 // import { useKeys } from "../../../../../core/state/KeyContext";
 
 interface ListOfFoldersProps {
@@ -115,6 +116,7 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
   };
 
   const foldersList = getFoldersList();
+  const { setTargetType } = useTypeTransaction();
 
   return (
     <>
@@ -150,7 +152,10 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
                           type="radio"
                           name="radio-2"
                           className="radio radio-primary"
-                          onChange={() => setSelectedRadio("OUT")}
+                          onChange={() => {
+                            setSelectedRadio("OUT");
+                            setTargetType("OUT");
+                          }}
                         />
                         <span className="font-semibold">OUT</span>
                       </label>
@@ -160,7 +165,10 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
                           type="radio"
                           name="radio-2"
                           className="radio radio-primary"
-                          onChange={() => setSelectedRadio("IN")}
+                          onChange={() => {
+                            setSelectedRadio("IN");
+                            setTargetType("IN");
+                          }}
                         />
                         <span className="font-semibold">IN</span>
                       </label>
