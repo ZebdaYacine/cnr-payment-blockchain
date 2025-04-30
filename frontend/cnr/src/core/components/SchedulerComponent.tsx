@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { format, addDays, startOfMonth, isSameDay, subDays } from "date-fns";
+import { format, addDays, endOfMonth, isSameDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import { FaClock } from "react-icons/fa6";
 import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileViewModel";
@@ -18,7 +18,7 @@ interface EventItem {
 const rawJson = [
   {
     number: 1,
-    name: "Ouverture Echéance",
+    name: "Ouverture Échéance",
     description: "Échange fichiers échéance entre agences et CCR",
     startAt: 28,
     endAt: 29,
@@ -70,52 +70,51 @@ const rawJson = [
     name: "Clôture échéance",
     description: "Rapport final et sauvegarde",
     startAt: 27,
-    endAt: 28,
+    endAt: 27,
   },
 ];
 
 const generateEventsFromJson = (month: number, year: number): EventItem[] => {
   const events: EventItem[] = [];
+
   rawJson.forEach((item) => {
-    let eventMonth = month;
-    let eventYear = year;
-
-    // Move "Ouverture Echéance" to previous month
-    if (item.number === 1) {
-      const prevMonthDate = new Date(year, month - 1, 1);
-      prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
-      eventMonth = prevMonthDate.getMonth() + 1;
-      eventYear = prevMonthDate.getFullYear();
-    }
-
+    // Add for current month
     for (let day = item.startAt; day <= item.endAt; day++) {
       events.push({
         id: item.number,
         name: item.name,
         description: item.description,
-        date: new Date(eventYear, eventMonth - 1, day),
+        date: new Date(year, month - 1, day),
       });
     }
+
+    // Add also to previous month if "Ouverture Échéance"
+    if (item.number === 1) {
+      const prevMonthDate = new Date(year, month - 1, 1);
+      prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+      const prevMonth = prevMonthDate.getMonth();
+      const prevYear = prevMonthDate.getFullYear();
+
+      for (let day = item.startAt; day <= item.endAt; day++) {
+        events.push({
+          id: item.number,
+          name: item.name,
+          description: item.description,
+          date: new Date(prevYear, prevMonth, day),
+        });
+      }
+    }
   });
+
   return events;
 };
 
-// const isCurrentMonth = (date: Date) => {
-//   const today = new Date();
-//   return (
-//     today.getFullYear() === date.getFullYear() &&
-//     today.getMonth() === date.getMonth()
-//   );
-// };
-
 const getBadgeLabel = (day: Date) => {
   if (isSameDay(day, new Date())) return "Aujourd'hui";
-  // if (!isCurrentMonth(day)) return "Hors période";
   return day > new Date() ? "À venir" : "Dépassée";
 };
 
 const getBadgeClass = (day: Date) => {
-  // if (!isCurrentMonth(day)) return "badge-neutral";
   if (isSameDay(day, new Date())) return "badge-primary";
   if (day < new Date()) return "badge-secondary";
   return "badge-accent";
@@ -135,7 +134,12 @@ const SchedulerGrid: React.FC = () => {
   }, []);
 
   const [currentDate] = useState<Date>(new Date());
-  const [events] = useState<EventItem[]>(generateEventsFromJson(4, 2025));
+  const [events] = useState<EventItem[]>(
+    generateEventsFromJson(
+      currentDate.getMonth() + 1,
+      currentDate.getFullYear()
+    )
+  );
 
   const handleDayClick = (date: Date) => {
     const match = events.find((e) => isSameDay(e.date, date));
@@ -146,13 +150,25 @@ const SchedulerGrid: React.FC = () => {
   };
 
   const renderMonthView = () => {
-    const start = subDays(startOfMonth(currentDate), 1);
-    const customStart = subDays(start, start.getDate() - 28);
     const days: JSX.Element[] = [];
-    let day = customStart;
 
-    for (let i = 0; i < 33; i++) {
-      const currentDaySelected = day;
+    // From 28 of last month to end of current month
+    const start = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() - 1,
+      28
+    );
+    const end = endOfMonth(currentDate);
+
+    let current = start;
+    const daysToRender: Date[] = [];
+
+    while (current <= end) {
+      daysToRender.push(current);
+      current = addDays(current, 1);
+    }
+
+    daysToRender.forEach((currentDaySelected) => {
       const dayEvents = events.filter((event) =>
         isSameDay(event.date, currentDaySelected)
       );
@@ -160,7 +176,7 @@ const SchedulerGrid: React.FC = () => {
 
       days.push(
         <div
-          key={i}
+          key={currentDaySelected.toISOString()}
           className={`card border shadow-sm h-40 overflow-auto cursor-pointer flex-grow sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/6 ${
             isSameDay(currentDaySelected, currentDate)
               ? "hover:border-black transition-transform duration-300 ease-in-out transform hover:scale-105"
@@ -178,7 +194,8 @@ const SchedulerGrid: React.FC = () => {
             }`}
           >
             <div className="font-bold text-xl">
-              {format(currentDaySelected, "dd")}
+              {format(currentDaySelected, "dd")} -{" "}
+              {format(currentDaySelected, "LLLL", { locale: fr })}
             </div>
 
             {hasEvents &&
@@ -203,9 +220,7 @@ const SchedulerGrid: React.FC = () => {
           </div>
         </div>
       );
-
-      day = addDays(day, 1);
-    }
+    });
 
     return (
       <div className="card bg-base-100 p-4 shadow">
@@ -217,9 +232,9 @@ const SchedulerGrid: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex justify-center mb-6">
-        <div className="text-xl font-semibold">
+        <div className="text-2xl font-bold text-center space-y-5">
+          Échéance du mois {format(currentDate, "LLLL yyyy", { locale: fr })}
           {TimeDisplay()}
-          {/* {format(currentDate, "MMMM yyyy", { locale: fr })} */}
         </div>
       </div>
 
