@@ -40,7 +40,7 @@ type Notification struct {
 	Title     string    `json:"title" bson:"title"`
 	Time      time.Time `json:"time" bson:"time"`
 	Path      string    `json:"path" bson:"path"`
-	IsRead    bool      `json:"is_read,omitempty" bson:"is_read,omitempty"`
+	IsRead    bool      `json:"is_read" bson:"is_read"`
 }
 
 type Agence struct {

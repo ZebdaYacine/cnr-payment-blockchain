@@ -31,7 +31,6 @@ func NewNotificationRepository(db database.Database) NotificationRepository {
 
 func (s *notificationRepository) AddNotification(c context.Context, notifications feature.Notification) (*feature.Notification, error) {
 	pr := profileRepo.NewProfileRepository(s.database)
-
 	sender, err := pr.GetProfile(c, notifications.SenderId)
 	if err != nil {
 		log.Printf("Error getting sender profile: %v", err)
@@ -178,7 +177,7 @@ func (s *notificationRepository) AddNotification(c context.Context, notification
 	// Store notification in database
 	collection := s.database.Collection(database.NOTIFICATION.String())
 	notifications.ID = ""
-
+	// notifications.IsRead = false
 	result, err := collection.InsertOne(c, notifications)
 	if err != nil {
 		fmt.Println("Error inserting notifications into MongoDB:", err)
@@ -207,6 +206,17 @@ func (s *notificationRepository) GetNotifications(c context.Context, receiverId 
 		if err := cursor.Decode(&notif); err != nil {
 			return nil, err
 		}
+
+		// Get sender profile with additional fields
+		pr := profileRepo.NewProfileRepository(s.database)
+		sender, err := pr.GetProfile(c, notif.SenderId)
+		if err != nil {
+			log.Printf("Warning: Could not get sender profile for ID %s: %v", notif.SenderId, err)
+			continue
+		}
+
+		// Update notification with sender details
+		notif.Sender = *sender
 		notifications = append(notifications, &notif)
 	}
 	if err := cursor.Err(); err != nil {

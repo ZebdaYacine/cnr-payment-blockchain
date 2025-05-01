@@ -34,6 +34,7 @@ func (ic *NotificationController) AddNotificationRequestt(c *gin.Context) {
 	}
 	notification.SenderId = userid
 	log.Println("notification  :", notification)
+	notification.IsRead = false
 	notificationParams := &usecase.NotificationParams{}
 	notificationParams.Data = notification
 	resulat := ic.NotificationUsecase.AddNotification(c, notificationParams)

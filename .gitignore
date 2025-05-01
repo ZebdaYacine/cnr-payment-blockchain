@@ -9,6 +9,7 @@
 /backend/*.db
 /backend/*.sqlite
 /backend/cert/*
+/backend/ftp/
 
 
 
