@@ -116,7 +116,7 @@ const getBadgeLabel = (day: Date) => {
 
 const getBadgeClass = (day: Date) => {
   if (isSameDay(day, new Date())) return "badge-primary";
-  if (day < new Date()) return "badge-secondary";
+  if (day < new Date()) return "badge-error";
   return "badge-accent";
 };
 

@@ -28,7 +28,7 @@ export default function TimeDisplay() {
       <h1 className="text-4xl sm:text-5xl font-extrabold uppercase  text-blue-400  tracking-wider">
         Échéance du mois {headline}
       </h1>
-      <p className="text text-gray-800 ">{dateString}</p>
+      <p className="text text-gray-600 ">{dateString}</p>
       <div className="mt-2 text-gray-600">
         <span className="countdown font-mono text-2xl sm:text-3xl">
           <span
