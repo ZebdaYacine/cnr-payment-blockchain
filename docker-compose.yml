@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend/cnr
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080/api
+    networks:
+      - cnr-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/cnr
+      - JWT_SECRET=your_jwt_secret
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=your_email@gmail.com
+      - SMTP_PASS=your_app_password
+    networks:
+      - cnr-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - cnr-network
+
+networks:
+  cnr-network:
+    driver: bridge
+
+volumes:
+  mongodb_data: 

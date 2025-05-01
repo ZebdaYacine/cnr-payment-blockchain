@@ -1,24 +1,37 @@
-FROM golang:1.22.0 AS builder
+# Build stage
+FROM golang:1.21-alpine as builder
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
+# Install build dependencies
+RUN apk add --no-cache git
 
-COPY go.mod go.sum  ./
+# Copy go mod files
+COPY go.mod go.sum ./
 
+# Download dependencies
 RUN go mod download
-RUN go mod tidy
 
-COPY . ./
+# Copy source code
+COPY . .
 
-COPY .env ./
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/main.go
 
-# RUN go build -o main cmd/main.go
+# Production stage
+FROM alpine:latest
 
-# FROM alpine:latest
+WORKDIR /app
 
-# WORKDIR /app
+# Install runtime dependencies
+RUN apk --no-cache add ca-certificates
 
-EXPOSE 3000
-#RUN go run cmd/main.go
-#ENTRYPOINT [ "/app/main" ]
-CMD ["go","run","cmd/main.go"]
+# Copy binary from builder
+COPY --from=builder /app/main .
+COPY --from=builder /app/.env .
+
+# Expose port
+EXPOSE 8080
+
+# Run the application
+CMD ["./main"]

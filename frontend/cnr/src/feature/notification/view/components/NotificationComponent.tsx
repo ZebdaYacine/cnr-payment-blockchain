@@ -35,12 +35,18 @@ function NotificationComponent({ notification }: NotificationProps) {
     hour12: false,
   });
 
-  const handleNotificationClick = (path: string) => {
+  const handleNotificationClick = async (path: string) => {
     if (userSaved?.permission) {
-      updateNotification({
-        notificationId: notification.id,
-        permission: userSaved.permission.toLowerCase(),
-      });
+      try {
+        await updateNotification({
+          notificationId: notification.id,
+          permission: userSaved.permission.toLowerCase(),
+        });
+        // Refresh notifications list after successful update
+        // getNotifications({ permission: userSaved.permission.toLowerCase() });
+      } catch (error) {
+        console.error("Error updating notification:", error);
+      }
     }
     navigate(path);
   };
