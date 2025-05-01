@@ -152,7 +152,6 @@ const SchedulerGrid: React.FC = () => {
   const renderMonthView = () => {
     const days: JSX.Element[] = [];
 
-    // From 28 of last month to end of current month
     const start = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() - 1,
@@ -233,7 +232,6 @@ const SchedulerGrid: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-center mb-6">
         <div className="text-2xl font-bold text-center space-y-5">
-          Échéance du mois {format(currentDate, "LLLL yyyy", { locale: fr })}
           {TimeDisplay()}
         </div>
       </div>

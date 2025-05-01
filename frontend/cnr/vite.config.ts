@@ -5,8 +5,13 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+
   server: {
-  host: '0.0.0.0'    //   https: {
+    // watch: {
+    //   usePolling: true, // Forces file watching even in tricky setups
+    // },
+    // host: "0.0.0.0", //
+    // https: {
     //     key: fs.readFileSync(
     //       path.resolve(__dirname, "../../backend/cert/cnr-key.pem")
     //     ),
@@ -15,6 +20,6 @@ export default defineConfig({
     //     ),
     //   },
     // host: "localhost",
-    // port: 5173,
+    port: 5173,
   },
 });
