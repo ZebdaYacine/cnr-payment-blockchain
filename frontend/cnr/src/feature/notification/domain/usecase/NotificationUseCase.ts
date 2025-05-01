@@ -37,4 +37,16 @@ export class NotificationUseCase {
       path
     );
   }
+
+  async UpdateNotification(
+    token: string,
+    permission: string,
+    notificationId: string
+  ): Promise<NotificationResponse | ErrorResponse> {
+    return await this.repository.UpdateNotification(
+      token,
+      permission,
+      notificationId
+    );
+  }
 }

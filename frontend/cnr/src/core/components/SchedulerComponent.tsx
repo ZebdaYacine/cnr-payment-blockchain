@@ -116,8 +116,8 @@ const getBadgeLabel = (day: Date) => {
 
 const getBadgeClass = (day: Date) => {
   if (isSameDay(day, new Date())) return "badge-primary";
-  if (day < new Date()) return "badge-error";
-  return "badge-accent";
+  if (day < new Date()) return "badge-error text-white";
+  return "badge-success text-white";
 };
 
 const SchedulerGrid: React.FC = () => {

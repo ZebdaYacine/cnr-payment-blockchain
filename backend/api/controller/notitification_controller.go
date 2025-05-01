@@ -72,3 +72,38 @@ func (ic *NotificationController) GetNotificationsRequestt(c *gin.Context) {
 		Data:    resulat.Data,
 	})
 }
+
+func (ic *NotificationController) UpdateNotificationRequestt(c *gin.Context) {
+	log.Println("************************ UPDATE NOTIFICATION REQUEST ************************")
+	var notification feature.Notification
+	if !core.IsDataRequestSupported(&notification, c) {
+		return
+	}
+	if notification.ID == "" {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: "Notification ID is required",
+		})
+		return
+	}
+	token := util.GetToken(c)
+	userid, err := util.ExtractIDFromToken(token, pkg.GET_ROOT_SERVER_SEETING().SECRET_KEY)
+	if err != nil {
+		c.JSON(http.StatusNonAuthoritativeInfo, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+	notification.SenderId = userid
+	result := ic.NotificationUsecase.UpdateNotification(c, notification.ID)
+	if err := result.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "Notification updated successfully",
+		Data:    result.Data,
+	})
+}

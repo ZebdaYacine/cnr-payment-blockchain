@@ -18,6 +18,7 @@ type NotificationResult struct {
 type NotificationUsecase interface {
 	AddNotification(c context.Context, data *NotificationParams) *NotificationResult
 	GetNotifications(c context.Context, receiverId string) *NotificationResult
+	UpdateNotification(c context.Context, notificationId string) *NotificationResult
 }
 
 type notificationUsecase struct {
@@ -44,6 +45,14 @@ func (p *notificationUsecase) AddNotification(c context.Context, data *Notificat
 
 func (p *notificationUsecase) GetNotifications(c context.Context, receiverId string) *NotificationResult {
 	notificationResult, err := p.repo.GetNotifications(c, receiverId)
+	if err != nil {
+		return &NotificationResult{Err: err}
+	}
+	return &NotificationResult{Data: notificationResult}
+}
+
+func (p *notificationUsecase) UpdateNotification(c context.Context, notificationId string) *NotificationResult {
+	notificationResult, err := p.repo.UpdateNotification(c, notificationId)
 	if err != nil {
 		return &NotificationResult{Err: err}
 	}

@@ -3,6 +3,12 @@ import { ApiService } from "../../../../core/service/ApiService";
 import { NotificationResponse } from "../dtos/NotificationDtos";
 
 export interface NotificationDataSource {
+  UpdateNotificationApi(
+    token: string,
+    permission: string,
+    notificationId: string
+  ): Promise<NotificationResponse | ErrorResponse>;
+
   GetNotificationApi(
     token: string,
     permission: string
@@ -52,6 +58,21 @@ export class NotificationDataSourceImpl implements NotificationDataSource {
       "get",
       `/${permission}/get-notifications`,
       token
+    );
+  }
+
+  async UpdateNotificationApi(
+    token: string,
+    permission: string,
+    id: string
+  ): Promise<NotificationResponse | ErrorResponse> {
+    return ApiService.makeRequest<NotificationResponse>(
+      "post",
+      `/${permission}/update-notification`,
+      token,
+      {
+        id,
+      }
     );
   }
 }

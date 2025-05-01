@@ -50,6 +50,7 @@ func Setup(db database.Database, gin *gin.Engine, sftpClient *sftp.Client) {
 	private.NewDownLoadFolderRouter(db, userRouter, sftpClient)
 	private.NewAddPKRouter(db, userRouter)
 	private.NewUpdateFirstLastNameRouter(db, userRouter)
+	private.NewUpdateNotificationRouter(db, userRouter)
 	private.NewUpdatePasswordRouter(db, userRouter)
 	private.NewVerifyDigitalSignatureRouter(db, userRouter)
 	// Superuser-specific routes with middleware
@@ -75,5 +76,6 @@ func Setup(db database.Database, gin *gin.Engine, sftpClient *sftp.Client) {
 	private.NewUpdateFirstLastNameRouter(db, adminRouter)
 	private.NewUpdatePasswordRouter(db, adminRouter)
 	private.NewVerifyDigitalSignatureRouter(db, adminRouter)
+	private.NewUpdateNotificationRouter(db, adminRouter)
 
 }

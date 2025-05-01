@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -21,6 +22,7 @@ type notificationRepository struct {
 type NotificationRepository interface {
 	GetNotifications(c context.Context, receiverId string) ([]*feature.Notification, error)
 	AddNotification(c context.Context, notifications feature.Notification) (*feature.Notification, error)
+	UpdateNotification(c context.Context, notificationId string) (*feature.Notification, error)
 }
 
 func NewNotificationRepository(db database.Database) NotificationRepository {
@@ -177,7 +179,7 @@ func (s *notificationRepository) AddNotification(c context.Context, notification
 	// Store notification in database
 	collection := s.database.Collection(database.NOTIFICATION.String())
 	notifications.ID = ""
-	// notifications.IsRead = false
+	notifications.IsRead = false
 	result, err := collection.InsertOne(c, notifications)
 	if err != nil {
 		fmt.Println("Error inserting notifications into MongoDB:", err)
@@ -223,4 +225,36 @@ func (s *notificationRepository) GetNotifications(c context.Context, receiverId 
 		return nil, err
 	}
 	return notifications, nil
+}
+
+func (s *notificationRepository) UpdateNotification(c context.Context, notificationId string) (*feature.Notification, error) {
+	collection := s.database.Collection(database.NOTIFICATION.String())
+
+	objID, err := primitive.ObjectIDFromHex(notificationId)
+	if err != nil {
+		log.Printf("Invalid ObjectID: %v", err)
+		return nil, err
+	}
+
+	filter := bson.M{"_id": objID}
+	update := bson.M{
+		"$set": bson.M{
+			"is_read": true,
+		},
+	}
+
+	var notification feature.Notification
+	err = collection.FindOne(c, filter).Decode(&notification)
+	if err != nil {
+		log.Printf("Error finding notification: %v", err)
+		return nil, err
+	}
+
+	_, err = collection.UpdateOne(c, filter, update)
+	if err != nil {
+		log.Printf("Error updating notification: %v", err)
+		return nil, err
+	}
+
+	return &notification, nil
 }

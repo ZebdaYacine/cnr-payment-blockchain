@@ -4,6 +4,11 @@ import { useTheme } from "../../../../core/state/ThemeContext";
 import { FaUserAlt } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
+import { useNotificationViewModel } from "../../viewmodel/NotificationViewModel";
+import { NotificationUseCase } from "../../domain/usecase/NotificationUseCase";
+import { NotificationDataSourceImpl } from "../../data/dataSource/NotificationAPIDataSource";
+import { NotificationRepositoryImpl } from "../../data/repository/NotificationRepositoryImpl";
+import { useUser } from "../../../../core/state/UserContext";
 
 interface NotificationProps {
   notification: Notification;
@@ -11,6 +16,14 @@ interface NotificationProps {
 
 function NotificationComponent({ notification }: NotificationProps) {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
+  const { userSaved } = useUser();
+
+  const notificationUseCase = new NotificationUseCase(
+    new NotificationRepositoryImpl(new NotificationDataSourceImpl())
+  );
+
+  const { updateNotification } = useNotificationViewModel(notificationUseCase);
 
   const formattedTime = new Date(notification.time).toLocaleString("en-US", {
     weekday: "long",
@@ -21,9 +34,14 @@ function NotificationComponent({ notification }: NotificationProps) {
     minute: "2-digit",
     hour12: false,
   });
-  const navigate = useNavigate();
 
   const handleNotificationClick = (path: string) => {
+    if (userSaved?.permission) {
+      updateNotification({
+        notificationId: notification.id,
+        permission: userSaved.permission.toLowerCase(),
+      });
+    }
     navigate(path);
   };
 

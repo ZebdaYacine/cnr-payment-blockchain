@@ -17,6 +17,18 @@ export class NotificationRepositoryImpl implements NotificationRepository {
     return await this.datasource.GetNotificationApi(token, permission);
   }
 
+  async UpdateNotification(
+    token: string,
+    permission: string,
+    notificationId: string
+  ): Promise<NotificationResponse | ErrorResponse> {
+    return await this.datasource.UpdateNotificationApi(
+      token,
+      permission,
+      notificationId
+    );
+  }
+
   async AddNotification(
     token: string,
     permission: string,

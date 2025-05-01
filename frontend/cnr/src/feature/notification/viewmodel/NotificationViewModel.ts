@@ -127,6 +127,61 @@ export function useNotificationViewModel(
     },
   });
 
+  const {
+    mutate: updateNotification,
+    isPending: isUpdateNotificationLoading,
+    isSuccess: isUpdateNotificationSuccess,
+    isError: isUpdateNotificationError,
+  } = useMutation({
+    mutationFn: async ({
+      notificationId,
+      permission,
+    }: {
+      notificationId: string;
+      permission: string;
+    }) => {
+      console.log("Updating Notification:", notificationId);
+      const storedToken = localStorage.getItem("authToken");
+      if (!storedToken) {
+        navigate("/");
+        throw new Error("Authentication token not found");
+      }
+      if (IsTokenExpired(storedToken)) {
+        localStorage.removeItem("authToken");
+        navigate("/");
+        throw new Error("Session expired. Please log in again.");
+      }
+      return notificationUseCase?.UpdateNotification(
+        storedToken,
+        permission,
+        notificationId
+      );
+    },
+    onSuccess: (data) => {
+      console.log("Update Notification Response:", data);
+      if (data && "data" in data) {
+        const resp = data as NotificationResponse;
+        if (resp.data.length > 0) {
+          SetNotification(resp.data[0]);
+        }
+      } else {
+        const errorResponse = data as ErrorResponse;
+        error(
+          errorResponse.message || "Network error occurred during update",
+          "colored"
+        );
+        SetNotification(null);
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("Update error:", err);
+      error(
+        "An error occurred while updating notification. Please try again.",
+        "colored"
+      );
+    },
+  });
+
   return {
     getNotifications,
     isNotificationsLoading,
@@ -138,5 +193,10 @@ export function useNotificationViewModel(
     isNotificationLoading,
     isNotificationSuccess,
     isNotificationError,
+
+    updateNotification,
+    isUpdateNotificationLoading,
+    isUpdateNotificationSuccess,
+    isUpdateNotificationError,
   };
 }

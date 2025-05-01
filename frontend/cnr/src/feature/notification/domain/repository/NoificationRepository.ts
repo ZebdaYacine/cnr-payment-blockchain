@@ -16,4 +16,9 @@ export interface NotificationRepository {
     time: Date,
     path: string
   ): Promise<NotificationResponse | ErrorResponse>;
+  UpdateNotification(
+    token: string,
+    permission: string,
+    notificationId: string
+  ): Promise<NotificationResponse | ErrorResponse>;
 }
