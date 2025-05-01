@@ -232,7 +232,7 @@ const SchedulerGrid: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-center mb-6">
         <div className="text-2xl font-bold text-center space-y-5">
-          {TimeDisplay()}
+          {<TimeDisplay />}
         </div>
       </div>
 

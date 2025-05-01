@@ -25,7 +25,7 @@ export default function TimeDisplay() {
 
   return (
     <div className=" text-neutral-content p-6 rounded-xl text-center shadow-xl space-y-2">
-      <h1 className="text-4xl sm:text-5xl font-extrabold uppercase  text-blue-400  tracking-wider">
+      <h1 className="text-4xl sm:text-5xl font-extrabold uppercase  text-green-400  tracking-wider">
         Échéance du mois {headline}
       </h1>
       <p className="text text-gray-600 ">{dateString}</p>
