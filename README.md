@@ -55,10 +55,8 @@ SMTP_PASS=your_app_password
 ```
 
 ### Frontend
-Create a `.env` file in the frontend/cnr directory:
-```
-REACT_APP_API_URL=http://localhost:8080/api
-```
+
+
 
 ## Deployment
 
@@ -97,7 +95,7 @@ go run cmd/main.go
 ```bash
 cd frontend/cnr
 npm install
-npm start
+npm run dev
 ```
 
 ## API Documentation

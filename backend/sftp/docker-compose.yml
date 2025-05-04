@@ -7,5 +7,5 @@ services:
     volumes:
       - ./upload:/home/cnr
     command: cnr:root:::cnr
-    environment:
-      - UMASK=0000
+    # environment:
+    #   - UMASK=0000

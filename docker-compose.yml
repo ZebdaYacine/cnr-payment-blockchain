@@ -1,34 +1,18 @@
 version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: ./frontend/cnr
-      dockerfile: Dockerfile
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    environment:
-      - REACT_APP_API_URL=http://localhost:8080/api
-    networks:
-      - cnr-network
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "9000:3000"
+    env_file:
+      - .env
     depends_on:
       - mongodb
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017/cnr
-      - JWT_SECRET=your_jwt_secret
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_USER=your_email@gmail.com
-      - SMTP_PASS=your_app_password
+      - redis
+      - sftp
     networks:
       - cnr-network
 
@@ -38,12 +22,49 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    env_file:
+      - .env
     networks:
       - cnr-network
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - cnr-network
+
+  sftp:
+    image: atmoz/sftp
+    ports:
+      - "2222:22"
+    volumes:
+      - ./sftp/data:/home/${SFTP_USER}/upload
+    command: ${SFTP_USER}:${SFTP_PASS}:1001
+    env_file:
+      - .env
+    networks:
+      - cnr-network
+
+  # frontend:  # Uncomment and adjust if needed
+  #   build:
+  #     context: ./frontend/cnr
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   environment:
+  #     - REACT_APP_API_URL=http://localhost:9000/api
+  #   networks:
+  #     - cnr-network
+
+volumes:
+  mongodb_data:
+  redis_data:
 
 networks:
   cnr-network:
     driver: bridge
-
-volumes:
-  mongodb_data: 
