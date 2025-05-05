@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y ca-certificates tzdata && rm -rf /var/l
 # Create a non-root user
 RUN useradd -m -u 1000 appuser
 
-# Create directory for Fabric certificates
+# Create necessary directories for Fabric
 RUN mkdir -p /app/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls
 
 # Copy binary and configuration from builder
@@ -42,7 +42,7 @@ RUN chown -R appuser:appuser /app
 # Switch to non-root user
 USER appuser
 
-# Expose port 3000 (matching your docker-compose port mapping)
+# Expose port 3000
 EXPOSE 3000
 
 # Run the application

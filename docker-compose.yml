@@ -36,7 +36,7 @@ services:
   #   image: redis:alpine
   #   ports:
   #     - "6379:6379"
-  #   volumes:
+  #   volumes:`
   #     - redis_data:/data
   #   networks:
   #     - cnr-network
@@ -47,7 +47,7 @@ services:
       - "2222:22"
     volumes:
       - ./sftp/data:/home/${SFTP_USER}/upload
-    command: ${SFTP_USER}:${SFTP_PASS}:1001
+    command: ${SFTP_USER}:${SFTP_PASS}:::${SFTP_USER}
     env_file:
       - .env
     networks:
