@@ -190,7 +190,7 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
 
   async SendOTPApi(
     token: string,
-    permission: string,
+    // permission: string,
     email: string
   ): Promise<boolean | ErrorResponse> {
     try {
@@ -210,7 +210,7 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
 
   async ConfirmOTPApi(
     token: string,
-    permission: string,
+    // permission: string,
     otp: string
   ): Promise<boolean | ErrorResponse> {
     try {

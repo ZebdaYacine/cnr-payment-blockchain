@@ -337,24 +337,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       );
     },
     onSuccess: (data, variables) => {
-      const d = data as boolean;
-      console.log(d);
-      if (
-        typeof data === "object" &&
-        "data" in data &&
-        typeof data.data === "object"
-      ) {
-        const isVerified = data.data?.Data;
-        console.log(">>>>>>>>>>>>>>>>>>>", isVerified);
-        if (isVerified === true) {
-          setIsDigitalSignatureConfirmed(true);
-          setDigitalSignature(variables.signature);
-          success("votre signature est acceptee.", "colored");
-        } else {
-          setIsDigitalSignatureConfirmed(false);
-          setDigitalSignature(variables.signature);
-          error("votre signature n'est pas acceptee.", "colored");
-        }
+      const isVerified = data as boolean;
+      console.log(">>>>>>>>>>>>>>>>>>>", isVerified);
+      if (isVerified === true) {
+        setIsDigitalSignatureConfirmed(true);
+        setDigitalSignature(variables.signature);
+        success("votre signature est acceptee.", "colored");
       } else {
         setIsDigitalSignatureConfirmed(false);
         setDigitalSignature(variables.signature);

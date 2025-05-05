@@ -17,8 +17,7 @@ const AddPKComponent: React.FC = () => {
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
-  const { addPk, isPKSuccess, isPKError, isPKLoading } =
-    useProfileViewModel(profileUseCase);
+  const { addPk, isPKSuccess } = useProfileViewModel(profileUseCase);
 
   const AddKey = () => {
     if (!cle.trim()) return;

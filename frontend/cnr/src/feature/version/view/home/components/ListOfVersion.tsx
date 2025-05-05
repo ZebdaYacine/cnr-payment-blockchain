@@ -6,7 +6,7 @@ import { FileRepositoryImpl } from "../../../../file/data/repository/FileReposit
 import { FileUseCase } from "../../../../file/domain/usecase/FileUseCase";
 import { useFileViewModel } from "../../../../file/viewmodel/FileViewModel";
 import { useUser } from "../../../../../core/state/UserContext";
-import { Data } from "../../../../file/data/dtos/FileDtos";
+// import { Data } from "../../../../file/data/dtos/FileDtos";
 import { useTypeTransaction } from "../../../../../core/state/TypeTransactionContext";
 
 interface ListOfVersionProps {
@@ -77,8 +77,22 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
   // };
 
   const downloadVerions = () => {
+    const convertedFiles = checkedFiles.map((file) => ({
+      ID: file.ID,
+      FileName: file.FileName,
+      HashFile: file.HashFile,
+      Time: file.Time,
+      Status: file.Status,
+      Version: Number(file.Version),
+      LastVersion: Number(file.LastVersion),
+      reciverId: file.UserID,
+      Organisation: file.Organisation,
+      path: file.Path,
+      TaggedUsers: [],
+    }));
+
     downloadFiles({
-      files: checkedFiles as Data[],
+      files: convertedFiles,
       permission: userPermission.toLowerCase(),
     });
   };

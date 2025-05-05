@@ -19,7 +19,7 @@
 /frontend/cnr/.build/
 /frontend/cnr/*.log
 /frontend/cnr/cert/*
-
+.env
 # Build directories
 /frontend/cnr/dist/
 /frontend/cnr/public/build/

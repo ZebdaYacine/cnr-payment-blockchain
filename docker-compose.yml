@@ -11,7 +11,7 @@ services:
       - .env
     depends_on:
       - mongodb
-      - redis
+      # - redis
       - sftp
     networks:
       - cnr-network
@@ -22,19 +22,20 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
     env_file:
       - .env
     networks:
       - cnr-network
 
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - cnr-network
+  # redis:
+  #   image: redis:alpine
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - cnr-network
 
   sftp:
     image: atmoz/sftp
@@ -48,22 +49,20 @@ services:
     networks:
       - cnr-network
 
-  # frontend:  # Uncomment and adjust if needed
-  #   build:
-  #     context: ./frontend/cnr
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - backend
-  #   environment:
-  #     - REACT_APP_API_URL=http://localhost:9000/api
-  #   networks:
-  #     - cnr-network
+  frontend:  
+    build:
+      context: ./frontend/cnr
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - cnr-network
 
 volumes:
   mongodb_data:
-  redis_data:
+  # redis_data:
 
 networks:
   cnr-network:
