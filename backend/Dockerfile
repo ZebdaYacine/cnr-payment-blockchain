@@ -26,12 +26,20 @@ WORKDIR /app
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y ca-certificates tzdata && rm -rf /var/lib/apt/lists/*
 
-# Copy binary from builder
+# Create a non-root user
+RUN useradd -m -u 1000 appuser
+
+# Create directory for Fabric certificates
+RUN mkdir -p /app/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls
+
+# Copy binary and configuration from builder
 COPY --from=builder /app/main .
 COPY --from=builder /app/.env .
 
-# Create a non-root user
-RUN useradd -m -u 1000 appuser
+# Set proper permissions
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
 USER appuser
 
 # Expose port 3000 (matching your docker-compose port mapping)

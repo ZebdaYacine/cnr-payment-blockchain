@@ -9,6 +9,10 @@ services:
       - "9000:3000"
     env_file:
       - .env
+    volumes:
+      - ./fabric-samples:/app/fabric-samples
+    environment:
+      - FABRIC_TLS_CERT_PATH=/app/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
     depends_on:
       - mongodb
       # - redis
