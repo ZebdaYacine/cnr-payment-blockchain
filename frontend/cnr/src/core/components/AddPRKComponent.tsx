@@ -1,27 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileViewModel";
 import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
 import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
 import { ProfileDataSourceImpl } from "../../feature/profile/data/dataSource/ProfileAPIDataSource";
 import { useKeys } from "../state/KeyContext";
-import { useSignatureVerifier } from "../../services/digitalSignutre"; // 👈 Assure-toi que le chemin est correct
+import { useSignatureVerifier } from "../../services/digitalSignutre";
 import { useNotification } from "../../services/useNotification";
+import { useUser } from "../state/UserContext";
 
 const AddPRKComponent: React.FC = () => {
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const { setPrivateKey } = useKeys();
-  const { error } = useNotification();
+  const { error, success } = useNotification();
+  const { userSaved } = useUser();
 
   const profileUseCase = new PofileUseCase(
     new ProfileRepositoryImpl(new ProfileDataSourceImpl())
   );
   const { isVerifyingSignature } = useProfileViewModel(profileUseCase);
-
   const { verify } = useSignatureVerifier();
 
+  useEffect(() => {
+    if (!userSaved.publicKey) {
+      error(
+        "Vous devez d'abord générer une clé publique avant d'ajouter une clé privée.",
+        "colored"
+      );
+    }
+  }, [userSaved.publicKey]);
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!userSaved.publicKey) {
+      error(
+        "Vous devez d'abord générer une clé publique avant d'ajouter une clé privée.",
+        "colored"
+      );
+      return;
+    }
+
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -35,6 +53,14 @@ const AddPRKComponent: React.FC = () => {
   };
 
   const handleVerify = async () => {
+    if (!userSaved.publicKey) {
+      error(
+        "Vous devez d'abord générer une clé publique avant d'ajouter une clé privée.",
+        "colored"
+      );
+      return;
+    }
+
     if (!fileContent) {
       toast.error("Veuillez d'abord télécharger votre clé privée.");
       return;
@@ -45,15 +71,15 @@ const AddPRKComponent: React.FC = () => {
       const isValid = await verify(fileContent);
       if (!isValid) {
         error(
-          "An error occurred while fetching the current phase. Please try again.",
+          "La signature est invalide. Veuillez vérifier votre clé privée.",
           "colored"
         );
-        // toast.error("Signature invalide !");
-        // setIsVerifying(false);
+      } else {
+        success("Clé privée vérifiée avec succès!", "colored");
       }
     } catch (err) {
       console.log(err);
-      toast.error("Erreur lors de la vérification");
+      error("Erreur lors de la vérification", "colored");
     } finally {
       setIsVerifying(false);
     }
@@ -85,7 +111,7 @@ const AddPRKComponent: React.FC = () => {
             </div>
             <button
               onClick={handleVerify}
-              disabled={isVerifying || isVerifyingSignature}
+              // disabled={isVerifying || isVerifyingSignature}
               className="btn btn-secondary px-4 py-2 rounded"
             >
               {isVerifying || isVerifyingSignature

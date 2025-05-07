@@ -22,9 +22,9 @@ type AddPKRequest struct {
 }
 
 type UpdateFirstLastNameRequest struct {
-	FirstName string `json:"firstName" binding:"required"`
-	LastName  string `json:"lastName" binding:"required"`
-	Avatar    string `json:"avatar" binding:"required"`
+	FirstName string `json:"firstName,omitempty" binding:"required"`
+	LastName  string `json:"lastName,omitempty" binding:"required"`
+	Avatar    string `json:"avatar,omitempty" binding:"required"`
 }
 
 type UpdatePasswordRequest struct {
@@ -155,7 +155,7 @@ func (ic *ProfileController) UpdateFirstLastNameRequest(c *gin.Context) {
 		return
 	}
 	userId := core.GetIdUser(c)
-	result := ic.ProfileUsecase.UpdateFirstLastName(c, userId, req.FirstName, req.LastName,req.Avatar)
+	result := ic.ProfileUsecase.UpdateFirstLastName(c, userId, req.FirstName, req.LastName, req.Avatar)
 	if err := result.Err; err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Message: err.Error(),
@@ -213,9 +213,10 @@ func (ic *ProfileController) VerifyDigitalSignature(c *gin.Context) {
 		req.Signature,
 		req.RandomValue,
 	)
-
+	log.Println(isValid)
 	c.JSON(http.StatusOK, model.SuccessResponse{
-		Message: "Signature verified",
+		Message: "Resulat of SN",
 		Data:    isValid,
 	})
+
 }

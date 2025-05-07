@@ -94,18 +94,18 @@ export class ProfileRepositoryImpl implements ProfileRepository {
 
   async SendOTP(
     token: string,
-    permission: string,
+    // permission: string,
     email: string
   ): Promise<boolean | ErrorResponse> {
-    return await this.datasource.SendOTPApi(token, permission, email);
+    return await this.datasource.SendOTPApi(token, email);
   }
 
   async ConfirmOTP(
     token: string,
-    permission: string,
+    // permission: string,
     otp: string
   ): Promise<boolean | ErrorResponse> {
-    return await this.datasource.ConfirmOTPApi(token, permission, otp);
+    return await this.datasource.ConfirmOTPApi(token, otp);
   }
 
   async VerifySignature(

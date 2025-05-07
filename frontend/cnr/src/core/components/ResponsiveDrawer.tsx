@@ -45,10 +45,12 @@ const ResponsiveDrawer: React.FC = () => {
   }, [users]);
   const navigate = useNavigate();
   // useEffect(() => {
-  //   if (!isDigitalSignatureConfirmed) {
-  //     navigate(`/home/reglementaion/COM-003`);
+  //   if (!location.pathname.includes("add-private-key")) {
+  //     if (!isDigitalSignatureConfirmed) {
+  //       navigate(`/home/reglementaion/COM-003`);
+  //     }
   //   }
-  // }, [isDigitalSignatureConfirmed]);
+  // }, [isDigitalSignatureConfirmed, location.pathname]);
   return (
     <>
       <div className="drawer lg:drawer-open min-h-screen">

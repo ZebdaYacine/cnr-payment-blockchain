@@ -56,13 +56,13 @@ export interface ProfileRepository {
 
   SendOTP(
     token: string,
-    permission: string,
+    // permission: string,
     email: string
   ): Promise<boolean | ErrorResponse>;
 
   ConfirmOTP(
     token: string,
-    permission: string,
+    // permission: string,
     otp: string
   ): Promise<boolean | ErrorResponse>;
 

@@ -77,5 +77,6 @@ func Setup(db database.Database, gin *gin.Engine, sftpClient *sftp.Client) {
 	private.NewUpdatePasswordRouter(db, adminRouter)
 	private.NewVerifyDigitalSignatureRouter(db, adminRouter)
 	private.NewUpdateNotificationRouter(db, adminRouter)
+	// private.NewUpdateNotificationRouter(db, adminRouter)
 
 }

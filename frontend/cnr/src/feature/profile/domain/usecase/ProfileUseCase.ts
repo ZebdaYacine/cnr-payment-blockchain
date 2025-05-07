@@ -96,18 +96,18 @@ export class PofileUseCase {
 
   async SendOTP(
     token: string,
-    permission: string,
+    // permission: string,
     email: string
   ): Promise<boolean | ErrorResponse> {
-    return await this.repository.SendOTP(token, permission, email);
+    return await this.repository.SendOTP(token, email);
   }
 
   async ConfirmOTP(
     token: string,
-    permission: string,
+    // permission: string,
     otp: string
   ): Promise<boolean | ErrorResponse> {
-    return await this.repository.ConfirmOTP(token, permission, otp);
+    return await this.repository.ConfirmOTP(token, otp);
   }
 
   async VerifySignature(

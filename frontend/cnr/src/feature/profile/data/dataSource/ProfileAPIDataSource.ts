@@ -53,12 +53,12 @@ export interface ProfileDataSource {
   ): Promise<boolean | ErrorResponse>;
   SendOTPApi(
     token: string,
-    permission: string,
+    // permission: string,
     email: string
   ): Promise<boolean | ErrorResponse>;
   ConfirmOTPApi(
     token: string,
-    permission: string,
+    // permission: string,
     otp: string
   ): Promise<boolean | ErrorResponse>;
   VerifySignatureApi(

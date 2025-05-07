@@ -103,8 +103,8 @@ func (p *profileUsecase) VerifyDigitalSignature(c context.Context, userId string
 
 	isValid := p.repo.VerifyDigitalSignature(signature, randomValue, user.PublicKey)
 	if !isValid {
-		return &ProfileResult{Err: fmt.Errorf("invalid signature")}
+		return &ProfileResult{Err: fmt.Errorf("invalid signature"), Data: false}
 	}
 
-	return &ProfileResult{Data: true}
+	return &ProfileResult{Data: true, Err: nil}
 }

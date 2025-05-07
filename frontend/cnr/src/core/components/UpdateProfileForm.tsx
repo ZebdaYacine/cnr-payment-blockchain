@@ -44,10 +44,11 @@ const UpdateProfileForm: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log({ firstName, lastName, profilePic });
+
     updateFirstLastName({
       firstName: firstName,
       lastName: lastName,
-      avatar: base64Image || undefined,
+      avatar: base64Image ?? userSaved.avatar,
     });
   };
 

@@ -46,6 +46,7 @@ const PKeyComponents: React.FC<PKeyComponentsProps> = ({
         <p className="text font-semibold text-xl">
           🔐 {userSaved.publicKey ? "Cle Privee" : "Cle Publique"}
         </p>
+
         <button
           className="btn btn-success btn-outline"
           onClick={() => {

@@ -25,11 +25,16 @@ export const useNotification = () => {
         onClose: resetToast,
       });
     } else {
-      toast.update(toastId, {
-        render: message,
-        autoClose: 5000,
-        theme: theme,
-      });
+      try {
+        toast.update(toastId, {
+          render: message,
+          autoClose: 5000,
+          theme: theme,
+        });
+      } catch (e) {
+        console.warn("Failed to update toast:", e);
+        toastId = null;
+      }
     }
   };
 

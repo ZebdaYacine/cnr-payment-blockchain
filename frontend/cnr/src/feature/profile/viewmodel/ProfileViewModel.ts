@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PhaseResponse, UsersResponse } from "./../data/dtos/ProfileDtos";
 import { useMutation } from "@tanstack/react-query";
 import { useNotification } from "../../../services/useNotification";
@@ -253,7 +254,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       const storedToken = GetAuthToken(navigate);
       return profileUseCase.SendOTP(
         storedToken,
-        userSaved.permission.toLowerCase(),
+        // userSaved.permission.toLowerCase(),
         email
       );
     },
@@ -292,7 +293,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       const storedToken = GetAuthToken(navigate);
       return profileUseCase.ConfirmOTP(
         storedToken,
-        userSaved.permission.toLowerCase(),
+        // userSaved.permission.toLowerCase(),
         otp
       );
     },
@@ -337,9 +338,22 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
       );
     },
     onSuccess: (data, variables) => {
-      const isVerified = data as boolean;
-      console.log(">>>>>>>>>>>>>>>>>>>", isVerified);
-      if (isVerified === true) {
+      let isVerified = false;
+
+      if (
+        typeof data === "object" &&
+        data !== null &&
+        "data" in data &&
+        typeof (data as any).data?.Data === "boolean"
+      ) {
+        isVerified = (data as any).data.Data === true;
+      } else if (typeof data === "boolean") {
+        isVerified = data === true;
+      }
+
+      console.log(">>>>>>>>>>>>>>>>>>> isVerified:", isVerified);
+
+      if (isVerified) {
         setIsDigitalSignatureConfirmed(true);
         setDigitalSignature(variables.signature);
         success("votre signature est acceptee.", "colored");
@@ -356,7 +370,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
             ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
             : err.message
           : "Une erreur inconnue s'est produite lors de la vérification de la signature.";
-
+      setIsDigitalSignatureConfirmed(false);
       error(errorMessage, "colored");
     },
   });
