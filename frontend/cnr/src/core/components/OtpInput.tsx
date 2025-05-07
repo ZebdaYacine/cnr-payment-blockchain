@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { FaHourglassHalf } from "react-icons/fa";
 import { useTimer } from "../state/TimerContext";
 import { useKeys } from "../state/KeyContext";
@@ -16,11 +16,10 @@ const OtpInput: React.FC<{ length?: number }> = ({ length = 6 }) => {
   const { timeLeft, startTimer, hasStarted } = useTimer();
   const { publicKey } = useKeys();
   const { userSaved } = useUser();
-  const { isOTPConfirmed } = useOTP();
+  const { isOTPConfirmed, setOTPSent } = useOTP();
   const navigate = useNavigate();
 
   const [otp, setOtp] = useState<string[]>(Array(length).fill(""));
-  const [disabled, setDisabled] = useState<boolean>(false);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 
   const profileUseCase = new PofileUseCase(
@@ -36,53 +35,11 @@ const OtpInput: React.FC<{ length?: number }> = ({ length = 6 }) => {
   } = useProfileViewModel(profileUseCase);
 
   const isOtpComplete = otp.every((digit) => digit !== "");
+  const disabled = timeLeft === 0;
 
   useEffect(() => {
     if (!hasStarted) startTimer();
-    // else resetTimer();
-  }, []);
-
-  // useEffect(() => {
-  //   resetTimer();
-  // }, []);
-
-  useEffect(() => {
-    setDisabled(timeLeft === 0);
-  }, [timeLeft]);
-
-  const handleChange = (value: string, index: number) => {
-    if (!/^[0-9]?$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-    if (value && index < length - 1) {
-      inputsRef.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    if (e.key === "Backspace" && otp[index] === "") {
-      inputsRef.current[index - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData("text").slice(0, length).split("");
-    const newOtp = [...otp];
-    for (let i = 0; i < pasted.length; i++) {
-      if (/^[0-9]$/.test(pasted[i])) {
-        newOtp[i] = pasted[i];
-      }
-    }
-    setOtp(newOtp);
-    inputsRef.current[Math.min(pasted.length, length - 1)]?.focus();
-  };
-
-  const { setOTPSent } = useOTP();
+  }, [hasStarted, startTimer]);
 
   useEffect(() => {
     if (isOTPSentSuccess) {
@@ -90,36 +47,67 @@ const OtpInput: React.FC<{ length?: number }> = ({ length = 6 }) => {
     }
   }, [isOTPSentSuccess, setOTPSent]);
 
-  const handleResend = () => {
+  const handleChange = useCallback(
+    (value: string, index: number) => {
+      if (!/^[0-9]?$/.test(value)) return;
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+      if (value && index < length - 1) {
+        inputsRef.current[index + 1]?.focus();
+      }
+    },
+    [otp, length]
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+      if (e.key === "Backspace" && otp[index] === "") {
+        inputsRef.current[index - 1]?.focus();
+      }
+    },
+    [otp]
+  );
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      const pasted = e.clipboardData.getData("text").slice(0, length).split("");
+      const newOtp = [...otp];
+      for (let i = 0; i < pasted.length; i++) {
+        if (/^[0-9]$/.test(pasted[i])) {
+          newOtp[i] = pasted[i];
+        }
+      }
+      setOtp(newOtp);
+      inputsRef.current[Math.min(pasted.length, length - 1)]?.focus();
+    },
+    [otp, length]
+  );
+
+  const handleResend = useCallback(() => {
     setOtp(Array(length).fill(""));
     sendOTP({ email: userSaved.email });
-    // resetTimer();
     startTimer();
-  };
+  }, [length, sendOTP, userSaved.email, startTimer]);
 
-  const handleValidate = () => {
+  const handleValidate = useCallback(() => {
     if (isOtpComplete) {
       ConfirmOTP({ otp: otp.join("") });
     }
-  };
-
-  // useEffect(() => {
-  //   if (isOTPSentSuccess) {
-  //     toast.success("Nouveau code OTP envoyé !", { autoClose: 2000 });
-  //   }
-  // }, [isOTPSentSuccess]);
+  }, [isOtpComplete, otp, ConfirmOTP]);
 
   useEffect(() => {
     if (isOTPConfirmed) {
-      if (userSaved.publicKey) {
-        navigate("/home/PK-manager/add-private-key");
-      } else {
-        navigate("/home/PK-manager/add-public-key");
-      }
+      navigate(
+        userSaved.publicKey
+          ? "/home/PK-manager/add-private-key"
+          : "/home/PK-manager/add-public-key"
+      );
     } else if (isOTPConfirmedError) {
       navigate("/home/error-page");
     }
-  }, [isOTPConfirmed, isOTPConfirmedError]);
+  }, [isOTPConfirmed, isOTPConfirmedError, userSaved.publicKey, navigate]);
 
   return (
     <>
