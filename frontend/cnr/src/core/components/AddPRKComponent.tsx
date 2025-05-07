@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
 import { useProfileViewModel } from "../../feature/profile/viewmodel/ProfileViewModel";
 import { PofileUseCase } from "../../feature/profile/domain/usecase/ProfileUseCase";
 import { ProfileRepositoryImpl } from "../../feature/profile/data/repository/ProfileRepositoryImpl";
@@ -13,7 +12,7 @@ const AddPRKComponent: React.FC = () => {
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const { setPrivateKey } = useKeys();
-  const { error, success } = useNotification();
+  const { error } = useNotification();
   const { userSaved } = useUser();
 
   const profileUseCase = new PofileUseCase(
@@ -62,24 +61,17 @@ const AddPRKComponent: React.FC = () => {
     }
 
     if (!fileContent) {
-      toast.error("Veuillez d'abord télécharger votre clé privée.");
+      error("Veuillez d'abord télécharger votre clé privée.", "colored");
       return;
     }
 
     try {
       setIsVerifying(true);
-      const isValid = await verify(fileContent);
-      if (!isValid) {
-        error(
-          "La signature est invalide. Veuillez vérifier votre clé privée.",
-          "colored"
-        );
-      } else {
-        success("Clé privée vérifiée avec succès!", "colored");
-      }
+      await verify(fileContent);
     } catch (err) {
       console.log(err);
       error("Erreur lors de la vérification", "colored");
+      setIsVerifying(false);
     } finally {
       setIsVerifying(false);
     }
@@ -120,7 +112,6 @@ const AddPRKComponent: React.FC = () => {
             </button>
           </div>
         )}
-        <ToastContainer />
       </div>
     </>
   );

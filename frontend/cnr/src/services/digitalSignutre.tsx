@@ -73,15 +73,17 @@ export const useSignatureVerifier = () => {
       //   )
       // );
 
-      await verifySignature({
+       await verifySignature({
         signature: signWithPrivateKey(fileContent, randomValue),
         randomValue,
       });
 
+     
+
       return true;
     } catch (error) {
       console.error("Erreur lors de la vérification de la signature", error);
-      return false;
+      throw error;
     }
   };
 

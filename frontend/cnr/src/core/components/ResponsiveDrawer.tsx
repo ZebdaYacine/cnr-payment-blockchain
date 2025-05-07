@@ -44,13 +44,20 @@ const ResponsiveDrawer: React.FC = () => {
     setFilteredUsers(users);
   }, [users]);
   const navigate = useNavigate();
-  // useEffect(() => {
-  //   if (!location.pathname.includes("add-private-key")) {
-  //     if (!isDigitalSignatureConfirmed) {
-  //       navigate(`/home/reglementaion/COM-003`);
-  //     }
-  //   }
-  // }, [isDigitalSignatureConfirmed, location.pathname]);
+  useEffect(() => {
+    if (
+      !location.pathname.includes("add-private-key") &&
+      !location.pathname.includes("check-otp") &&
+      !location.pathname.includes("get-public-key")
+    ) {
+      const storedConfirmed = localStorage.getItem(
+        "isDigitalSignatureConfirmed"
+      );
+      if (storedConfirmed === "false") {
+        navigate(`/home/reglementaion/COM-003`);
+      }
+    }
+  }, [isDigitalSignatureConfirmed, location.pathname, navigate]);
   return (
     <>
       <div className="drawer lg:drawer-open min-h-screen">
