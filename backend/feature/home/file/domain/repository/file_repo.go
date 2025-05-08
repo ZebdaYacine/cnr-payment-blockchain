@@ -7,8 +7,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"path/filepath"
 	"scps-backend/fabric"
+	"scps-backend/feature"
 	"scps-backend/feature/home/file/domain/entities"
+	notificationsRepo "scps-backend/feature/home/notifications/domain/repository"
 	versionRepo "scps-backend/feature/home/version/domain/repository"
 	"scps-backend/pkg/database"
 	"scps-backend/util"
@@ -216,6 +219,21 @@ func (s *fileRepository) updateNbrItemsInFolder(c context.Context, foldername st
 	return folder.ID, nil
 }
 
+func (s *fileRepository) getFileByHash(ctx context.Context, hashFile string) (*fabric.FileMetadata, error) {
+	collection := s.database.Collection(database.FILE.String())
+	var file fabric.FileMetadata
+	err := collection.FindOne(ctx, bson.M{"hash_file": hashFile}).Decode(&file)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			fmt.Println("No file found with the given ID.")
+			return nil, nil
+		}
+		fmt.Println("Error retrieving file from MongoDB:", err)
+		return nil, err
+	}
+	return &file, nil
+}
+
 func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, foldername string) (*[]fabric.FileMetadata, error) {
 	// fabric.SdkProvider("deleteAll")
 	if s.sftpClient == nil {
@@ -258,16 +276,97 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 			file.Status = "ChecksumError"
 			continue
 		}
-
 		fmt.Printf("(Recalculation)  Checksum: %s\n", checksum)
 		fmt.Printf("(Blockchain) Checksum: %s\n", file.HashFile)
+		filedb, err := s.getFileByHash(c, file.HashFile)
+		if err != nil {
+			return nil, fmt.Errorf("error in loading file from db")
+		}
 		if file.HashFile == checksum {
 			file.Status = "Valid"
+			if filedb.IsChanged == "true" {
+				nr := notificationsRepo.NewNotificationRepository(s.database)
+				notificationMessage := fmt.Sprintf("Le fichier '%s' est maintenant valide. Le hash correspond.", file.FileName)
+				receivers := make(map[string]bool)
+				receivers[file.UserID] = true
+				if file.ReciverId != "" {
+					receivers[file.ReciverId] = true
+				}
+				for _, taggedUser := range file.TaggedUsers {
+					receivers[taggedUser] = true
+				}
+				var uniqueReceivers []string
+				for receiver := range receivers {
+					uniqueReceivers = append(uniqueReceivers, receiver)
+				}
+				notification := &feature.Notification{
+					Receivers: uniqueReceivers,
+					Title:     "Fichier validé",
+					Message:   notificationMessage,
+					Time:      time.Now(),
+					SenderId:  file.UserID,
+					Path:      filepath.Join("/home/peer", file.UserID, file.Folder, file.FileName),
+				}
+				_, err = nr.AddNotification(c, *notification)
+				if err != nil {
+					log.Printf("Error sending notification about file becoming valid: %v", err)
+				}
+				file.IsChanged = ""
+				collection := s.database.Collection(database.FILE.String())
+				_, err = collection.UpdateOne(c,
+					bson.M{"id": file.ID},
+					bson.M{"$set": bson.M{"isChanged": ""}},
+				)
+				if err != nil {
+					log.Printf("Error updating isChanged in database: %v", err)
+				}
+			}
 		} else {
 			file.Status = "Invalid"
+			if filedb.IsChanged == "" {
+				nr := notificationsRepo.NewNotificationRepository(s.database)
+				notificationMessage := fmt.Sprintf("Le fichier '%s' a été détecté comme invalide. Le hash ne correspond pas.", file.FileName)
+
+				receivers := make(map[string]bool)
+				receivers[file.UserID] = true
+				if file.ReciverId != "" {
+					receivers[file.ReciverId] = true
+				}
+				for _, taggedUser := range file.TaggedUsers {
+					receivers[taggedUser] = true
+				}
+
+				var uniqueReceivers []string
+				for receiver := range receivers {
+					uniqueReceivers = append(uniqueReceivers, receiver)
+				}
+
+				notification := &feature.Notification{
+					Receivers: uniqueReceivers,
+					Title:     "Fichier invalide détecté",
+					Message:   notificationMessage,
+					Time:      time.Now(),
+					SenderId:  file.UserID,
+					Path:      filepath.Join("/home/peer", file.UserID, file.Folder, file.FileName),
+				}
+
+				_, err = nr.AddNotification(c, *notification)
+				if err != nil {
+					log.Printf("Error sending notification about invalid file: %v", err)
+				}
+
+				file.IsChanged = "true"
+				collection := s.database.Collection(database.FILE.String())
+				_, err = collection.UpdateOne(c,
+					bson.M{"id": file.ID},
+					bson.M{"$set": bson.M{"isChanged": "true"}},
+				)
+				if err != nil {
+					log.Printf("Error updating isChanged in database: %v", err)
+				}
+			}
 		}
 		(*files)[i] = *file
-
 	}
 	return files, nil
 }
