@@ -28,20 +28,17 @@ const NotificationDropdown = () => {
   const { getNotifications, isNotificationsLoading, isNotificationError } =
     useNotificationViewModel(notificationUseCase);
 
-  // Memoized fetch function
   const fetchNotifications = useCallback(() => {
     if (!userSaved?.permission) return;
     getNotifications({ permission: userSaved.permission.toLowerCase() });
   }, [getNotifications, userSaved?.permission]);
 
-  // Initial + periodic fetch
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 10000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
-  // Unlock sound on first interaction
   useEffect(() => {
     const unlockSound = () => {
       setCanPlaySound(true);
@@ -58,7 +55,6 @@ const NotificationDropdown = () => {
     };
   }, []);
 
-  // Play sound when new notifications arrive
   useEffect(() => {
     const current = notifications.length;
     const prev = prevNotificationCount.current;
@@ -130,7 +126,7 @@ const NotificationDropdown = () => {
                 }`}
               >
                 {isNotificationsLoading
-                  ? "..."
+                  ? ""
                   : isNotificationError
                   ? "Erreur"
                   : `${notifications.length}`}

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
@@ -9,24 +9,28 @@ import ResponsiveDrawer from "../../../../core/components/ResponsiveDrawer";
 import { useKeys } from "../../../../core/state/KeyContext";
 
 function ProfilePage() {
-  const profileUseCase = new PofileUseCase(
-    new ProfileRepositoryImpl(new ProfileDataSourceImpl())
-  );
-
-  const { getProfile, GetUsers, getCurrentPhase } =
-    useProfileViewModel(profileUseCase);
   const { userSaved } = useUser();
   const { setIsDigitalSignatureConfirmed, isDigitalSignatureConfirmed } =
     useKeys();
 
+  const profileUseCase = useMemo(() => {
+    return new PofileUseCase(
+      new ProfileRepositoryImpl(new ProfileDataSourceImpl())
+    );
+  }, []);
+
+  const { getProfile, GetUsers, getCurrentPhase } =
+    useProfileViewModel(profileUseCase);
+
   const initializeProfileData = useCallback(() => {
-    if (userSaved.permission) {
-      const permission = userSaved.permission.toLowerCase();
+    const permission = userSaved?.permission?.toLowerCase();
+
+    if (permission) {
       getProfile({ permission });
       GetUsers({ permissions: permission });
     }
 
-    if (!userSaved.publicKey) {
+    if (!userSaved?.publicKey) {
       setIsDigitalSignatureConfirmed(false);
     } else {
       console.log(isDigitalSignatureConfirmed);
@@ -34,8 +38,8 @@ function ProfilePage() {
 
     getCurrentPhase();
   }, [
-    userSaved.permission,
-    userSaved.publicKey,
+    userSaved?.permission,
+    userSaved?.publicKey,
     getProfile,
     GetUsers,
     getCurrentPhase,
@@ -47,11 +51,7 @@ function ProfilePage() {
     initializeProfileData();
   }, [initializeProfileData]);
 
-  return (
-    <>
-      <ResponsiveDrawer />
-    </>
-  );
+  return <ResponsiveDrawer />;
 }
 
 export default ProfilePage;

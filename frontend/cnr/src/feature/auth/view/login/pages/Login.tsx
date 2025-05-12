@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import AvatarCnr from "../components/AvatarCnr";
 import LoginButton from "../components/LoginButton";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import EmailInput from "../../../../../core/components/EmailInput";
 import PasswordInput from "../../../../../core/components/PassWordInput";
 import { AuthDataSourceImpl } from "../../../data/dataSource/AuthAPIDataSource";
@@ -13,16 +13,15 @@ import "react-toastify/dist/ReactToastify.css";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { useAuth } from "../../../../../core/state/AuthContext";
 
-const dataSource = new AuthDataSourceImpl();
-const repository = new AuthRepositoryImpl(dataSource);
-const loginUseCase = new LoginUseCase(repository);
-
 function LoginPage() {
-  const { login, isPending, isSuccess, isError } =
-    useAuthViewModel(loginUseCase);
   const navigate = useNavigate();
   const { isAuthentificated } = useAuth();
 
+  const UseCase = useMemo(() => {
+    return new LoginUseCase(new AuthRepositoryImpl(new AuthDataSourceImpl()));
+  }, []);
+
+  const { login, isPending, isSuccess, isError } = useAuthViewModel(UseCase);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isSubmitted, setIsSubmitted] = useState(false);

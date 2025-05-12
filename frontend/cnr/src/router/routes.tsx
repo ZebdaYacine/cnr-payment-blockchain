@@ -6,7 +6,7 @@ import ErrorPage from "../feature/profile/view/pages/error_page";
 import SchedulerPage from "../feature/profile/view/pages/items/SchedulerPage";
 import FilesPage from "../feature/file/view/home/pages/Files";
 import VersionPage from "../feature/version/view/home/pages/VersionPage";
-import DashboardPage from "../feature/profile/view/pages/items/DashboardPage";
+import DashboardPage from "../feature/dashboard/view/page/DashboardPage";
 import NotYet from "../core/components/NotYet";
 import ReglementationPage from "../feature/profile/view/pages/peers/ReglementationPage";
 import PeerPage from "../feature/profile/view/pages/peers/PeerPage";

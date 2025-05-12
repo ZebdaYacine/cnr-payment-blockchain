@@ -305,7 +305,7 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 					Message:   notificationMessage,
 					Time:      time.Now(),
 					SenderId:  file.UserID,
-					Path:      filepath.Join("/home/peer", file.UserID, file.Folder, file.FileName),
+					Path:      filepath.Join("/home/peer", file.UserID, file.Folder),
 				}
 				_, err = nr.AddNotification(c, *notification)
 				if err != nil {
@@ -347,7 +347,7 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 					Message:   notificationMessage,
 					Time:      time.Now(),
 					SenderId:  file.UserID,
-					Path:      filepath.Join("/home/peer", file.UserID, file.Folder, file.FileName),
+					Path:      filepath.Join("/home/peer", file.UserID, file.Folder),
 				}
 
 				_, err = nr.AddNotification(c, *notification)

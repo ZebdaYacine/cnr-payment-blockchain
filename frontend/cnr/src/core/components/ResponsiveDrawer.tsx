@@ -1,75 +1,94 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MdDashboard, MdCalendarToday, MdError } from "react-icons/md";
 import { HiMiniUserGroup } from "react-icons/hi2";
 import { FaCheckCircle, FaKey, FaUserEdit } from "react-icons/fa";
 import { SiAwsorganizations } from "react-icons/si";
+import { BsFillClipboard2DataFill } from "react-icons/bs";
+import { TbLockPassword, TbLogout2 } from "react-icons/tb";
+import { TiThMenu } from "react-icons/ti";
+
 import { useListUsers } from "../state/ListOfUsersContext";
-import { User } from "../dtos/data";
 import { useUser } from "../state/UserContext";
+import { usePhaseId } from "../state/PhaseContext";
+import { useAuth } from "../state/AuthContext";
+import { useTheme } from "../state/ThemeContext";
+import { useLogger } from "../../services/useLogger";
+import { useKeys } from "../state/KeyContext";
+import { GetAgentLabel } from "../../services/Utils";
+
 import NotificationDropdown from "./NotificationDropdown";
 import DarkModeToggle from "./navbar/DarkModeToggle";
 import ProfileDropdown from "./navbar/ProfileDropdown";
 import ProfileModal from "./navbar/ProfileModal";
 import PhaseModal from "./navbar/PhaseModal";
-import { useLogger } from "../../services/useLogger";
-import { usePhaseId } from "../state/PhaseContext";
-import { useAuth } from "../state/AuthContext";
-import { TiThMenu } from "react-icons/ti";
-import { useTheme } from "../state/ThemeContext";
-import { GetAgentLabel } from "../../services/Utils";
-import { BsFillClipboard2DataFill } from "react-icons/bs";
-import { TbLockPassword, TbLogout2 } from "react-icons/tb";
 import WelcomePage from "../../feature/profile/view/pages/WelcomePage";
-import { useKeys } from "../state/KeyContext";
+
+const NavItem = ({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  path: string;
+  onClick?: () => void;
+}) => (
+  <li>
+    <button
+      onClick={onClick}
+      className="flex items-center gap-3 w-full text-left"
+    >
+      {icon}
+      {label}
+    </button>
+  </li>
+);
+
 const ResponsiveDrawer: React.FC = () => {
   const { users } = useListUsers();
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const { isAuthentificated, Userlogout } = useAuth();
-  const { debug } = useLogger();
-  const location = useLocation();
-  const profileDialogRef = useRef<HTMLDialogElement>(null);
-  const phaseDialogRef = useRef<HTMLDialogElement>(null);
-  const { phase } = usePhaseId();
   const { userSaved } = useUser();
+  const { phase } = usePhaseId();
+  const { isAuthentificated, Userlogout } = useAuth();
   const { isDarkMode } = useTheme();
   const { isDigitalSignatureConfirmed } = useKeys();
+  const { debug } = useLogger();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [filteredUsers, setFilteredUsers] = useState(users);
+
+  const profileDialogRef = useRef<HTMLDialogElement>(null);
+  const phaseDialogRef = useRef<HTMLDialogElement>(null);
+
+  const navigateWithSignatureCheck = (path: string) => {
+    const storedConfirmed = localStorage.getItem("isDigitalSignatureConfirmed");
+    if (storedConfirmed !== "true") {
+      navigate("/home/reglementaion/COM-003");
+    } else {
+      navigate(path);
+    }
+  };
 
   const logoutEvent = () => {
     Userlogout();
     debug("USER IS AUTHENTIFICATED : " + isAuthentificated);
-    if (!isAuthentificated) navigate("/");
+    navigate("/login");
   };
+
   useEffect(() => {
     setFilteredUsers(users);
   }, [users]);
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (
-      !location.pathname.includes("add-private-key") &&
-      !location.pathname.includes("check-otp") &&
-      !location.pathname.includes("get-public-key")
-    ) {
-      const storedConfirmed = localStorage.getItem(
-        "isDigitalSignatureConfirmed"
-      );
-      if (storedConfirmed === "false") {
-        navigate(`/home/reglementaion/COM-003`);
-      }
-    }
-  }, [isDigitalSignatureConfirmed, location.pathname, navigate]);
+
   return (
     <>
       <div className="drawer lg:drawer-open min-h-screen">
-        {/* Page Layout */}
         <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content flex flex-col">
-          {/* Navbar */}
           <header
-            className={`fixed top-0 left-0 w-full z-50 navbar 
-          ${
-            isDarkMode ? "" : "bg-primary "
-          } shadow h-16 flex items-center px-4`}
+            className={`fixed top-0 left-0 w-full z-50 navbar ${
+              isDarkMode ? "" : "bg-primary"
+            } shadow h-16 flex items-center px-4`}
           >
             <label
               htmlFor="my-drawer-2"
@@ -81,15 +100,11 @@ const ResponsiveDrawer: React.FC = () => {
               className={`btn btn-outline font-bold text-xl ${
                 isDarkMode ? "" : "text-white"
               }`}
-              onClick={() => {
-                navigate("/home/welcome");
-              }}
+              onClick={() => navigate("/home/welcome")}
             >
               CNR-Paiement
             </div>
-            {/* <TimeDisplay phaseDialogRef={phaseDialogRef} /> */}
-            <div className="flex-1 justify-end flex items-center ">
-              {/* <TimeDisplay phaseDialogRef={phaseDialogRef} /> */}
+            <div className="flex-1 justify-end flex items-center">
               <NotificationDropdown />
               <DarkModeToggle />
               <ProfileDropdown
@@ -97,7 +112,6 @@ const ResponsiveDrawer: React.FC = () => {
                 onLogout={logoutEvent}
               />
             </div>
-
             <ProfileModal
               user={userSaved}
               profileDialogRef={profileDialogRef}
@@ -105,54 +119,37 @@ const ResponsiveDrawer: React.FC = () => {
             <PhaseModal phase={phase || null} phaseDialogRef={phaseDialogRef} />
           </header>
 
-          {/* Push content below navbar */}
           <div className="h-16" />
-
-          {/* Page Content */}
           <main className="p-6">
             {location.pathname === "/home" ? <WelcomePage /> : <Outlet />}
           </main>
         </div>
-        {/* Sidebar */}
+
         <div className="drawer-side">
-          <label
-            htmlFor="my-drawer-2"
-            className="drawer-overlay lg:hidden "
-            aria-label="close sidebar"
-          />
+          <label htmlFor="my-drawer-2" className="drawer-overlay lg:hidden" />
           <aside
-            className={`w-80 h-full pt-16 p-4 ${
-              isDarkMode ? "" : "bg-gray-50 text-gray-800"
+            className={`w-80 h-full pt-16 p-4 shadow-md ${
+              isDarkMode ? "bg-gray-900 text-white" : "bg-white"
             }`}
           >
-            <div
-              className={` rounded-xl shadow-md p-5 m-2 transition-all space-y-3 ${
-                isDarkMode
-                  ? "bg-slate-800 text-white"
-                  : "bg-white text-gray-800"
-              }`}
-            >
+            <div className="rounded-xl shadow p-5 m-2 space-y-3">
               <h2 className="text-lg font-bold mb-1">
                 👤 {userSaved.username}
               </h2>
               <p className="text-sm">
-                <span className="font-semibold">🏢 Organisation:</span>{" "}
-                {userSaved.workAt}
+                <strong>🏢 Organisation:</strong> {userSaved.workAt}
               </p>
               <p className="text-sm">
-                <span className="font-semibold">🎖️ Rôle:</span>{" "}
-                {GetAgentLabel(userSaved.type)}
+                <strong>🎖️ Rôle:</strong> {GetAgentLabel(userSaved.type)}
               </p>
               <p className="text-sm">
-                <span className="font-semibold">📍 Wilaya:</span>{" "}
-                {userSaved.wilaya}
+                <strong>📍 Wilaya:</strong> {userSaved.wilaya}
               </p>
               <p className="text-sm">
-                <span className="font-semibold">🧩 Rôle:</span>{" "}
-                {userSaved.permission}
+                <strong>🧩 Rôle:</strong> {userSaved.permission}
               </p>
               <p className="text-sm flex items-center gap-2">
-                <span className="font-semibold">🔐 Signature numérique : </span>
+                <strong>🔐 Signature numérique:</strong>
                 {isDigitalSignatureConfirmed ? (
                   <FaCheckCircle className="text-blue-700 font-bold text-xl" />
                 ) : (
@@ -160,20 +157,22 @@ const ResponsiveDrawer: React.FC = () => {
                 )}
               </p>
             </div>
+
             <div className="divider" />
+
             <ul className="menu space-y-2 text-base font-medium">
-              <li>
-                <Link to="/home/dashboard" className="flex items-center gap-3">
-                  <MdDashboard className="text-xl" />
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link to="/home/calender" className="flex items-center gap-3">
-                  <MdCalendarToday className="text-xl" />
-                  Calendrier
-                </Link>
-              </li>
+              <NavItem
+                icon={<MdDashboard />}
+                label="Dashboard"
+                path="/home/dashboard"
+                onClick={() => navigate("/home/dashboard")}
+              />
+              <NavItem
+                icon={<MdCalendarToday />}
+                label="Calendrier"
+                path="/home/calender"
+                onClick={() => navigateWithSignatureCheck("/home/calender")}
+              />
               <li>
                 <details className="group">
                   <summary className="flex items-center gap-3 cursor-pointer">
@@ -182,35 +181,23 @@ const ResponsiveDrawer: React.FC = () => {
                   </summary>
                   <ul className="pl-8 mt-2 space-y-2 max-h-64 overflow-y-auto pr-2">
                     {filteredUsers.length === 0 ? (
-                      <p className="text-lg font-semibold ">
+                      <p className="text-lg font-semibold">
                         Aucun utilisateur disponible
                       </p>
                     ) : (
                       filteredUsers
                         .filter(
                           (user) =>
-                            user.id !== undefined &&
-                            user.id !== userSaved.idInstituion
+                            user.id && user.id !== userSaved.idInstituion
                         )
                         .map((user) => (
                           <li key={user.id}>
                             <button
-                              onClick={() => {
-                                navigate(`/home/peer/${user.id}`);
-                                // if (!isDigitalSignatureConfirmed) {
-                                //   navigate(`/home/reglementaion/COM-003`);
-                                // } else {
-                                //   navigate(`/home/peer/${user.id}`);
-                                // if (
-                                //   user.phases.includes(phase?.id || "") &&
-                                //   userSaved.phases.includes(phase?.id || "")
-                                // ) {
-                                //   navigate(`/home/peer/${user.id}`);
-                                // } else {
-                                //   navigate(`/home/reglementaion/COM-001`);
-                                // }
-                                // }
-                              }}
+                              onClick={() =>
+                                navigateWithSignatureCheck(
+                                  `/home/peer/${user.id}`
+                                )
+                              }
                               className="block text-left w-full"
                             >
                               {user.username} – {user.workAt} / {user.wilaya}
@@ -221,6 +208,7 @@ const ResponsiveDrawer: React.FC = () => {
                   </ul>
                 </details>
               </li>
+
               <li>
                 <details className="group">
                   <summary className="flex items-center gap-3 cursor-pointer">
@@ -229,23 +217,35 @@ const ResponsiveDrawer: React.FC = () => {
                   </summary>
                   <ul className="pl-8 mt-2 space-y-2">
                     <li>
-                      <Link to="/home/ccr" className="block">
+                      <button
+                        onClick={() => navigateWithSignatureCheck("/home/ccr")}
+                        className="block text-left w-full"
+                      >
                         CCR
-                      </Link>
+                      </button>
                     </li>
                     <li>
-                      <Link to="/home/agence" className="block">
+                      <button
+                        onClick={() =>
+                          navigateWithSignatureCheck("/home/agence")
+                        }
+                        className="block text-left w-full"
+                      >
                         Agences
-                      </Link>
+                      </button>
                     </li>
                     <li>
-                      <Link to="/home/post" className="block">
+                      <button
+                        onClick={() => navigateWithSignatureCheck("/home/post")}
+                        className="block text-left w-full"
+                      >
                         POSTS
-                      </Link>
+                      </button>
                     </li>
                   </ul>
                 </details>
               </li>
+
               <li>
                 <details className="group">
                   <summary className="flex items-center gap-3 cursor-pointer">
@@ -254,48 +254,51 @@ const ResponsiveDrawer: React.FC = () => {
                   </summary>
                   <ul className="pl-8 mt-2 space-y-2">
                     <li>
-                      <Link
-                        to="/home/general-information"
+                      <button
+                        onClick={() =>
+                          navigateWithSignatureCheck(
+                            "/home/general-information"
+                          )
+                        }
                         className="flex items-center gap-2"
                       >
                         <BsFillClipboard2DataFill />
-                        Informations Generale
-                      </Link>
+                        Informations Générales
+                      </button>
                     </li>
-
                     <li>
-                      <Link
-                        to="/home/update-password"
+                      <button
+                        onClick={() =>
+                          navigateWithSignatureCheck("/home/update-password")
+                        }
                         className="flex items-center gap-2"
                       >
                         <TbLockPassword />
-                        Mots de passe
-                      </Link>
+                        Mot de passe
+                      </button>
                     </li>
                     <li>
-                      <Link
-                        to="/home/PK-manager/get-public-key"
+                      <button
+                        onClick={() =>
+                          navigate("/home/PK-manager/get-public-key")
+                        }
                         className="flex items-center gap-2"
                       >
                         <FaKey />
-                        Cles Publique
-                      </Link>
+                        Clé Publique
+                      </button>
                     </li>
                   </ul>
                 </details>
               </li>
+
               <li>
                 <button
-                  onClick={() => {
-                    if (isAuthentificated) {
-                      Userlogout();
-                      navigate(`/login`);
-                    }
-                  }}
-                  className=" flex items-center gap-2"
+                  onClick={logoutEvent}
+                  className="flex items-center gap-2"
                 >
                   <TbLogout2 />
-                  déconnexion
+                  Déconnexion
                 </button>
               </li>
             </ul>
