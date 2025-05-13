@@ -113,10 +113,10 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
     onError: (err: unknown) => {
       console.error("GET CURRENT PHASE error:", err);
-      error(
-        "An error occurred while fetching the current phase. Please try again.",
-        "colored"
-      );
+      // error(
+      //   "An error occurred while fetching the current phase. Please try again.",
+      //   "colored"
+      // );
     },
   });
 

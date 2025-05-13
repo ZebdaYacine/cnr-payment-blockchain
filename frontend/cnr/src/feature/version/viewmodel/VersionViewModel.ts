@@ -150,13 +150,10 @@ export function useVersionViewModel(versioneUseCase: VersionUseCase) {
         setFilesList(resp.data);
       }
     },
-    onError: (err: unknown) => {
+    onError: (err: ErrorResponse) => {
       setFilesList([]);
       console.error("Fetch error:", err);
-      error(
-        "An error occurred during the upload. Please try again.",
-        "colored"
-      );
+      // error(err.message, "colored");
     },
   });
 

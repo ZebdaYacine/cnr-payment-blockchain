@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import { DashBoardUseCase } from "../domain/usecase/DashBoardUseCase";
 
 export function useDashBoardViewModel(dashboardUseCase: DashBoardUseCase) {
-  const { error, success } = useNotification();
+  const { error } = useNotification();
   const navigate = useNavigate();
   const {
     mutate: getUploadinfFilesPKI,
@@ -20,7 +20,7 @@ export function useDashBoardViewModel(dashboardUseCase: DashBoardUseCase) {
       return dashboardUseCase.GetUplaodFilesPKI(storedToken, permission);
     },
     onSuccess: (data) => {
-      if (data) success("Files downloaded successfully!", "colored");
+      if (data) console.log("PKI1 LOADED SUCCEFULY...");
       else {
         error(
           "An error occurred during download. Please try again.",
