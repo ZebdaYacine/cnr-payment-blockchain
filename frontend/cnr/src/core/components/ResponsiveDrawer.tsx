@@ -193,11 +193,7 @@ const ResponsiveDrawer: React.FC = () => {
                         .map((user) => (
                           <li key={user.id}>
                             <button
-                              onClick={() =>
-                                navigateWithSignatureCheck(
-                                  `/home/peer/${user.id}`
-                                )
-                              }
+                              onClick={() => navigate(`/home/peer/${user.id}`)}
                               className="block text-left w-full"
                             >
                               {user.username} – {user.workAt} / {user.wilaya}

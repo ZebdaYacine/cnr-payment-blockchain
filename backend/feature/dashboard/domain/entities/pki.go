@@ -1,5 +1,20 @@
 package entities
 
+
+type InstitutionDetail struct {
+	Name    string `json:"name"`
+	File    int    `json:"file"`
+	Version int    `json:"version"`
+}
+
+type UploadStats struct {
+	File         int                `json:"file"`
+	Version      int                `json:"version"`
+	Day          string             `json:"day"`
+	Month        string             `json:"month"`
+	Year         string             `json:"year"`
+	Institutions []InstitutionDetail `json:"institutions"`
+}
 type UploadedFileInfo struct {
 	File        int    `json:"file"`
 	Version     int    `json:"version"`

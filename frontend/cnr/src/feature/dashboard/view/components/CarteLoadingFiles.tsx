@@ -9,12 +9,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+type InstitutionDetail = {
+  nom: string;
+  fichiers: number;
+  versions: number;
+};
+
 type DataPoint = {
   jour: string;
   mois: string;
   fichiers: number;
   versions: number;
-  institution: string;
+  institution: InstitutionDetail[];
 };
 
 interface CarteLoadingFilesProps {
@@ -31,18 +37,33 @@ export default function CarteChargementFichiers({
   const [mois, setMois] = useState(defaultMois);
   const [institution, setInstitution] = useState(defaultInstitution);
 
-  const institutions = useMemo(() => {
-    const unique = Array.from(new Set(data.map((d) => d.institution)));
-    return ["Toutes", ...unique];
+  const allInstitutions = useMemo(() => {
+    const unique = new Set<string>();
+    data.forEach((entry) =>
+      entry.institution.forEach((inst) => unique.add(inst.nom))
+    );
+    return ["Toutes", ...Array.from(unique)];
   }, [data]);
 
   const chartData = useMemo(() => {
     return data
-      .filter(
-        (entry) =>
-          entry.mois === mois &&
-          (institution === "Toutes" || entry.institution === institution)
-      )
+      .filter((entry) => entry.mois === mois)
+      .map((entry) => {
+        if (institution === "Toutes") {
+          return {
+            jour: entry.jour,
+            fichiers: entry.fichiers,
+            versions: entry.versions,
+          };
+        }
+
+        const inst = entry.institution.find((i) => i.nom === institution);
+        return {
+          jour: entry.jour,
+          fichiers: inst?.fichiers || 0,
+          versions: inst?.versions || 0,
+        };
+      })
       .sort((a, b) => parseInt(a.jour) - parseInt(b.jour));
   }, [mois, institution, data]);
 
@@ -70,7 +91,7 @@ export default function CarteChargementFichiers({
               value={institution}
               onChange={(e) => setInstitution(e.target.value)}
             >
-              {institutions.map((i) => (
+              {allInstitutions.map((i) => (
                 <option key={i} value={i}>
                   {i}
                 </option>

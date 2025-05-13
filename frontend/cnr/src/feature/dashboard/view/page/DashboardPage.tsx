@@ -56,7 +56,11 @@ export default function DashboardPage() {
       mois: monthMap[item.month] || item.month,
       fichiers: item.file,
       versions: item.version,
-      institution: item.institution,
+      institution: item.institutions.map((inst) => ({
+        nom: inst.name,
+        fichiers: inst.file,
+        versions: inst.version,
+      })),
     }));
   }, [PKI1Metadata, isSuccess]);
 

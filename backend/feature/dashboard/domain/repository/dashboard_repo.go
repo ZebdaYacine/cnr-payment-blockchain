@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
-	"strconv"
 	"time"
 
 	"scps-backend/feature/dashboard/domain/entities"
@@ -17,7 +15,7 @@ type dashboardRepository struct {
 }
 
 type DashBoardRepository interface {
-	GetUploadingFilesVersionStats(c context.Context) ([]entities.UploadedFileInfo, error)
+	GetUploadingFilesVersionStats(c context.Context) ([]entities.UploadStats, error)
 	GetWorkersErrorRate(c context.Context) ([]entities.WorkerErrorRateResponse, error)
 	GetHackingAttemptStats(c context.Context) ([]entities.HackingAttemptResponse, error)
 }
@@ -28,7 +26,7 @@ func NewDashboardRepository(db database.Database) DashBoardRepository {
 
 // --- Uploading Files & Versions ---
 
-func (r *dashboardRepository) GetUploadingFilesVersionStats(ctx context.Context) ([]entities.UploadedFileInfo, error) {
+func (r *dashboardRepository) GetUploadingFilesVersionStats(ctx context.Context) ([]entities.UploadStats, error) {
 	collection := r.database.Collection(database.FILE.String())
 
 	cursor, err := collection.Find(ctx, bson.M{})
@@ -38,7 +36,9 @@ func (r *dashboardRepository) GetUploadingFilesVersionStats(ctx context.Context)
 	defer cursor.Close(ctx)
 
 	currentYear := time.Now().Year()
-	resultMap := map[string]*entities.UploadedFileInfo{}
+
+	groupMap := make(map[string]*entities.UploadStats)
+	institutionMap := make(map[string]map[string]*entities.InstitutionDetail)
 
 	for cursor.Next(ctx) {
 		var doc struct {
@@ -46,6 +46,7 @@ func (r *dashboardRepository) GetUploadingFilesVersionStats(ctx context.Context)
 			Version     string `bson:"version"`
 			Institution string `bson:"organisation"`
 			FileName    string `bson:"file_name"`
+			Parent      string `bson:"parent"`
 		}
 
 		if err := cursor.Decode(&doc); err != nil {
@@ -57,38 +58,55 @@ func (r *dashboardRepository) GetUploadingFilesVersionStats(ctx context.Context)
 			continue
 		}
 
-		versionInt, err := strconv.Atoi(doc.Version)
-		if err != nil {
-			continue
-		}
-
 		day := parsedTime.Format("02")
 		month := parsedTime.Format("January")
 		year := parsedTime.Format("2006")
-		key := day + "_" + month + "_" + year + "_" + doc.Institution
+		groupKey := day + "_" + month + "_" + year
 
-		if _, exists := resultMap[key]; !exists {
-			resultMap[key] = &entities.UploadedFileInfo{
-				File:        0,
-				Version:     0,
-				Day:         day,
-				Month:       month,
-				Year:        year,
-				Institution: doc.Institution,
+		// Initialize group entry
+		if _, exists := groupMap[groupKey]; !exists {
+			groupMap[groupKey] = &entities.UploadStats{
+				Day:          day,
+				Month:        month,
+				Year:         year,
+				File:         0,
+				Version:      0,
+				Institutions: []entities.InstitutionDetail{},
 			}
+			institutionMap[groupKey] = make(map[string]*entities.InstitutionDetail)
 		}
 
-		entry := resultMap[key]
-		entry.File++
-		entry.Version += versionInt
+		group := groupMap[groupKey]
+
+		// Initialize institution entry
+		if _, exists := institutionMap[groupKey][doc.Institution]; !exists {
+			institutionMap[groupKey][doc.Institution] = &entities.InstitutionDetail{
+				Name:    doc.Institution,
+				File:    0,
+				Version: 0,
+			}
+		}
+		inst := institutionMap[groupKey][doc.Institution]
+
+		// Count base files and versions
+		if doc.Parent == "" {
+			group.File++
+			inst.File++
+		} else {
+			group.Version++
+			inst.Version++
+		}
 	}
 
-	var result []entities.UploadedFileInfo
-	for _, v := range resultMap {
-		result = append(result, *v)
+	// Finalize institution lists
+	var result []entities.UploadStats
+	for key, group := range groupMap {
+		for _, inst := range institutionMap[key] {
+			group.Institutions = append(group.Institutions, *inst)
+		}
+		result = append(result, *group)
 	}
 
-	log.Println(result)
 	return result, nil
 }
 
