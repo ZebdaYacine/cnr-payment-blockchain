@@ -196,7 +196,10 @@ export function useFileViewModel(fileUseCase: FileUseCase) {
     },
     onError: (err: unknown) => {
       console.error("Folder download error:", err);
-      error("An error occurred during folder download. Please try again.", "colored");
+      error(
+        "An error occurred during folder download. Please try again.",
+        "colored"
+      );
     },
   });
 

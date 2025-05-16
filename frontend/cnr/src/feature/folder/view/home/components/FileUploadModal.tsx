@@ -1,41 +1,43 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { BsXLg } from "react-icons/bs";
 import { FaUpload } from "react-icons/fa6";
+import { MdCheckCircle } from "react-icons/md";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { useFolderViewModel } from "../../../viewmodel/FolderViewModel";
-import { motion } from "framer-motion"; // Import animation library
-import { MdCheckCircle } from "react-icons/md";
 import { useUser } from "../../../../../core/state/UserContext";
 import { useListUsers } from "../../../../../core/state/ListOfUsersContext";
-import { User } from "../../../../../core/dtos/data";
-import TagInput from "../../../../profile/view/components/TagInput";
-import { FolderUseCase } from "../../../domain/usecase/FolderUseCase";
-import { FolderRepositoryImpl } from "../../../data/repository/FolderRepositoryImpl";
-import { FolderDataSourceImpl } from "../../../data/dataSource/FolderAPIDataSource";
-import { NotificationUseCase } from "../../../../notification/domain/usecase/NotificationUseCase";
-import { NotificationDataSourceImpl } from "../../../../notification/data/dataSource/NotificationAPIDataSource";
-import { NotificationRepositoryImpl } from "../../../../notification/data/repository/NotificationRepositoryImpl";
-import { useNotificationViewModel } from "../../../../notification/viewmodel/NotificationViewModel";
 import { usePhaseId } from "../../../../../core/state/PhaseContext";
+import { useNotificationViewModel } from "../../../../notification/viewmodel/NotificationViewModel";
 import { useFileViewModel } from "../../../../file/viewmodel/FileViewModel";
+import { motion } from "framer-motion";
+
 import { FileDataSourceImpl } from "../../../../file/data/dataSource/FileAPIDataSource";
 import { FileRepositoryImpl } from "../../../../file/data/repository/FileRepositoryImpl";
 import { FileUseCase } from "../../../../file/domain/usecase/FileUseCase";
 import { FileResponse } from "../../../../file/data/dtos/FileDtos";
 
-const dataSource = new FileDataSourceImpl();
-const repository = new FileRepositoryImpl(dataSource);
-const fileUseCase = new FileUseCase(repository);
+import { FolderRepositoryImpl } from "../../../data/repository/FolderRepositoryImpl";
+import { FolderDataSourceImpl } from "../../../data/dataSource/FolderAPIDataSource";
+import { FolderUseCase } from "../../../domain/usecase/FolderUseCase";
 
-const folderdataSource = new FolderDataSourceImpl();
-const folderdataRepository = new FolderRepositoryImpl(folderdataSource);
-const folderUseCase = new FolderUseCase(folderdataRepository);
+import { NotificationDataSourceImpl } from "../../../../notification/data/dataSource/NotificationAPIDataSource";
+import { NotificationRepositoryImpl } from "../../../../notification/data/repository/NotificationRepositoryImpl";
+import { NotificationUseCase } from "../../../../notification/domain/usecase/NotificationUseCase";
 
-const notificationDataSource = new NotificationDataSourceImpl();
-const notificationRepository = new NotificationRepositoryImpl(
-  notificationDataSource
+import TagInput from "../../../../profile/view/components/TagInput";
+import { User } from "../../../../../core/dtos/data";
+
+const fileUseCase = new FileUseCase(
+  new FileRepositoryImpl(new FileDataSourceImpl())
 );
-const notificationUseCase = new NotificationUseCase(notificationRepository);
+
+const folderUseCase = new FolderUseCase(
+  new FolderRepositoryImpl(new FolderDataSourceImpl())
+);
+
+const notificationUseCase = new NotificationUseCase(
+  new NotificationRepositoryImpl(new NotificationDataSourceImpl())
+);
 
 interface FileUploadModalProps {
   organisation: string;
@@ -43,10 +45,10 @@ interface FileUploadModalProps {
   reciverId: string;
 }
 
-function FileUploadModal({
-  organisation: organisation,
-  destination: destination,
-  reciverId: reciverId,
+export default function FileUploadModal({
+  organisation,
+  destination,
+  reciverId,
 }: FileUploadModalProps) {
   const ref = useRef<LoadingBarRef>(null);
   const [commitText, setCommitText] = useState("");
@@ -54,14 +56,13 @@ function FileUploadModal({
   const [listFiles, setListFiles] = useState<File[]>([]);
   const [listUsers, setListUsers] = useState<User[]>([]);
   const [countUploadedFiles, setCountUploadedFiles] = useState(0);
-  const [isFinishUploading, SetFinishUploading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<Set<string>>(new Set());
+
   const { getFolders } = useFolderViewModel(folderUseCase);
   const { userSaved } = useUser();
-  const { phase } = usePhaseId();
-  const userPermission = userSaved.permission;
   const { users } = useListUsers();
-
-  const [taggedUsers, setTaggedUsers] = useState<string[]>([]);
+  const { phase } = usePhaseId();
+  const { addNotification } = useNotificationViewModel(notificationUseCase);
   const {
     uploadFileAsync,
     uploadMetadata,
@@ -69,12 +70,12 @@ function FileUploadModal({
     uploadSuccess,
     uploadError,
   } = useFileViewModel(fileUseCase);
-  const { addNotification } = useNotificationViewModel(notificationUseCase);
 
-  // Generate folder name based on organization, wilaya, username, type, and date
+  const [taggedUsers, setTaggedUsers] = useState<string[]>([]);
+
   const generateFolderName = () => {
     const now = new Date();
-    const date = now.toISOString().split("T")[0]; // Get only the date part without time
+    const date = now.toISOString().split("T")[0];
     return `${organisation}_${reciverId}_${date}`;
   };
 
@@ -87,13 +88,7 @@ function FileUploadModal({
       ref.current?.complete();
       const fileData = (uploadMetadata as FileResponse)?.data;
       if (fileData) {
-        SetFinishUploading(true);
-        // Close modal after 5 seconds on successful upload
-        setTimeout(() => {
-          close();
-        }, 5000);
-      } else {
-        SetFinishUploading(false);
+        setTimeout(() => close(), 5000);
       }
     } else if (uploadError) {
       ref.current?.complete();
@@ -102,7 +97,7 @@ function FileUploadModal({
 
   useEffect(() => {
     if (listUsers.length === 0) setListUsers(users);
-  }, []);
+  }, [users]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -125,62 +120,8 @@ function FileUploadModal({
     setCommitSize(100 - newText.length);
   };
 
-  const uploadFiles = async (event: FormEvent) => {
-    event.preventDefault();
-    if (listFiles.length === 0) return;
-    let i = 0;
-    if (userPermission) {
-      for (const file of listFiles) {
-        try {
-          await uploadFileAsync(
-            file,
-            "",
-            folderName,
-            commitText,
-            organisation,
-            destination,
-            1,
-            userPermission.toLocaleLowerCase(),
-            reciverId,
-            taggedUsers,
-            phase?.id || ""
-          );
-          const fileElement = document.getElementById(file.name);
-          const btn = document.getElementById(i.toString());
-          if (fileElement) {
-            fileElement.classList.replace("badge-secondary", "badge-accent");
-            setCountUploadedFiles(i + 1);
-          }
-          if (btn && isFinishUploading) {
-            btn.remove();
-            if (userPermission && reciverId != "" && userSaved.id != "")
-              getFolders({
-                permission: userPermission.toLocaleLowerCase(),
-                receiverId: reciverId,
-                senderId: userSaved.id,
-              });
-          }
-        } catch (error) {
-          console.error(`Error uploading file ${file.name}:`, error);
-        }
-        i = i + 1;
-      }
-
-      const now = new Date();
-      const receivers = [reciverId, ...taggedUsers];
-
-      addNotification({
-        permission: userPermission.toLowerCase(),
-        receiverId: receivers,
-        senderId: userSaved.id,
-        message: `Il ya ${i} nouveaux fichiers ont été téléchargés dans le dossier "${folderName}"`,
-        title: "Nouveaux fichiers téléchargés",
-        time: now,
-        path: `peer/${userSaved.id}/${folderName}`,
-      });
-
-      SetFinishUploading(true);
-    }
+  const handleDeleteFile = (fileName: string) => {
+    setListFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
 
   const close = () => {
@@ -189,25 +130,63 @@ function FileUploadModal({
     setListFiles([]);
     setCountUploadedFiles(0);
     setCommitText("");
-    SetFinishUploading(false);
-    setListUsers([]);
+    setUploadedFiles(new Set());
   };
 
-  const handleDeleteFile = (fileName: string) => {
-    setListFiles((prevFiles) =>
-      prevFiles.filter((file) => file.name !== fileName)
-    );
+  const uploadFiles = async (event: FormEvent) => {
+    event.preventDefault();
+    if (listFiles.length === 0) return;
+
+    let uploadedCount = 0;
+    for (const file of listFiles) {
+      try {
+        await uploadFileAsync(
+          file,
+          "",
+          folderName,
+          commitText,
+          organisation,
+          destination,
+          1,
+          userSaved.permission.toLowerCase(),
+          reciverId,
+          taggedUsers,
+          phase?.id || ""
+        );
+        setUploadedFiles((prev) => new Set(prev).add(file.name));
+        setCountUploadedFiles((prev) => prev + 1);
+        uploadedCount++;
+      } catch (err) {
+        console.error(`Upload failed for ${file.name}`, err);
+      }
+    }
+
+    addNotification({
+      permission: userSaved.permission.toLowerCase(),
+      receiverId: [reciverId, ...taggedUsers],
+      senderId: userSaved.id,
+      message: `Il ya ${uploadedCount} nouveaux fichiers ont été téléchargés dans le dossier "${folderName}"`,
+      title: "Nouveaux fichiers téléchargés",
+      time: new Date(),
+      path: `peer/${userSaved.id}/${folderName}`,
+    });
+
+    getFolders({
+      permission: userSaved.permission.toLowerCase(),
+      receiverId: reciverId,
+      senderId: userSaved.id,
+    });
   };
 
   return (
     <dialog id="files" className="modal">
       <div className="modal-box p-8 shadow-lg">
         <LoadingBar color="#f11946" ref={ref} shadow={true} />
-
         <div className="flex justify-between">
           <h3 className="font-bold text-lg">Insérer un nouveau fichier:</h3>
           <BsXLg className="cursor-pointer" onClick={close} />
         </div>
+
         <form
           onSubmit={uploadFiles}
           className="flex flex-col form-control mt-4 w-full max-w-md text-center space-y-3"
@@ -217,11 +196,9 @@ function FileUploadModal({
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
           >
-            <div className="flex flex-col items-center">
-              <p className="mt-2 text-sm text-gray-600">
-                {listFiles.length > 0 ? "Files Ready" : "Drag & Drop or Select"}
-              </p>
-            </div>
+            <p className="text-sm text-gray-600">
+              {listFiles.length > 0 ? "Files Ready" : "Drag & Drop or Select"}
+            </p>
             <input
               type="file"
               className="hidden"
@@ -229,45 +206,53 @@ function FileUploadModal({
               multiple
             />
           </label>
+
           <TagInput userList={listUsers} onTagsChange={setTaggedUsers} />
 
           {listFiles.length > 0 && (
             <>
               <div className="divider" />
-              <p className="text-start font-bold ">
+              <p className="text-start font-bold">
                 {countUploadedFiles > 0
                   ? `Fichier téléchargé : ${countUploadedFiles}/${listFiles.length}`
                   : `List des Fichiers : ${listFiles.length}`}
               </p>
+
               <div className="flex flex-wrap gap-2 bg-gray-200 p-3 rounded-lg max-h-40 overflow-y-auto">
-                {listFiles.map((file, index) => (
-                  <div
-                    id={file.name}
-                    key={file.name}
-                    className="badge badge-secondary flex items-center gap-2 p-2"
-                  >
-                    {file.name}
-                    <BsXLg
-                      id={index.toString()}
-                      key={index.toString()}
-                      className="cursor-pointer text-white"
-                      onClick={() => handleDeleteFile(file.name)}
-                    />
-                  </div>
-                ))}
+                {listFiles.map((file) => {
+                  const isUploaded = uploadedFiles.has(file.name);
+                  return (
+                    <div
+                      key={file.name}
+                      className={`badge ${
+                        isUploaded ? "badge-accent" : "badge-secondary"
+                      } flex items-center gap-2 p-2`}
+                    >
+                      {file.name}
+                      {isUploaded ? (
+                        <MdCheckCircle className="text-white" />
+                      ) : (
+                        <BsXLg
+                          className="cursor-pointer text-white"
+                          onClick={() => handleDeleteFile(file.name)}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+
               <div className="divider" />
-              <div className="flex flex-col">
-                <label className="text-start font-bold mb-2">
-                  Nom du dossier:
-                </label>
-                <input
-                  type="text"
-                  className="mt-3 input input-bordered w-full bg-gray-100"
-                  value={folderName}
-                  readOnly
-                />
-              </div>
+              <label className="text-start font-bold mb-2">
+                Nom du dossier:
+              </label>
+              <input
+                type="text"
+                className="input input-bordered w-full bg-gray-100"
+                value={folderName}
+                readOnly
+              />
+
               <div className="flex flex-col mt-3">
                 <textarea
                   className="textarea textarea-bordered"
@@ -291,7 +276,7 @@ function FileUploadModal({
           )}
 
           {listFiles.length > 0 &&
-            (isFinishUploading ? (
+            (uploadedFiles.size === listFiles.length ? (
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -300,7 +285,7 @@ function FileUploadModal({
                 className="flex items-center gap-2 text-green-600 font-bold"
               >
                 <MdCheckCircle className="w-8 h-8 text-green-500 animate-pulse" />
-                Téléchargement réussi !{" "}
+                Téléchargement réussi !
               </motion.div>
             ) : (
               <button
@@ -316,5 +301,3 @@ function FileUploadModal({
     </dialog>
   );
 }
-
-export default FileUploadModal;

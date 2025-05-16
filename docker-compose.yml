@@ -8,14 +8,11 @@ services:
     ports:
       - "9000:3000"
     env_file:
-      - .env
-    volumes:
-      - ./fabric-samples:/app/fabric-samples
-    environment:
-      - FABRIC_TLS_CERT_PATH=/app/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+      - ./backend/.env
+    # volumes:
+    #   - /home/zedyacine/Desktop/fabric-samples:/app/fabric-samples
     depends_on:
       - mongodb
-      # - redis
       - sftp
     networks:
       - cnr-network
@@ -27,31 +24,31 @@ services:
     volumes:
       - mongodb_data:/data/db
       - ./mongo-init:/docker-entrypoint-initdb.d
-    env_file:
-      - .env
     networks:
       - cnr-network
 
-  # redis:
-  #   image: redis:alpine
+  # sftp:
+  #   image: atmoz/sftp
   #   ports:
-  #     - "6379:6379"
-  #   volumes:`
-  #     - redis_data:/data
+  #     - "2222:22"
+  #   volumes:
+  #     - ./sftp/data:/home/${SFTP_USER}/upload
+  #   command: ${SFTP_USER}:${SFTP_PASS}:::${SFTP_USER}
+  #   env_file:
+  #     - ./backend/.env
   #   networks:
   #     - cnr-network
 
   sftp:
     image: atmoz/sftp
     ports:
-      - "2223:22"
+      - "2222:22"
     volumes:
-      - ./sftp/data:/home/${SFTP_USER}/upload
-    command: ${SFTP_USER}:${SFTP_PASS}:::${SFTP_USER}
-    env_file:
-      - .env
+      - ./upload:/home/cnr
+    command: cnr:root:::cnr
     networks:
       - cnr-network
+    
 
   frontend:  
     build:
@@ -66,7 +63,6 @@ services:
 
 volumes:
   mongodb_data:
-  # redis_data:
 
 networks:
   cnr-network:

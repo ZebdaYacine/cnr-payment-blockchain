@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 
 // ✅ Define the User type
 type User = {
@@ -86,16 +86,22 @@ export default function Users() {
     return [...filtered].sort((a, b) => {
       const aValue = a[sortKey];
       const bValue = b[sortKey];
-      if (typeof aValue === "string") {
+
+      if (typeof aValue === "string" && typeof bValue === "string") {
         return sortOrder === "asc"
           ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
-      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+      }
+
+      return 0;
     });
   }, [filtered, sortKey, sortOrder]);
 
-  const totalPages = Math.ceil(sorted.length / USERS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(sorted.length / USERS_PER_PAGE));
   const paginated = sorted.slice(
     (page - 1) * USERS_PER_PAGE,
     page * USERS_PER_PAGE
@@ -198,24 +204,32 @@ export default function Users() {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((u, i) => {
-                const tauxErreur = u.fichiers
-                  ? (100 - (u.versions / u.fichiers) * 100).toFixed(1)
-                  : "N/A";
-                return (
-                  <tr key={i}>
-                    <td>
-                      <div className="font-bold">{u.name}</div>
-                      <div className="text-sm opacity-50">{u.country}</div>
-                    </td>
-                    <td>{u.poste}</td>
-                    <td>{u.institution}</td>
-                    <td>{u.fichiers}</td>
-                    <td>{u.versions}</td>
-                    <td>{tauxErreur}%</td>
-                  </tr>
-                );
-              })}
+              {paginated.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center">
+                    Aucun utilisateur trouvé.
+                  </td>
+                </tr>
+              ) : (
+                paginated.map((u, i) => {
+                  const tauxErreur = u.fichiers
+                    ? (100 - (u.versions / u.fichiers) * 100).toFixed(1)
+                    : "N/A";
+                  return (
+                    <tr key={i}>
+                      <td>
+                        <div className="font-bold">{u.name}</div>
+                        <div className="text-sm opacity-50">{u.country}</div>
+                      </td>
+                      <td>{u.poste}</td>
+                      <td>{u.institution}</td>
+                      <td>{u.fichiers}</td>
+                      <td>{u.versions}</td>
+                      <td>{tauxErreur}%</td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

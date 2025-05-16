@@ -1,5 +1,4 @@
 // components/SkeletonCard.tsx
-import React from "react";
 
 export default function SkeletonCard({
   lines = 3,
