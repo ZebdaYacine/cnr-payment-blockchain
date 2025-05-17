@@ -44,27 +44,26 @@ A next-generation blockchain payment solution for CNR (Centre National de Recher
 
 ```bash
 .
-├── frontend/               # React TS frontend
+├── frontend/                  # React TS frontend
 │   └── cnr/
-│       ├── public/         # Static assets
-│       └── src/            # Source code
-├── backend/                # Go backend
-│   ├── api/                # REST endpoints
-│   ├── feature/            # Business logic
-│   ├── pkg/                # Shared libraries
-│   └── cmd/                # Entry points
-├── scripts/                # Deployment scripts
-│   ├── blockchain/         # Fabric operations
-│   │   ├── deploy-cc.sh    # Chaincode deployer
-│   │   ├── upgrade-cc.sh   # Chaincode updater
+│       ├── public/            # Static assets
+│       └── src/               # Source code
+├── backend/                   # Go backend
+│   ├── api/                   # REST endpoints
+│   ├── feature/               # Business logic
+│   ├── pkg/                   # Shared libraries
+│   └── cmd/                   # Entry points
+├── scripts/                   # Deployment scripts
+│   ├── blockchain/            # Fabric operations
+│   │   ├── deploy-cc.sh       # Chaincode deployer
+│   │   ├── upgrade-cc.sh      # Chaincode updater
 │   │   └── download-fabric.sh # Download fabric binaries
-│   └── smartcontract/      # Chaincode source
-│       └── main.go         # Core logic
-├── docker/                 # Docker-related files
+│   └── smartcontract.go       # Chaincode source
+├── docker/                    # Docker-related files
 │   ├── backend.dockerfile
 │   └── frontend.dockerfile
-├── docker-compose.yml      # Multi-container setup
-└── README.md               # This file
+├── docker-compose.yml         # Multi-container setup
+└── README.md                  # This file
 ```
 
 ---
@@ -127,16 +126,18 @@ git checkout deploycode
 
 ```bash
 # Make scripts executable
-chmod +x scripts/blockchain/*.sh
+chmod +x scripts/*.sh
 
 # Download and install Hyperledger Fabric binaries
-./scripts/blockchain/download-fabric.sh
+cd scripts
+sudo download-fabric.sh
+copy *.sh ../fabric-samples/test-network
+copy *.go ../fabric-samples/asset-transfer-basic/chaincode-go/chaincode
 
 # Deploy the chaincode
-sudo ./scripts/blockchain/deploy-cc.sh \
+sudo ./deploy-cc.sh \
   -chaincode cnr \
   -channel cnr \
-  -version 1.0
 ```
 
 ---
@@ -148,10 +149,47 @@ docker-compose up --build -d
 ```
 
 - Frontend: [http://localhost:3000](http://localhost:3000)  
-- Backend API: [http://localhost:9000/api](http://localhost:9000/api)  
-- MongoDB: `mongodb://localhost:27017`
+- Backend API: [http://localhost:9000/ping](http://localhost:9000/ping)  
+- MongoDB: `mongodb://mongodb:27017`
 
 ---
+
+## 🧪 Local Development Setup
+
+## 🖥 Frontend (React)
+
+```bash
+
+cd frontend/cnr
+npm install
+npm run dev
+API web App will start on: http://localhost:5173/
+
+```
+
+## 🧠 Backend (Go)
+
+```bash
+#update this variables only
+# ================
+#  SFTP Settings
+# ================
+SFTP_HOST=localhost:2222
+SFTP_USER=cnr
+SFTP_PASS=root
+# =================
+#  Database Config
+# =================
+SERVER_ADDRESS_DB=mongodb://localhost:27017
+DB_NAME=cnr-blockchain
+
+cd backend/cmd
+go mod tidy
+go run main.go
+API Server will start on: http://localhost:3000
+
+```
+
 
 ## 📬 API Documentation
 
