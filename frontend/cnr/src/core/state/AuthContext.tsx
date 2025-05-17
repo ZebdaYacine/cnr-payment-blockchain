@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
 } from "react";
+import { useResetState } from "../../services/Utils";
 
 interface AuthContextType {
   isAuthentificated: boolean;
@@ -21,6 +22,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
   const isAuthentificated = !!token;
 
+  const resetState = useResetState();
+
+  // const clearLocalStorage = () => {
+  //   const keysToRemove = [
+  //     "token",
+  //     "user",
+  //     "otpSent",
+  //     "otpConfirmed",
+  //     "privateKey",
+  //     "digitalSignature",
+  //     "digitalSignatureConfirmed",
+  //     "currentPhase",
+  //     "files",
+  //     "notifications",
+  //     "version",
+  //     "folders",
+  //     "versionMetaData",
+  //     "listOfUsers",
+  //     "peer",
+  //     "theme",
+  //   ];
+  //   keysToRemove.forEach((key) => localStorage.removeItem(key));
+  // };
+
   useEffect(() => {
     const handleStorageChange = () => {
       setToken(localStorage.getItem("authToken"));
@@ -36,8 +61,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const Userlogout = () => {
+    resetState();
     setToken(null);
-    localStorage.removeItem("authToken");
+    localStorage.clear();
+    // localStorage.removeItem("isDigitalSignatureConfirmed");
+    // localStorage.removeItem("authToken");
   };
 
   return (

@@ -25,8 +25,15 @@ func InitServer(db database.Database, ServerName string) {
 
 func Gin(db database.Database) {
 	server := gin.Default()
-	router.Setup(db, server)
-	err := server.Run(pkg.Get_URL())
+	sftpClient, err := ConnectSFTP()
+	if err != nil {
+		log.Panic(err)
+	}
+	log.Println("_________________________________________ CONNECT TO SFTP _________________________________________")
+	router.Setup(db, server, sftpClient)
+	// cert, key := pkg.Get_TLS_Paths()
+	// err := server.RunTLS(pkg.Get_URL(), cert, key)
+	err = server.Run(pkg.Get_URL())
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 		return

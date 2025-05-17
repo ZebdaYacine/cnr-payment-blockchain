@@ -1,0 +1,60 @@
+[{
+  "_id": {
+    "$oid": "67b23f7f9944976895aa56f8"
+  },
+  "id": "67b23f7f9944976895aa56f8",
+  "name": "Agence Oran",
+  "code": "31001",
+  "parent": {
+    "id": "ef72538eead9cc3e75e73d71",
+    "name": "CCR Oran"
+  }
+},
+{
+  "_id": {
+    "$oid": "67b23f7f54f5c25f92e4f1b3"
+  },
+  "id": "67b23f7f54f5c25f92e4f1b3",
+  "name": "Agence Relizane",
+  "code": "48001",
+  "parent": {
+    "id": "2068f8e2f5c465213c8329b8",
+    "name": "CCR Relizane"
+  }
+},
+{
+  "_id": {
+    "$oid": "67b23f7f0780c07e92019ecf"
+  },
+  "id": "67b23f7f0780c07e92019ecf",
+  "name": "Agence Bordj Bou Arréridj",
+  "code": "34001",
+  "parent": {
+    "id": "db2a44f3f9c1eb4d8c1597b7",
+    "name": "CCR Bordj Bou Arréridj"
+  }
+},
+{
+  "_id": {
+    "$oid": "67b23f7f91ab0c74b7d62615"
+  },
+  "id": "67b23f7f91ab0c74b7d62615",
+  "name": "Agence Tipaza",
+  "code": "42001",
+  "parent": {
+    "id": "aa1810ebf1fc2258fd3b9c37",
+    "name": "CCR Tipaza"
+  }
+},
+{
+  "_id": {
+    "$oid": "67d6274daed628f5b2b6b6c7"
+  },
+  "id": "67d6274daed628f5b2b6b6c7",
+  "name": "Agence Blida",
+  "code": "48009",
+  "parent": {
+    "id": "aa1810ebf1fc2258fd3b9c37",
+    "name": "CCR Tipaza"
+  }
+}]

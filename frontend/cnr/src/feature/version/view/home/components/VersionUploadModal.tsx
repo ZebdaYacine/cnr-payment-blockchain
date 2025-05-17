@@ -2,20 +2,36 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { BsXLg } from "react-icons/bs";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { useVersionViewModel } from "../../../viewmodel/VersionViewModel";
-import { ProfileDataSourceImpl } from "../../../data/dataSource/VersionsDataSource";
+import { VersionDataSourceImpl } from "../../../data/dataSource/VersionsDataSource";
 import { VersionRepositoryImpl } from "../../../data/repository/VersionRepositoryImpl";
-import { VersionUseCase } from "../../../domain/usecase/ProfileUseCase";
+import { VersionUseCase } from "../../../domain/usecase/VersionUseCase";
 import { VersionsResponse } from "../../../data/dtos/VersionsDtos";
+import { useParams } from "react-router";
+import { useVersion } from "../../../../../core/state/versionContext";
+// import { useNotification } from "../../../../../services/useNotification";
+import { ToastContainer } from "react-toastify";
 
-const dataSource = new ProfileDataSourceImpl();
+const dataSource = new VersionDataSourceImpl();
 const repository = new VersionRepositoryImpl(dataSource);
 const versionUseCase = new VersionUseCase(repository);
+
 function VersionUploadModal() {
   const ref = useRef<LoadingBarRef>(null);
   const [versionName, setVersionName] = useState("");
-  const [commitSize, setCommitSize] = useState(100);
-  const [commitText, setCommitText] = useState("");
+  const [descriptionSize, setDescrpitionSize] = useState(100);
+  const [Descrpition, setDescription] = useState("");
+  const [commit, setCommit] = useState("");
   const [selectedVersion, setSelectedVersion] = useState<File | null>(null);
+  const { fileName, folderName } = useParams();
+  // const { success, error } = useNotification();
+  const {
+    lastVersion,
+    hashParent,
+    receiverId,
+    taggedUsers,
+    organization,
+    destination,
+  } = useVersion();
 
   const { uploadVersion, uploadMetadata, isUploading, uploadSuccess } =
     useVersionViewModel(versionUseCase);
@@ -23,10 +39,8 @@ function VersionUploadModal() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
-      if (file) {
-        setVersionName(file.name);
-        setSelectedVersion(file);
-      }
+      setVersionName(file.name);
+      setSelectedVersion(file);
     }
   };
 
@@ -40,11 +54,10 @@ function VersionUploadModal() {
         const file = d?.data;
         if (file) {
           close();
-        } else {
-          // setFileName("Error occurred during upload");
-          // setBadge("badge badge-danger");
         }
+        // success("version est chargee", "colored");
       } else {
+        // error("version est chargee", "colored");
         console.log("Error occurred during upload");
       }
     }
@@ -54,21 +67,28 @@ function VersionUploadModal() {
     event.preventDefault();
     if (event.dataTransfer.files.length > 0) {
       setVersionName(event.dataTransfer.files[0].name);
+      setSelectedVersion(event.dataTransfer.files[0]);
     }
   };
 
-  const handleCommitSizeChange = (
+  const handleDescriptionSizeChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     const newText = event.target.value;
     const size = newText.length;
     if (size <= 100) {
-      setCommitText(newText);
-      setCommitSize(100 - size);
+      setDescription(newText);
+      setDescrpitionSize(100 - size);
     } else {
-      const limitedText = newText.slice(0, 100);
-      setCommitText(limitedText);
-      setCommitSize(0);
+      setDescription(newText.slice(0, 100));
+      setDescrpitionSize(0);
+    }
+  };
+
+  const handleCommitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newText = event.target.value;
+    if (newText.length <= 100) {
+      setCommit(newText);
     }
   };
 
@@ -82,28 +102,52 @@ function VersionUploadModal() {
   const addNewVersion = async (event: FormEvent) => {
     event.preventDefault();
     if (selectedVersion) {
-      uploadVersion({ version: selectedVersion, parent: "", version_seq: 1 });
+      const new_version = Number(lastVersion) + 1;
+      uploadVersion({
+        version: selectedVersion,
+        parent: fileName || "",
+        version_seq: new_version,
+        commit: commit,
+        description: Descrpition,
+        folderName: folderName || "",
+        hash_parent: hashParent,
+        receiverId: receiverId || "",
+        taggedUsers: taggedUsers || [],
+        organization: organization || "",
+        destination: destination || "",
+      });
     }
   };
 
   return (
-    <dialog id="version" className="modal">
-      <div className="modal-box p-8 shadow-lg">
-        <LoadingBar color="#f11946" ref={ref} shadow={true} />
-        <div className="flex flex-row justify-between">
-          <h3 className="font-bold text-lg">Insert new Version:</h3>
-          <BsXLg className="cursor-pointer" onClick={close} />
-        </div>
-        <div className="flex flex-col items-center justify-center">
-          <form className="form-control mt-4 w-full max-w-md text-center">
+    <>
+      <ToastContainer />
+      <dialog id="version" className="modal">
+        <div className="modal-box w-screen max-w-2xl p-4 md:p-8 rounded-xl">
+          <LoadingBar color="#f11946" ref={ref} shadow={true} />
+
+          {/* Header */}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg md:text-xl font-bold">
+              📁 Insérer une nouvelle version
+            </h3>
+            <BsXLg className="text-xl cursor-pointer" onClick={close} />
+          </div>
+
+          {/* Form */}
+          <form
+            className="form-control w-full space-y-4"
+            onSubmit={addNewVersion}
+          >
+            {/* Drop File Area */}
             <label
-              className="mt-5 flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-accent rounded-lg cursor-pointer hover:bg-gray-100"
+              className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-accent rounded-lg cursor-pointer hover:bg-gray-100 transition"
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
             >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <p className="mt-2 text-sm text-gray-600">
-                  {versionName || "Drag & Drop File or Click to Upload"}
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-sm text-gray-600">
+                  {versionName || "📤 Glissez & déposez un fichier ou cliquez"}
                 </p>
               </div>
               <input
@@ -112,44 +156,51 @@ function VersionUploadModal() {
                 onChange={handleFileChange}
               />
             </label>
+
+            {/* Commit Input */}
             <input
               type="text"
-              className="mt-3 input input-bordered w-full"
-              placeholder="Commit transactions..."
+              className="input input-bordered w-full"
+              placeholder="Commentaire de version (Commit)..."
+              onChange={handleCommitChange}
+              value={commit}
             />
-            <div className="flex flex-col mt-3">
+
+            {/* Description Textarea */}
+            <div>
               <textarea
-                className="textarea textarea-bordered"
-                placeholder="Details about transactions..."
-                onChange={handleCommitSizeChange}
-                value={commitText}
+                className="textarea textarea-bordered w-full"
+                placeholder="Détails de la transaction..."
+                onChange={handleDescriptionSizeChange}
+                value={Descrpition}
               />
-              <div className="mt-2 flex flex-row-reverse">
-                <div
-                  className={`badge badge-lg ${
-                    commitText.length == 100
+              <div className="mt-1 flex justify-end">
+                <span
+                  className={`badge ${
+                    Descrpition.length === 100
                       ? "badge-secondary"
                       : "badge-accent"
                   }`}
                 >
-                  {commitSize}
-                </div>
+                  {descriptionSize}
+                </span>
               </div>
             </div>
 
-            <div className="mt-5 flex justify-center">
+            {/* Submit Button */}
+            <div className="flex justify-center">
               <button
-                className="btn btn-accent flex items-center"
-                disabled={commitText.length === 0}
-                onClick={addNewVersion}
+                type="submit"
+                className="btn btn-accent px-6"
+                disabled={Descrpition.length === 0 || isUploading}
               >
-                Add Version
+                {isUploading ? "Chargement..." : "Ajouter la version"}
               </button>
             </div>
           </form>
         </div>
-      </div>
-    </dialog>
+      </dialog>
+    </>
   );
 }
 

@@ -10,7 +10,7 @@ export class AuthRepositoryImpl implements AuthRepository {
     this.datasource = datasource;
   }
 
-  async Login(username: string, password: string): Promise<LoginResponse|ErrorResponse> {
-    return await this.datasource.Login(username, password);
+  async Login(email: string, password: string): Promise<LoginResponse|ErrorResponse> {
+    return await this.datasource.Login(email, password);
   }
 }

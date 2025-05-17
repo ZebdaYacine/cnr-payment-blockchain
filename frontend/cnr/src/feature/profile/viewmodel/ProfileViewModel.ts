@@ -1,71 +1,38 @@
-import { Child, ChildResponse, Elements, FileResponse, FolderResponse, InstitutionResponse } from './../data/dtos/ProfileDtos';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { PhaseResponse, UsersResponse } from "./../data/dtos/ProfileDtos";
 import { useMutation } from "@tanstack/react-query";
-import { ErrorResponse } from "../../../services/model/commun";
 import { useNotification } from "../../../services/useNotification";
 import { PofileUseCase } from "../domain/usecase/ProfileUseCase";
-import { FilesResponse, ProfileResponse } from "../data/dtos/ProfileDtos";
-import { useFileMetaData } from "../../../core/state/FileContext";
+import { ProfileResponse } from "../data/dtos/ProfileDtos";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../../core/state/AuthContext";
 import { User } from "../../../core/dtos/data";
-import { useUserId } from '../../../core/state/UserContext';
-import { useChild } from '../../../core/state/InstitutionContext';
-import { useFoldersMetaData } from '../../../core/state/FolderContext';
+import { useUser } from "../../../core/state/UserContext";
 
-function convertFileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-}
+import { useListUsers } from "../../../core/state/ListOfUsersContext";
+import { usePhaseId } from "../../../core/state/PhaseContext";
+import { GetAuthToken } from "../../../services/Http";
+import { useOTP } from "../../../core/state/OTPContext";
+import { useKeys } from "../../../core/state/KeyContext";
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
-  const { SetChild } = useChild();
-  
-  const { isAuthentificated, Userlogout } = useAuth();
   const navigate = useNavigate();
-  const { error } = useNotification();
-  const { setFilesList } = useFileMetaData();
-    const { setFoldersList } = useFoldersMetaData();
+  const { error, success } = useNotification();
+  const { setUsersList } = useListUsers();
+  const { SetCurrentPhase } = usePhaseId();
+  const { setOTPSent, setOTPConfirmed } = useOTP();
 
-  const {SetUsername,SetEmail,SetPermission ,SetWorkAt,SetidInstituion} = useUserId();
+  const { userSaved, SetUser } = useUser();
+  const { setIsDigitalSignatureConfirmed, setDigitalSignature } = useKeys();
 
-
-  const { mutate: getFolders, data: Folders, isPending: isFolderLoading, isSuccess: isFolderSuccess} = useMutation({
-    mutationFn: async () => {
-      console.log("Folders")
-      const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
-      return profileUseCase.GetFolder(storedToken);
-    },
-    onSuccess: (data) => {
-      if (data && "data" in data ) {
-        const resp = data as FolderResponse;
-        setFoldersList(resp.data);
-      } else {
-         const errorResponse = data as ErrorResponse;
-         error(errorResponse.message || "Network error occurred during upload", "colored");
-         Userlogout();
-        if (!isAuthentificated) navigate("/");
-      }
-    },
-    onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
-    },
-  });
-  
-  const { mutate: getProfile, data: Profile, isPending: isProfileLoading, isSuccess: isProfileSuccess} = useMutation({
-    mutationFn: async () => {
-      const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
-      return profileUseCase.GetProfile(storedToken);
+  const {
+    mutate: getProfile,
+    data: Profile,
+    isPending: isProfileLoading,
+    isSuccess: isProfileSuccess,
+  } = useMutation({
+    mutationFn: async ({ permission: permission }: { permission: string }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.GetProfile(storedToken, permission.toLowerCase());
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
@@ -73,187 +40,387 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const userData = resp.data as User;
         if (userData) {
           console.log("Profile fetched:", userData);
-           SetUsername(userData?.username)
-           SetEmail(userData?.email)
-           SetPermission(userData?.permission)
-           SetWorkAt(userData?.WorkAt)
-           SetidInstituion(userData?.idInstituion)
+          SetUser(userData);
         }
-      } else {
-         const errorResponse = data as ErrorResponse;
-         error(errorResponse.message || "Network error occurred during upload", "colored");
-         Userlogout();
-        if (!isAuthentificated) navigate("/");
       }
     },
     onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
+      console.error("GET PROFILE error:", err);
+      navigate("/error-page");
+      error(
+        "An error occurred during the upload. Please try again.",
+        "colored"
+      );
     },
   });
 
-  const uploadFileAsync = (file: File, parent: string,folder: string,description :string, version: number): Promise<FileResponse> => {
-  return new Promise((resolve, reject) => {
-    uploadFile(
-      { file, parent,folder,description,version },
-      {
-        onSuccess: (data) => resolve(data as FileResponse),
-        onError: (err) => reject(err),
-      }
-    );
-  });
-};
-
-  const { mutate: uploadFile, data: uploadMetadata, isPending: isUploading, isSuccess: uploadSuccess, isError: uploadError } = useMutation({
-    mutationFn: async ({ file, parent,folder,description, version }: { file: File; parent: string;folder: string;description :string; version: number }) => {
-      const base64File = await convertFileToBase64(file);
-      const filename = file.name;
-      const action = "upload";
-      const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
-      return profileUseCase.UploadFile(filename, base64File, storedToken, action, parent,folder,description, version);
+  const {
+    mutate: GetUsers,
+    data: users,
+    isPending: isUserLoading,
+    isSuccess: isUsersSuccss,
+    isError: isError,
+  } = useMutation({
+    mutationFn: async ({
+      permissions: permissions,
+    }: {
+      permissions: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return await profileUseCase.GetUsers(storedToken, permissions);
     },
+
     onSuccess: (data) => {
       if (data && "data" in data) {
-        const resp = data as FileResponse;
-        console.log("File uploaded successfully:", resp.data?.ID);
-        console.log("File URL:", resp.data?.HashFile);
-      } else {
-        const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during upload", "colored");
+        const resp = data as UsersResponse;
+        const users = resp.data as User[];
+        console.log(users);
+        setUsersList(users);
       }
     },
-    onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Cannot connect to the server. Please check your internet or try again later."
+            : err.message
+          : "An unknown error occurred while fetching users.";
+
+      error(errorMessage, "colored");
     },
   });
 
-  const { mutate: getFiles, data: filesMetadata, isPending: isFetchingFiles, isSuccess: isFetchSuccess } = useMutation({
+  const {
+    mutate: getCurrentPhase,
+    data: currentPhase,
+    isPending: isPhaseLoading,
+    isSuccess: isPhaseSuccess,
+  } = useMutation({
     mutationFn: async () => {
-      const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
-      return profileUseCase.GetFiles(storedToken);
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.GetCurrentPhase(
+        storedToken,
+        userSaved.permission.toLowerCase()
+      );
     },
     onSuccess: (data) => {
       if (data && "data" in data) {
-        const resp = data as FilesResponse;
-        setFilesList(resp.data);
-      } else {
-        const errorResponse = data as ErrorResponse;
-        setFilesList([]);
-        error(errorResponse.message || "Network error occurred while fetching files", "colored");
+        const phase = data.data as PhaseResponse;
+        if (phase) {
+          SetCurrentPhase(phase);
+        }
       }
     },
     onError: (err: unknown) => {
-      console.error("Fetch error:", err);
-      error("An error occurred while retrieving files. Please try again.", "colored");
+      console.error("GET CURRENT PHASE error:", err);
+      // error(
+      //   "An error occurred while fetching the current phase. Please try again.",
+      //   "colored"
+      // );
     },
   });
 
-  const { mutate: GetInstituations, data: institutionData, isPending: isInstituaionsLoading, isSuccess: isInstituaionsSuccss} = useMutation({
-    mutationFn: async () => {
-      const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
-      return profileUseCase.GetInstitutions(storedToken);
+  const {
+    mutate: addPk,
+    data: rslt,
+    isPending: isPKLoading,
+    isSuccess: isPKSuccess,
+    isError: isPKError,
+  } = useMutation({
+    mutationFn: async ({ pk }: { pk: string }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.AddPk(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        pk
+      );
     },
     onSuccess: (data) => {
-      if (data && "data" in data) {
-        const resp = data as InstitutionResponse;
-        console.log("Get Institutions successfully:", resp.data.at(-1)?.id);
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        getProfile({ permission: userSaved.permission.toLowerCase() });
+        success("Votre clé publique a été ajoutée avec succès.", "colored");
       } else {
-        const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during upload", "colored");
+        error("Clé invalide ou rejetée par le serveur.", "colored");
       }
-    },
-    onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
     },
   });
 
-   const { mutate: GetChildInstituations, data: childInstitutionData, isPending: isChildInstituaionsLoading, isSuccess: isChildInstituaionsSuccss} = useMutation({
-    mutationFn: async ({id,name}: { id: string,name: string}) => {
-      const storedToken = localStorage.getItem("authToken");
-      if (!storedToken) {
-        throw new Error("Authentication token not found");
-      }
-      return profileUseCase.GetChildOfInstitutions(id,name,storedToken);
+  const {
+    mutate: updateFirstLastName,
+    isPending: isUpdatingName,
+    isSuccess: isNameUpdateSuccess,
+    isError: isNameUpdateError,
+  } = useMutation({
+    mutationFn: async ({
+      firstName,
+      lastName,
+      avatar,
+    }: {
+      firstName: string;
+      lastName: string;
+      avatar: string | undefined;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.UpdateFirstLastName(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        firstName,
+        lastName,
+        avatar
+      );
     },
     onSuccess: (data) => {
-      if (data && "data" in data) {
-        const resp = data as ChildResponse;
-        const element = resp.data as Elements;
-        const listOfChildren: Child[] = new Array<Child>();
-        listOfChildren[0]=element.institutiont.obj as Child
-        console.log(listOfChildren[0])
-        const parent=listOfChildren[0].parent
-        if(parent){
-          listOfChildren[1]=parent as Child
-          console.log(listOfChildren[1])
-          if(element.child){
-            element.child.map((value, key) => {
-              listOfChildren[key+2]=value.obj as Child
-          });
-          }
-        }else{
-          if(element.child){
-            element.child.map((value, key) => {
-              listOfChildren[key+1]=value.obj as Child
-          });
-        }
-        }
-        SetChild(listOfChildren)
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        getProfile({ permission: userSaved.permission.toLowerCase() });
+        success("Votre nom a été mis à jour avec succès.", "colored");
       } else {
-        const errorResponse = data as ErrorResponse;
-        error(errorResponse.message || "Network error occurred during upload", "colored");
+        error("Erreur lors de la mise à jour du nom.", "colored");
       }
     },
-    onError: (err: unknown) => {
-      console.error("Upload error:", err);
-      error("An error occurred during the upload. Please try again.", "colored");
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
+            : err.message
+          : "Une erreur inconnue s'est produite lors de la mise à jour du nom.";
+
+      error(errorMessage, "colored");
+    },
+  });
+
+  const {
+    mutate: updatePassword,
+    isPending: isUpdatingPassword,
+    isSuccess: isPasswordUpdateSuccess,
+    isError: isPasswordUpdateError,
+  } = useMutation({
+    mutationFn: async ({
+      oldPassword,
+      newPassword,
+    }: {
+      oldPassword: string;
+      newPassword: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.UpdatePassword(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        oldPassword,
+        newPassword
+      );
+    },
+    onSuccess: (data) => {
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        success("Votre mot de passe a été mis à jour avec succès.", "colored");
+      } else {
+        error("Erreur lors de la mise à jour du mot de passe.", "colored");
+      }
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
+            : err.message
+          : "Une erreur inconnue s'est produite lors de la mise à jour du mot de passe.";
+
+      error(errorMessage, "colored");
+    },
+  });
+
+  const {
+    mutate: sendOTP,
+    isPending: isSendingOTP,
+    isSuccess: isOTPSentSuccess,
+    isError: isOTPSentError,
+  } = useMutation({
+    mutationFn: async ({ email }: { email: string }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.SendOTP(
+        storedToken,
+        // userSaved.permission.toLowerCase(),
+        email
+      );
+    },
+    onSuccess: (data) => {
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        setOTPSent(true);
+        success("OTP envoyé avec succès.", "colored");
+      } else {
+        error("Erreur lors de l'envoi de l'OTP.", "colored");
+      }
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
+            : err.message
+          : "Une erreur inconnue s'est produite lors de l'envoi de l'OTP.";
+
+      error(errorMessage, "colored");
+    },
+  });
+
+  const {
+    mutate: ConfirmOTP,
+    isPending: isConfirmingOTP,
+    isSuccess: isOTPCofirmedSuccess,
+    isError: isOTPConfirmedError,
+  } = useMutation({
+    mutationFn: async ({ otp }: { otp: string }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.ConfirmOTP(
+        storedToken,
+        // userSaved.permission.toLowerCase(),
+        otp
+      );
+    },
+    onSuccess: (data) => {
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        setOTPConfirmed(true);
+      } else {
+        setOTPConfirmed(false);
+        error("OTP INCCORECT ", "colored");
+      }
+    },
+    onError: (err) => {
+      setOTPSent(false);
+      error(err.message, "colored");
+    },
+  });
+
+  const {
+    mutate: verifySignature,
+    isPending: isVerifyingSignature,
+    isSuccess: isSignatureVerified,
+    isError: isSignatureVerificationError,
+  } = useMutation({
+    mutationFn: async ({
+      signature,
+      randomValue,
+    }: {
+      signature: string;
+      randomValue: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.VerifySignature(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        signature,
+        randomValue
+      );
+    },
+    onSuccess: (data, variables) => {
+      let isVerified = false;
+
+      if (
+        typeof data === "object" &&
+        data !== null &&
+        "data" in data &&
+        typeof (data as any).data?.Data === "boolean"
+      ) {
+        isVerified = (data as any).data.Data === true;
+      } else if (typeof data === "boolean") {
+        isVerified = data === true;
+      }
+
+      console.log(">>>>>>>>>>>>>>>>>>> isVerified:", isVerified);
+
+      if (isVerified) {
+        setIsDigitalSignatureConfirmed(true);
+        setDigitalSignature(variables.signature);
+        success("votre signature est acceptee.", "colored");
+      } else {
+        setIsDigitalSignatureConfirmed(false);
+        setDigitalSignature(variables.signature);
+        error("votre signature n'est pas acceptee.", "colored");
+      }
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
+            : err.message
+          : "Une erreur inconnue s'est produite lors de la vérification de la signature.";
+      setIsDigitalSignatureConfirmed(false);
+      error(errorMessage, "colored");
     },
   });
 
   return {
-    uploadFile,
-    uploadMetadata,
-    isUploading,
-    uploadSuccess,
-    uploadError,
-
-    getFiles,
-    filesMetadata,
-    isFetchingFiles,
-    isFetchSuccess,
-
-    getFolders,
-    isFolderLoading,
-    isFolderSuccess,
-    Folders,
-
     getProfile,
     isProfileLoading,
     isProfileSuccess,
     Profile,
 
-    GetInstituations,
-    institutionData,
-    isInstituaionsLoading,
-    isInstituaionsSuccss,
+    GetUsers,
+    users,
+    isUserLoading,
+    isUsersSuccss,
+    isError,
 
-    GetChildInstituations,
-    childInstitutionData,
-    isChildInstituaionsLoading,
-    isChildInstituaionsSuccss,
+    getCurrentPhase,
+    currentPhase,
+    isPhaseLoading,
+    isPhaseSuccess,
 
-    uploadFileAsync
+    addPk,
+    rslt,
+    isPKLoading,
+    isPKSuccess,
+    isPKError,
 
+    updateFirstLastName,
+    isUpdatingName,
+    isNameUpdateSuccess,
+    isNameUpdateError,
+
+    updatePassword,
+    isUpdatingPassword,
+    isPasswordUpdateSuccess,
+    isPasswordUpdateError,
+
+    sendOTP,
+    isSendingOTP,
+    isOTPSentSuccess,
+    isOTPSentError,
+
+    ConfirmOTP,
+    isConfirmingOTP,
+    isOTPCofirmedSuccess,
+    isOTPConfirmedError,
+
+    verifySignature,
+    isVerifyingSignature,
+    isSignatureVerified,
+    isSignatureVerificationError,
   };
 }

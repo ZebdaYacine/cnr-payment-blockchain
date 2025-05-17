@@ -7,7 +7,7 @@ interface AtTimeProps {
 function AtTime({ value }: AtTimeProps) {
   return (
     <>
-      <div className="badge badge-soft badge-secondary gap-2">
+      <div className="badge badge-primary  gap-2 font-bold">
         <MdOutlineAccessTime />
         {value}
       </div>

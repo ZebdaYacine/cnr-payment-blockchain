@@ -1,3 +1,5 @@
+# Gitignore for FTP SERVER 
+/ftp/
 # Gitignore for Go (backend)
 /backend/*.exe
 /backend/*.test
@@ -6,10 +8,9 @@
 /backend/*.env
 /backend/*.db
 /backend/*.sqlite
-/backend/*.sqlite3
-/backend/*.pem
-/backend/*.key
-/backend/*.cert
+/backend/cert/*
+/backend/ftp/
+
 
 
 # Gitignore for ReactJS (frontend)
@@ -17,10 +18,15 @@
 /frontend/cnr/*.env
 /frontend/cnr/.build/
 /frontend/cnr/*.log
-
+/frontend/cnr/cert/*
+/frontend/cnr/src/.env
 # Build directories
 /frontend/cnr/dist/
 /frontend/cnr/public/build/
+
+/upload/*
+/sftp/*
+
 
 # OS generated files
 .DS_Store

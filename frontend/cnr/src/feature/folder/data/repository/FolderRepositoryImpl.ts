@@ -7,11 +7,20 @@ export class FolderRepositoryImpl implements FolderRepository {
   datasource: FolderDataSource;
 
   constructor(datasource: FolderDataSource) {
-    this.datasource = datasource; 
+    this.datasource = datasource;
   }
 
-  async GetFolder(token: string): Promise<FolderResponse | ErrorResponse> {
-    return await this.datasource.GetFolderApi(token);
+  async GetFolder(
+    token: string,
+    permission: string,
+    receiverId: string,
+    senderId: string
+  ): Promise<FolderResponse | ErrorResponse> {
+    return await this.datasource.GetFolderApi(
+      token,
+      permission,
+      receiverId,
+      senderId
+    );
   }
-  
 }

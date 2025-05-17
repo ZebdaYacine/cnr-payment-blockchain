@@ -21,8 +21,9 @@ type authRepository struct {
 type AuthRepository interface {
 	Login(c context.Context, data *domain.Login) (*feature.User, error)
 	CreateAccount(c context.Context, user *feature.User) (*feature.User, error)
-	SetPassword(c context.Context, pwd string, eamil string) (bool, error)
+	SetPassword(c context.Context, pwd string, email string) (bool, error)
 	SearchIfEamilExiste(c context.Context, email string) (*feature.User, error)
+	UserExiste(c context.Context, identifier string) (bool, error)
 }
 
 func NewAuthRepository(db database.Database) AuthRepository {
@@ -35,83 +36,86 @@ func getUser(filter any, collection database.Collection, c context.Context) (*fe
 	var result bson.M
 	err := collection.FindOne(c, filter).Decode(&result)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, fmt.Errorf("utilisateur introuvable")
+		}
 		log.Print(err)
-		return nil, err
+		return nil, fmt.Errorf("erreur lors de la récupération de l'utilisateur")
 	}
-	user := feature.User{}
-	user = feature.User{
+
+	user := feature.User{
 		Id:           result["_id"].(primitive.ObjectID).Hex(),
 		Email:        result["email"].(string),
 		UserName:     result["username"].(string),
 		Permission:   result["permission"].(string),
-		WorkAt:       result["WorkAt"].(string),
+		Password:     result["password"].(string),
+		WorkAt:       result["workAt"].(string),
 		IdInstituion: result["idInstituion"].(string),
 	}
 	return &user, nil
 }
 
-// CreateProfile implements ProfileRepository.
 func (s *authRepository) CreateAccount(c context.Context, user *feature.User) (*feature.User, error) {
 	collection := s.database.Collection("user")
-	user.Request = false
-	user.Status = ""
-	log.Println(user)
-	resulat, err := collection.InsertOne(c, &user)
+	result, err := collection.InsertOne(c, &user)
 	if err != nil {
-		log.Printf("Failed to create user: %v", err)
-		return nil, err
+		log.Printf("Échec de la création de l'utilisateur : %v", err)
+		return nil, fmt.Errorf("échec de la création du compte utilisateur")
 	}
-	userId := resulat.(string)
-	user.Id = userId
-	id, err := primitive.ObjectIDFromHex(user.Id)
-	if err != nil {
-		log.Fatal(err)
+
+	insertedID, ok := result.(primitive.ObjectID)
+	if !ok {
+		return nil, fmt.Errorf("erreur lors de la conversion de l'identifiant utilisateur")
 	}
-	filterUpdate := bson.D{{Key: "_id", Value: id}}
-	update := bson.M{
-		"$set": user,
-	}
+
+	user.Id = insertedID.Hex()
+
+	filterUpdate := bson.D{{Key: "_id", Value: insertedID}}
+	update := bson.M{"$set": user}
+
 	_, err = collection.UpdateOne(c, filterUpdate, update)
 	if err != nil {
-		log.Panic(err)
-		return nil, err
+		log.Printf("Erreur lors de la mise à jour de l'utilisateur : %v", err)
+		return nil, fmt.Errorf("échec de la mise à jour de l'utilisateur")
 	}
-	new_user := &feature.User{}
-	err = collection.FindOne(c, filterUpdate).Decode(new_user)
+
+	newUser := &feature.User{}
+	err = collection.FindOne(c, filterUpdate).Decode(newUser)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("user not found")
+			return nil, fmt.Errorf("utilisateur non trouvé après création")
 		}
-		return nil, err
+		return nil, fmt.Errorf("erreur lors de la récupération du nouvel utilisateur")
 	}
-	return new_user, nil
+	return newUser, nil
 }
 
 func (r *authRepository) Login(c context.Context, data *domain.Login) (*feature.User, error) {
-	// fabric.SdkProvider("getAll")
-	collection := r.database.Collection("user")
-	filter := bson.D{{Key: "username", Value: data.UserName}, {Key: "password", Value: data.Password}}
-	user, err := getUser(filter, collection, c)
+	u, err := r.SearchIfEamilExiste(c, data.UserName)
 	if err != nil {
 		log.Print(err)
-		return nil, err
+		return nil, fmt.Errorf("adresse e-mail incorrecte ou utilisateur inexistant")
 	}
-	return user, nil
+
+	if u.Password != data.Password {
+		return nil, fmt.Errorf("mot de passe incorrect")
+	}
+	u.Password = ""
+
+	return u, nil
 }
 
 func (r *authRepository) SetPassword(c context.Context, pwd string, email string) (bool, error) {
 	collection := r.database.Collection("user")
 	filterUpdate := bson.D{{Key: "email", Value: email}}
 	update := bson.M{
-		"$set": bson.M{
-			"password": pwd,
-		},
+		"$set": bson.M{"password": pwd},
 	}
 	_, err := core.UpdateDoc[feature.User](c, collection, update, filterUpdate)
-	if err == nil {
-		return true, nil
+	if err != nil {
+		return false, fmt.Errorf("échec de la mise à jour du mot de passe")
 	}
-	return false, err
+	return true, nil
 }
 
 func (r *authRepository) SearchIfEamilExiste(c context.Context, email string) (*feature.User, error) {
@@ -119,8 +123,26 @@ func (r *authRepository) SearchIfEamilExiste(c context.Context, email string) (*
 	filter := bson.D{{Key: "email", Value: email}}
 	user, err := getUser(filter, collection, c)
 	if err != nil {
-		//log.Print(err)
-		return nil, err
+		return nil, fmt.Errorf("aucun utilisateur trouvé avec l'adresse e-mail : %s", email)
 	}
 	return user, nil
+}
+
+func (r *authRepository) UserExiste(c context.Context, identifier string) (bool, error) {
+	collection := r.database.Collection("user")
+
+	filter := bson.M{
+		"$or": []bson.M{
+			{"email": identifier},
+			{"username": identifier},
+		},
+	}
+
+	count, err := collection.CountDocuments(c, filter)
+	if err != nil {
+		log.Printf("Erreur lors de la vérification de l'existence de l'utilisateur : %v", err)
+		return false, fmt.Errorf("erreur lors de la vérification de l'existence de l'utilisateur")
+	}
+
+	return count > 0, nil
 }

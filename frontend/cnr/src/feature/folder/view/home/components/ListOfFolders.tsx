@@ -1,149 +1,226 @@
-import { useNavigate } from "react-router";
-import { useState } from "react";
-import { Folder } from "../../../data/dtos/FolderDtos";
+import { useNavigate, useParams } from "react-router";
+import { useEffect, useState, useCallback } from "react";
 import FileUploadModal from "./FileUploadModal";
-import { FaFolder } from "react-icons/fa6";
 import { Child } from "../../../../profile/data/dtos/ProfileDtos";
 import Warning from "../../../../../core/components/Warning";
-import ByUser from "./ByUser";
-import AtTime from "./AtTime";
 import SelectFilesComponent from "../../../../../core/components/SelectFilesComponet";
+import { useUser } from "../../../../../core/state/UserContext";
+import FolderTable from "./FolderTable";
+import { FolderUseCase } from "../../../domain/usecase/FolderUseCase";
+import { FolderDataSourceImpl } from "../../../data/dataSource/FolderAPIDataSource";
+import { FolderRepositoryImpl } from "../../../data/repository/FolderRepositoryImpl";
+import { useFoldersMetaData } from "../../../../../core/state/FolderContext";
+import { useFolderViewModel } from "../../../viewmodel/FolderViewModel";
+import { GetAgentLabel } from "../../../../../services/Utils";
+import { ToastContainer } from "react-toastify";
+import { useTypeTransaction } from "../../../../../core/state/TypeTransactionContext";
+// import { useKeys } from "../../../../../core/state/KeyContext";
 
 interface ListOfFoldersProps {
-  folders: Folder[];
   peer: Child;
 }
 
-const ITEMS_PER_PAGE = 5; // Adjust this value as needed
-
-function ListOfFolders({ folders: folders, peer: peer }: ListOfFoldersProps) {
-  const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRadio, setSelectedRadio] = useState("");
-
-  const safeFolders = Array.isArray(folders) ? folders : [];
-  const totalPages = Math.ceil(safeFolders.length / ITEMS_PER_PAGE);
-  const paginatedFiles = safeFolders.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+function ListOfFolders({ peer }: ListOfFoldersProps) {
+  const folderUseCase = new FolderUseCase(
+    new FolderRepositoryImpl(new FolderDataSourceImpl())
   );
 
+  const { getFoldersList } = useFoldersMetaData();
+  const { getFolders } = useFolderViewModel(folderUseCase);
+
+  const navigate = useNavigate();
+  const [selectedRadio, setSelectedRadio] = useState("");
+
+  const { userSaved } = useUser();
+
+  const userPermission = userSaved.permission;
+  // const { isDigitalSignatureConfirmed } = useKeys();
+  // useEffect(() => {
+  //   if (!isDigitalSignatureConfirmed) {
+  //     navigate(`/home/reglementaion/COM-003`);
+  //   }
+  // }, [isDigitalSignatureConfirmed]);
+  const fetchFolders = useCallback(() => {
+    console.log("Fetching folders with:", { peer, userSaved, selectedRadio });
+
+    if (
+      !peer?.id ||
+      !userSaved.id ||
+      !peer?.org.name ||
+      !userSaved.workAt ||
+      selectedRadio === ""
+    ) {
+      console.warn(
+        "🚨 Missing required parameters for getFolders. Aborting fetch."
+      );
+      return;
+    }
+
+    if (userPermission) {
+      let receiverId, senderId;
+
+      switch (selectedRadio) {
+        case "IN":
+          receiverId = peer.id;
+          senderId = userSaved.id;
+          break;
+        case "OUT":
+          receiverId = userSaved.id;
+          senderId = peer.id;
+          break;
+        default:
+          console.warn("🚨 Invalid selectedRadio value:", selectedRadio);
+          return;
+      }
+
+      console.log("✅ Calling getFolders with:", {
+        receiverId,
+        senderId,
+        userPermission,
+      });
+
+      getFolders({
+        receiverId,
+        senderId,
+        permission: userPermission.toLowerCase(),
+      });
+    }
+  }, [getFolders, selectedRadio, peer?.id, userSaved, userPermission]);
+
+  useEffect(() => {
+    if (!selectedRadio || !userSaved.id || !peer?.id) {
+      console.warn("🚨 Not calling fetchFolders - missing values:", {
+        selectedRadio,
+        userSaved,
+        peer,
+      });
+      return;
+    }
+    console.log("✅ Calling fetchFolders on useEffect...");
+    fetchFolders();
+  }, [fetchFolders, selectedRadio, userSaved.id, peer?.id]);
+
+  useEffect(() => {
+    if (!selectedRadio || !userSaved.id || !peer?.id) {
+      console.warn("🚨 Skipping interval - missing values.");
+      return;
+    }
+    const interval = setInterval(() => fetchFolders(), 10000);
+    return () => clearInterval(interval);
+  }, [fetchFolders, selectedRadio, userSaved, peer?.id]);
+  const { userId } = useParams();
   const handleRowClick = (folderName: string) => {
     console.log("Navigating to folder:", folderName);
-    navigate(`/home/${folderName}`);
+    const folderNameEncoded = encodeURIComponent(folderName);
+    navigate(`/home/peer/${userId}/${folderNameEncoded}`);
   };
+
+  const foldersList = getFoldersList();
+  const { setTargetType } = useTypeTransaction();
+
   return (
     <>
-      <FileUploadModal />
-      <div className="card shadow-2xl w-full">
+      {peer?.name && userSaved.workAt && (
+        <FileUploadModal
+          destination={`${peer.org.name} - ${peer.wilaya}`}
+          organisation={`${userSaved.workAt} - ${userSaved.wilaya}`}
+          reciverId={peer.id}
+        />
+      )}
+      <div className="card shadow-2xl w-full ">
         <div className="card-body">
           <div className="flex flex-col">
             <div className="flex flex-wrap justify-between">
-              <div className="flex flex-col space-y-3">
-                <h2 className="card-title text-center text-3xl">
-                  {peer ? peer.name : "No Peer Selected"}
-                </h2>
-                <div className="flex items-center space-x-4">
-                  <label className="flex items-center cursor-pointer gap-2 p-2   ">
-                    <input
-                      type="radio"
-                      name="radio-2"
-                      className="radio radio-primary"
-                      onClick={() => setSelectedRadio("IN")}
-                    />
-                    <span className="font-semibold">IN</span>
-                  </label>
+              <div className="flex flex-col  w-full">
+                {peer ? (
+                  <div className="flex flex-col justify-between  p-2">
+                    <p className="text-3xl font-extrabold text-gray-500 ">
+                      {peer.name} - {GetAgentLabel(peer.type)}
+                    </p>
+                    <p className="text-xl font-bold text-gray-400 mt-2 ">
+                      {peer.org.name} - {peer.wilaya}
+                    </p>
+                  </div>
+                ) : (
+                  "Aucune organisation sélectionnée."
+                )}
+                {peer && (
+                  <div className="  flex flex-wrap items-center justify-between ">
+                    <div className=" flex flex-row ">
+                      <label className="flex items-center cursor-pointer gap-2 p-2">
+                        <input
+                          type="radio"
+                          name="radio-2"
+                          className="radio radio-primary"
+                          onChange={() => {
+                            setSelectedRadio("OUT");
+                            setTargetType("OUT");
+                          }}
+                        />
+                        <span className="font-semibold">OUT</span>
+                      </label>
 
-                  <label className="flex items-center cursor-pointer gap-2 p-2  ">
-                    <input
-                      type="radio"
-                      name="radio-2"
-                      className="radio radio-primary"
-                      onClick={() => setSelectedRadio("OUT")}
-                    />
-                    <span className="font-semibold">OUT</span>
-                  </label>
-                </div>
+                      <label className="flex items-center cursor-pointer gap-2 p-2">
+                        <input
+                          type="radio"
+                          name="radio-2"
+                          className="radio radio-primary"
+                          onChange={() => {
+                            setSelectedRadio("IN");
+                            setTargetType("IN");
+                          }}
+                        />
+                        <span className="font-semibold">IN</span>
+                      </label>
+                    </div>
+                    {selectedRadio === "IN" && (
+                      <div>
+                        <SelectFilesComponent />
+                      </div>
+                    )}
+                    {/* {selectedRadio === "OUT" && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          Accepter les conditions
+                        </span>
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="checkbox checkbox-primary"
+                        />
+                      </div>
+                    )} */}
+                  </div>
+                )}
               </div>
-              {selectedRadio === "OUT" && (
-                <div className="flex flex-row justify-center items-center">
-                  <SelectFilesComponent />
-                </div>
-              )}
             </div>
           </div>
           <div className="divider"></div>
 
-          {folders.length === 0 ? (
-            Warning({ message: "No Folder Found" })
+          {peer ? (
+            selectedRadio === "" ? (
+              <Warning message="Selectionner IN or OUT" />
+            ) : foldersList.length === 0 ? (
+              <Warning
+                message="Aucun dossier trouvé"
+                notification={selectedRadio === "OUT"}
+                userId={peer.id}
+                senderName={peer.name}
+              />
+            ) : (
+              <div className="overflow-x-auto">
+                <FolderTable
+                  listOfFolders={foldersList}
+                  onRowClick={handleRowClick}
+                />
+              </div>
+            )
           ) : (
-            <div className="overflow-x-auto">
-              <table className="table table-auto">
-                <tbody>
-                  {paginatedFiles.map((folder) => (
-                    <tr
-                      key={folder.name}
-                      className="cursor-pointer hover:bg-gray-100 transition-all duration-200"
-                      onClick={() => handleRowClick(folder.name)}
-                    >
-                      <td className="text-left p-4">
-                        <div className="flex items-center gap-3">
-                          <FaFolder className=" text-xl" />
-                          <span className="font-medium text-lg ">
-                            {folder.name}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="text-center text-gray-600 p-4">
-                        <ByUser
-                          name="Zebda Yassine"
-                          avatar="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                        />
-                      </td>
-
-                      <td className="text-center p-4">
-                        <AtTime value="12-12-2000" />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Warning message="Aucun Participant  Selecetione" />
           )}
-          <div className="flex justify-center mt-4">
-            <div className="join">
-              <button
-                className="join-item btn"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                «
-              </button>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index}
-                  className={`join-item btn ${
-                    currentPage === index + 1 ? "btn-active" : ""
-                  }`}
-                  onClick={() => setCurrentPage(index + 1)}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                className="join-item btn"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-              >
-                »
-              </button>
-            </div>
-          </div>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 }

@@ -17,13 +17,12 @@ type Database interface {
 	Collection(string) Collection
 	Client() Client
 }
-
 type Collection interface {
 	InsertOne(context.Context, interface{}) (interface{}, error)
 	DeleteOne(context.Context, interface{}) (*mongo.DeleteResult, error)
 	FindOne(context.Context, interface{}) SingleResult
 	CountDocuments(context.Context, interface{}) (int64, error)
-	Find(context.Context, interface{}) (*mongo.Cursor, error)
+	Find(context.Context, interface{}, ...*options.FindOptions) (*mongo.Cursor, error)
 	UpdateOne(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 }
 
@@ -101,8 +100,8 @@ func (mc *mongoCollection) FindOne(ctx context.Context, filter interface{}) Sing
 }
 
 // Find implements Collection.
-func (mc *mongoCollection) Find(ctx context.Context, filter interface{}) (*mongo.Cursor, error) {
-	singleResult, err := mc.coll.Find(ctx, filter)
+func (mc *mongoCollection) Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (*mongo.Cursor, error) {
+	singleResult, err := mc.coll.Find(ctx, filter, opts...)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err

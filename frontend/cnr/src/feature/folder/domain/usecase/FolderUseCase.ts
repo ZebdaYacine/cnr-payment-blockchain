@@ -8,10 +8,18 @@ export class FolderUseCase {
   constructor(repository: FolderRepository) {
     this.repository = repository;
   }
-  
-  async GetFolder(token:string): Promise<FolderResponse|ErrorResponse> {
-      return await  this.repository.GetFolder(token);
-  }
 
- 
+  async GetFolder(
+    token: string,
+    permission: string,
+    receiverId: string,
+    senderId: string
+  ): Promise<FolderResponse | ErrorResponse> {
+    return await this.repository.GetFolder(
+      token,
+      permission,
+      receiverId,
+      senderId
+    );
+  }
 }

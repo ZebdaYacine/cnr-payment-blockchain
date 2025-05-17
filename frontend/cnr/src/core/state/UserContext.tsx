@@ -1,61 +1,54 @@
-import { createContext, useState, ReactNode, useContext } from "react";
+import {
+  createContext,
+  useState,
+  ReactNode,
+  useContext,
+  useEffect,
+} from "react";
+import { User } from "../dtos/data";
 
 interface UserContextType {
-  username: string;
-  email: string;
-  permission: string;
-  idInstituion: string;
-  workAt: string;
-  SetUsername: (username: string) => void;
-  SetWorkAt: (workAt: string) => void;
-  SetidInstituion: (idInstituion: string) => void;
-  SetEmail: (email: string) => void;
-  SetPermission: (permission: string) => void;
-  password: string;
-  SetPassWord: (password: string) => void;
+  userSaved: User;
+  SetUser: (user: Partial<User>) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [username, setUserName] = useState<string>("");
-  const [password, setPassWord] = useState<string>("");
-  const [email, SetEmail] = useState<string>("");
-  const [permission, SetPermission] = useState<string>("");
-  const [idInstituion, setidInstituion] = useState<string>("");
-  const [workAt, setWorkAt] = useState<string>("");
+  const [user, setUser] = useState<User>(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser
+      ? JSON.parse(storedUser)
+      : {
+          id: "",
+          email: "",
+          password: "",
+          username: "",
+          idInstituion: "",
+          workAt: "",
+          type: "",
+          permission: "",
+          wilaya: "",
+          phases: [],
+          publicKey: "",
+          CreateAt: "",
+          avatar: "",
+        };
+  });
 
-  const SetUserName = (username: string) => {
-    setUserName(username);
-  };
+  useEffect(() => {
+    localStorage.setItem("user", JSON.stringify(user));
+  }, [user]);
 
-  const SetPassWord = (password: string) => {
-    setPassWord(password);
-  };
-
-  const SetWorkAt = (workAt: string) => {
-    setWorkAt(workAt);
-  };
-
-  const SetidInstituion = (idInstituion: string) => {
-    setidInstituion(idInstituion);
+  const SetUser = (updatedFields: Partial<User>) => {
+    setUser((prev) => ({ ...prev, ...updatedFields }));
   };
 
   return (
     <UserContext.Provider
       value={{
-        username: username,
-        email: email,
-        permission: permission,
-        password: password,
-        idInstituion: idInstituion,
-        workAt: workAt,
-        SetidInstituion: SetidInstituion,
-        SetWorkAt: SetWorkAt,
-        SetUsername: SetUserName,
-        SetPassWord: SetPassWord,
-        SetEmail: SetEmail,
-        SetPermission: SetPermission,
+        userSaved: user,
+        SetUser,
       }}
     >
       {children}
@@ -63,10 +56,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useUserId = (): UserContextType => {
+export const useUser = (): UserContextType => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error("useUserId must be used within a UserProvider");
+    throw new Error("useUser must be used within a UserProvider");
   }
   return context;
 };

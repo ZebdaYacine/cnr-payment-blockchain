@@ -4,7 +4,7 @@ export interface LoginRequest {
 }
 
 interface UserData {
-  id: number;
+  id: string;
   username: string;
   email: string;
   permission: string;
@@ -19,9 +19,5 @@ export interface Data {
 
 export interface LoginResponse {
   message: string;
-  data: Data ;
+  data: Data;
 }
-
-
-
-

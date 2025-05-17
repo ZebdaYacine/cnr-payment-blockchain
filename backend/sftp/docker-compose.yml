@@ -1,0 +1,11 @@
+version: '3'
+services:
+  sftp:
+    image: atmoz/sftp
+    ports:
+      - "2222:22"
+    volumes:
+      - ./upload:/home/cnr
+    command: cnr:root:::cnr
+    # environment:
+    #   - UMASK=0000

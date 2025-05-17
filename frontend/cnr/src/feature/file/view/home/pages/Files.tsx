@@ -1,36 +1,55 @@
 import { useEffect } from "react";
-import { ProfileDataSourceImpl } from "../../../data/dataSource/ProfileAPIDataSource";
-import { ProfileRepositoryImpl } from "../../../data/repository/ProfileRepositoryImpl";
-import { PofileUseCase } from "../../../domain/usecase/ProfileUseCase";
-import { useProfileViewModel } from "../../../viewmodel/ProfileViewModel";
+import { FileDataSourceImpl } from "../../../data/dataSource/FileAPIDataSource";
+import { FileRepositoryImpl } from "../../../data/repository/FileRepositoryImpl";
+import { FileUseCase } from "../../../domain/usecase/FileUseCase";
+import { useFileViewModel } from "../../../viewmodel/FileViewModel";
 
 import ListOfFiles from "../components/ListOfFiles";
-import { usePeer } from "../../../../../core/state/PeerContext";
+// import { usePeer } from "../../../../../core/state/PeerContext";
 import { useFileMetaData } from "../../../../../core/state/FileContext";
 import { Outlet, useParams } from "react-router";
+import { useUser } from "../../../../../core/state/UserContext";
 
 function FilesPage() {
-  const { fileName } = useParams();
-  const profileUseCase = new PofileUseCase(
-    new ProfileRepositoryImpl(new ProfileDataSourceImpl())
+  const { folderName, fileName } = useParams();
+
+  const fileUseCase = new FileUseCase(
+    new FileRepositoryImpl(new FileDataSourceImpl())
   );
 
-  const { getFiles } = useProfileViewModel(profileUseCase);
+  const { getFiles } = useFileViewModel(fileUseCase);
   const { getFilesList } = useFileMetaData();
-  useEffect(() => {
-    getFiles();
-  }, [getFiles]);
+  const { userSaved } = useUser();
 
-  const { Peer } = usePeer();
+  const userPermission = userSaved.permission;
+
   useEffect(() => {
-    const interval = setInterval(() => getFiles(), 10000);
-    return () => clearInterval(interval);
-  }, [getFiles]);
+    if (folderName && userPermission) {
+      getFiles({
+        permissions: userPermission.toLowerCase(),
+        folder: folderName,
+      });
+    }
+  }, [folderName, userPermission, getFiles]);
+
+  useEffect(() => {
+    if (folderName && !fileName) {
+      const interval = setInterval(
+        () =>
+          getFiles({
+            permissions: userPermission.toLowerCase(),
+            folder: folderName,
+          }),
+        10000
+      );
+      return () => clearInterval(interval);
+    }
+  }, [folderName, fileName, getFiles]);
 
   return (
     <>
-      {!fileName && <ListOfFiles files={getFilesList()} peer={Peer} />}
-      <Outlet />
+      {!fileName && folderName && <ListOfFiles files={getFilesList()} />}
+      {fileName && <Outlet />} 
     </>
   );
 }

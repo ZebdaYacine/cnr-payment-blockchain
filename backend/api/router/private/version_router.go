@@ -7,13 +7,23 @@ import (
 	"scps-backend/pkg/database"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/sftp"
 )
 
-func NewUploadVersionRouter(db database.Database, group *gin.RouterGroup) {
-	ir := versionRepo.NewVersionRepository(db)
+func NewUploadVersionRouter(db database.Database, group *gin.RouterGroup, sftpClient *sftp.Client) {
+	ir := versionRepo.NewVersionRepository(db, sftpClient)
 	uc := versionUsecase.NewVersionUsecase(ir, "")
 	ic := &controller.VersionController{
 		VersionUsecase: uc,
 	}
-	group.POST("upload-veriosn", ic.UploadVersionRequestt)
+	group.POST("upload-version", ic.UploadVersionRequestt)
+}
+
+func NewGetVersionRouter(db database.Database, group *gin.RouterGroup, sftpClient *sftp.Client) {
+	ir := versionRepo.NewVersionRepository(db, sftpClient)
+	uc := versionUsecase.NewVersionUsecase(ir, "")
+	ic := &controller.VersionController{
+		VersionUsecase: uc,
+	}
+	group.GET("get-versions", ic.GetVersionRequestt)
 }

@@ -1,34 +1,48 @@
 import { AxiosError } from "axios";
 import { Http } from "../../../../services/Http";
-import {  LoginResponse } from "../../../../services/model/auth";
+import { LoginResponse } from "../../../../services/model/auth";
 import { ErrorResponse } from "../../../../services/model/commun";
 
 export interface AuthDataSource {
-  Login(username: string, password: string): Promise<LoginResponse|ErrorResponse>;
+  Login(
+    username: string,
+    password: string
+  ): Promise<LoginResponse | ErrorResponse>;
 }
 
 export class AuthDataSourceImpl implements AuthDataSource {
-  async Login(username: string, password: string): Promise<LoginResponse|ErrorResponse> {
+  async Login(
+    email: string,
+    password: string
+  ): Promise<LoginResponse | ErrorResponse> {
     try {
-      const response = await Http.post<LoginResponse>("/login", 
+      const response = await Http.post<LoginResponse>(
+        "/login",
         {
-        username: username,
-        password: password,
-      },
-      {
+          email,
+          password,
+        },
+        {
           headers: {
-            'Content-Type': 'application/json',
-          }
+            "Content-Type": "application/json",
+          },
         }
-    );
+      );
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        const err=error.response?.data?.message as string 
+        if (!error.response) {
+          return {
+            message:
+              "Le serveur est inaccessible. Veuillez vérifier votre connexion Internet ou réessayer ultérieurement. ",
+          };
+        }
+
         return {
-          message: err,
+          message: error.response.data?.message,
         };
       }
+
       return {
         message: "An unexpected error occurred",
       };

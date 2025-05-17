@@ -12,7 +12,7 @@ function ByUser({ name, avatar }: ByUserProps) {
             <img src={avatar} alt="User Avatar" />
           </div>
         </div>
-        <span className="font-semibold text-blue-500">by{name}</span>
+        <span className="font-semibold text-blue-500">By {name}</span>
       </div>{" "}
     </>
   );

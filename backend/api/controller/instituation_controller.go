@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"scps-backend/api/controller/model"
+	"scps-backend/core"
 
 	"scps-backend/feature/home/institutions/usecase"
 
@@ -16,18 +17,22 @@ type InstitutionsController struct {
 
 // HANDLE WITH LOGIN ACCOUNT REQUEST
 func (ic *InstitutionsController) GetInstitutionsRequest(c *gin.Context) {
-	// log.Println("************************ GET INSTITUTIONS REQUEST ************************")
-	// resulat := ic.InstituationsUsecase.GetInstitutions(c)
-	// if err := resulat.Err; err != nil {
-	// 	c.JSON(http.StatusBadRequest, model.ErrorResponse{
-	// 		Message: err.Error(),
-	// 	})
-	// 	return
-	// }
-	// c.JSON(http.StatusOK, model.SuccessResponse{
-	// 	Message: "GET INSTITUTIONS SUCCESSFULY",
-	// 	Data:    resulat.Data,
-	// })
+}
+
+func (ic *InstitutionsController) GetUsersRequest(c *gin.Context) {
+	log.Println("************************ GET USERS REQUEST ************************")
+	userId := core.GetIdUser(c)
+	resulat := ic.InstituationsUsecase.BringUsers(c, userId)
+	if err := resulat.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "GET USERS SUCCESSFULY",
+		Data:    resulat.Data,
+	})
 }
 
 func (ic *InstitutionsController) GetChildInstitutionsRequest(c *gin.Context) {
@@ -52,7 +57,8 @@ func (ic *InstitutionsController) GetChildInstitutionsRequest(c *gin.Context) {
 		})
 		return
 	}
-	result := ic.InstituationsUsecase.GetPeers(c, institutionName, institutionID)
+	userId := core.GetIdUser(c)
+	result := ic.InstituationsUsecase.GetPeers(c, institutionName, institutionID, userId)
 	if err := result.Err; err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Message: err.Error(),

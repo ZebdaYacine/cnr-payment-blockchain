@@ -1,4 +1,10 @@
-function Commit() {
+import { CommitData } from "../../../data/dtos/VersionsDtos";
+
+interface CommitProps {
+  commit: CommitData;
+}
+
+function Commit({ commit: commit }: CommitProps) {
   return (
     <>
       <div
@@ -7,7 +13,7 @@ function Commit() {
              transition-all duration-300 cursor-pointer"
       >
         <div className="flex flex-col">
-          <p className="text-sm font-bold">Adding new version for CCR Tipaza</p>
+          <p className="text-sm font-bold">{commit.Body}</p>
           <div className="flex flex-row mt-1">
             <div className="avatar">
               <div className="w-8 rounded-full">
@@ -16,9 +22,9 @@ function Commit() {
             </div>
             <div className="flex flex-col p-2">
               <p className="text-xs">
-                <span className="font-bold">ZebdaYacine </span>
+                <span className="font-bold">{commit.User.username} </span>
                 committed on
-                <span className="font-bold"> 24-12-2024</span>
+                <span className="font-bold"> {commit.Time}</span>
               </p>
             </div>
           </div>

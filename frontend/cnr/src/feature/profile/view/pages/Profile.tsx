@@ -1,58 +1,57 @@
-import { useEffect } from "react";
-import NavBarComponent from "../../../../core/components/NavBar";
+import { useEffect, useMemo, useCallback } from "react";
 import { ProfileDataSourceImpl } from "../../data/dataSource/ProfileAPIDataSource";
 import { ProfileRepositoryImpl } from "../../data/repository/ProfileRepositoryImpl";
 import { PofileUseCase } from "../../domain/usecase/ProfileUseCase";
 import { useProfileViewModel } from "../../viewmodel/ProfileViewModel";
-import { useUserId } from "../../../../core/state/UserContext";
-import ListOfPeers from "../components/ListOfPeers";
-import FolderPage from "../../../folder/view/home/pages/Folder";
-import { Outlet, useParams } from "react-router";
+
+import { useUser } from "../../../../core/state/UserContext";
+import ResponsiveDrawer from "../../../../core/components/ResponsiveDrawer";
+import { useKeys } from "../../../../core/state/KeyContext";
 
 function ProfilePage() {
-  const profileUseCase = new PofileUseCase(
-    new ProfileRepositoryImpl(new ProfileDataSourceImpl())
-  );
-  const { folderName } = useParams();
-  const { fileName } = useParams();
+  const { userSaved } = useUser();
+  const { setIsDigitalSignatureConfirmed, isDigitalSignatureConfirmed } =
+    useKeys();
 
-  const { getProfile, GetChildInstituations } =
+  const profileUseCase = useMemo(() => {
+    return new PofileUseCase(
+      new ProfileRepositoryImpl(new ProfileDataSourceImpl())
+    );
+  }, []);
+
+  const { getProfile, GetUsers, getCurrentPhase } =
     useProfileViewModel(profileUseCase);
-  const { username, email, permission, workAt, idInstituion } = useUserId();
 
-  useEffect(() => {
-    console.log(folderName);
-    getProfile();
-  }, [getProfile]);
+  const initializeProfileData = useCallback(() => {
+    const permission = userSaved?.permission?.toLowerCase();
 
-  useEffect(() => {
-    if (workAt && idInstituion) {
-      console.log("Fetching institutions with:", {
-        name: workAt,
-        id: idInstituion,
-      });
-      GetChildInstituations({ name: workAt, id: idInstituion });
-    } else {
-      console.warn("Skipping API request: Missing workAt or idInstituion.");
+    if (permission) {
+      getProfile({ permission });
+      GetUsers({ permissions: permission });
     }
-  }, [workAt, idInstituion, GetChildInstituations]);
 
-  return (
-    <>
-      <NavBarComponent
-        user={{ username, email, permission, workAt, idInstituion }}
-      />
+    if (!userSaved?.publicKey) {
+      setIsDigitalSignatureConfirmed(false);
+    } else {
+      console.log(isDigitalSignatureConfirmed);
+    }
 
-      <div className=" flex flex-col">
-        <div className="m-5">{!fileName && <ListOfPeers />}</div>
-        {/* <div className="flex flex-col md:flex-row  space-y-4 md:space-y-0 md:space-x-4 p-6 bg-black"> */}
-        <div className="m-5">
-          {!folderName && <FolderPage />} <Outlet />
-        </div>
-        {/* </div> */}
-      </div>
-    </>
-  );
+    getCurrentPhase();
+  }, [
+    userSaved?.permission,
+    userSaved?.publicKey,
+    getProfile,
+    GetUsers,
+    getCurrentPhase,
+    setIsDigitalSignatureConfirmed,
+    isDigitalSignatureConfirmed,
+  ]);
+
+  useEffect(() => {
+    initializeProfileData();
+  }, [initializeProfileData]);
+
+  return <ResponsiveDrawer />;
 }
 
 export default ProfilePage;

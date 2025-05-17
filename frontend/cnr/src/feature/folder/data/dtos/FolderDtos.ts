@@ -1,18 +1,8 @@
-
-
-
+import { Folder } from "../../../../core/dtos/data";
 
 export interface FolderResponse {
   message: string;
-  data: Folder[] ;
+  data: Folder[];
 }
-
-
-
-export interface Folder {
-  name: string;
-}
-
-
 
 

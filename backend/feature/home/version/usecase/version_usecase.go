@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"scps-backend/feature/home/profile/domain/entities"
+	"scps-backend/feature/home/version/domain/entities"
 	versionRepo "scps-backend/feature/home/version/domain/repository"
 )
 
@@ -17,7 +17,7 @@ type VersionResult struct {
 
 type VersionUsecase interface {
 	UploadVersion(c context.Context, data *VersionParams) *VersionResult
-	GetMetaDataVersion(c context.Context) *VersionResult
+	GetMetadataVersionByParentFile(c context.Context, folder string, parent string) *VersionResult
 }
 
 type versionUsecase struct {
@@ -35,7 +35,7 @@ func NewVersionUsecase(repo versionRepo.VersionRepository, collection string) Ve
 
 // UploadVersion implements ProfileUsecase.
 func (p *versionUsecase) UploadVersion(c context.Context, data *VersionParams) *VersionResult {
-	file_uploaded := data.Data.(entities.UploadFile)
+	file_uploaded := data.Data.(entities.UploadVersion)
 	profileResult, err := p.repo.UploadVersion(c, file_uploaded)
 	if err != nil {
 		return &VersionResult{Err: err}
@@ -43,11 +43,10 @@ func (p *versionUsecase) UploadVersion(c context.Context, data *VersionParams) *
 	return &VersionResult{Data: profileResult}
 }
 
-// GetMetaDataVersion implements ProfileUsecase.
-func (p *versionUsecase) GetMetaDataVersion(c context.Context) *VersionResult {
-	profileResult, err := p.repo.GetMetadataVersion(c)
+func (p *versionUsecase) GetMetadataVersionByParentFile(c context.Context, folder string, parent string) *VersionResult {
+	versionResult, err := p.repo.GetMetadataVersionByParentFile(c, folder, parent)
 	if err != nil {
 		return &VersionResult{Err: err}
 	}
-	return &VersionResult{Data: profileResult}
+	return &VersionResult{Data: versionResult}
 }
