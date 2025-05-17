@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.23 AS builder
+FROM golang:1.23 AS builder 
 
 WORKDIR /app
 
@@ -24,7 +24,9 @@ FROM debian:bullseye-slim
 WORKDIR /app
 
 # Install runtime dependencies
-RUN apt-get update && apt-get install -y ca-certificates tzdata && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y ca-certificates tzdata && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user
 RUN useradd -m -u 1000 appuser
@@ -33,8 +35,11 @@ RUN useradd -m -u 1000 appuser
 RUN mkdir -p /app/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls
 
 # Copy binary and configuration from builder
-COPY --from=builder /app/main .
-COPY --from=builder /app/.env .
+COPY --from=builder --chown=appuser:appuser /app/main .
+COPY --from=builder --chown=appuser:appuser /app/.env .  
+
+# Copy Fabric certificates (adjust paths as needed)
+COPY --from=builder --chown=appuser:appuser /app/fabric-samples /app/fabric-samples
 
 # Set proper permissions
 RUN chown -R appuser:appuser /app
@@ -45,5 +50,9 @@ USER appuser
 # Expose port 3000
 EXPOSE 3000
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD curl -f http://localhost:3000/health || exit 1
+
 # Run the application
-CMD ["./main"]
+ENTRYPOINT ["./main"]

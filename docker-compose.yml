@@ -16,6 +16,7 @@ services:
       - sftp
     networks:
       - cnr-network
+      - fabric_test  
 
   mongodb:
     image: mongo:latest
@@ -27,18 +28,6 @@ services:
     networks:
       - cnr-network
 
-  # sftp:
-  #   image: atmoz/sftp
-  #   ports:
-  #     - "2222:22"
-  #   volumes:
-  #     - ./sftp/data:/home/${SFTP_USER}/upload
-  #   command: ${SFTP_USER}:${SFTP_PASS}:::${SFTP_USER}
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - cnr-network
-
   sftp:
     image: atmoz/sftp
     ports:
@@ -48,7 +37,6 @@ services:
     command: cnr:root:::cnr
     networks:
       - cnr-network
-    
 
   frontend:  
     build:
@@ -67,3 +55,5 @@ volumes:
 networks:
   cnr-network:
     driver: bridge
+  fabric_test:
+    external: true  
