@@ -9,8 +9,8 @@ services:
       - "9000:3000"
     env_file:
       - ./backend/.env
-    # volumes:
-    #   - /home/zedyacine/Desktop/fabric-samples:/app/fabric-samples
+    volumes:
+      - /home/zedyacine/Desktop/fabric-samples:/app/fabric-samples
     depends_on:
       - mongodb
       - sftp
@@ -35,7 +35,7 @@ services:
   #     - ./sftp/data:/home/${SFTP_USER}/upload
   #   command: ${SFTP_USER}:${SFTP_PASS}:::${SFTP_USER}
   #   env_file:
-  #     - ./backend/.env
+  #     - .env
   #   networks:
   #     - cnr-network
 
