@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
+  <meta charset="UTF-8">
+  <title>CNR Payment Blockchain System</title>
 </head>
 <body>
-
-
+<pre><code>
 # CNR Payment Blockchain System
 
 A comprehensive payment and blockchain system for CNR (Centre National de Recherche) built with React, Go, and MongoDB.
@@ -29,34 +29,52 @@ A comprehensive payment and blockchain system for CNR (Centre National de Recher
 
 ## Project Structure
 
-```
 .
-├── frontend/           # React frontend application
-│   └── cnr/           # Main frontend code
-├── backend/           # Go backend application
-│   ├── api/          # API handlers
-│   ├── feature/      # Business logic
-│   ├── pkg/          # Shared packages
-│   └── cmd/          # Application entry point
-├── docker-compose.yml # Docker Compose configuration
-└── README.md         # This file
-```
+├── frontend/              # React frontend application
+│   └── cnr/               # Main frontend code
+├── backend/               # Go backend application
+│   ├── api/               # API handlers
+│   ├── feature/           # Business logic
+│   ├── pkg/               # Shared packages
+│   └── cmd/               # Application entry point
+│   └── .env/              # Env file for backend
+├── script/                # Fabric deployment scripts
+│   ├── deploy-cc/         # Deploy Hyperledger Fabric network
+│   ├── download-cc/       # Download Fabric repository
+│   ├── upgrade-cc/        # Upgrade chain code
+│   └── smartcontract.go/  # Full chain code
+├── docker-compose.yml     # Docker Compose configuration
+└── README.md              # This file
 
 ## Environment Variables
 
 ### Backend (.env)
-```
-MONGODB_URI=mongodb://mongodb:27017/cnr
-JWT_SECRET=your_jwt_secret
+
+# SFTP CONFIGURATION
+SFTP_HOST=sftp:22 
+SFTP_USER=cnr
+SFTP_PASS=root
+
+# BLOCKCHAIN CONFIGURATION
+CHAIN_CODE=cnr
+CHANNEL_NAME=cnr
+
+# SERVER CONFIGURATION
+SERVER_ADDRESS=0.0.0.0
+SERVER_PORT=3000
+SECRET_KEY=YOUR_SECRET_KEY
+
+# DATABASE CONFIGURATION
+PASSWORD_DB=
+PASSWORD_USER=
+SERVER_ADDRESS_DB=mongodb://mongodb:27017
+DB_NAME=cnr-blockchain
+
+# SMTP CONFIGURATION
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-```
-
-### Frontend
-
-
+SMTP_USER=YOUR_EMAIL
+SMTP_PASS=YOUR_PWD
 
 ## Deployment
 
@@ -64,72 +82,6 @@ SMTP_PASS=your_app_password
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/ZebdaYacine/cnr-payment-blockchain.git
 cd cnr-payment-blockchain
-```
-
-2. Configure environment variables:
-   - Copy `.env.example` to `.env` in the backend directory
-   - Update the values in `.env` with your configuration
-
-3. Build and start the containers:
-```bash
-docker-compose up --build
-```
-
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8080/api
-- MongoDB: mongodb://localhost:27017
-
-### Local Development
-
-#### Backend
-```bash
-cd backend
-go mod download
-go run cmd/main.go
-```
-
-#### Frontend
-```bash
-cd frontend/cnr
-npm install
-npm run dev
-```
-
-## API Documentation
-
-The API documentation is available at `/api/docs` when running the backend server.
-
-## Database
-
-The application uses MongoDB as its primary database. The data is persisted using Docker volumes.
-
-## Security
-
-- JWT-based authentication
-- Password hashing
-- CORS configuration
-- Rate limiting
-- Input validation
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support, please contact the development team or open an issue in the repository.
-
-</body>
-</html>
-
+git switch deploycode 
