@@ -46,12 +46,24 @@ func (u *dashboardUsecase) WorkersErrorRatePKI(ctx context.Context) *DashBoardRe
 	return &DashBoardResult{Data: data}
 }
 
-// ⬇️ Groups all hacking attempt records by phase
+// ⬇️ Groups all hacking attempt records by phase for the current month
 func (u *dashboardUsecase) HackingTryPKI(ctx context.Context) *DashBoardResult {
 	data, err := u.repo.GetHackingAttemptStats(ctx)
 	if err != nil {
 		return &DashBoardResult{Err: err}
 	}
+
+	// // Filter for current month
+	// currentMonth := time.Now().Format("January")
+	// filteredData := make([]entities.HackingAttemptResponse, 0)
+	// for _, item := range data {
+	// 	// Assuming each file's time is in RFC3339 format
+	// 	parsedTime, err := time.Parse(time.RFC3339, item.Files[0].Time)
+	// 	if err != nil || parsedTime.Format("January") != currentMonth {
+	// 		continue
+	// 	}
+	// 	filteredData = append(filteredData, item)
+	// }
 
 	return &DashBoardResult{Data: data}
 }

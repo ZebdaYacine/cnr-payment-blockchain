@@ -2,13 +2,25 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"scps-backend/feature/dashboard/domain/entities"
 	"scps-backend/pkg/database"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+type Phase struct {
+	ID          primitive.ObjectID `bson:"_id" json:"id"`
+	Name        string             `bson:"name" json:"name"`
+	Description string             `bson:"description" json:"description"`
+	Number      int                `bson:"number" json:"number"`
+	StartAt     int                `bson:"startAt" json:"startAt"`
+	EndAt       int                `bson:"endAt" json:"endAt"`
+}
 
 type dashboardRepository struct {
 	database database.Database
@@ -156,33 +168,68 @@ func (r *dashboardRepository) GetWorkersErrorRate(ctx context.Context) ([]entiti
 }
 
 // --- Hacking Attempts ---
+func (r *dashboardRepository) GetPhaseByID(ctx context.Context, id string) (*Phase, error) {
+	collection := r.database.Collection(database.PHASE.String())
+	currentDay := time.Now().Day()
 
+	filter := bson.M{
+		"startAt": bson.M{"$lte": currentDay},
+		"endAt":   bson.M{"$gte": currentDay},
+	}
+
+	var phase Phase
+	err := collection.FindOne(ctx, filter).Decode(&phase)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to fetch current phase: %w", err)
+	}
+	if id == phase.ID.Hex() {
+		return &phase, nil
+	}
+	return nil, nil
+}
 func (r *dashboardRepository) GetHackingAttemptStats(ctx context.Context) ([]entities.HackingAttemptResponse, error) {
 	collection := r.database.Collection(database.FILE.String())
+
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to query documents: %w", err)
 	}
 	defer cursor.Close(ctx)
 
-	resultMap := map[string]*entities.HackingAttemptResponse{}
+	phaseStats := make(map[string]*entities.HackingAttemptResponse)
+	folderTracker := make(map[string]map[string]struct{})
+	institutionTracker := make(map[string]map[string]struct{})
 
 	for cursor.Next(ctx) {
 		var doc struct {
 			Phase       string `bson:"phase"`
-			Version     int    `bson:"version"`
-			Time        string `bson:"time"`
-			FileName    string `bson:"file"`
+			Version     string `bson:"version"`
+			FileName    string `bson:"file_name"`
 			Institution string `bson:"organisation"`
+			Parent      string `bson:"parent"`
+			Folder      string `bson:"folder"`
+			Status      string `bson:"status"`
+			Time        string `bson:"time"`
+			LastVersion string `bson:"lastversion"`
 		}
 		if err := cursor.Decode(&doc); err != nil {
 			continue
 		}
 
-		key := doc.Phase
-		if _, exists := resultMap[key]; !exists {
-			resultMap[key] = &entities.HackingAttemptResponse{
-				Phase:        doc.Phase,
+		// Resolve phase name by ID
+		phaseName, _ := r.GetPhaseByID(ctx, doc.Phase)
+		if phaseName == nil {
+			continue
+		}
+		phase := *&phaseName.Name
+
+		// Init phase stats if not exists
+		if _, exists := phaseStats[phase]; !exists {
+			phaseStats[phase] = &entities.HackingAttemptResponse{
+				Phase:        phase,
 				Version:      0,
 				FilesNumber:  0,
 				InvalidFiles: 0,
@@ -190,21 +237,47 @@ func (r *dashboardRepository) GetHackingAttemptStats(ctx context.Context) ([]ent
 				Institutions: []string{},
 				Files:        []entities.HackingFileInfo{},
 			}
+			folderTracker[phase] = make(map[string]struct{})
+			institutionTracker[phase] = make(map[string]struct{})
+		}
+		entry := phaseStats[phase]
+
+		// Count folders
+		if _, ok := folderTracker[phase][doc.Folder]; !ok && doc.Folder != "" {
+			folderTracker[phase][doc.Folder] = struct{}{}
+			entry.Folder = len(folderTracker[phase])
 		}
 
-		entry := resultMap[key]
-		entry.Version += doc.Version
-		entry.FilesNumber++
-		entry.Institutions = append(entry.Institutions, doc.Institution)
-		entry.Files = append(entry.Files, entities.HackingFileInfo{
-			File:        doc.FileName,
-			Time:        doc.Time,
-			Institution: doc.Institution,
-		})
+		// Count institutions
+		if _, ok := institutionTracker[phase][doc.Institution]; !ok && doc.Institution != "" {
+			institutionTracker[phase][doc.Institution] = struct{}{}
+			entry.Institutions = append(entry.Institutions, doc.Institution)
+		}
+
+		if doc.Status == "Invalid" {
+			entry.InvalidFiles++ // Invalid file
+			entry.Files = append(entry.Files, entities.HackingFileInfo{
+				File:        doc.FileName,
+				Time:        doc.Time,
+				Institution: doc.Institution,
+			})
+		} else {
+			if doc.Parent != "" {
+				entry.Version++ // Valid file WITH parent
+			} else {
+				entry.FilesNumber++ // Valid file WITHOUT parent
+			}
+		}
+
 	}
 
+	if err := cursor.Err(); err != nil {
+		return nil, fmt.Errorf("cursor iteration error: %w", err)
+	}
+
+	// Map to slice
 	var result []entities.HackingAttemptResponse
-	for _, v := range resultMap {
+	for _, v := range phaseStats {
 		result = append(result, *v)
 	}
 	return result, nil

@@ -16,4 +16,5 @@ func NewUploadingFilesVersionPKIRouter(db database.Database, group *gin.RouterGr
 		DashboardUsecase: uc,
 	}
 	group.GET("get-PKI1", ic.GetUploadingFilesVersionPKI)
+	group.GET("get-hacking-try-pki", ic.GetHackingTryPKI)
 }

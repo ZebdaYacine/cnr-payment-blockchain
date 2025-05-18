@@ -97,6 +97,7 @@ func (s *versionRepository) UploadVersion(c context.Context, file entities.Uploa
 		Destination:  file.Destination,
 		ReciverId:    file.ReciverId,
 		TaggedUsers:  file.TaggedUser,
+		Status:       "Valid",
 	}
 
 	log.Println(fileMetaData)
@@ -230,4 +231,24 @@ func (s *versionRepository) GetMetadataVersionByParentFile(c context.Context, fo
 
 	}
 	return files, nil
+}
+
+func (s *versionRepository) updateFileStatusInDB(c context.Context, fileID string, status string) error {
+	collection := s.database.Collection(database.FILE.String())
+
+	filter := bson.M{"id": fileID}
+	update := bson.M{"$set": bson.M{"status": status}}
+
+	result, err := collection.UpdateOne(c, filter, update)
+	if err != nil {
+		log.Printf("Error updating status for file ID %s: %v", fileID, err)
+		return err
+	}
+	if result.MatchedCount == 0 {
+		log.Printf("No document found with file ID %s to update status", fileID)
+		return fmt.Errorf("file with ID %s not found", fileID)
+	}
+
+	log.Printf("Successfully updated status for file ID %s to '%s'", fileID, status)
+	return nil
 }

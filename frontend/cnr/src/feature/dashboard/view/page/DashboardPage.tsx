@@ -5,7 +5,11 @@ import { DashBoardUseCase } from "../../domain/usecase/DashBoardUseCase";
 import { DashBoardRepositoryImpl } from "../../data/repository/DashBoardRepositoryImpl";
 import { DashBoardDataSourceImpl } from "../../data/dataSource/DashBoardAPIDataSource";
 import CarteChargementFichiers from "../components/CarteLoadingFiles";
-import { PKI1Response } from "../../data/dtos/DashBoardDtos";
+import {
+  PKI1Response,
+  HackingTryPKIResponse,
+} from "../../data/dtos/DashBoardDtos";
+import { useUser } from "../../../../core/state/UserContext";
 
 const InvalidFilesCard = React.lazy(
   () => import("../components/InvalidFilesCard")
@@ -13,6 +17,7 @@ const InvalidFilesCard = React.lazy(
 const Users = React.lazy(() => import("../components/Users"));
 
 export default function DashboardPage() {
+  const { userSaved } = useUser();
   const dashboardUseCase = useMemo(
     () =>
       new DashBoardUseCase(
@@ -21,12 +26,21 @@ export default function DashboardPage() {
     []
   );
 
-  const { getUploadinfFilesPKI, PKI1Metadata, isPending, isError, isSuccess } =
-    useDashBoardViewModel(dashboardUseCase);
+  const {
+    getUploadinfFilesPKI,
+    getHackingTryPKI,
+    PKI1Metadata,
+    hackingData,
+    isPending,
+    isError,
+    isSuccess,
+  } = useDashBoardViewModel(dashboardUseCase);
 
   useEffect(() => {
-    getUploadinfFilesPKI({ permission: "admin" });
-  }, [getUploadinfFilesPKI]);
+    const permission = userSaved.permission.toLowerCase();
+    getUploadinfFilesPKI({ permission });
+    getHackingTryPKI({ permission });
+  }, [getUploadinfFilesPKI, getHackingTryPKI, userSaved.permission]);
 
   const monthMap: Record<string, string> = {
     January: "Janvier",
@@ -62,7 +76,30 @@ export default function DashboardPage() {
         versions: inst.version,
       })),
     }));
-  }, [PKI1Metadata, isSuccess]);
+  }, [PKI1Metadata, isSuccess, monthMap]);
+
+  const formattedHackingData = useMemo(() => {
+    if (!isSuccess || !hackingData || typeof hackingData !== "object")
+      return [];
+
+    const response = hackingData as HackingTryPKIResponse;
+
+    if (!Array.isArray(response.data)) return [];
+
+    return response.data.map((item) => ({
+      phase: item.phase,
+      version: item.version,
+      fichiers: item.files_number,
+      fichiersInvalides: item.invalid_files,
+      dossiers: item.folder,
+      institutions: item.institutions,
+      fichiersDetails: item.files.map((file) => ({
+        nom: file.file,
+        date: file.time,
+        institution: file.institution,
+      })),
+    }));
+  }, [hackingData, isSuccess]);
 
   return (
     <div className="flex flex-col space-y-4">
@@ -74,8 +111,12 @@ export default function DashboardPage() {
             <div className="text-red-600 text-center p-4 bg-red-100 rounded shadow">
               ❌ Une erreur est survenue lors du chargement des fichiers.
             </div>
-          ) : (
+          ) : formattedData.length > 0 ? (
             <CarteChargementFichiers data={formattedData} />
+          ) : (
+            <div className="text-gray-600 text-center p-4 bg-gray-100 rounded shadow">
+              Aucune donnée disponible.
+            </div>
           )}
         </Suspense>
       </div>
@@ -86,7 +127,7 @@ export default function DashboardPage() {
         </Suspense>
         <div className="flex flex-col space-y-4 w-full">
           <Suspense fallback={<ChartLoader />}>
-            <InvalidFilesCard />
+            <InvalidFilesCard data={formattedHackingData} />
           </Suspense>
         </div>
       </div>

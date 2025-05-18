@@ -1,7 +1,7 @@
 import { ErrorResponse } from "../../../../services/model/commun";
 import { DashBoardRepository } from "../../domain/repository/DashBoardRepository";
 import { DashBoardDataSource } from "../dataSource/DashBoardAPIDataSource";
-import { PKI1Response } from "../dtos/DashBoardDtos";
+import { PKI1Response, HackingTryPKIResponse } from "../dtos/DashBoardDtos";
 
 export class DashBoardRepositoryImpl implements DashBoardRepository {
   datasource: DashBoardDataSource;
@@ -15,5 +15,12 @@ export class DashBoardRepositoryImpl implements DashBoardRepository {
     permission: string
   ): Promise<PKI1Response | ErrorResponse> {
     return await this.datasource.GetUploadingFilesPKIApi(token, permission);
+  }
+
+  async GetHackingTryPKI(
+    token: string,
+    permission: string
+  ): Promise<HackingTryPKIResponse | ErrorResponse> {
+    return await this.datasource.GetHackingTryPKIApi(token, permission);
   }
 }
