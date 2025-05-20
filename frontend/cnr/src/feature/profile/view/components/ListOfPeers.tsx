@@ -24,7 +24,9 @@ function ListOfPeers() {
     if (selected === "Les intervenant de ce phases") {
       const currentPhaseId = phase?.id || "";
       const filtered = users.filter((user) =>
-        user.phases.includes(currentPhaseId)
+        user.phases.includes({
+          id: currentPhaseId,
+        })
       );
       setFilteredUsers(filtered);
     } else {

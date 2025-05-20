@@ -19,7 +19,7 @@ func TestUserRepository(t *testing.T) {
 		if pr == nil {
 			t.Fatal("Failed to init NewDashboardRepository")
 		}
-		r, err := pr.WorkersSubmitimgFiles(ctx)
+		r, err := pr.WorkersNotSubmittedFiles(ctx)
 		if err != nil {
 			t.Fatalf("Failed to get  WorkerErrorRateResponse: %v", err)
 		}

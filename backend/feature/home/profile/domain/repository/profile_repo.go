@@ -60,15 +60,16 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		log.Print(err)
 		return nil, err
 	}
-	var phases []string
+	var phases []feature.Phase
 	if rawPhases, ok := result["phases"].(primitive.A); ok {
 		for _, p := range rawPhases {
-			if s, ok := p.(string); ok {
-				phases = append(phases, s)
+			if phaseMap, ok := p.(bson.M); ok {
+				phases = append(phases, feature.Phase{
+					ID:       phaseMap["id"].(string),
+					IsSender: phaseMap["is_sender"].(bool),
+				})
 			}
 		}
-	} else {
-		log.Printf("⚠️ Could not cast phases for user %s\n", userId)
 	}
 	var avatar string
 	if result["avatar"] == nil {

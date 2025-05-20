@@ -75,6 +75,7 @@ export default function InvalidFilesCard({ data }: InvalidFilesCardProps) {
     <>
       <div className="card w-full max-w-sm shadow-xl hover:shadow-2xl hover:scale-105 transition-transform duration-300 cursor-pointer mx-auto">
         <div className="card-body p-4 space-y-4">
+          <h2 className="text-lg font-bold">Statut de la phase </h2>
           <div className="form-control">
             <label className="label text-sm font-medium text-gray-600">
               Filtrer par phase

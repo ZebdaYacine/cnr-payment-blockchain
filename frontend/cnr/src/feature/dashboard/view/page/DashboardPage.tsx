@@ -17,8 +17,6 @@ const InvalidFilesCard = React.lazy(
   () => import("../components/InvalidFilesCard")
 );
 
-// const Users = React.lazy(() => import("../components/Users"));
-
 export default function DashboardPage() {
   const { userSaved } = useUser();
   const dashboardUseCase = useMemo(
@@ -41,17 +39,16 @@ export default function DashboardPage() {
     isSuccess,
   } = useDashBoardViewModel(dashboardUseCase);
 
-  useEffect(() => {
+  const fetchData = () => {
     const permission = userSaved.permission.toLowerCase();
     getUploadinfFilesPKI({ permission });
     getHackingTryPKI({ permission });
     getWorkersErrorRatePKI({ permission });
-  }, [
-    getUploadinfFilesPKI,
-    getHackingTryPKI,
-    getWorkersErrorRatePKI,
-    userSaved.permission,
-  ]);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [userSaved.permission]);
 
   const monthMap: Record<string, string> = {
     January: "Janvier",
@@ -131,7 +128,7 @@ export default function DashboardPage() {
         institution: file.institution,
       })),
     }));
-  }, [hackingData, isSuccess]);
+  }, [hackingData, isSuccess]); // Added refreshCount to dependencies
 
   return (
     <div className="flex flex-col space-y-4">

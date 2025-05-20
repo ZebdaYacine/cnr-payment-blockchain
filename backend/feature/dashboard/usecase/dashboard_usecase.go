@@ -37,7 +37,7 @@ func (u *dashboardUsecase) UploadingFilesVersionPKI(ctx context.Context) *DashBo
 
 // ⬇️ Calculates the error rate per user (invalid files / total files)
 func (u *dashboardUsecase) WorkersSubmitimgFilesPKI(ctx context.Context) *DashBoardResult {
-	data, err := u.repo.WorkersSubmitimgFiles(ctx)
+	data, err := u.repo.WorkersNotSubmittedFiles(ctx)
 	if err != nil {
 		return &DashBoardResult{Err: err}
 	}

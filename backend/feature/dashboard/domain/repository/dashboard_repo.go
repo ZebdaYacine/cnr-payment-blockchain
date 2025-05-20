@@ -31,7 +31,7 @@ type dashboardRepository struct {
 
 type DashBoardRepository interface {
 	GetUploadingFilesVersionStats(c context.Context) ([]entities.UploadStats, error)
-	WorkersSubmitimgFiles(c context.Context) ([]entities.WorkerSubmitFilesResponse, error)
+	WorkersNotSubmittedFiles(c context.Context) ([]entities.WorkerSubmitFilesResponse, error)
 	GetHackingAttemptStats(c context.Context) ([]entities.HackingAttemptResponse, error)
 }
 
@@ -127,8 +127,7 @@ func getUserIDs(users []feature.User) []string {
 	return ids
 }
 
-func (r *dashboardRepository) WorkersSubmitimgFiles(ctx context.Context) ([]entities.WorkerSubmitFilesResponse, error) {
-	// Get current phase with proper error handling
+func (r *dashboardRepository) WorkersNotSubmittedFiles(ctx context.Context) ([]entities.WorkerSubmitFilesResponse, error) {
 	phase, err := r.GetCurrentPhaseByID(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current phase: %w", err)
@@ -137,10 +136,14 @@ func (r *dashboardRepository) WorkersSubmitimgFiles(ctx context.Context) ([]enti
 		return nil, fmt.Errorf("phase not found")
 	}
 
-	// Query all users in the current phase
 	userCol := r.database.Collection(database.USER.String())
 	userCursor, err := userCol.Find(ctx, bson.M{
-		"phases": phase.ID.Hex(), // Fixed typo from "phases" to "phases"
+		"phases": bson.M{
+			"$elemMatch": bson.M{
+				"id":        phase.ID.Hex(),
+				"is_sender": true,
+			},
+		},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to query users: %w", err)
@@ -172,16 +175,19 @@ func (r *dashboardRepository) WorkersSubmitimgFiles(ctx context.Context) ([]enti
 		return nil, fmt.Errorf("failed to decode files: %w", err)
 	}
 
-	// Create a map to track if user submitted any files
+	// Create a map to track users who submitted files
 	hasSubmitted := make(map[string]bool)
 	for _, file := range files {
 		hasSubmitted[file.UserId] = true
 	}
 
-	// Prepare response with all user details
-	workers := make([]entities.WorkerSubmitFilesResponse, 0, len(users))
+	// Prepare response with only users who didn't submit files
+	workers := make([]entities.WorkerSubmitFilesResponse, 0)
 	for _, user := range users {
-		submitted := hasSubmitted[user.Id]
+		// Skip users who submitted files
+		if hasSubmitted[user.Id] {
+			continue
+		}
 
 		workers = append(workers, entities.WorkerSubmitFilesResponse{
 			UserID:    user.Id,
@@ -190,7 +196,7 @@ func (r *dashboardRepository) WorkersSubmitimgFiles(ctx context.Context) ([]enti
 			Wilaya:    user.Wilaya,
 			WorkAt:    user.WorkAt,
 			Type:      user.Type,
-			Submitted: submitted,
+			Submitted: false, // Always false since we filtered them out
 		})
 	}
 

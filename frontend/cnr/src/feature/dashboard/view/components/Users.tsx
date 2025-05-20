@@ -37,6 +37,7 @@ export default function Users({ workersErrorRateData }: UsersProps) {
   return (
     <div className="card shadow-lg w-full">
       <div className="card-body">
+        <h2 className="text-lg font-bold">Utilisateurs pas encore soumis</h2>
         <div className="flex justify-between items-center mb-4">
           <div className="join">
             <button

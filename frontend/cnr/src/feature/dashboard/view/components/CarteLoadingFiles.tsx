@@ -72,7 +72,7 @@ export default function CarteChargementFichiers({
       <div className="card-body">
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
           <div>
-            <h2 className="text-lg font-bold">Chargement de fichiers</h2>
+            <h2 className="text-lg font-bold">Chargement de fichiers </h2>
           </div>
           <div className="flex gap-2 flex-wrap">
             <select
@@ -80,7 +80,20 @@ export default function CarteChargementFichiers({
               value={mois}
               onChange={(e) => setMois(e.target.value)}
             >
-              {["Janvier", "Février", "Mars", "Avril", "Mai"].map((m) => (
+              {[
+                "Janvier",
+                "Février",
+                "Mars",
+                "Avril",
+                "Mai",
+                "Juin",
+                "Juillet",
+                "Août",
+                "Septembre",
+                "Octobre",
+                "Novembre",
+                "Décembre",
+              ].map((m) => (
                 <option key={m} value={m}>
                   {m}
                 </option>
