@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { Suspense, useEffect, useMemo } from "react";
 import ChartLoader from "../components/ChartLoader";
 import { useDashBoardViewModel } from "../../viewmodel/DashBoardViewModel";
@@ -10,11 +11,13 @@ import {
   HackingTryPKIResponse,
 } from "../../data/dtos/DashBoardDtos";
 import { useUser } from "../../../../core/state/UserContext";
+import Users from "../components/Users";
 
 const InvalidFilesCard = React.lazy(
   () => import("../components/InvalidFilesCard")
 );
-const Users = React.lazy(() => import("../components/Users"));
+
+// const Users = React.lazy(() => import("../components/Users"));
 
 export default function DashboardPage() {
   const { userSaved } = useUser();
@@ -29,8 +32,10 @@ export default function DashboardPage() {
   const {
     getUploadinfFilesPKI,
     getHackingTryPKI,
+    getWorkersErrorRatePKI,
     PKI1Metadata,
     hackingData,
+    workersErrorRateData,
     isPending,
     isError,
     isSuccess,
@@ -40,7 +45,13 @@ export default function DashboardPage() {
     const permission = userSaved.permission.toLowerCase();
     getUploadinfFilesPKI({ permission });
     getHackingTryPKI({ permission });
-  }, [getUploadinfFilesPKI, getHackingTryPKI, userSaved.permission]);
+    getWorkersErrorRatePKI({ permission });
+  }, [
+    getUploadinfFilesPKI,
+    getHackingTryPKI,
+    getWorkersErrorRatePKI,
+    userSaved.permission,
+  ]);
 
   const monthMap: Record<string, string> = {
     January: "Janvier",
@@ -77,6 +88,27 @@ export default function DashboardPage() {
       })),
     }));
   }, [PKI1Metadata, isSuccess, monthMap]);
+
+  const formattedWorkersErrorRateData = useMemo(() => {
+    if (
+      !workersErrorRateData ||
+      typeof workersErrorRateData !== "object" ||
+      !("data" in workersErrorRateData) ||
+      !Array.isArray(workersErrorRateData.data)
+    ) {
+      return [];
+    }
+
+    return workersErrorRateData.data.map((worker) => ({
+      user_id: worker.user_id,
+      first_name: worker.first_name,
+      last_name: worker.last_name,
+      work_at: worker.work_at,
+      type: worker.type,
+      submitted: worker.submitted,
+      wilaya: worker.wilaya,
+    }));
+  }, [workersErrorRateData]);
 
   const formattedHackingData = useMemo(() => {
     if (!isSuccess || !hackingData || typeof hackingData !== "object")
@@ -120,10 +152,9 @@ export default function DashboardPage() {
           )}
         </Suspense>
       </div>
-
       <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">
         <Suspense fallback={<ChartLoader />}>
-          <Users />
+          <Users workersErrorRateData={formattedWorkersErrorRateData} />
         </Suspense>
         <div className="flex flex-col space-y-4 w-full">
           <Suspense fallback={<ChartLoader />}>

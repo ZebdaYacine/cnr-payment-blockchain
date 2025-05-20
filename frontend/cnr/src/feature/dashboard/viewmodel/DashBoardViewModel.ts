@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { GetAuthToken } from "../../../services/Http";
 import { useNavigate } from "react-router";
-import { useState } from "react";
 
 import { DashBoardUseCase } from "../domain/usecase/DashBoardUseCase";
 import { useNotification } from "../../../services/useNotification";
@@ -65,13 +64,44 @@ export const useDashBoardViewModel = (dashboardUseCase: DashBoardUseCase) => {
     },
   });
 
+  const {
+    mutate: getWorkersErrorRatePKI,
+    data: workersErrorRateData,
+    isPending: isWorkersErrorRatePending,
+    isSuccess: isWorkersErrorRateSuccess,
+    isError: isWorkersErrorRateError,
+  } = useMutation({
+    mutationFn: async ({ permission }: { permission: string }) => {
+      const storedToken = GetAuthToken(navigate);
+      return dashboardUseCase.GetWorkersErrorRatePKI(storedToken, permission);
+    },
+    onSuccess: (data) => {
+      if (data) console.log("WORKERS ERROR RATE DATA LOADED SUCCESSFULLY...");
+      else {
+        error(
+          "An error occurred while loading workers error rate data. Please try again.",
+          "colored"
+        );
+      }
+    },
+    onError: (err: unknown) => {
+      console.error("Workers error rate data error:", err);
+      error(
+        "An error occurred while loading workers error rate data. Please try again.",
+        "colored"
+      );
+    },
+  });
+
   return {
     getUploadinfFilesPKI,
     getHackingTryPKI,
+    getWorkersErrorRatePKI,
     PKI1Metadata,
     hackingData,
-    isPending: isPending || isHackingPending,
-    isError: isError || isHackingError,
-    isSuccess: isSuccess || isHackingSuccess,
+    workersErrorRateData,
+    isPending: isPending || isHackingPending || isWorkersErrorRatePending,
+    isError: isError || isHackingError || isWorkersErrorRateError,
+    isSuccess: isSuccess || isHackingSuccess || isWorkersErrorRateSuccess,
   };
 };

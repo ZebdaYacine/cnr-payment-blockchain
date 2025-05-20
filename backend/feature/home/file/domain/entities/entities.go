@@ -32,12 +32,13 @@ type UploadFile struct {
 }
 
 type Data struct {
-	ID           string   `json:"ID"`
-	FileName     string   `json:"FileName"`
-	HashFile     string   `json:"HashFile"`
-	Time         string   `json:"Time"`
-	Status       string   `json:"Status"`
-	Version      string   `json:"Version"`
+	ID       string `json:"ID"`
+	FileName string `json:"FileName"`
+	HashFile string `json:"HashFile"`
+	Time     string `json:"Time"`
+	Status   string `json:"Status"`
+	Version  string `json:"Version"`
+	UserId   string `json:"userid" bson:"user_id"`
 	LastVersion  string   `json:"LastVersion"`
 	ReciverId    string   `json:"reciverId"`
 	Organisation *string  `json:"Organisation,omitempty"`

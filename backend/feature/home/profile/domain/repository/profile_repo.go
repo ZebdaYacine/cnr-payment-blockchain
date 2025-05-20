@@ -104,13 +104,11 @@ func (s *profileRepository) GetFolders(c context.Context, folder *fabric.FolderM
 	if err != nil {
 		log.Println("🚨 Error getting folders from Fabric Ledger:", err)
 	}
-	fmt.Println("📄 Fabric Ledger Response:", res)
 	fabricFolders, ok := res.(*[]fabric.FolderMetadata)
 	if !ok {
 		log.Println("❌ Failed to convert Fabric response to FolderMetadata slice")
 		return &folders, nil
 	}
-	log.Println(">>>>>>>>>>>>>>>>>>>>>>>", fabricFolders)
 	var convertedFolders []entities.Folder
 	if fabricFolders == nil || len(*fabricFolders) == 0 {
 		log.Println("⚠️ No folders found in Fabric Ledger.")

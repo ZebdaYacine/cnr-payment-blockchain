@@ -46,3 +46,18 @@ export interface HackingTryPKIResponse {
   message: string;
   data: HackingAttemptResponse[];
 }
+
+export interface WorkerSubmitFilesResponse {
+  user_id: string;
+  first_name?: string;
+  last_name?: string;
+  work_at?: string;
+  type?: string;
+  wilaya?: string;
+  submitted: boolean;
+}
+
+export interface WorkersErrorRatePKIResponse {
+  message: string;
+  data: WorkerSubmitFilesResponse[];
+}

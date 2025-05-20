@@ -1,0 +1,28 @@
+package test
+
+import (
+	"context"
+	"log"
+	repo "scps-backend/feature/dashboard/domain/repository"
+	"scps-backend/pkg/database"
+	"testing"
+)
+
+func TestUserRepository(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		db := database.ConnectionDb()
+		if db == nil {
+			t.Fatal("Database connection failed")
+		}
+		ctx := context.Background()
+		pr := repo.NewDashboardRepository(db)
+		if pr == nil {
+			t.Fatal("Failed to init NewDashboardRepository")
+		}
+		r, err := pr.WorkersSubmitimgFiles(ctx)
+		if err != nil {
+			t.Fatalf("Failed to get  WorkerErrorRateResponse: %v", err)
+		}
+		log.Println(r)
+	})
+}

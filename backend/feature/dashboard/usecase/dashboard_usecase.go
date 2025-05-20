@@ -12,7 +12,7 @@ type DashBoardResult struct {
 
 type DashboardUsecase interface {
 	UploadingFilesVersionPKI(ctx context.Context) *DashBoardResult
-	WorkersErrorRatePKI(ctx context.Context) *DashBoardResult
+	WorkersSubmitimgFilesPKI(ctx context.Context) *DashBoardResult
 	HackingTryPKI(ctx context.Context) *DashBoardResult
 }
 
@@ -36,8 +36,8 @@ func (u *dashboardUsecase) UploadingFilesVersionPKI(ctx context.Context) *DashBo
 }
 
 // ⬇️ Calculates the error rate per user (invalid files / total files)
-func (u *dashboardUsecase) WorkersErrorRatePKI(ctx context.Context) *DashBoardResult {
-	data, err := u.repo.GetWorkersErrorRate(ctx)
+func (u *dashboardUsecase) WorkersSubmitimgFilesPKI(ctx context.Context) *DashBoardResult {
+	data, err := u.repo.WorkersSubmitimgFiles(ctx)
 	if err != nil {
 		return &DashBoardResult{Err: err}
 	}
