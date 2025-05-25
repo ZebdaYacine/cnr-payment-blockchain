@@ -94,6 +94,7 @@ func (s *fileRepository) UploadFile(c context.Context, file entities.UploadFile)
 		ReciverId:    file.ReciverId,
 		TaggedUsers:  file.TaggedUser,
 		Phase:        file.Phase,
+		Status:       "Valid",
 	}
 
 	folderMetaData := &fabric.FolderMetadata{
@@ -366,6 +367,7 @@ func (s *fileRepository) GetMetadataFileByFolderName(c context.Context, folderna
 				}
 			}
 		}
+		s.updateFileStatusInDB(c, file.ID, file.Status)
 		(*files)[i] = *file
 	}
 	return files, nil
@@ -453,4 +455,24 @@ func (r *fileRepository) DownloadFilesOfFolder(c context.Context, folder string)
 	}
 
 	return result, nil
+}
+
+func (s *fileRepository) updateFileStatusInDB(c context.Context, fileID string, status string) error {
+	collection := s.database.Collection(database.FILE.String())
+
+	filter := bson.M{"id": fileID}
+	update := bson.M{"$set": bson.M{"status": status}}
+
+	result, err := collection.UpdateOne(c, filter, update)
+	if err != nil {
+		log.Printf("Error updating status for file ID %s: %v", fileID, err)
+		return err
+	}
+	if result.MatchedCount == 0 {
+		log.Printf("No document found with file ID %s to update status", fileID)
+		return fmt.Errorf("file with ID %s not found", fileID)
+	}
+
+	log.Printf("Successfully updated status for file ID %s to '%s'", fileID, status)
+	return nil
 }

@@ -11,12 +11,15 @@ export interface User {
   publicKey: string;
   privateKey: string;
   createAt: string;
-  phases: string[];
+  phases: Pahse[];
   last_name: string;
   first_name: string;
   avatar: string;
 }
-
+interface Pahse {
+  id: string;
+  is_sender?: boolean;
+}
 export interface Folder {
   id: string;
   name: string;

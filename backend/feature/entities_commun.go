@@ -23,12 +23,17 @@ type User struct {
 	Type         string             `json:"type" bson:"type"`
 	Permission   string             `json:"permission" bson:"permission"`
 	Wilaya       string             `json:"wilaya" bson:"wilaya"`
-	Phases       []string           `json:"phases" bson:"phases"`
+	Phases       []Phase            `json:"phases" bson:"phases"`
 	PublicKey    string             `json:"publicKey" bson:"publicKey"`
 	CreateAt     time.Time          `json:"createAt" bson:"createAt"`
 	LastName     string             `json:"last_name" bson:"last_name"`
 	FirstName    string             `json:"first_name" bson:"first_name"`
 	Avatar       string             `json:"avatar" bson:"avatar"`
+}
+
+type Phase struct {
+	ID       string `json:"id" bson:"id"`
+	IsSender bool   `json:"is_sender" bson:"is_sender"`
 }
 
 type Notification struct {

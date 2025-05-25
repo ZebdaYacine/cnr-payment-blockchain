@@ -1,0 +1,26 @@
+{
+  "type": "Compass Connections",
+  "version": {
+    "$numberInt": "1"
+  },
+  "connections": [
+    {
+      "id": "60b0c4be-d19d-43bb-884b-b04e124c45ae",
+      "lastUsed": {
+        "$date": {
+          "$numberLong": "1746097329011"
+        }
+      },
+      "favorite": {
+        "name": "db.wkzekin.mongodb.net"
+      },
+      "savedConnectionType": "recent",
+      "connectionOptions": {
+        "connectionString": "mongodb+srv://root:root@db.wkzekin.mongodb.net/?retryWrites=true&w=majority&appName=db",
+        "oidc": {
+          "serializedState": "eyJvaWRjUGx1Z2luU3RhdGVWZXJzaW9uIjowLCJzdGF0ZSI6W119"
+        }
+      }
+    }
+  ]
+}

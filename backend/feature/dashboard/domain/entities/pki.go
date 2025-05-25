@@ -1,6 +1,5 @@
 package entities
 
-
 type InstitutionDetail struct {
 	Name    string `json:"name"`
 	File    int    `json:"file"`
@@ -8,11 +7,11 @@ type InstitutionDetail struct {
 }
 
 type UploadStats struct {
-	File         int                `json:"file"`
-	Version      int                `json:"version"`
-	Day          string             `json:"day"`
-	Month        string             `json:"month"`
-	Year         string             `json:"year"`
+	File         int                 `json:"file"`
+	Version      int                 `json:"version"`
+	Day          string              `json:"day"`
+	Month        string              `json:"month"`
+	Year         string              `json:"year"`
 	Institutions []InstitutionDetail `json:"institutions"`
 }
 type UploadedFileInfo struct {
@@ -32,11 +31,14 @@ type UploadingFilesResponse struct {
 	Institution string `json:"institution"`
 }
 
-type WorkerErrorRateResponse struct {
-	UserID       string  `json:"user_id"`
-	InvalidFiles int     `json:"invalid_files"`
-	TotalFiles   int     `json:"total_files"`
-	ErrorRate    float64 `json:"error_rate_pct"`
+type WorkerSubmitFilesResponse struct {
+	UserID    string `json:"user_id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	WorkAt    string `json:"work_at"`
+	Wilaya    string `json:"wilaya"`
+	Type      string `json:"type"`
+	Submitted bool   `json:"submitted"`
 }
 
 type HackingAttemptResponse struct {

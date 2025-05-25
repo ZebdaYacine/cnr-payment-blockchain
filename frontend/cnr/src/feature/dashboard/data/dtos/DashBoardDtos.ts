@@ -25,3 +25,39 @@ export interface PKI1Response {
   message: string;
   data: UploadStats[];
 }
+
+export interface HackingFileInfo {
+  file: string;
+  time: string;
+  institution: string;
+}
+
+export interface HackingAttemptResponse {
+  phase: string;
+  version: number;
+  files_number: number;
+  invalid_files: number;
+  folder: number;
+  institutions: string[];
+  files: HackingFileInfo[];
+}
+
+export interface HackingTryPKIResponse {
+  message: string;
+  data: HackingAttemptResponse[];
+}
+
+export interface WorkerSubmitFilesResponse {
+  user_id: string;
+  first_name?: string;
+  last_name?: string;
+  work_at?: string;
+  type?: string;
+  wilaya?: string;
+  submitted: boolean;
+}
+
+export interface WorkersErrorRatePKIResponse {
+  message: string;
+  data: WorkerSubmitFilesResponse[];
+}

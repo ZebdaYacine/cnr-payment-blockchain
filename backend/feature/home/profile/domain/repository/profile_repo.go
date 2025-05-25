@@ -60,15 +60,16 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		log.Print(err)
 		return nil, err
 	}
-	var phases []string
+	var phases []feature.Phase
 	if rawPhases, ok := result["phases"].(primitive.A); ok {
 		for _, p := range rawPhases {
-			if s, ok := p.(string); ok {
-				phases = append(phases, s)
+			if phaseMap, ok := p.(bson.M); ok {
+				phases = append(phases, feature.Phase{
+					ID:       phaseMap["id"].(string),
+					IsSender: phaseMap["is_sender"].(bool),
+				})
 			}
 		}
-	} else {
-		log.Printf("⚠️ Could not cast phases for user %s\n", userId)
 	}
 	var avatar string
 	if result["avatar"] == nil {
@@ -104,13 +105,11 @@ func (s *profileRepository) GetFolders(c context.Context, folder *fabric.FolderM
 	if err != nil {
 		log.Println("🚨 Error getting folders from Fabric Ledger:", err)
 	}
-	fmt.Println("📄 Fabric Ledger Response:", res)
 	fabricFolders, ok := res.(*[]fabric.FolderMetadata)
 	if !ok {
 		log.Println("❌ Failed to convert Fabric response to FolderMetadata slice")
 		return &folders, nil
 	}
-	log.Println(">>>>>>>>>>>>>>>>>>>>>>>", fabricFolders)
 	var convertedFolders []entities.Folder
 	if fabricFolders == nil || len(*fabricFolders) == 0 {
 		log.Println("⚠️ No folders found in Fabric Ledger.")

@@ -38,3 +38,33 @@ func (ic *DashboardController) GetUploadingFilesVersionPKI(c *gin.Context) {
 		Data:    resulat.Data,
 	})
 }
+
+func (ic *DashboardController) GetHackingTryPKI(c *gin.Context) {
+	log.Println("************************ GET DASHBOARD HACKING TRY PKI REQUEST ************************")
+	result := ic.DashboardUsecase.HackingTryPKI(c)
+	if err := result.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "GET DASHBOARD HACKING TRY PKI SUCCESSFULLY",
+		Data:    result.Data,
+	})
+}
+
+func (ic *DashboardController) GetWorkersErrorRate(c *gin.Context) {
+	log.Println("************************ GET DASHBOARD WORKERS ERROR RATE REQUEST ************************")
+	result := ic.DashboardUsecase.WorkersSubmitimgFilesPKI(c)
+	if err := result.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "GET DASHBOARD WORKERS ERROR RATE SUCCESSFULLY",
+		Data:    result.Data,
+	})
+}
