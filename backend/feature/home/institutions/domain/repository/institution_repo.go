@@ -141,10 +141,10 @@ func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([
 	for cursor.Next(context.TODO()) {
 		var u feature.User
 		if err := cursor.Decode(&u); err != nil {
-			log.Println("Error decoding user:", err)
+			// Remove debug log
+			// log.Println("Error decoding user:", err)
 			continue
 		}
-		log.Println(u)
 		if u.ID.Hex() != userid {
 			u.Id = u.ID.Hex()
 			users = append(users, &u)

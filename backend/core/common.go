@@ -17,7 +17,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var RootServer = pkg.GET_ROOT_SERVER_SEETING()
+var RootServer = pkg.GET_ROOT_SERVER_SETTING()
 
 func IsDataRequestSupported[T feature.Account](data *T, c *gin.Context) bool {
 	err := c.ShouldBindJSON(data)

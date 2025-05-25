@@ -11,8 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var db_opt = pkg.GET_DB_SERVER_SEETING()
-
 type Database interface {
 	Collection(string) Collection
 	Client() Client
@@ -124,21 +122,32 @@ func (mc *mongoCollection) CountDocuments(ctx context.Context, filter interface{
 }
 
 func ConnectionDb() Database {
+	// Get database settings after ensuring environment is loaded
+	db_opt := pkg.GET_DB_SERVER_SETTING()
+
+	// Validate connection string
+	if db_opt.SERVER_ADDRESS_DB == "" {
+		log.Fatal("Database connection string is empty")
+	}
+
 	client, err := NewClient(db_opt.SERVER_ADDRESS_DB)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to create MongoDB client: %v", err)
 	}
+	log.Println(">>>>>>>>>>>>", db_opt.SERVER_ADDRESS_DB, "<<<<<<<<<<<<")
 	ctx := context.TODO()
 	err = client.Connect(ctx)
 	if err != nil {
-		log.Print("Connection error")
-		log.Fatal(err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
+
 	err = client.Ping(ctx)
 	if err != nil {
-		log.Print("Ping error")
-		log.Fatal(err)
+		log.Fatalf("Failed to ping database: %v", err)
 	}
+
 	log.Print("_________________________CONNECT TO DATABASE_________________________")
+	log.Printf("Connecting to database at: %s", db_opt.SERVER_ADDRESS_DB)
+
 	return client.Database(db_opt.DB_NAME)
 }

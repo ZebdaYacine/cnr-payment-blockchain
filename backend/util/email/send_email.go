@@ -23,7 +23,7 @@ func GenerateDigit() (string, error) {
 }
 
 func SendEmail(to string, subject string, body string) error {
-	var SETTING = pkg.GET_SMTP_SERVER_SEETING()
+	var SETTING = pkg.GET_SMTP_SERVER_SETTING()
 	m := gomail.NewMessage()
 	m.SetHeader("From", SETTING.SMTP_USER)
 	m.SetHeader("To", to)

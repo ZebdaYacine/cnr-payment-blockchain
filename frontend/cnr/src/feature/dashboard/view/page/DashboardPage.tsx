@@ -128,7 +128,7 @@ export default function DashboardPage() {
         institution: file.institution,
       })),
     }));
-  }, [hackingData, isSuccess]); // Added refreshCount to dependencies
+  }, [hackingData, isSuccess]);
 
   return (
     <div className="flex flex-col space-y-4">

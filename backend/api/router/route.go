@@ -32,7 +32,7 @@ func Setup(db database.Database, gin *gin.Engine, sftpClient *sftp.Client) {
 	// User-specific routes with middleware
 	userRouter := gin.Group("/user")
 	userRouter.Use(middleware.JwtAuthMiddleware(
-		pkg.GET_ROOT_SERVER_SEETING().SECRET_KEY,
+		pkg.GET_ROOT_SERVER_SETTING().SECRET_KEY,
 		"USER"))
 	private.NewGetProfileuRouter(db, userRouter)
 	private.NewGetFoldersRouter(db, userRouter)
@@ -56,7 +56,7 @@ func Setup(db database.Database, gin *gin.Engine, sftpClient *sftp.Client) {
 	// Superuser-specific routes with middleware
 	adminRouter := gin.Group("/admin")
 	adminRouter.Use(middleware.JwtAuthMiddleware(
-		pkg.GET_ROOT_SERVER_SEETING().SECRET_KEY,
+		pkg.GET_ROOT_SERVER_SETTING().SECRET_KEY,
 		"ADMIN"))
 	private.NewGetProfileuRouter(db, adminRouter)
 	private.NewGetFoldersRouter(db, adminRouter)

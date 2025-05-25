@@ -10,6 +10,8 @@ import (
 
 func TestUserRepository(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
+		t.Setenv("SERVER_ADDRESS_DB", "mongodb://localhost:27017/")
+		t.Setenv("DB_NAME", "cnr-blockchain")
 		db := database.ConnectionDb()
 		if db == nil {
 			t.Fatal("Database connection failed")

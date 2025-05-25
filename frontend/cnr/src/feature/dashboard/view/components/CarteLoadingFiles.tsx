@@ -29,9 +29,29 @@ interface CarteLoadingFilesProps {
   defaultInstitution?: string;
 }
 
+const getDaysInMonth = (month: string): number => {
+  const monthIndex = [
+    "Janvier",
+    "Février",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Août",
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "Décembre",
+  ].indexOf(month);
+
+  const year = 2025;
+  return new Date(year, monthIndex + 1, 0).getDate(); // gets last day of the month
+};
+
 export default function CarteChargementFichiers({
   data,
-  defaultMois = "Janvier",
+  defaultMois = "Mai",
   defaultInstitution = "Toutes",
 }: CarteLoadingFilesProps) {
   const [mois, setMois] = useState(defaultMois);
@@ -46,33 +66,58 @@ export default function CarteChargementFichiers({
   }, [data]);
 
   const chartData = useMemo(() => {
-    return data
-      .filter((entry) => entry.mois === mois)
-      .map((entry) => {
-        if (institution === "Toutes") {
-          return {
-            jour: entry.jour,
-            fichiers: entry.fichiers,
-            versions: entry.versions,
-          };
-        }
+    const daysInMonth = getDaysInMonth(mois);
 
-        const inst = entry.institution.find((i) => i.nom === institution);
-        return {
-          jour: entry.jour,
-          fichiers: inst?.fichiers || 0,
-          versions: inst?.versions || 0,
-        };
-      })
-      .sort((a, b) => parseInt(a.jour) - parseInt(b.jour));
+    // Create base data for all days
+    const baseData = Array.from({ length: daysInMonth }, (_, i) => ({
+      jour: (i + 1).toString(),
+      fichiers: 0,
+      versions: 0,
+    }));
+
+    // Create a map of actual data
+    const filteredData = data
+      .filter((entry) => entry.mois === mois)
+      .reduce<Record<string, { fichiers: number; versions: number }>>(
+        (acc, entry) => {
+          const jour = entry.jour;
+          if (institution === "Toutes") {
+            acc[jour] = {
+              fichiers: entry.fichiers,
+              versions: entry.versions,
+            };
+          } else {
+            const inst = entry.institution.find((i) => i.nom === institution);
+            acc[jour] = {
+              fichiers: inst?.fichiers || 0,
+              versions: inst?.versions || 0,
+            };
+          }
+          return acc;
+        },
+        {}
+      );
+
+    return baseData.map((d) => ({
+      jour: d.jour,
+      fichiers: filteredData[d.jour]?.fichiers ?? 0,
+      versions: filteredData[d.jour]?.versions ?? 0,
+    }));
   }, [mois, institution, data]);
+
+  const yMax = useMemo(() => {
+    const maxValue = Math.max(
+      ...chartData.map((d) => Math.max(d.fichiers, d.versions))
+    );
+    return Math.ceil(maxValue / 5) * 5;
+  }, [chartData]);
 
   return (
     <div className="card bg-base-500 shadow-xl">
       <div className="card-body">
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
           <div>
-            <h2 className="text-lg font-bold">Chargement de fichiers </h2>
+            <h2 className="text-lg font-bold">Chargement de fichiers</h2>
           </div>
           <div className="flex gap-2 flex-wrap">
             <select
@@ -118,7 +163,15 @@ export default function CarteChargementFichiers({
             <LineChart data={chartData}>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis dataKey="jour" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} domain={[0, 100]} />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                domain={[1, yMax]}
+                ticks={Array.from(
+                  { length: yMax === 0 ? 5 : yMax / 5 + 1 },
+                  (_, i) => i * 5
+                )}
+              />
               <Tooltip
                 contentStyle={{ borderRadius: "0.5rem", fontSize: "14px" }}
                 formatter={(value, name) => [
