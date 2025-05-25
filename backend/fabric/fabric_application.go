@@ -15,7 +15,7 @@ import (
 )
 
 func SdkProvider(function string, args ...interface{}) (interface{}, error) {
-	var SETTING = pkg.GET_BLOCKCHAIN_SETTIN()
+	var SETTING = pkg.GET_BLOCKCHAIN_SETTING()
 	chainCode := SETTING.CHAIN_CODE
 	channelName := SETTING.CHANNEL_NAME
 	// The gRPC client connection should be shared by all Gateway connections to this endpoint

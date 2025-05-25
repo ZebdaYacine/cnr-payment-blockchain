@@ -25,7 +25,7 @@ func (ic *VersionController) UploadVersionRequestt(c *gin.Context) {
 		return
 	}
 	token := util.GetToken(c)
-	userid, err := util.ExtractIDFromToken(token, pkg.GET_ROOT_SERVER_SEETING().SECRET_KEY)
+	userid, err := util.ExtractIDFromToken(token, pkg.GET_ROOT_SERVER_SETTING().SECRET_KEY)
 	if err != nil {
 		c.JSON(http.StatusNonAuthoritativeInfo, model.ErrorResponse{
 			Message: err.Error(),

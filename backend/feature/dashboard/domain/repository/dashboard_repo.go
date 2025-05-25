@@ -122,7 +122,7 @@ func (r *dashboardRepository) GetUploadingFilesVersionStats(ctx context.Context)
 func getUserIDs(users []feature.User) []string {
 	ids := make([]string, len(users))
 	for i, user := range users {
-		ids[i] = user.Id
+		ids[i] = user.ID.Hex()
 	}
 	return ids
 }
@@ -162,8 +162,8 @@ func (r *dashboardRepository) WorkersNotSubmittedFiles(ctx context.Context) ([]e
 	// Get all files for these users in the current phase
 	fileCol := r.database.Collection(database.FILE.String())
 	fileCursor, err := fileCol.Find(ctx, bson.M{
-		"phase":  phase.ID,
-		"userId": bson.M{"$in": getUserIDs(users)},
+		"phase":   phase.ID.Hex(),
+		"user_id": bson.M{"$in": getUserIDs(users)},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to query files: %w", err)
@@ -185,7 +185,7 @@ func (r *dashboardRepository) WorkersNotSubmittedFiles(ctx context.Context) ([]e
 	workers := make([]entities.WorkerSubmitFilesResponse, 0)
 	for _, user := range users {
 		// Skip users who submitted files
-		if hasSubmitted[user.Id] {
+		if hasSubmitted[user.ID.Hex()] {
 			continue
 		}
 

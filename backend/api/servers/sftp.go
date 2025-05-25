@@ -9,9 +9,9 @@ import (
 )
 
 func ConnectSFTP() (*sftp.Client, error) {
-	host := pkg.GET_SFTP_SEETING().SFTP_HOST
-	user := pkg.GET_SFTP_SEETING().SFTP_USER
-	pass := pkg.GET_SFTP_SEETING().SFTP_PASS
+	host := pkg.GET_SFTP_SETTING().SFTP_HOST
+	user := pkg.GET_SFTP_SETTING().SFTP_USER
+	pass := pkg.GET_SFTP_SETTING().SFTP_PASS
 
 	if host == "" || user == "" || pass == "" {
 		return nil, fmt.Errorf("SFTP credentials not set in environment variables")

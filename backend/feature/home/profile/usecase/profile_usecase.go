@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"log"
 	"scps-backend/fabric"
 	profileRepo "scps-backend/feature/home/profile/domain/repository"
 )
@@ -99,7 +98,6 @@ func (p *profileUsecase) VerifyDigitalSignature(c context.Context, userId string
 	if user.PublicKey == "" {
 		return &ProfileResult{Err: fmt.Errorf("user has no public key")}
 	}
-	log.Println(user.PublicKey)
 
 	isValid := p.repo.VerifyDigitalSignature(signature, randomValue, user.PublicKey)
 	if !isValid {

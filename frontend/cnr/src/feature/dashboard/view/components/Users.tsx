@@ -17,9 +17,9 @@ export default function Users({ workersErrorRateData }: UsersProps) {
   const paginated = useMemo(() => {
     if (!workersErrorRateData) return [];
     return workersErrorRateData.slice(
-      (page - 1) * USERS_PER_PAGE,
-      page * USERS_PER_PAGE
-    );
+    (page - 1) * USERS_PER_PAGE,
+    page * USERS_PER_PAGE
+  );
   }, [workersErrorRateData, page]);
 
   if (!workersErrorRateData) {
@@ -93,8 +93,8 @@ export default function Users({ workersErrorRateData }: UsersProps) {
                       ) : (
                         <span className="badge badge-error">Non</span>
                       )}
-                    </td>
-                  </tr>
+                      </td>
+                    </tr>
                 ))
               )}
             </tbody>
