@@ -50,9 +50,6 @@ USER appuser
 # Expose port 3000
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -f http://localhost:3000/health || exit 1
 
 # Run the application
 ENTRYPOINT ["./main"]

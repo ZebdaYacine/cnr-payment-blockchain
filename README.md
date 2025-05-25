@@ -7,7 +7,7 @@
 ![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb)
 ![Docker](https://img.shields.io/badge/Container-Docker-2496ED?logo=docker)
 
-A next-generation blockchain payment solution for CNR (Centre National de Recherche) featuring React frontend, Go backend, and Hyperledger Fabric integration.
+A next-generation blockchain payment solution for CNR (Centre National de Retraites) featuring React frontend, Go backend, and Hyperledger Fabric integration.
 
 ---
 
