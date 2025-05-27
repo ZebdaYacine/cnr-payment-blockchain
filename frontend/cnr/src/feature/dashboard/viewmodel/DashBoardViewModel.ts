@@ -12,9 +12,9 @@ export const useDashBoardViewModel = (dashboardUseCase: DashBoardUseCase) => {
   const {
     mutate: getUploadinfFilesPKI,
     data: PKI1Metadata,
-    isPending: isPending,
-    isSuccess: isSuccess,
-    isError: isError,
+    isPending: isPendingPKI1,
+    isSuccess: isSuccessPKI1,
+    isError: isErrorPKI1,
   } = useMutation({
     mutationFn: async ({ permission }: { permission: string }) => {
       const storedToken = GetAuthToken(navigate);
@@ -22,12 +22,6 @@ export const useDashBoardViewModel = (dashboardUseCase: DashBoardUseCase) => {
     },
     onSuccess: (data) => {
       if (data) console.log("PKI1 LOADED SUCCEFULY...");
-      else {
-        error(
-          "An error occurred during download. Please try again.",
-          "colored"
-        );
-      }
     },
     onError: (err: unknown) => {
       console.error("Download error:", err);
@@ -48,19 +42,9 @@ export const useDashBoardViewModel = (dashboardUseCase: DashBoardUseCase) => {
     },
     onSuccess: (data) => {
       if (data) console.log("HACKING DATA LOADED SUCCESSFULLY...");
-      else {
-        error(
-          "An error occurred while loading hacking data. Please try again.",
-          "colored"
-        );
-      }
     },
     onError: (err: unknown) => {
       console.error("Hacking data error:", err);
-      error(
-        "An error occurred while loading hacking data. Please try again.",
-        "colored"
-      );
     },
   });
 
@@ -77,19 +61,9 @@ export const useDashBoardViewModel = (dashboardUseCase: DashBoardUseCase) => {
     },
     onSuccess: (data) => {
       if (data) console.log("WORKERS ERROR RATE DATA LOADED SUCCESSFULLY...");
-      else {
-        error(
-          "An error occurred while loading workers error rate data. Please try again.",
-          "colored"
-        );
-      }
     },
     onError: (err: unknown) => {
       console.error("Workers error rate data error:", err);
-      error(
-        "An error occurred while loading workers error rate data. Please try again.",
-        "colored"
-      );
     },
   });
 
@@ -100,8 +74,13 @@ export const useDashBoardViewModel = (dashboardUseCase: DashBoardUseCase) => {
     PKI1Metadata,
     hackingData,
     workersErrorRateData,
-    isPending: isPending || isHackingPending || isWorkersErrorRatePending,
-    isError: isError || isHackingError || isWorkersErrorRateError,
-    isSuccess: isSuccess || isHackingSuccess || isWorkersErrorRateSuccess,
+    isPending: isPendingPKI1 || isHackingPending || isWorkersErrorRatePending,
+    isError: isErrorPKI1 && isHackingError && isWorkersErrorRateError,
+    isSuccess: isSuccessPKI1 || isHackingSuccess || isWorkersErrorRateSuccess,
+    errors: {
+      uploadFilesError: isErrorPKI1,
+      hackingError: isHackingError,
+      workersErrorRateError: isWorkersErrorRateError,
+    },
   };
 };
