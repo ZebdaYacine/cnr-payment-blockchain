@@ -206,25 +206,26 @@ func (r *dashboardRepository) WorkersNotSubmittedFiles(ctx context.Context) ([]e
 // --- Hacking Attempts ---
 func (r *dashboardRepository) GetPhaseByID(ctx context.Context, id string) (*Phase, error) {
 	collection := r.database.Collection(database.PHASE.String())
-	currentDay := time.Now().Day()
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid ID format: %w", err)
+	}
 
 	filter := bson.M{
-		"startAt": bson.M{"$lte": currentDay},
-		"endAt":   bson.M{"$gte": currentDay},
+		"_id": objectID,
 	}
 
 	var phase Phase
-	err := collection.FindOne(ctx, filter).Decode(&phase)
+	err = collection.FindOne(ctx, filter).Decode(&phase)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("failed to fetch current phase: %w", err)
+		return nil, fmt.Errorf("failed to fetch phase by ID: %w", err)
 	}
-	if id == phase.ID.Hex() {
-		return &phase, nil
-	}
-	return nil, nil
+
+	return &phase, nil
 }
 
 func (r *dashboardRepository) GetCurrentPhaseByID(ctx context.Context) (*Phase, error) {
