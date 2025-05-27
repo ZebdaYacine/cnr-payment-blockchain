@@ -13,14 +13,14 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
 
-echo "==== Installing Go 1.20.2 ===="
-GO_VERSION="1.20.2"
+echo "==== Installing Go 1.23 ===="
+GO_VERSION="1.23"
 wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go
 sudo tar -xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local
 rm go${GO_VERSION}.linux-amd64.tar.gz
 
-# Set Go env
+# Set Go environment variables
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 echo 'export GOPATH=$HOME/go' >> ~/.bashrc
 echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.bashrc
@@ -42,4 +42,3 @@ echo "==== Running install script ===="
 
 echo "==== Installation complete ===="
 echo "Log out and log in again for Docker permissions to take effect."
-
