@@ -13,12 +13,12 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
 
-echo "==== Installing Go 1.23 ===="
-GO_VERSION="1.23"
-wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
+echo "==== Installing Go 1.24.3 ===="
+GO_VERSION="1.24.3"
+wget https://go.dev/dl/go1.24.3.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go
-sudo tar -xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local
-rm go${GO_VERSION}.linux-amd64.tar.gz
+sudo tar -xvf go1.24.3.linux-amd64.tar.gz -C /usr/local
+rm go1.24.3.linux-amd64.tar.gz
 
 # Set Go environment variables
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
