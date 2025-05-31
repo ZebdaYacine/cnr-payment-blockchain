@@ -125,6 +125,8 @@ function ListOfFolders({ peer }: ListOfFoldersProps) {
           destination={`${peer.org.name} - ${peer.wilaya}`}
           organisation={`${userSaved.workAt} - ${userSaved.wilaya}`}
           reciverId={peer.id}
+          // organisation={`${userSaved.last_name}/${userSaved.workAt} - ${userSaved.wilaya}`}
+          // reciverId={`__${peer.org.name}/${peer.wilaya}`}
         />
       )}
       <div className="card shadow-2xl w-full ">
