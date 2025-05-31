@@ -23,6 +23,7 @@ import ProfileDropdown from "./navbar/ProfileDropdown";
 import ProfileModal from "./navbar/ProfileModal";
 import PhaseModal from "./navbar/PhaseModal";
 import WelcomePage from "../../feature/profile/view/pages/WelcomePage";
+import KeyDownloadDropdown from "./KeyDownLoadDropdown";
 
 const NavItem = ({
   icon,
@@ -70,6 +71,24 @@ const ResponsiveDrawer: React.FC = () => {
     }
   };
 
+  // const navigatePeers = (user: User) => {
+  //   navigateWithSignatureCheck(`/home/peer/${user.id}`);
+  //   console.log("Current Phase:", phase == null);
+  //   if (phase == null) {
+  //     navigate("/home/reglementaion/COM-001");
+  //   }
+  //   console.log(">>>>>>>>>>>>>>>>>>>>:", user.phases);
+  //   console.log(">>>>>>>>>>>>>>>>>>>>:", userSaved.phases);
+
+  //   if (!userSaved.phases.some((p) => p.id == phase?.id)) {
+  //     navigate("/home/reglementaion/COM-001");
+  //   }
+  //   if (!user.phases.some((p) => p.id === phase?.id)) {
+  //     navigate("/home/reglementaion/COM-002");
+  //   }
+  //   navigate(`/home/peer/${user.id}`);
+  // };
+
   const logoutEvent = () => {
     Userlogout();
     debug("USER IS AUTHENTIFICATED : " + isAuthentificated);
@@ -105,6 +124,7 @@ const ResponsiveDrawer: React.FC = () => {
               CNR-Paiement
             </div>
             <div className="flex-1 justify-end flex items-center">
+              <KeyDownloadDropdown />
               <NotificationDropdown />
               <DarkModeToggle />
               <ProfileDropdown
@@ -181,9 +201,17 @@ const ResponsiveDrawer: React.FC = () => {
                   </summary>
                   <ul className="pl-8 mt-2 space-y-2 max-h-64 overflow-y-auto pr-2">
                     {filteredUsers.length === 0 ? (
-                      <p className="text-lg font-semibold">
-                        Aucun utilisateur disponible
-                      </p>
+                      <div className="flex flex-col space-y-5 items-center justify-center p w-full max-w-md mx-auto">
+                        <p
+                          className="text-sm font-semibold text-blue-500 hover:text-blue-700 transition-colors duration-200 cursor-pointer"
+                          onClick={() =>
+                            navigate(`/home/reglementaion/COM-001`)
+                          }
+                        >
+                          Aucun utilisateur disponible <br />
+                          👉 voir la réglementation
+                        </p>
+                      </div>
                     ) : (
                       filteredUsers
                         .filter(
@@ -193,7 +221,11 @@ const ResponsiveDrawer: React.FC = () => {
                         .map((user) => (
                           <li key={user.id}>
                             <button
-                              onClick={() => navigate(`/home/peer/${user.id}`)}
+                              onClick={() =>
+                                navigateWithSignatureCheck(
+                                  `/home/peer/${user.id}`
+                                )
+                              }
                               className="block text-left w-full"
                             >
                               {user.username} – {user.workAt} / {user.wilaya}

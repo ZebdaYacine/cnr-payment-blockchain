@@ -60,7 +60,7 @@ func (p *profileUsecase) GetFolders(c context.Context, folder *fabric.FolderMeta
 func (p *profileUsecase) GetCurrentPhase(c context.Context) *ProfileResult {
 	phase, err := p.repo.GetCurrentPhase(c)
 	if err != nil {
-		return &ProfileResult{Err: err}
+		return &ProfileResult{Data: nil}
 	}
 	return &ProfileResult{Data: phase}
 }

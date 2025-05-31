@@ -46,11 +46,16 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
     onError: (err: unknown) => {
       console.error("GET PROFILE error:", err);
-      navigate("/error-page");
-      error(
-        "An error occurred during the upload. Please try again.",
-        "colored"
-      );
+      if (err == "Authentication token not found") {
+        // If the token is not found, redirect to login
+        navigate("/");
+      } else {
+        navigate("/error-page");
+      }
+      // error(
+      //   "An error occurred during the upload. Please try again.",
+      //   "colored"
+      // );
     },
   });
 

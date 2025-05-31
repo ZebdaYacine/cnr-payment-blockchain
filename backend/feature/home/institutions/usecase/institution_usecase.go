@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"scps-backend/feature"
 	institutionsRepo "scps-backend/feature/home/institutions/domain/repository"
 )
 
@@ -43,7 +44,7 @@ func (p *institutionsUsecase) GetPeers(c context.Context, nameInstitutions strin
 func (p *institutionsUsecase) BringUsers(c context.Context, userid string) *ProfileResult {
 	profileResult, err := p.repo.BringUsers(c, userid)
 	if err != nil {
-		return &ProfileResult{Err: err}
+		return &ProfileResult{Data: []*feature.User{}}
 	}
 	return &ProfileResult{Data: profileResult}
 }

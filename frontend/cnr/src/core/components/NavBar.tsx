@@ -25,6 +25,7 @@ function NavBarComponent({ user }: NavBarProps) {
   const { debug } = useLogger();
 
   const profileDialogRef = useRef<HTMLDialogElement>(null);
+
   const phaseDialogRef = useRef<HTMLDialogElement>(null);
   const { phase } = usePhaseId();
 
@@ -55,6 +56,7 @@ function NavBarComponent({ user }: NavBarProps) {
 
           <NotificationDropdown />
           <DarkModeToggle />
+
           <ProfileDropdown
             profileDialogRef={profileDialogRef}
             onLogout={logoutEvent}

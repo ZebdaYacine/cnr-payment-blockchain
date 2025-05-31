@@ -100,9 +100,11 @@ function ListOfPeers() {
 
           <div className="flex flex-wrap gap-2">
             {filteredUsers.length === 0 ? (
-              <p className="text-lg font-semibold text-gray-400">
-                Aucun utilisateur disponible
-              </p>
+              <div className="flex flex-col">
+                <p className="text-sm font-semibold text-gray-400">
+                  Aucun utilisateur disponible
+                </p>
+              </div>
             ) : (
               filteredUsers
                 .filter(
