@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"scps-backend/feature"
-	profileRepo "scps-backend/feature/home/profile/domain/repository"
 	"scps-backend/pkg/database"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -43,135 +42,14 @@ func (s *institutionsRepository) getInstitutionnameByUserID(c context.Context, u
 	return result.WorkAt, nil
 }
 
-func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([]*feature.User, error) {
-	collection := s.database.Collection(database.USER.String())
-	profileRepo := profileRepo.NewProfileRepository(s.database)
-	phase, err := profileRepo.GetCurrentPhase(c)
-	if err != nil {
-		return nil, fmt.Errorf("error getting current phase: %v", err)
-	}
-	phseId := phase.ID
-	objID, err := primitive.ObjectIDFromHex(userid)
-	if err != nil {
-		return nil, fmt.Errorf("invalid user ID format")
-	}
-
-	// Find the user by ID
-	var user feature.User
-	err = collection.FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&user)
-	if err != nil {
-		return nil, fmt.Errorf("user not found")
-	}
-
-	filter := bson.M{}
-
-	switch user.WorkAt {
-	case "DIO":
-		if user.Type == "IT" {
-			filter = bson.M{"$or": []bson.M{
-				{"workAt": "POST", "type": "RESP-SFTP"},
-				{"workAt": "DOF", "type": "FINC"},
-				{"workAt": "CCR", "type": bson.M{"$in": []string{"CAL", "IT"}}},
-				{"workAt": "DIO", "type": bson.M{"$in": []string{"CAL", "VAL", "IT"}}},
-			},
-				"phases.id": phseId,
-			}
-		} else if user.Type == "CAL" || user.Type == "VAL" {
-			filter = bson.M{"$or": []bson.M{
-				{"workAt": "CCR", "type": "CAL"},
-				{"workAt": "DIO", "type": bson.M{"$in": []string{"IT", "CAL", "VAL"}},
-					"phases.id": phseId},
-			}}
-		}
-
-	case "CCR":
-		if user.Type == "CAL" {
-			filter = bson.M{"$or": []bson.M{
-				{"workAt": "CCR", "type": "CAL"},
-				{"workAt": "DIO", "type": bson.M{"$in": []string{"CAL", "VAL", "IT"}}},
-				{"workAt": "CCR", "type": "IT"},
-			}, "phases.id": phseId,
-			}
-		} else if user.Type == "IT" {
-			agencyFilter := bson.M{"parent.id": user.IdInstituion}
-			agencyCursor, err := s.database.Collection(database.AGENCE.String()).Find(c, agencyFilter)
-			if err != nil {
-				return nil, fmt.Errorf("❌ Error fetching agencies: %v", err)
-			}
-			defer agencyCursor.Close(c)
-
-			var agencyIDs []string
-			for agencyCursor.Next(c) {
-				var agency struct {
-					ID string `bson:"id"`
-				}
-				if err := agencyCursor.Decode(&agency); err == nil {
-					agencyIDs = append(agencyIDs, agency.ID)
-				}
-			}
-
-			filter = bson.M{"$or": []bson.M{
-				{"idInstituion": bson.M{"$in": agencyIDs}}, // Match users in these agencies
-				{"workAt": "DIO", "type": "IT"},            // Also allow DIO IT users
-			}, "phases.id": phseId,
-			}
-		}
-	case "AGENCE":
-		var agency struct {
-			Parent struct {
-				ID string `bson:"id"`
-			} `bson:"parent"`
-		}
-		err = s.database.Collection(database.AGENCE.String()).FindOne(c, bson.M{"id": user.IdInstituion}).Decode(&agency)
-		if err != nil {
-			return nil, fmt.Errorf("❌ Error fetching agency's parent CCR: %v", err)
-		}
-
-		filter = bson.M{"idInstituion": agency.Parent.ID, "workAt": "CCR", "type": "IT"}
-	case "POST":
-		if user.Type == "RESP-SFTP" {
-			filter = bson.M{"$or": []bson.M{
-				{"workAt": "DIO", "type": "IT"},
-				{"workAt": "POST", "type": "CAL"},
-			}, "phases.id": phseId,
-			}
-		} else if user.Type == "CAL" {
-			filter = bson.M{"workAt": "POST", "type": "RESP-SFTP", "phases.id": phseId}
-		}
-
-	case "DOF":
-		if user.Type == "FINC" {
-			filter = bson.M{"workAt": "DIO", "type": "IT", "phases.id": phseId}
-		}
-	}
-	cursor, err := collection.Find(context.TODO(), filter)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(context.TODO())
-
-	var users []*feature.User
-	for cursor.Next(context.TODO()) {
-		var u feature.User
-		if err := cursor.Decode(&u); err != nil {
-			continue
-		}
-		if u.ID.Hex() != userid {
-			u.Id = u.ID.Hex()
-			users = append(users, &u)
-		}
-	}
-
-	if err := cursor.Err(); err != nil {
-		return nil, err
-	}
-
-	return users, nil
-}
-
 // func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([]*feature.User, error) {
 // 	collection := s.database.Collection(database.USER.String())
-// 	// Convert string ID to MongoDB ObjectID
+// 	profileRepo := profileRepo.NewProfileRepository(s.database)
+// 	phase, err := profileRepo.GetCurrentPhase(c)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("error getting current phase: %v", err)
+// 	}
+// 	phseId := phase.ID
 // 	objID, err := primitive.ObjectIDFromHex(userid)
 // 	if err != nil {
 // 		return nil, fmt.Errorf("invalid user ID format")
@@ -183,6 +61,7 @@ func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([
 // 	if err != nil {
 // 		return nil, fmt.Errorf("user not found")
 // 	}
+
 // 	filter := bson.M{}
 
 // 	switch user.WorkAt {
@@ -193,11 +72,14 @@ func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([
 // 				{"workAt": "DOF", "type": "FINC"},
 // 				{"workAt": "CCR", "type": bson.M{"$in": []string{"CAL", "IT"}}},
 // 				{"workAt": "DIO", "type": bson.M{"$in": []string{"CAL", "VAL", "IT"}}},
-// 			}}
+// 			},
+// 				"phases.id": phseId,
+// 			}
 // 		} else if user.Type == "CAL" || user.Type == "VAL" {
 // 			filter = bson.M{"$or": []bson.M{
 // 				{"workAt": "CCR", "type": "CAL"},
-// 				{"workAt": "DIO", "type": bson.M{"$in": []string{"IT", "CAL", "VAL"}}},
+// 				{"workAt": "DIO", "type": bson.M{"$in": []string{"IT", "CAL", "VAL"}},
+// 					"phases.id": phseId},
 // 			}}
 // 		}
 
@@ -207,7 +89,8 @@ func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([
 // 				{"workAt": "CCR", "type": "CAL"},
 // 				{"workAt": "DIO", "type": bson.M{"$in": []string{"CAL", "VAL", "IT"}}},
 // 				{"workAt": "CCR", "type": "IT"},
-// 			}}
+// 			}, "phases.id": phseId,
+// 			}
 // 		} else if user.Type == "IT" {
 // 			agencyFilter := bson.M{"parent.id": user.IdInstituion}
 // 			agencyCursor, err := s.database.Collection(database.AGENCE.String()).Find(c, agencyFilter)
@@ -229,7 +112,8 @@ func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([
 // 			filter = bson.M{"$or": []bson.M{
 // 				{"idInstituion": bson.M{"$in": agencyIDs}}, // Match users in these agencies
 // 				{"workAt": "DIO", "type": "IT"},            // Also allow DIO IT users
-// 			}}
+// 			}, "phases.id": phseId,
+// 			}
 // 		}
 // 	case "AGENCE":
 // 		var agency struct {
@@ -248,14 +132,15 @@ func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([
 // 			filter = bson.M{"$or": []bson.M{
 // 				{"workAt": "DIO", "type": "IT"},
 // 				{"workAt": "POST", "type": "CAL"},
-// 			}}
+// 			}, "phases.id": phseId,
+// 			}
 // 		} else if user.Type == "CAL" {
-// 			filter = bson.M{"workAt": "POST", "type": "RESP-SFTP"}
+// 			filter = bson.M{"workAt": "POST", "type": "RESP-SFTP", "phases.id": phseId}
 // 		}
 
 // 	case "DOF":
 // 		if user.Type == "FINC" {
-// 			filter = bson.M{"workAt": "DIO", "type": "IT"}
+// 			filter = bson.M{"workAt": "DIO", "type": "IT", "phases.id": phseId}
 // 		}
 // 	}
 // 	cursor, err := collection.Find(context.TODO(), filter)
@@ -268,8 +153,6 @@ func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([
 // 	for cursor.Next(context.TODO()) {
 // 		var u feature.User
 // 		if err := cursor.Decode(&u); err != nil {
-// 			// Remove debug log
-// 			// log.Println("Error decoding user:", err)
 // 			continue
 // 		}
 // 		if u.ID.Hex() != userid {
@@ -284,6 +167,122 @@ func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([
 
 // 	return users, nil
 // }
+
+func (s *institutionsRepository) BringUsers(c context.Context, userid string) ([]*feature.User, error) {
+	collection := s.database.Collection(database.USER.String())
+	// Convert string ID to MongoDB ObjectID
+	objID, err := primitive.ObjectIDFromHex(userid)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID format")
+	}
+
+	// Find the user by ID
+	var user feature.User
+	err = collection.FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&user)
+	if err != nil {
+		return nil, fmt.Errorf("user not found")
+	}
+	filter := bson.M{}
+
+	switch user.WorkAt {
+	case "DIO":
+		if user.Type == "IT" {
+			filter = bson.M{"$or": []bson.M{
+				{"workAt": "POST", "type": "RESP-SFTP"},
+				{"workAt": "DOF", "type": "FINC"},
+				{"workAt": "CCR", "type": bson.M{"$in": []string{"CAL", "IT"}}},
+				{"workAt": "DIO", "type": bson.M{"$in": []string{"CAL", "VAL", "IT"}}},
+			}}
+		} else if user.Type == "CAL" || user.Type == "VAL" {
+			filter = bson.M{"$or": []bson.M{
+				{"workAt": "CCR", "type": "CAL"},
+				{"workAt": "DIO", "type": bson.M{"$in": []string{"IT", "CAL", "VAL"}}},
+			}}
+		}
+
+	case "CCR":
+		if user.Type == "CAL" {
+			filter = bson.M{"$or": []bson.M{
+				{"workAt": "CCR", "type": "CAL"},
+				{"workAt": "DIO", "type": bson.M{"$in": []string{"CAL", "VAL", "IT"}}},
+				{"workAt": "CCR", "type": "IT"},
+			}}
+		} else if user.Type == "IT" {
+			agencyFilter := bson.M{"parent.id": user.IdInstituion}
+			agencyCursor, err := s.database.Collection(database.AGENCE.String()).Find(c, agencyFilter)
+			if err != nil {
+				return nil, fmt.Errorf("❌ Error fetching agencies: %v", err)
+			}
+			defer agencyCursor.Close(c)
+
+			var agencyIDs []string
+			for agencyCursor.Next(c) {
+				var agency struct {
+					ID string `bson:"id"`
+				}
+				if err := agencyCursor.Decode(&agency); err == nil {
+					agencyIDs = append(agencyIDs, agency.ID)
+				}
+			}
+
+			filter = bson.M{"$or": []bson.M{
+				{"idInstituion": bson.M{"$in": agencyIDs}}, // Match users in these agencies
+				{"workAt": "DIO", "type": "IT"},            // Also allow DIO IT users
+			}}
+		}
+	case "AGENCE":
+		var agency struct {
+			Parent struct {
+				ID string `bson:"id"`
+			} `bson:"parent"`
+		}
+		err = s.database.Collection(database.AGENCE.String()).FindOne(c, bson.M{"id": user.IdInstituion}).Decode(&agency)
+		if err != nil {
+			return nil, fmt.Errorf("❌ Error fetching agency's parent CCR: %v", err)
+		}
+
+		filter = bson.M{"idInstituion": agency.Parent.ID, "workAt": "CCR", "type": "IT"}
+	case "POST":
+		if user.Type == "RESP-SFTP" {
+			filter = bson.M{"$or": []bson.M{
+				{"workAt": "DIO", "type": "IT"},
+				{"workAt": "POST", "type": "CAL"},
+			}}
+		} else if user.Type == "CAL" {
+			filter = bson.M{"workAt": "POST", "type": "RESP-SFTP"}
+		}
+
+	case "DOF":
+		if user.Type == "FINC" {
+			filter = bson.M{"workAt": "DIO", "type": "IT"}
+		}
+	}
+	cursor, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	var users []*feature.User
+	for cursor.Next(context.TODO()) {
+		var u feature.User
+		if err := cursor.Decode(&u); err != nil {
+			// Remove debug log
+			// log.Println("Error decoding user:", err)
+			continue
+		}
+		if u.ID.Hex() != userid {
+			u.Id = u.ID.Hex()
+			users = append(users, &u)
+		}
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
 
 func (s *institutionsRepository) GetUsers(c context.Context, userid string, elems *feature.Elements) {
 	users, err := s.BringUsers(c, userid)
