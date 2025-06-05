@@ -39,7 +39,7 @@ type ProfileRepository interface {
 	UpdateFirstLastName(userId string, firstName string, lastName string, avatar string) error
 	UpdatePassword(userId string, oldPassword string, newPassword string) error
 	GetAllUsers(c context.Context) ([]feature.User, error)
-	UpdateUserType(userId string, newType string) error
+	UpdateUser(userId string, newType string, status bool) error
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -357,9 +357,9 @@ func (r *profileRepository) GetAllUsers(c context.Context) ([]feature.User, erro
 
 		user := feature.User{
 			// ID:           result["_id"].(primitive.ObjectID),
-			Id: result["_id"].(primitive.ObjectID).Hex(),
-			// Permission:   result["permission"].(string),
-			Email: result["email"].(string),
+			Id:         result["_id"].(primitive.ObjectID).Hex(),
+			Permission: result["permission"].(string),
+			Email:      result["email"].(string),
 			// UserName:     result["username"].(string),
 			WorkAt: result["workAt"].(string),
 			// IdInstituion: result["idInstituion"].(string),
@@ -383,7 +383,7 @@ func (r *profileRepository) GetAllUsers(c context.Context) ([]feature.User, erro
 	return users, nil
 }
 
-func (r *profileRepository) UpdateUserType(userId string, newType string) error {
+func (r *profileRepository) UpdateUser(userId string, newType string, status bool) error {
 	id, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
 		return fmt.Errorf("invalid user ID: %w", err)
@@ -394,6 +394,7 @@ func (r *profileRepository) UpdateUserType(userId string, newType string) error 
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "type", Value: newType},
+			{Key: "status", Value: status},
 		}},
 	}
 
@@ -401,7 +402,7 @@ func (r *profileRepository) UpdateUserType(userId string, newType string) error 
 
 	result, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		return fmt.Errorf("failed to update user type: %w", err)
+		return fmt.Errorf("failed to update user: %w", err)
 	}
 
 	if result.MatchedCount == 0 {

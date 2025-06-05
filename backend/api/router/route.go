@@ -53,9 +53,6 @@ func Setup(db database.Database, gin *gin.Engine, sftpClient *sftp.Client) {
 	private.NewUpdateNotificationRouter(db, userRouter)
 	private.NewUpdatePasswordRouter(db, userRouter)
 	private.NewVerifyDigitalSignatureRouter(db, userRouter)
-	private.NewGetAllUsersRouter(db, userRouter)
-	private.NewUpdateUserTypeRouter(db, userRouter)
-
 	// Superuser-specific routes with middleware
 	adminRouter := gin.Group("/admin")
 	adminRouter.Use(middleware.JwtAuthMiddleware(
@@ -82,7 +79,6 @@ func Setup(db database.Database, gin *gin.Engine, sftpClient *sftp.Client) {
 	private.NewUpdateNotificationRouter(db, adminRouter)
 	private.NewUploadingFilesVersionPKIRouter(db, adminRouter)
 	private.NewGetAllUsersRouter(db, adminRouter)
-	private.NewUpdateUserTypeRouter(db, adminRouter)
 
 	// private.NewUpdateNotificationRouter(db, adminRouter)
 

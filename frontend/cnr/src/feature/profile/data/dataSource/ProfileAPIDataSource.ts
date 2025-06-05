@@ -64,16 +64,11 @@ export interface ProfileDataSource {
     signature: string,
     randomValue: string
   ): Promise<boolean | ErrorResponse>;
-  UpdateUserTypeApi(
+  UpdateUserApi(
     token: string,
     permission: string,
     userId: string,
-    newType: string
-  ): Promise<boolean | ErrorResponse>;
-  UpdateUserStatusApi(
-    token: string,
-    permission: string,
-    userId: string,
+    newType: string,
     status: boolean
   ): Promise<boolean | ErrorResponse>;
 }
@@ -267,39 +262,19 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     }
   }
 
-  async UpdateUserTypeApi(
+  async UpdateUserApi(
     token: string,
     permission: string,
     userId: string,
-    newType: string
-  ): Promise<boolean | ErrorResponse> {
-    try {
-      const response = await ApiService.makeRequest<boolean>(
-        "post",
-        `/${permission}/update-user-type`,
-        token,
-        { userId, newType }
-      );
-      return response;
-    } catch (error) {
-      return {
-        message: error instanceof Error ? error.message : "Erreur inconnue",
-      };
-    }
-  }
-
-  async UpdateUserStatusApi(
-    token: string,
-    permission: string,
-    userId: string,
+    newType: string,
     status: boolean
   ): Promise<boolean | ErrorResponse> {
     try {
       const response = await ApiService.makeRequest<boolean>(
         "post",
-        `/${permission}/update-user-status`,
+        `/${permission}/update-user`,
         token,
-        { userId, status }
+        { userId, newType, status }
       );
       return response;
     } catch (error) {

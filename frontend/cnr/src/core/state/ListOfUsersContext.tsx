@@ -3,7 +3,10 @@ import { User } from "../dtos/data";
 
 interface UsersListContextType {
   users: User[];
+  all_users: User[];
+  setAllUsersList: (users: User[]) => void;
   setUsersList: (users: User[]) => void;
+
   getUsersList: () => User[];
 }
 
@@ -11,9 +14,14 @@ const UsersContext = createContext<UsersListContextType | undefined>(undefined);
 
 export const UsersListProvider = ({ children }: { children: ReactNode }) => {
   const [users, setUsers] = useState<User[]>([]);
+  const [all_users, setAllUsers] = useState<User[]>([]);
 
   const setUsersList = (users: User[]) => {
     setUsers(users);
+  };
+
+  const setAllUsersList = (users: User[]) => {
+    setAllUsers(users);
   };
 
   const getUsersList = () => users;
@@ -24,6 +32,8 @@ export const UsersListProvider = ({ children }: { children: ReactNode }) => {
         users: users,
         setUsersList: setUsersList,
         getUsersList: getUsersList,
+        all_users: all_users,
+        setAllUsersList: setAllUsersList,
       }}
     >
       {children}

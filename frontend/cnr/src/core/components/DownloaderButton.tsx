@@ -1,4 +1,4 @@
-import { FaDownload } from "react-icons/fa6";
+// import { FaDownload } from "react-icons/fa6";
 import { ToastContainer } from "react-toastify";
 import { Data } from "../../feature/file/data/dtos/FileDtos";
 import { useFileViewModel } from "../../feature/file/viewmodel/FileViewModel";
@@ -37,13 +37,13 @@ function DownloaderButton({ checkedFiles }: DownloaderButtonProps) {
         <div className="card-actions flex flex-col items-center gap-4">
           {checkedFiles.length > 0 && (
             <button
-              className={`btn btn-primary flex items-center gap-2 cursor-pointer ${
+              className={`btn btn-primary flex items-center gap-2 cursor-pointer  ${
                 isDownloading ? "loading" : ""
               }`}
               onClick={handleDownloadClick}
               disabled={isDownloading}
             >
-              {!isDownloading && <FaDownload />}
+              {/* {!isDownloading && <FaDownload />} */}
               {isDownloading
                 ? "Downloading..."
                 : `Telechargement ${checkedFiles.length} Fichiers${

@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "9000:3000"
+    env_file:
+      - ./backend/.env
+    # volumes:
+    #   - /home/zedyacine/Desktop/fabric-samples:/app/fabric-samples
+    depends_on:
+      - mongodb
+      - sftp
+    networks:
+      - cnr-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - cnr-network
+
+  # sftp:
+  #   image: atmoz/sftp
+  #   ports:
+  #     - "2222:22"
+  #   volumes:
+  #     - ./sftp/data:/home/${SFTP_USER}/upload
+  #   command: ${SFTP_USER}:${SFTP_PASS}:::${SFTP_USER}
+  #   env_file:
+  #     - ./backend/.env
+  #   networks:
+  #     - cnr-network
+
+  sftp:
+    image: atmoz/sftp
+    ports:
+      - "2222:22"
+    volumes:
+      - ./upload:/home/cnr
+    command: cnr:root:::cnr
+    networks:
+      - cnr-network
+    
+
+  frontend:  
+    build:
+      context: ./frontend/cnr
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - cnr-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  cnr-network:
+    driver: bridge

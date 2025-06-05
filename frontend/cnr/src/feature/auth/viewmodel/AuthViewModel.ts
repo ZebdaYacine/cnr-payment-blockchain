@@ -8,7 +8,7 @@ import { useNotification } from "../../../services/useNotification";
 export function useAuthViewModel(useCase: AuthUseCase) {
   const { Userlogged } = useAuth();
   const { SetUser } = useUser();
-  const { success, error: showError } = useNotification();
+  const { success, error } = useNotification();
 
   const login = useMutation({
     mutationFn: async ({
@@ -35,11 +35,11 @@ export function useAuthViewModel(useCase: AuthUseCase) {
         });
         success("Connexion réussie", "colored");
       } else {
-        showError(data.message || "Une erreur est survenue", "colored");
+        error(data.message || "Une erreur est survenue", "colored");
       }
     },
-    onError: (error: Error) => {
-      showError(error.message || "Une erreur est survenue", "colored");
+    onError: () => {
+      error("Une erreur est survenue", "colored");
     },
   });
 
@@ -86,11 +86,11 @@ export function useAuthViewModel(useCase: AuthUseCase) {
         // });
         success("Inscription réussie verifier votre boit mail", "colored");
       } else {
-        showError(data.message || "Une erreur est survenue", "colored");
+        error(data.message || "Une erreur est survenue", "colored");
       }
     },
-    onError: (error: Error) => {
-      showError(error.message || "Une erreur est survenue", "colored");
+    onError: () => {
+      error("Une erreur est survenue", "colored");
     },
   });
 
@@ -102,11 +102,11 @@ export function useAuthViewModel(useCase: AuthUseCase) {
       if (data.message) {
         success(data.message, "colored");
       } else {
-        showError("Une erreur est survenue", "colored");
+        error("Une erreur est survenue", "colored");
       }
     },
-    onError: (error: Error) => {
-      showError(error.message || "Une erreur est survenue", "colored");
+    onError: () => {
+      error("Une erreur est survenue", "colored");
     },
   });
 

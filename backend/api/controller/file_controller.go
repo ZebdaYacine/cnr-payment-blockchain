@@ -209,7 +209,7 @@ func (ic *FileController) DownloadFilesRequest(c *gin.Context) {
 	var req entities.DownloadFile
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid request body",
+			"message": err.Error(),
 			"status":  http.StatusBadRequest,
 		})
 		return

@@ -25,8 +25,7 @@ type ProfileUsecase interface {
 	UpdatePassword(c context.Context, userId string, oldPassword string, newPassword string) *ProfileResult
 	VerifyDigitalSignature(c context.Context, userId string, signature string, randomValue string) *ProfileResult
 	GetAllUsers(c context.Context) *ProfileResult
-	UpdateUserType(c context.Context, userId string, newType string) *ProfileResult
-	UpdateUserStatus(c context.Context, userId string, status bool) *ProfileResult
+	UpdateUser(c context.Context, userId string, newType string, status bool) *ProfileResult
 }
 
 type profileUsecase struct {
@@ -118,16 +117,8 @@ func (p *profileUsecase) GetAllUsers(c context.Context) *ProfileResult {
 	return &ProfileResult{Data: users}
 }
 
-func (p *profileUsecase) UpdateUserType(c context.Context, userId string, newType string) *ProfileResult {
-	err := p.repo.UpdateUserType(userId, newType)
-	if err != nil {
-		return &ProfileResult{Err: err}
-	}
-	return &ProfileResult{Data: true}
-}
-
-func (p *profileUsecase) UpdateUserStatus(c context.Context, userId string, status bool) *ProfileResult {
-	err := p.repo.UpdateUserStatus(userId, status)
+func (p *profileUsecase) UpdateUser(c context.Context, userId string, newType string, status bool) *ProfileResult {
+	err := p.repo.UpdateUser(userId, newType, status)
 	if err != nil {
 		return &ProfileResult{Err: err}
 	}

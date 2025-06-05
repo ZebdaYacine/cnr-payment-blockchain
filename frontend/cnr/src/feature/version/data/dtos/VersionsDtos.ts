@@ -1,14 +1,13 @@
 import { User } from "../../../../core/dtos/data";
 
-
 export interface VersionsResponse {
   message: string;
-  data: VersionData[] ;
+  data: VersionData[];
 }
 
 export interface VersionsUploadResponse {
   message: string;
-  data: VersionData ;
+  data: VersionData;
 }
 
 export interface VersionRequest {
@@ -22,7 +21,6 @@ export interface VersionRequest {
   Version: string;
 }
 
-
 export interface VersionData {
   ID: string;
   HashFile: string;
@@ -31,20 +29,18 @@ export interface VersionData {
   Parent: string;
   Commit: string;
   Description: string;
-  Path:string;
+  Path: string;
   Action: string;
   Time: string;
   Organisation: string;
   Status: string;
-  Version:string,
-  LastVersion:string
+  Version: number;
+  LastVersion: number;
 }
 
 export interface CommitData {
   ID: string;
   User: User;
   Body: string;
-  Time:string;
-
+  Time: string;
 }
-

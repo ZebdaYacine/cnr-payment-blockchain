@@ -17,14 +17,6 @@ const TYPE_LABELS: Record<string, string> = {
   "rest-sftp": "Responsable FTP",
 };
 
-const TYPE_STYLES: Record<string, { bg: string; text: string }> = {
-  cal: { bg: "bg-blue-100", text: "text-blue-800" },
-  val: { bg: "bg-green-100", text: "text-green-800" },
-  it: { bg: "bg-purple-100", text: "text-purple-800" },
-  finc: { bg: "bg-yellow-100", text: "text-yellow-800" },
-  "rest-sftp": { bg: "bg-red-100", text: "text-red-800" },
-};
-
 export const AccountPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -84,11 +76,7 @@ export const AccountPage: React.FC = () => {
     console.log("Updated user:", updatedUser);
     // For now, we'll just close the modal
     setIsEditModalOpen(false);
-    setSelectedUser(updatedUser);
-  };
-
-  const getTypeStyle = (type: string) => {
-    return TYPE_STYLES[type] || { bg: "bg-gray-100", text: "text-gray-800" };
+    setSelectedUser(null);
   };
 
   return (
@@ -97,10 +85,10 @@ export const AccountPage: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className=" rounded-lg shadow-lg p-6"
+        className="bg-white rounded-lg shadow-lg p-6"
       >
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
-          <h1 className="text-2xl font-bold text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-800">
             Gestion des Comptes
           </h1>
           <div className="relative w-full sm:w-64">
@@ -142,9 +130,9 @@ export const AccountPage: React.FC = () => {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="min-w-full ">
+              <table className="min-w-full bg-white">
                 <thead>
-                  <tr className="">
+                  <tr className="bg-gray-100">
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Nom d'utilisateur
                     </th>
@@ -168,7 +156,7 @@ export const AccountPage: React.FC = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y ">
+                <tbody className="divide-y divide-gray-200">
                   {currentRows.map((user) => (
                     <motion.tr
                       key={user.id}
@@ -185,8 +173,8 @@ export const AccountPage: React.FC = () => {
                         }
                       }}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
-                        {user.first_name}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {user.username}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {user.email}
@@ -197,14 +185,8 @@ export const AccountPage: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {user.wilaya}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            getTypeStyle(user.type).bg
-                          } ${getTypeStyle(user.type).text}`}
-                        >
-                          {TYPE_LABELS[user.type.toLowerCase()] || user.type}
-                        </span>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {TYPE_LABELS[user.type] || user.type}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -396,7 +378,7 @@ export const AccountPage: React.FC = () => {
             isOpen={isEditModalOpen}
             onClose={() => {
               setIsEditModalOpen(false);
-              setSelectedUser(selectedUser);
+              setSelectedUser(null);
             }}
             onSave={handleSaveUser}
           />

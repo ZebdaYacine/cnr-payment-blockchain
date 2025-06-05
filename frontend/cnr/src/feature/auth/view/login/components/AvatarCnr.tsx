@@ -22,7 +22,7 @@ function AvatarCnr() {
           </div>
         </div>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-zinc-500">
-          Te.Echeance
+          Traitement Echeance
         </h1>
       </div>
     </>

@@ -121,7 +121,7 @@ const ResponsiveDrawer: React.FC = () => {
               }`}
               onClick={() => navigate("/home/welcome")}
             >
-              TE.CNR
+              TE-CNR
             </div>
             <div className="flex-1 justify-end flex items-center">
               <KeyDownloadDropdown />
@@ -232,7 +232,7 @@ const ResponsiveDrawer: React.FC = () => {
                               }
                               className="block text-left w-full"
                             >
-                              {user.username} – {user.workAt} / {user.wilaya}
+                              {user.last_name} – {user.workAt} / {user.wilaya}
                             </button>
                           </li>
                         ))

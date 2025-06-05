@@ -59,17 +59,9 @@ export interface ProfileRepository {
     newPassword: string
   ): Promise<boolean | ErrorResponse>;
 
-  SendOTP(
-    token: string,
-    // permission: string,
-    email: string
-  ): Promise<boolean | ErrorResponse>;
+  SendOTP(token: string, email: string): Promise<boolean | ErrorResponse>;
 
-  ConfirmOTP(
-    token: string,
-    // permission: string,
-    otp: string
-  ): Promise<boolean | ErrorResponse>;
+  ConfirmOTP(token: string, otp: string): Promise<boolean | ErrorResponse>;
 
   VerifySignature(
     token: string,
@@ -78,17 +70,11 @@ export interface ProfileRepository {
     randomValue: string
   ): Promise<boolean | ErrorResponse>;
 
-  UpdateUserType(
+  UpdateUser(
     token: string,
     permission: string,
     userId: string,
-    newType: string
-  ): Promise<boolean | ErrorResponse>;
-
-  UpdateUserStatus(
-    token: string,
-    permission: string,
-    userId: string,
+    newType: string,
     status: boolean
   ): Promise<boolean | ErrorResponse>;
 }

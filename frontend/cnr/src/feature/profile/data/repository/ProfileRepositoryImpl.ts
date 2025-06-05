@@ -129,30 +129,18 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     );
   }
 
-  async UpdateUserType(
+  async UpdateUser(
     token: string,
     permission: string,
     userId: string,
-    newType: string
-  ): Promise<boolean | ErrorResponse> {
-    return await this.datasource.UpdateUserTypeApi(
-      token,
-      permission,
-      userId,
-      newType
-    );
-  }
-
-  async UpdateUserStatus(
-    token: string,
-    permission: string,
-    userId: string,
+    newType: string,
     status: boolean
   ): Promise<boolean | ErrorResponse> {
-    return await this.datasource.UpdateUserStatusApi(
+    return await this.datasource.UpdateUserApi(
       token,
       permission,
       userId,
+      newType,
       status
     );
   }

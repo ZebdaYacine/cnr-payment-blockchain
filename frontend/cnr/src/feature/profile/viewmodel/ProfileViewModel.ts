@@ -18,7 +18,7 @@ import { pic } from "./pic";
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const navigate = useNavigate();
   const { error, success } = useNotification();
-  const { setUsersList } = useListUsers();
+  const { setUsersList, setAllUsersList } = useListUsers();
   const { SetCurrentPhase } = usePhaseId();
   const { setOTPSent, setOTPConfirmed } = useOTP();
 
@@ -405,7 +405,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const resp = data as UsersResponse;
         const users = resp.data as User[];
         console.log(users);
-        setUsersList(users);
+        setAllUsersList(users);
       }
     },
     onError: (err) => {
@@ -421,24 +421,27 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
   });
 
   const {
-    mutate: updateUserType,
-    isPending: isUpdatingUserType,
-    isSuccess: isUserTypeUpdateSuccess,
-    isError: isUserTypeUpdateError,
+    mutate: updateUser,
+    isPending: isUpdatingUser,
+    isSuccess: isUserUpdateSuccess,
+    isError: isUserUpdateError,
   } = useMutation({
     mutationFn: async ({
       userId,
       newType,
+      status,
     }: {
       userId: string;
       newType: string;
+      status: boolean;
     }) => {
       const storedToken = GetAuthToken(navigate);
-      return profileUseCase.UpdateUserType(
+      return await profileUseCase.UpdateUser(
         storedToken,
-        userSaved.permission.toLowerCase(),
+        "admin",
         userId,
-        newType
+        newType,
+        status
       );
     },
     onSuccess: (data) => {
@@ -448,16 +451,11 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         typeof data.data === "boolean" &&
         data.data === true
       ) {
+        // Fetch updated list of users
         GetAllUsers({ permissions: userSaved.permission.toLowerCase() });
-        success(
-          "Le type d'utilisateur a été mis à jour avec succès.",
-          "colored"
-        );
+        success("L'utilisateur a été mis à jour avec succès.", "colored");
       } else {
-        error(
-          "Erreur lors de la mise à jour du type d'utilisateur.",
-          "colored"
-        );
+        error("Erreur lors de la mise à jour de l'utilisateur.", "colored");
       }
     },
     onError: (err) => {
@@ -466,7 +464,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
           ? err.message.includes("Error unknown: Unknown error")
             ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
             : err.message
-          : "Une erreur inconnue s'est produite lors de la mise à jour du type d'utilisateur.";
+          : "Une erreur inconnue s'est produite lors de la mise à jour de l'utilisateur.";
 
       error(errorMessage, "colored");
     },
@@ -526,9 +524,9 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isSignatureVerified,
     isSignatureVerificationError,
 
-    updateUserType,
-    isUpdatingUserType,
-    isUserTypeUpdateSuccess,
-    isUserTypeUpdateError,
+    updateUser,
+    isUpdatingUser,
+    isUserUpdateSuccess,
+    isUserUpdateError,
   };
 }

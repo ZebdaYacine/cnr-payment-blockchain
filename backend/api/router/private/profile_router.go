@@ -129,5 +129,5 @@ func NewUpdateUserTypeRouter(db database.Database, group *gin.RouterGroup) {
 	ic := &controller.ProfileController{
 		ProfileUsecase: uc,
 	}
-	group.POST("update-user-type", ic.UpdateUserTypeRequest)
+	group.POST("update-user", ic.UpdateUserRequest)
 }

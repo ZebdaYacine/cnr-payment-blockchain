@@ -131,17 +131,19 @@ export class PofileUseCase {
     );
   }
 
-  async UpdateUserType(
+  async UpdateUser(
     token: string,
     permission: string,
     userId: string,
-    newType: string
+    newType: string,
+    status: boolean
   ): Promise<boolean | ErrorResponse> {
-    return await this.repository.UpdateUserType(
+    return await this.repository.UpdateUser(
       token,
       permission,
       userId,
-      newType
+      newType,
+      status
     );
   }
 }

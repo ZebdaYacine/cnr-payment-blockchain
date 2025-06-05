@@ -43,21 +43,12 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
     e.preventDefault();
     setIsUpdating(true);
     try {
-      // If type has changed, update it first
-      if (editedUser.type !== user.type) {
-        await profileViewModel.updateUserType({
-          userId: user.id,
-          newType: editedUser.type,
-        });
-      }
-
-      // If status has changed, update it
-      if (editedUser.status !== user.status) {
-        await profileViewModel.updateUserType({
-          userId: user.id,
-          newType: editedUser.status,
-        });
-      }
+      // Update user type and status in a single call
+      await profileViewModel.updateUser({
+        userId: user.id,
+        newType: editedUser.type,
+        status: editedUser.status,
+      });
 
       // Update other user data
       const updatedUser = {

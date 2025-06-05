@@ -8,6 +8,7 @@ import { useFileViewModel } from "../../../../file/viewmodel/FileViewModel";
 import { useUser } from "../../../../../core/state/UserContext";
 // import { Data } from "../../../../file/data/dtos/FileDtos";
 import { useTypeTransaction } from "../../../../../core/state/TypeTransactionContext";
+import { Data } from "../../../../file/data/dtos/FileDtos";
 
 interface ListOfVersionProps {
   version: VersionData[];
@@ -83,8 +84,8 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
       HashFile: file.HashFile,
       Time: file.Time,
       Status: file.Status,
-      Version: Number(file.Version),
-      LastVersion: Number(file.LastVersion),
+      Version: file.Version,
+      LastVersion: file.LastVersion,
       reciverId: file.UserID,
       Organisation: file.Organisation,
       path: file.Path,
@@ -92,7 +93,7 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
     }));
 
     downloadFiles({
-      files: convertedFiles,
+      files: convertedFiles as Data[],
       permission: userPermission.toLowerCase(),
     });
   };
@@ -113,68 +114,117 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
   return (
     <>
       <div className="card bg-base-100 m-2 h-full">
-        <div className="card-body">
+        <div className="card-body p-4 sm:p-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h2 className="card-title text-lg sm:text-xl text-center sm:text-left">
-              List des Versions :{" "}
-              <span className="text-wrap">{versions[0]?.LastVersion}</span>
-            </h2>
-            <div className="flex space-x-4">
-              <>
-                {checkedFiles.length > 0 ? (
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      className="checkbox"
-                      onChange={(e) => handleSelectAll(e.target.checked)}
-                    />
-                    <span>Selectionner Tous</span>
-                  </label>
-                ) : (
-                  ""
-                )}
-                {targetType === "IN" && (
-                  <button
-                    className="btn btn-accent self-center sm:self-auto"
-                    onClick={
-                      checkedFiles.length > 0
-                        ? downloadVerions
-                        : displayVersionModal
-                    }
-                  >
-                    {checkedFiles.length > 0
-                      ? isDownloading
-                        ? `Téléchargement de ${checkedFiles.length} fichier${
-                            checkedFiles.length > 1 ? "s" : ""
-                          }...`
-                        : `Téléchargement ${checkedFiles.length} fichier${
-                            checkedFiles.length > 1 ? "s" : ""
-                          }`
-                      : "Ajouter une version"}
-                  </button>
-                )}
-              </>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <h2 className="card-title text-lg sm:text-xl text-center sm:text-left">
+                List des Versions :{" "}
+                <span className="text-wrap badge badge-primary">
+                  {versions[0]?.LastVersion}
+                </span>
+              </h2>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {checkedFiles.length > 0 && (
+                <label className="flex items-center gap-2 cursor-pointer hover:bg-base-200 p-2 rounded-lg transition-all duration-200">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-primary"
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                  />
+                  <span className="text-sm font-medium whitespace-nowrap">
+                    Selectionner Tous
+                  </span>
+                </label>
+              )}
+              {targetType === "IN" && (
+                <button
+                  className="btn btn-accent gap-2 w-full sm:w-auto"
+                  onClick={
+                    checkedFiles.length > 0
+                      ? downloadVerions
+                      : displayVersionModal
+                  }
+                >
+                  {checkedFiles.length > 0 ? (
+                    <>
+                      {isDownloading ? (
+                        <span className="loading loading-spinner loading-sm"></span>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
+                        </svg>
+                      )}
+                      <span className="whitespace-nowrap">
+                        {isDownloading
+                          ? `Téléchargement de ${checkedFiles.length} fichier${
+                              checkedFiles.length > 1 ? "s" : ""
+                            }...`
+                          : `Télécharger ${checkedFiles.length} fichier${
+                              checkedFiles.length > 1 ? "s" : ""
+                            }`}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      <span className="whitespace-nowrap">
+                        Ajouter une version
+                      </span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 
           {/* Table container with horizontal scroll on small screens */}
-          <div className="overflow-x-auto mt-4">
+          <div className="overflow-x-auto mt-4 rounded-lg border border-base-200">
             <table className="table table-zebra w-full text-sm">
-              <thead>
+              <thead className="bg-base-200/50">
                 <tr>
                   <th className="text-center"></th>
-                  <th className="text-center">ID</th>
+                  <th className="text-center hidden sm:table-cell">ID</th>
                   <th className="text-center">Fichier</th>
-                  <th className="text-center">Utilisateur</th>
+                  <th className="text-center hidden sm:table-cell">
+                    Utilisateur
+                  </th>
                   <th className="text-center">Temps</th>
                   <th className="text-center">Status</th>
-                  <th className="text-center">Version actuelle</th>
+                  <th className="text-center">Version</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedVersions.map((version) => (
-                  <tr key={version.ID} className="cursor-pointer hover">
+                  <tr
+                    key={version.ID}
+                    className="cursor-pointer hover:bg-base-200/50 transition-colors duration-200"
+                  >
                     <td className="text-center">
                       {version.Status === "Valid" ? (
                         <input
@@ -192,13 +242,17 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
                         ""
                       )}
                     </td>
-                    <td className="text-center">{version.ID}</td>
-                    <td className="text-center break-all">
+                    <td className="text-center hidden sm:table-cell font-mono text-xs">
+                      {version.ID}
+                    </td>
+                    <td className="text-center break-all hover:text-primary transition-colors duration-200">
                       {version.FileName}
                     </td>
-                    <td className="text-center">{version.UserID}</td>
+                    <td className="text-center hidden sm:table-cell">
+                      {version.UserID}
+                    </td>
                     <td className="text-center">
-                      <div className="badge  badge-primary ">
+                      <div className="badge badge-primary whitespace-nowrap">
                         {handleDateTime(new Date(version.Time))}
                       </div>
                     </td>
@@ -206,16 +260,16 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
                       <div
                         className={`badge ${
                           version.Status === "Valid"
-                            ? "badge-accent"
-                            : "badge-secondary"
+                            ? "bg-green-100 text-green-950"
+                            : "bg-red-100 text-red-950"
                         }`}
                       >
                         {version.Status}
                       </div>
                     </td>
                     <td className="text-center">
-                      <div className="badge badge-accent">
-                        <b>Version - {version.Version}</b>
+                      <div className="badge badge-primary">
+                        <b>V{version.Version}</b>
                       </div>
                     </td>
                   </tr>
@@ -228,7 +282,7 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
           <div className="flex justify-center mt-4">
             <div className="join">
               <button
-                className="join-item btn"
+                className="join-item btn btn-sm"
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
@@ -237,7 +291,7 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
               {Array.from({ length: totalPages }, (_, index) => (
                 <button
                   key={index}
-                  className={`join-item btn ${
+                  className={`join-item btn btn-sm ${
                     currentPage === index + 1 ? "btn-active" : ""
                   }`}
                   onClick={() => setCurrentPage(index + 1)}
@@ -246,7 +300,7 @@ function ListOfVersion({ version: versions }: ListOfVersionProps) {
                 </button>
               ))}
               <button
-                className="join-item btn"
+                className="join-item btn btn-sm"
                 onClick={() =>
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
