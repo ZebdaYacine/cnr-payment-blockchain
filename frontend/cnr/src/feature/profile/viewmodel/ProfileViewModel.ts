@@ -13,6 +13,7 @@ import { usePhaseId } from "../../../core/state/PhaseContext";
 import { GetAuthToken } from "../../../services/Http";
 import { useOTP } from "../../../core/state/OTPContext";
 import { useKeys } from "../../../core/state/KeyContext";
+import { pic } from "./pic";
 
 export function useProfileViewModel(profileUseCase: PofileUseCase) {
   const navigate = useNavigate();
@@ -40,6 +41,9 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
         const userData = resp.data as User;
         if (userData) {
           console.log("Profile fetched:", userData);
+          if (userData.avatar === "") {
+            userData.avatar = pic;
+          }
           SetUser(userData);
         }
       }
@@ -380,6 +384,94 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     },
   });
 
+  const {
+    mutate: GetAllUsers,
+    data: allusers,
+    isPending: isAllUsersLoading,
+    isSuccess: isAllUsersSuccss,
+    isError: isAllError,
+  } = useMutation({
+    mutationFn: async ({
+      permissions: permissions,
+    }: {
+      permissions: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return await profileUseCase.GetAllUsers(storedToken, permissions);
+    },
+
+    onSuccess: (data) => {
+      if (data && "data" in data) {
+        const resp = data as UsersResponse;
+        const users = resp.data as User[];
+        console.log(users);
+        setUsersList(users);
+      }
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Cannot connect to the server. Please check your internet or try again later."
+            : err.message
+          : "An unknown error occurred while fetching users.";
+
+      error(errorMessage, "colored");
+    },
+  });
+
+  const {
+    mutate: updateUserType,
+    isPending: isUpdatingUserType,
+    isSuccess: isUserTypeUpdateSuccess,
+    isError: isUserTypeUpdateError,
+  } = useMutation({
+    mutationFn: async ({
+      userId,
+      newType,
+    }: {
+      userId: string;
+      newType: string;
+    }) => {
+      const storedToken = GetAuthToken(navigate);
+      return profileUseCase.UpdateUserType(
+        storedToken,
+        userSaved.permission.toLowerCase(),
+        userId,
+        newType
+      );
+    },
+    onSuccess: (data) => {
+      if (
+        typeof data === "object" &&
+        "data" in data &&
+        typeof data.data === "boolean" &&
+        data.data === true
+      ) {
+        GetAllUsers({ permissions: userSaved.permission.toLowerCase() });
+        success(
+          "Le type d'utilisateur a été mis à jour avec succès.",
+          "colored"
+        );
+      } else {
+        error(
+          "Erreur lors de la mise à jour du type d'utilisateur.",
+          "colored"
+        );
+      }
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message.includes("Error unknown: Unknown error")
+            ? "Impossible de se connecter au serveur. Vérifiez votre connexion internet ou réessayez plus tard."
+            : err.message
+          : "Une erreur inconnue s'est produite lors de la mise à jour du type d'utilisateur.";
+
+      error(errorMessage, "colored");
+    },
+  });
+
   return {
     getProfile,
     isProfileLoading,
@@ -391,6 +483,12 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isUserLoading,
     isUsersSuccss,
     isError,
+
+    GetAllUsers,
+    allusers,
+    isAllUsersLoading,
+    isAllUsersSuccss,
+    isAllError,
 
     getCurrentPhase,
     currentPhase,
@@ -427,5 +525,10 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     isVerifyingSignature,
     isSignatureVerified,
     isSignatureVerificationError,
+
+    updateUserType,
+    isUpdatingUserType,
+    isUserTypeUpdateSuccess,
+    isUserTypeUpdateError,
   };
 }

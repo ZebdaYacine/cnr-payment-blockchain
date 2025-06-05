@@ -18,6 +18,11 @@ export interface ProfileDataSource {
     permission: string
   ): Promise<UsersResponse | ErrorResponse>;
 
+  GetAllUsersApi(
+    token: string,
+    permission: string
+  ): Promise<UsersResponse | ErrorResponse>;
+
   GetCurrentPhaseApi(
     token: string,
     permission: string
@@ -51,21 +56,25 @@ export interface ProfileDataSource {
     oldPassword: string,
     newPassword: string
   ): Promise<boolean | ErrorResponse>;
-  SendOTPApi(
-    token: string,
-    // permission: string,
-    email: string
-  ): Promise<boolean | ErrorResponse>;
-  ConfirmOTPApi(
-    token: string,
-    // permission: string,
-    otp: string
-  ): Promise<boolean | ErrorResponse>;
+  SendOTPApi(token: string, email: string): Promise<boolean | ErrorResponse>;
+  ConfirmOTPApi(token: string, otp: string): Promise<boolean | ErrorResponse>;
   VerifySignatureApi(
     token: string,
     permission: string,
     signature: string,
     randomValue: string
+  ): Promise<boolean | ErrorResponse>;
+  UpdateUserTypeApi(
+    token: string,
+    permission: string,
+    userId: string,
+    newType: string
+  ): Promise<boolean | ErrorResponse>;
+  UpdateUserStatusApi(
+    token: string,
+    permission: string,
+    userId: string,
+    status: boolean
   ): Promise<boolean | ErrorResponse>;
 }
 
@@ -117,6 +126,17 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
     return ApiService.makeRequest<ProfileResponse>(
       "get",
       `/${permission}/bring-users`,
+      token
+    );
+  }
+
+  async GetAllUsersApi(
+    token: string,
+    permission: string
+  ): Promise<ProfileResponse | ErrorResponse> {
+    return ApiService.makeRequest<ProfileResponse>(
+      "get",
+      `/${permission}/get-all-users`,
       token
     );
   }
@@ -190,7 +210,6 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
 
   async SendOTPApi(
     token: string,
-    // permission: string,
     email: string
   ): Promise<boolean | ErrorResponse> {
     try {
@@ -210,7 +229,6 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
 
   async ConfirmOTPApi(
     token: string,
-    // permission: string,
     otp: string
   ): Promise<boolean | ErrorResponse> {
     try {
@@ -240,6 +258,48 @@ export class ProfileDataSourceImpl implements ProfileDataSource {
         `/${permission}/verify-signature`,
         token,
         { signature, randomValue }
+      );
+      return response;
+    } catch (error) {
+      return {
+        message: error instanceof Error ? error.message : "Erreur inconnue",
+      };
+    }
+  }
+
+  async UpdateUserTypeApi(
+    token: string,
+    permission: string,
+    userId: string,
+    newType: string
+  ): Promise<boolean | ErrorResponse> {
+    try {
+      const response = await ApiService.makeRequest<boolean>(
+        "post",
+        `/${permission}/update-user-type`,
+        token,
+        { userId, newType }
+      );
+      return response;
+    } catch (error) {
+      return {
+        message: error instanceof Error ? error.message : "Erreur inconnue",
+      };
+    }
+  }
+
+  async UpdateUserStatusApi(
+    token: string,
+    permission: string,
+    userId: string,
+    status: boolean
+  ): Promise<boolean | ErrorResponse> {
+    try {
+      const response = await ApiService.makeRequest<boolean>(
+        "post",
+        `/${permission}/update-user-status`,
+        token,
+        { userId, status }
       );
       return response;
     } catch (error) {

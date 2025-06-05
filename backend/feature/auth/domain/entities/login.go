@@ -1,9 +1,12 @@
 package entities
 
 type Register struct {
-	Name     string `json:"name"`
+	FName    string `json:"f_name"`
+	LName    string `json:"l_name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Org      string `json:"org"`
+	Wilaya   string `json:"wilaya"`
 }
 
 type Login struct {

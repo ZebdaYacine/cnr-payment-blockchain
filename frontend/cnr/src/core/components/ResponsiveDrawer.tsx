@@ -121,7 +121,7 @@ const ResponsiveDrawer: React.FC = () => {
               }`}
               onClick={() => navigate("/home/welcome")}
             >
-              CNR-Paiement
+              TE.CNR
             </div>
             <div className="flex-1 justify-end flex items-center">
               <KeyDownloadDropdown />
@@ -181,12 +181,16 @@ const ResponsiveDrawer: React.FC = () => {
             <div className="divider" />
 
             <ul className="menu space-y-2 text-base font-medium">
-              <NavItem
-                icon={<MdDashboard />}
-                label="Dashboard"
-                path="/home/dashboard"
-                onClick={() => navigate("/home/dashboard")}
-              />
+              {userSaved.permission === "ADMIN" ? (
+                <NavItem
+                  icon={<MdDashboard />}
+                  label="Dashboard"
+                  path="/home/dashboard"
+                  onClick={() => navigateWithSignatureCheck("/home/dashboard")}
+                />
+              ) : (
+                ""
+              )}
               <NavItem
                 icon={<MdCalendarToday />}
                 label="Calendrier"
@@ -246,7 +250,7 @@ const ResponsiveDrawer: React.FC = () => {
                   <ul className="pl-8 mt-2 space-y-2">
                     <li>
                       <button
-                        onClick={() => navigateWithSignatureCheck("/home/ccr")}
+                        onClick={() => navigate("/home/ccr")}
                         className="block text-left w-full"
                       >
                         CCR
@@ -254,9 +258,7 @@ const ResponsiveDrawer: React.FC = () => {
                     </li>
                     <li>
                       <button
-                        onClick={() =>
-                          navigateWithSignatureCheck("/home/agence")
-                        }
+                        onClick={() => navigate("/home/agence")}
                         className="block text-left w-full"
                       >
                         Agences
@@ -264,10 +266,10 @@ const ResponsiveDrawer: React.FC = () => {
                     </li>
                     <li>
                       <button
-                        onClick={() => navigateWithSignatureCheck("/home/post")}
+                        onClick={() => navigate("/home/accounts")}
                         className="block text-left w-full"
                       >
-                        POSTS
+                        Comptes
                       </button>
                     </li>
                   </ul>

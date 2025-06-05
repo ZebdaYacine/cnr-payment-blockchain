@@ -113,3 +113,21 @@ func NewVerifyDigitalSignatureRouter(db database.Database, group *gin.RouterGrou
 	}
 	group.POST("verify-signature", ic.VerifyDigitalSignature)
 }
+
+func NewGetAllUsersRouter(db database.Database, group *gin.RouterGroup) {
+	ir := profilerepo.NewProfileRepository(db)
+	uc := profileusecase.NewProfileUsecase(ir, "")
+	ic := &controller.ProfileController{
+		ProfileUsecase: uc,
+	}
+	group.GET("get-all-users", ic.GetAllUsersRequest)
+}
+
+func NewUpdateUserTypeRouter(db database.Database, group *gin.RouterGroup) {
+	ir := profilerepo.NewProfileRepository(db)
+	uc := profileusecase.NewProfileUsecase(ir, "")
+	ic := &controller.ProfileController{
+		ProfileUsecase: uc,
+	}
+	group.POST("update-user-type", ic.UpdateUserTypeRequest)
+}

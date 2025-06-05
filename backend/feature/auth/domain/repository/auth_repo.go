@@ -51,26 +51,99 @@ func getUser(filter any, collection database.Collection, c context.Context) (*fe
 		Password:     result["password"].(string),
 		WorkAt:       result["workAt"].(string),
 		IdInstituion: result["idInstituion"].(string),
+		Status:       result["status"].(bool),
 	}
 	return &user, nil
 }
 
 func (s *authRepository) CreateAccount(c context.Context, user *feature.User) (*feature.User, error) {
 	collection := s.database.Collection("user")
+	if user.WorkAt == "DOF" {
+		user.Type = "FINC"
+		user.Phases = []feature.Phase{
+			{
+				ID:       "e96113fba10b4ab59f679362",
+				IsSender: true,
+			},
+		}
+	} else if user.WorkAt == "POST" {
+		user.Type = "RESP-SFTP"
+		user.Phases = []feature.Phase{
+			{
+				ID:       "46d38e448fbd4cc994d0bd3f",
+				IsSender: true,
+			},
+			{
+				ID:       "c3fde388e0754c9c9e23469e",
+				IsSender: true,
+			},
+		}
+	} else {
+		user.Type = "IT"
+		if user.WorkAt == "AGENCE" {
+			user.Phases = []feature.Phase{
+				{
+					ID:       "f1ea74d0a4e841d18762576d",
+					IsSender: true,
+				},
+				{
+					ID:       "e96113fba10b4ab59f679362",
+					IsSender: true,
+				},
+				{
+					ID:       "804524c661c1418ba5763302",
+					IsSender: true,
+				},
+			}
+		} else if user.WorkAt == "CCR" {
+			user.Phases = []feature.Phase{
+				{
+					ID:       "c3fde388e0754c9c9e23469e",
+					IsSender: true,
+				},
+				{
+					ID:       "f1ea74d0a4e841d18762576d",
+					IsSender: true,
+				},
+				{
+					ID:       "804524c661c1418ba5763302",
+					IsSender: true,
+				},
+			}
+		} else if user.WorkAt == "DIO" {
+			user.Phases = []feature.Phase{
+				{
+					ID:       "e96113fba10b4ab59f679362",
+					IsSender: true,
+				},
+				{
+					ID:       "65025b23688d49bdbff484e3",
+					IsSender: true,
+				},
+				{
+					ID:       "fe401baeb6a44006995441f7",
+					IsSender: true,
+				},
+			}
+		} else {
+			return nil, fmt.Errorf("travail inconnu")
+		}
+	}
+
 	result, err := collection.InsertOne(c, &user)
 	if err != nil {
 		log.Printf("Échec de la création de l'utilisateur : %v", err)
 		return nil, fmt.Errorf("échec de la création du compte utilisateur")
 	}
+	user.Permission = "USER"
 
-	insertedID, ok := result.(primitive.ObjectID)
-	if !ok {
-		return nil, fmt.Errorf("erreur lors de la conversion de l'identifiant utilisateur")
+	user.Id = result.(string)
+	log.Println(user)
+	objectID, err := primitive.ObjectIDFromHex(user.Id)
+	if err != nil {
+		return nil, fmt.Errorf("identifiant utilisateur invalide : %v", err)
 	}
-
-	user.Id = insertedID.Hex()
-
-	filterUpdate := bson.D{{Key: "_id", Value: insertedID}}
+	filterUpdate := bson.D{{Key: "_id", Value: objectID}}
 	update := bson.M{"$set": user}
 
 	_, err = collection.UpdateOne(c, filterUpdate, update)

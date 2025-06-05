@@ -38,6 +38,8 @@ type ProfileRepository interface {
 	AddPK(userId string, pk string) error
 	UpdateFirstLastName(userId string, firstName string, lastName string, avatar string) error
 	UpdatePassword(userId string, oldPassword string, newPassword string) error
+	GetAllUsers(c context.Context) ([]feature.User, error)
+	UpdateUserType(userId string, newType string) error
 }
 
 func NewProfileRepository(db database.Database) ProfileRepository {
@@ -316,6 +318,90 @@ func (r *profileRepository) UpdatePassword(userId string, oldPassword string, ne
 	result, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return fmt.Errorf("failed to update password: %w", err)
+	}
+
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
+}
+
+func (r *profileRepository) GetAllUsers(c context.Context) ([]feature.User, error) {
+	collection := r.database.Collection(database.USER.String())
+
+	cursor, err := collection.Find(c, bson.M{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch users: %w", err)
+	}
+	defer cursor.Close(c)
+
+	var users []feature.User
+	for cursor.Next(c) {
+		var result bson.M
+		if err := cursor.Decode(&result); err != nil {
+			return nil, fmt.Errorf("failed to decode user: %w", err)
+		}
+
+		var phases []feature.Phase
+		if rawPhases, ok := result["phases"].(primitive.A); ok {
+			for _, p := range rawPhases {
+				if phaseMap, ok := p.(bson.M); ok {
+					phases = append(phases, feature.Phase{
+						ID:       phaseMap["id"].(string),
+						IsSender: phaseMap["is_sender"].(bool),
+					})
+				}
+			}
+		}
+
+		user := feature.User{
+			// ID:           result["_id"].(primitive.ObjectID),
+			Id: result["_id"].(primitive.ObjectID).Hex(),
+			// Permission:   result["permission"].(string),
+			Email: result["email"].(string),
+			// UserName:     result["username"].(string),
+			WorkAt: result["workAt"].(string),
+			// IdInstituion: result["idInstituion"].(string),
+			Type:   result["type"].(string),
+			Wilaya: result["wilaya"].(string),
+			Phases: phases,
+			// PublicKey:    result["publicKey"].(string),
+			// CreateAt:     result["createAt"].(primitive.DateTime).Time(),
+			LastName:  result["last_name"].(string),
+			FirstName: result["first_name"].(string),
+			// Avatar:       avatar,
+			Status: result["status"].(bool),
+		}
+		users = append(users, user)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, fmt.Errorf("cursor error: %w", err)
+	}
+
+	return users, nil
+}
+
+func (r *profileRepository) UpdateUserType(userId string, newType string) error {
+	id, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return fmt.Errorf("invalid user ID: %w", err)
+	}
+
+	filter := bson.D{{Key: "_id", Value: id}}
+
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "type", Value: newType},
+		}},
+	}
+
+	collection := r.database.Collection(database.USER.String())
+
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to update user type: %w", err)
 	}
 
 	if result.MatchedCount == 0 {

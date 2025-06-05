@@ -29,6 +29,7 @@ type User struct {
 	LastName     string             `json:"last_name" bson:"last_name"`
 	FirstName    string             `json:"first_name" bson:"first_name"`
 	Avatar       string             `json:"avatar" bson:"avatar"`
+	Status       bool               `json:"status" bson:"status"`
 }
 
 type Phase struct {

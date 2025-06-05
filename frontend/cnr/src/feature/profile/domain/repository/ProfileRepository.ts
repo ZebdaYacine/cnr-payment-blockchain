@@ -18,6 +18,11 @@ export interface ProfileRepository {
     permission: string
   ): Promise<UsersResponse | ErrorResponse>;
 
+  GetAllUsers(
+    token: string,
+    permission: string
+  ): Promise<UsersResponse | ErrorResponse>;
+
   GetInstituations(
     token: string,
     permission: string
@@ -71,5 +76,19 @@ export interface ProfileRepository {
     permission: string,
     signature: string,
     randomValue: string
+  ): Promise<boolean | ErrorResponse>;
+
+  UpdateUserType(
+    token: string,
+    permission: string,
+    userId: string,
+    newType: string
+  ): Promise<boolean | ErrorResponse>;
+
+  UpdateUserStatus(
+    token: string,
+    permission: string,
+    userId: string,
+    status: boolean
   ): Promise<boolean | ErrorResponse>;
 }

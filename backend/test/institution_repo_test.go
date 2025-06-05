@@ -26,7 +26,7 @@ func TestPeersRepository(t *testing.T) {
 			t.Fatalf("Failed to get  WorkerErrorRateResponse: %v", err)
 		}
 		for _, user := range r {
-			log.Println(user.ID, user.Email, user.WorkAt)
+			log.Println(user.Id, user.Email, user.WorkAt)
 		}
 	})
 }

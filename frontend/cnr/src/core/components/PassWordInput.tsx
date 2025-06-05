@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
-import { FaKey } from "react-icons/fa6";
+import { FaKey, FaEye, FaEyeSlash } from "react-icons/fa6";
+import { useNavigate } from "react-router";
 
 interface PasswordInputProps {
   hidden?: boolean;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  validate?: boolean; // <-- Pour activer la validation depuis le parent
+  validate?: boolean;
   value: string;
+  label?: string;
+  placeholder?: string;
+  showForgotPassword?: boolean;
 }
 
 function PasswordInput({
@@ -13,6 +17,9 @@ function PasswordInput({
   onChange,
   validate = false,
   value,
+  label = "Mot de passe",
+  placeholder = "Mot de passe",
+  showForgotPassword = false,
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -22,6 +29,7 @@ function PasswordInput({
       setHasError(value.trim().length === 0);
     }
   }, [validate, value]);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -37,36 +45,34 @@ function PasswordInput({
             value={value}
             type={showPassword ? "text" : "password"}
             className="grow p-2 focus:outline-none text-sm md:text-base"
-            placeholder="Mot de passe"
+            placeholder={placeholder}
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className=" hover:text-gray-600 transition-colors"
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
         </label>
         {hasError && (
-          <span className="text-error text-sm mt-1">
-            Le mot de passe est requis.
-          </span>
+          <span className="text-error text-sm mt-1">{label} est requis.</span>
         )}
       </div>
 
-      <div className="flex flex-row justify-between items-start items-center mt-2 gap-1 text-sm md:text-base">
-        <label className="label cursor-pointer flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={showPassword}
-            onChange={() => setShowPassword(!showPassword)}
-            className="checkbox checkbox-primary"
-          />
-          <span className="md:text-xl label-text">
-            Afficher le mot de passe
-          </span>
-        </label>
-
-        {!hidden && (
-          <a
-            href="#"
-            className="md:text-xl text-blue-500 hover:text-blue-700 underline"
+      <div className="flex flex-row justify-end items-start items-center mt-2 gap-1 text-sm md:text-base">
+        {showForgotPassword && !hidden && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate("/forgot-password");
+            }}
+            className="text-blue-600 hover:text-blue-700 cursor-pointer"
           >
             Mot de passe oublié ?
-          </a>
+          </button>
         )}
       </div>
     </>

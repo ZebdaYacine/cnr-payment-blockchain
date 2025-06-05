@@ -29,6 +29,13 @@ export class PofileUseCase {
     return await this.repository.GetUsers(token, permission);
   }
 
+  async GetAllUsers(
+    token: string,
+    permission: string
+  ): Promise<UsersResponse | ErrorResponse> {
+    return await this.repository.GetAllUsers(token, permission);
+  }
+
   async GetInstitutions(
     token: string,
     permission: string
@@ -121,6 +128,20 @@ export class PofileUseCase {
       permission,
       signature,
       randomValue
+    );
+  }
+
+  async UpdateUserType(
+    token: string,
+    permission: string,
+    userId: string,
+    newType: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.repository.UpdateUserType(
+      token,
+      permission,
+      userId,
+      newType
     );
   }
 }

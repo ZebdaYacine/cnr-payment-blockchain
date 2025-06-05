@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"log"
 	"scps-backend/feature"
 	"scps-backend/feature/auth/domain/entities"
 	"scps-backend/feature/auth/domain/repository"
@@ -78,6 +79,11 @@ func (u *authUsecase) Login(c context.Context, data *AuthParams) *AuthResult {
 	loginResult, err := u.repo.Login(c, data.Data.(*entities.Login))
 	if err != nil {
 		return &AuthResult{Err: err}
+	}
+	log.Println("Login result:", loginResult.Status)
+	if !loginResult.Status {
+		return &AuthResult{Err: fmt.Errorf("compte pas encore activé par l'administrateur")}
+
 	}
 	return &AuthResult{Data: loginResult}
 }

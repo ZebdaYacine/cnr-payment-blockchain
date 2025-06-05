@@ -15,7 +15,7 @@ func NewCreateAccountRouter(db database.Database, group *gin.RouterGroup) {
 	ir := repository.NewAuthRepository(db)
 	uc := usecase.NewAuthUsecase(ir, core.USER)
 	ic := &controller.AuthController{
-		AuthUsecase: uc, // usecase for insured operations
+		AuthUsecase: uc, 
 	}
 	group.POST("create-account", ic.CreateAccountRequest)
 }

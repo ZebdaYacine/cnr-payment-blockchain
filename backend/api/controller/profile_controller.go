@@ -32,6 +32,11 @@ type UpdatePasswordRequest struct {
 	NewPassword string `json:"newPassword" binding:"required"`
 }
 
+type UpdateUserTypeRequest struct {
+	UserId  string `json:"userId" binding:"required"`
+	NewType string `json:"newType" binding:"required"`
+}
+
 type VerifyDigitalSignatureRequest struct {
 	Signature   string `json:"signature" binding:"required"`
 	RandomValue string `json:"randomValue" binding:"required"`
@@ -219,4 +224,46 @@ func (ic *ProfileController) VerifyDigitalSignature(c *gin.Context) {
 		Data:    isValid,
 	})
 
+}
+
+func (ic *ProfileController) GetAllUsersRequest(c *gin.Context) {
+	log.Println("************************ GET ALL USERS REQUEST ************************")
+
+	result := ic.ProfileUsecase.GetAllUsers(c)
+	if err := result.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "GET ALL USERS SUCCESSFULLY",
+		Data:    result.Data,
+	})
+}
+
+func (ic *ProfileController) UpdateUserTypeRequest(c *gin.Context) {
+	log.Println("************************ UPDATE USER TYPE REQUEST ************************")
+
+	var req UpdateUserTypeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: "Invalid request body",
+		})
+		return
+	}
+
+	result := ic.ProfileUsecase.UpdateUserType(c, req.UserId, req.NewType)
+	if err := result.Err; err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse{
+		Message: "User type updated successfully",
+		Data:    result.Data,
+	})
 }

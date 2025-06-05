@@ -87,8 +87,13 @@ func (ic *AuthController) CreateAccountRequest(c *gin.Context) {
 	}
 	log.Println(registerParms)
 	u := &feature.User{
-		Email:    registerParms.Email,
-		Password: registerParms.Password,
+		Email:     registerParms.Email,
+		Password:  registerParms.Password,
+		FirstName: registerParms.FName,
+		LastName:  registerParms.LName,
+		Wilaya:    registerParms.Wilaya,
+		WorkAt:    registerParms.Org,
+		Status:    false,
 	}
 	authParams := &usecase.AuthParams{}
 	authParams.Data = u
@@ -100,17 +105,32 @@ func (ic *AuthController) CreateAccountRequest(c *gin.Context) {
 		return
 	}
 	u = resulat.Data.(*feature.User)
-	var htmlMsg html.HtlmlMsg
-	body := html.HtmlMessage(htmlMsg)
-	err := email.SendEmail(u.Email, "Account Confirmation", body)
-	if err != nil {
-		log.Panicf(err.Error())
-		c.JSON(500, model.ErrorResponse{Message: "Can't send confirmation code"})
-		return
-	}
+
+	// Generate token for the new user
+	// secret := core.RootServer.SECRET_KEY
+	// token, err := util.CreateAccessToken(u.Id, secret, 2, u.Permission)
+	// if err != nil {
+	// 	c.JSON(500, model.ErrorResponse{Message: err.Error()})
+	// 	return
+	// }
+
+	// Send confirmation email
+	// var htmlMsg html.HtlmlMsg
+	// body := html.HtmlMessage(htmlMsg)
+	// err = email.SendEmail(u.Email, "Account Confirmation", body)
+	// if err != nil {
+	// 	log.Panicf(err.Error())
+	// 	c.JSON(500, model.ErrorResponse{Message: "Can't send confirmation code"})
+	// 	return
+	// }
+
 	c.JSON(http.StatusOK, model.SuccessResponse{
-		Message: "CCREATE PROFILE SUCCESSFULY",
-		Data:    u,
+		Message: "ACCOUNT CREATED SUCCESSFULLY - PENDING ACTIVATION",
+		Data:    "OK",
+		// model.LoginResponse{
+		// 	Token:    token,
+		// 	UserData: u,
+		// },
 	})
 }
 

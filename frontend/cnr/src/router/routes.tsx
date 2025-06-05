@@ -1,13 +1,13 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../core/state/AuthContext";
 import LoginPage from "../feature/auth/view/login/pages/Login";
+import RegisterPage from "../feature/auth/view/register/pages/Register";
 import ProfilePage from "../feature/profile/view/pages/Profile";
 import ErrorPage from "../feature/profile/view/pages/error_page";
 import SchedulerPage from "../feature/profile/view/pages/items/SchedulerPage";
 import FilesPage from "../feature/file/view/home/pages/Files";
 import VersionPage from "../feature/version/view/home/pages/VersionPage";
 import DashboardPage from "../feature/dashboard/view/page/DashboardPage";
-import NotYet from "../core/components/NotYet";
 import ReglementationPage from "../feature/profile/view/pages/peers/ReglementationPage";
 import PeerPage from "../feature/profile/view/pages/peers/PeerPage";
 import ProfileUpdatePage from "../feature/profile/view/pages/editProfile/ProfileUpdatePage";
@@ -18,6 +18,11 @@ import OtpInput from "../core/components/OtpInput";
 import NotFound from "../core/components/NotFound";
 import { useOTP } from "../core/state/OTPContext";
 import GoBack from "./GoBack";
+import { ForgetPwdPage } from "../feature/auth/view/forgetPwd/ForgetPwdPage";
+import { CCRPage } from "../feature/profile/view/pages/organisatons/CcrPage";
+import { AccountPage } from "../feature/profile/view/pages/organisatons/AccountPage";
+import { AgencePage } from "../feature/profile/view/pages/organisatons/AgencePage";
+import AccountActivation from "../feature/auth/view/register/pages/AccountActivation";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -29,6 +34,27 @@ function AppRouter() {
         path="/"
         element={
           isAuthentificated ? <Navigate to="/home" replace /> : <LoginPage />
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          isAuthentificated ? (
+            <Navigate to="/home/welcome" replace />
+          ) : (
+            <RegisterPage />
+          )
+        }
+      />
+      <Route path="/account-activation" element={<AccountActivation />} />
+      <Route
+        path="/forgot-password"
+        element={
+          isAuthentificated ? (
+            <Navigate to="/home/welcome" replace />
+          ) : (
+            <ForgetPwdPage />
+          )
         }
       />
       <Route path="*" element={<NotFound />} />
@@ -79,15 +105,15 @@ function AppRouter() {
         />
         <Route
           path="ccr"
-          element={isAuthentificated ? <NotYet /> : <LoginPage />}
+          element={isAuthentificated ? <CCRPage /> : <LoginPage />}
         />
         <Route
           path="agence"
-          element={isAuthentificated ? <NotYet /> : <LoginPage />}
+          element={isAuthentificated ? <AgencePage /> : <LoginPage />}
         />
         <Route
-          path="post"
-          element={isAuthentificated ? <NotYet /> : <LoginPage />}
+          path="accounts"
+          element={isAuthentificated ? <AccountPage /> : <LoginPage />}
         />
         <Route
           path="peer/:userId"

@@ -3,21 +3,34 @@ export interface LoginRequest {
   password: string;
 }
 
-interface UserData {
+export interface UserData {
+  ID: string;
   id: string;
-  username: string;
   email: string;
-  permission: string;
-  WorkAt: string;
+  password: string;
+  username: string;
   idInstituion: string;
-}
-
-export interface Data {
-  token: string;
-  userdata: UserData | null;
+  workAt: string;
+  type: string;
+  permission: string;
+  wilaya: string;
+  phases: unknown;
+  publicKey: string;
+  createAt: string;
+  last_name: string;
+  first_name: string;
+  avatar: string;
+  status: boolean;
 }
 
 export interface LoginResponse {
   message: string;
-  data: Data;
+  data: {
+    token: string;
+    userdata: UserData;
+  };
+}
+
+export interface ErrorResponse {
+  message: string;
 }

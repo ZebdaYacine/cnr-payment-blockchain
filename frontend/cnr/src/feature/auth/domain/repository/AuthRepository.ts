@@ -1,9 +1,8 @@
-import { LoginResponse } from "../../../../services/model/auth";
-import { ErrorResponse } from "../../../../services/model/commun";
+import { LoginResponse, ErrorResponse } from "../../../../services/model/auth";
 
 export interface AuthRepository {
   Login(
-    email: string,
+    username: string,
     password: string
   ): Promise<LoginResponse | ErrorResponse>;
   Register(
@@ -14,6 +13,5 @@ export interface AuthRepository {
     org: string,
     wilaya: string
   ): Promise<LoginResponse | ErrorResponse>;
-
   ForgetPassword(email: string): Promise<LoginResponse | ErrorResponse>;
 }

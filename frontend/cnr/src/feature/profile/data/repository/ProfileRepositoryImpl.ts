@@ -47,6 +47,13 @@ export class ProfileRepositoryImpl implements ProfileRepository {
     return await this.datasource.GetUsersApi(token, permission);
   }
 
+  async GetAllUsers(
+    token: string,
+    permission: string
+  ): Promise<UsersResponse | ErrorResponse> {
+    return await this.datasource.GetAllUsersApi(token, permission);
+  }
+
   async GetCurrentPhase(
     token: string,
     permission: string
@@ -119,6 +126,34 @@ export class ProfileRepositoryImpl implements ProfileRepository {
       permission,
       signature,
       randomValue
+    );
+  }
+
+  async UpdateUserType(
+    token: string,
+    permission: string,
+    userId: string,
+    newType: string
+  ): Promise<boolean | ErrorResponse> {
+    return await this.datasource.UpdateUserTypeApi(
+      token,
+      permission,
+      userId,
+      newType
+    );
+  }
+
+  async UpdateUserStatus(
+    token: string,
+    permission: string,
+    userId: string,
+    status: boolean
+  ): Promise<boolean | ErrorResponse> {
+    return await this.datasource.UpdateUserStatusApi(
+      token,
+      permission,
+      userId,
+      status
     );
   }
 }
