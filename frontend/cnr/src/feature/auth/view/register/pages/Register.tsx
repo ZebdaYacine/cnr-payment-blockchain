@@ -10,8 +10,6 @@ import { AuthUseCase } from "../../../domain/UseCases/AuthUseCase";
 import { useAuthViewModel } from "../../../viewmodel/AuthViewModel";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
-import { useAuth } from "../../../../../core/state/AuthContext";
-import { useUser } from "../../../../../core/state/UserContext";
 
 const allWilayas = [
   "Adrar",
@@ -97,13 +95,12 @@ const institutionTypes = [
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { isAuthentificated } = useAuth();
 
   const UseCase = useMemo(() => {
     return new AuthUseCase(new AuthRepositoryImpl(new AuthDataSourceImpl()));
   }, []);
 
-  const { register, isPending, isSuccess, isError } = useAuthViewModel(UseCase);
+  const { register, isPending } = useAuthViewModel(UseCase);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -114,7 +111,6 @@ function RegisterPage() {
   const ref = useRef<LoadingBarRef>(null);
   const [fname, setFname] = useState<string>("");
   const [lname, setLname] = useState<string>("");
-  const { userSaved } = useUser();
 
   useEffect(() => {
     if (isPending) {
@@ -122,15 +118,7 @@ function RegisterPage() {
     } else {
       ref.current?.complete();
     }
-
-    if (isSuccess && isAuthentificated) {
-      if (userSaved.status) {
-        navigate("/home/welcome");
-      } else {
-        navigate("/account-activation");
-      }
-    }
-  }, [isPending, isSuccess, isError, isAuthentificated]);
+  }, [isPending]);
 
   const validatePasswords = () => {
     if (password !== confirmPassword) {
