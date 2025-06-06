@@ -266,13 +266,9 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 <AnimatePresence>
-                  {paginatedFiles.map((file, index) => (
-                    <motion.tr
+                  {paginatedFiles.map((file) => (
+                    <tr
                       key={file.ID}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
                       className="hover:bg-gray-50/80 backdrop-blur-sm transition-all duration-200 cursor-pointer group"
                       onDoubleClick={() =>
                         handleRowClick(
@@ -338,7 +334,7 @@ function ListOfFiles({ files: files }: ListOfFilesProps) {
                           {file.LastVersion - 1} autres versions
                         </span>
                       </td>
-                    </motion.tr>
+                    </tr>
                   ))}
                 </AnimatePresence>
               </tbody>

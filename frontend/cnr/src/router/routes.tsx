@@ -22,7 +22,7 @@ import { ForgetPwdPage } from "../feature/auth/view/forgetPwd/ForgetPwdPage";
 import { CCRPage } from "../feature/profile/view/pages/organisatons/CcrPage";
 import { AccountPage } from "../feature/profile/view/pages/organisatons/AccountPage";
 import { AgencePage } from "../feature/profile/view/pages/organisatons/AgencePage";
-import AccountActivation from "../feature/auth/view/register/pages/AccountActivation";
+// import AccountActivation from "../feature/auth/view/register/pages/AccountActivation";
 
 function AppRouter() {
   const { isAuthentificated } = useAuth();
@@ -46,7 +46,7 @@ function AppRouter() {
           )
         }
       />
-      <Route path="/account-activation" element={<AccountActivation />} />
+      {/* <Route path="/account-activation" element={<AccountActivation />} /> */}
       <Route
         path="/forgot-password"
         element={

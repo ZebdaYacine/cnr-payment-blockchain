@@ -14,15 +14,16 @@ export default function Users({ workersErrorRateData }: UsersProps) {
     1,
     Math.ceil((workersErrorRateData?.length || 0) / USERS_PER_PAGE)
   );
+
   const paginated = useMemo(() => {
     if (!workersErrorRateData) return [];
     return workersErrorRateData.slice(
-    (page - 1) * USERS_PER_PAGE,
-    page * USERS_PER_PAGE
-  );
+      (page - 1) * USERS_PER_PAGE,
+      page * USERS_PER_PAGE
+    );
   }, [workersErrorRateData, page]);
 
-  if (!workersErrorRateData) {
+  if (!workersErrorRateData || workersErrorRateData.length === 0) {
     return (
       <div className="card shadow-lg">
         <div className="card-body">
@@ -74,14 +75,14 @@ export default function Users({ workersErrorRateData }: UsersProps) {
             </thead>
             <tbody>
               {paginated.length === 0 ? (
-                <tr>
+                <tr key="no-data">
                   <td colSpan={6} className="text-center">
                     Aucun utilisateur trouvé.
                   </td>
                 </tr>
               ) : (
-                paginated.map((user) => (
-                  <tr key={user.user_id}>
+                paginated.map((user, index) => (
+                  <tr key={`${user.user_id}-${index}`}>
                     <td>{user.first_name}</td>
                     <td>{user.last_name}</td>
                     <td>{user.work_at}</td>
@@ -93,8 +94,8 @@ export default function Users({ workersErrorRateData }: UsersProps) {
                       ) : (
                         <span className="badge badge-error">Non</span>
                       )}
-                      </td>
-                    </tr>
+                    </td>
+                  </tr>
                 ))
               )}
             </tbody>

@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Types
 type InstitutionDetail = {
   nom: string;
   fichiers: number;
@@ -29,6 +30,26 @@ interface CarteLoadingFilesProps {
   defaultInstitution?: string;
 }
 
+// Utility: convert English month to French
+const translateMonth = (month: string): string => {
+  const mapping: Record<string, string> = {
+    January: "Janvier",
+    February: "Février",
+    March: "Mars",
+    April: "Avril",
+    May: "Mai",
+    June: "Juin",
+    July: "Juillet",
+    August: "Août",
+    September: "Septembre",
+    October: "Octobre",
+    November: "Novembre",
+    December: "Décembre",
+  };
+  return mapping[month] || month;
+};
+
+// Helper: get number of days in a month
 const getDaysInMonth = (month: string): number => {
   const monthIndex = [
     "Janvier",
@@ -44,14 +65,45 @@ const getDaysInMonth = (month: string): number => {
     "Novembre",
     "Décembre",
   ].indexOf(month);
-
   const year = 2025;
-  return new Date(year, monthIndex + 1, 0).getDate(); // gets last day of the month
+  return new Date(year, monthIndex + 1, 0).getDate();
 };
 
+// Raw JSON data (your original format)
+const rawData = [
+  {
+    file: 11,
+    version: 4,
+    day: "05",
+    month: "June",
+    year: "2025",
+    institutions: [
+      {
+        name: "DIO - Alger",
+        file: 11,
+        version: 4,
+      },
+    ],
+  },
+];
+
+// Convert raw data to correct DataPoint[]
+const transformedData: DataPoint[] = rawData.map((d) => ({
+  jour: d.day,
+  mois: translateMonth(d.month), // "June" → "Juin"
+  fichiers: d.file,
+  versions: d.version,
+  institution: d.institutions.map((inst) => ({
+    nom: inst.name,
+    fichiers: inst.file,
+    versions: inst.version,
+  })),
+}));
+
+// Main Chart Component
 export default function CarteChargementFichiers({
-  data,
-  defaultMois = "Mai",
+  data = transformedData,
+  defaultMois = "Juin",
   defaultInstitution = "Toutes",
 }: CarteLoadingFilesProps) {
   const [mois, setMois] = useState(defaultMois);
@@ -68,14 +120,12 @@ export default function CarteChargementFichiers({
   const chartData = useMemo(() => {
     const daysInMonth = getDaysInMonth(mois);
 
-    // Create base data for all days
     const baseData = Array.from({ length: daysInMonth }, (_, i) => ({
-      jour: (i + 1).toString(),
+      jour: (i + 1).toString().padStart(2, "0"),
       fichiers: 0,
       versions: 0,
     }));
 
-    // Create a map of actual data
     const filteredData = data
       .filter((entry) => entry.mois === mois)
       .reduce<Record<string, { fichiers: number; versions: number }>>(
@@ -109,16 +159,14 @@ export default function CarteChargementFichiers({
     const maxValue = Math.max(
       ...chartData.map((d) => Math.max(d.fichiers, d.versions))
     );
-    return Math.ceil(maxValue / 5) * 5;
+    return Math.ceil((maxValue || 5) / 5) * 5;
   }, [chartData]);
 
   return (
     <div className="card bg-base-500 shadow-xl">
       <div className="card-body">
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-          <div>
-            <h2 className="text-lg font-bold">Chargement de fichiers</h2>
-          </div>
+          <h2 className="text-lg font-bold">Chargement de fichiers</h2>
           <div className="flex gap-2 flex-wrap">
             <select
               className="select select-bordered select-sm"
@@ -166,11 +214,8 @@ export default function CarteChargementFichiers({
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                domain={[1, yMax]}
-                ticks={Array.from(
-                  { length: yMax === 0 ? 5 : yMax / 5 + 1 },
-                  (_, i) => i * 5
-                )}
+                domain={[0, yMax]}
+                ticks={Array.from({ length: yMax / 5 + 1 }, (_, i) => i * 5)}
               />
               <Tooltip
                 contentStyle={{ borderRadius: "0.5rem", fontSize: "14px" }}

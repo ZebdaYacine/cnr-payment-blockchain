@@ -69,7 +69,7 @@ function FolderTable({ listOfFolders, onRowClick }: FolderTableProps) {
               <td className="text-left p-4">
                 <div className="flex items-center gap-3">
                   <FaFolder className="text-xl" />
-                  <span className="font-medium text-lg">{folder.name}</span>
+                  <span className="font-medium text-md">{folder.name}</span>
                 </div>
               </td>
 
