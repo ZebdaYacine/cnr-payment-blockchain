@@ -89,11 +89,11 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 	if result["createAt"] != nil {
 		createAt = result["createAt"].(primitive.DateTime).Time()
 	}
-	t := true
+	// t := true
 
-	if result["status"] == nil {
-		t = false
-	}
+	// if result["status"] == nil {
+	// 	t = false
+	// }
 
 	user := feature.User{
 		ID:           result["_id"].(primitive.ObjectID),
@@ -111,7 +111,7 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		LastName:     result["last_name"].(string),
 		FirstName:    result["first_name"].(string),
 		Avatar:       avatar,
-		Status:       t,
+		Status:       result["status"].(bool),
 	}
 
 	return &user, nil
