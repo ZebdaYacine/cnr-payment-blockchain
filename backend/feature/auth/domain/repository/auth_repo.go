@@ -43,6 +43,12 @@ func getUser(filter any, collection database.Collection, c context.Context) (*fe
 		return nil, fmt.Errorf("erreur lors de la récupération de l'utilisateur")
 	}
 
+	t := true
+
+	if result["status"] == nil {
+		t = false
+	}
+
 	user := feature.User{
 		Id:           result["_id"].(primitive.ObjectID).Hex(),
 		Email:        result["email"].(string),
@@ -51,8 +57,9 @@ func getUser(filter any, collection database.Collection, c context.Context) (*fe
 		Password:     result["password"].(string),
 		WorkAt:       result["workAt"].(string),
 		IdInstituion: result["idInstituion"].(string),
-		Status:       result["status"].(bool),
+		Status:       t,
 	}
+	log.Println(user)
 	return &user, nil
 }
 
