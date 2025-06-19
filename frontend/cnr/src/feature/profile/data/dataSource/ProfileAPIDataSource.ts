@@ -69,7 +69,7 @@ export interface ProfileDataSource {
     permission: string,
     userId: string,
     newType: string,
-    status: boolean
+    status?: boolean
   ): Promise<boolean | ErrorResponse>;
 }
 

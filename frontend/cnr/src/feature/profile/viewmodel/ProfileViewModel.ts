@@ -432,7 +432,7 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
     }: {
       userId: string;
       newType: string;
-      status: boolean;
+      status?: boolean;
     }) => {
       const storedToken = GetAuthToken(navigate);
       return await profileUseCase.UpdateUser(

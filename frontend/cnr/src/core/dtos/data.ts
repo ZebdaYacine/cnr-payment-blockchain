@@ -15,7 +15,7 @@ export interface User {
   last_name: string;
   first_name: string;
   avatar: string;
-  status: boolean;
+  status?: boolean;
 }
 interface Pahse {
   id: string;

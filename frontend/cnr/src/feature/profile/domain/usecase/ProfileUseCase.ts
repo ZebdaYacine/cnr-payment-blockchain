@@ -136,7 +136,7 @@ export class PofileUseCase {
     permission: string,
     userId: string,
     newType: string,
-    status: boolean
+    status?: boolean
   ): Promise<boolean | ErrorResponse> {
     return await this.repository.UpdateUser(
       token,

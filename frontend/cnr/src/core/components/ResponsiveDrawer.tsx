@@ -195,7 +195,7 @@ const ResponsiveDrawer: React.FC = () => {
                 icon={<MdCalendarToday />}
                 label="Calendrier"
                 path="/home/calender"
-                onClick={() => navigateWithSignatureCheck("/home/calender")}
+                onClick={() => navigate("/home/calender")}
               />
               <li>
                 <details className="group">
@@ -225,11 +225,7 @@ const ResponsiveDrawer: React.FC = () => {
                         .map((user) => (
                           <li key={user.id}>
                             <button
-                              onClick={() =>
-                                navigateWithSignatureCheck(
-                                  `/home/peer/${user.id}`
-                                )
-                              }
+                              onClick={() => navigate(`/home/peer/${user.id}`)}
                               className="block text-left w-full"
                             >
                               {user.last_name} – {user.workAt} / {user.wilaya}
@@ -285,11 +281,7 @@ const ResponsiveDrawer: React.FC = () => {
                   <ul className="pl-8 mt-2 space-y-2">
                     <li>
                       <button
-                        onClick={() =>
-                          navigateWithSignatureCheck(
-                            "/home/general-information"
-                          )
-                        }
+                        onClick={() => navigate("/home/general-information")}
                         className="flex items-center gap-2"
                       >
                         <BsFillClipboard2DataFill />
@@ -298,9 +290,7 @@ const ResponsiveDrawer: React.FC = () => {
                     </li>
                     <li>
                       <button
-                        onClick={() =>
-                          navigateWithSignatureCheck("/home/update-password")
-                        }
+                        onClick={() => navigate("/home/update-password")}
                         className="flex items-center gap-2"
                       >
                         <TbLockPassword />
