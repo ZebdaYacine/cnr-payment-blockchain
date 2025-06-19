@@ -74,27 +74,38 @@ func (r *profileRepository) GetProfile(c context.Context, userId string) (*featu
 		}
 	}
 	var avatar string
-	if result["avatar"] == nil {
-		avatar = ""
-	} else {
+	if result["avatar"] != nil {
 		avatar = result["avatar"].(string)
 	}
+	var publicKey string
+	if result["publicKey"] != nil {
+		publicKey = result["publicKey"].(string)
+	}
+	var idInstituion string
+	if result["idInstituion"] != nil {
+		idInstituion = result["idInstituion"].(string)
+	}
+	var createAt time.Time
+	if result["createAt"] != nil {
+		createAt = result["createAt"].(primitive.DateTime).Time()
+	}
 	user := feature.User{
-		ID:           id,
-		Id:           userId,
+		ID:           result["_id"].(primitive.ObjectID),
+		Id:           result["_id"].(primitive.ObjectID).Hex(),
 		Permission:   result["permission"].(string),
 		Email:        result["email"].(string),
 		UserName:     result["username"].(string),
 		WorkAt:       result["workAt"].(string),
-		IdInstituion: result["idInstituion"].(string),
+		IdInstituion: idInstituion,
 		Type:         result["type"].(string),
 		Wilaya:       result["wilaya"].(string),
 		Phases:       phases,
-		PublicKey:    result["publicKey"].(string),
-		CreateAt:     result["createAt"].(primitive.DateTime).Time(),
+		PublicKey:    publicKey,
+		CreateAt:     createAt,
 		LastName:     result["last_name"].(string),
 		FirstName:    result["first_name"].(string),
 		Avatar:       avatar,
+		Status:       result["status"].(bool),
 	}
 
 	return &user, nil
@@ -329,7 +340,6 @@ func (r *profileRepository) UpdatePassword(userId string, oldPassword string, ne
 
 func (r *profileRepository) GetAllUsers(c context.Context) ([]feature.User, error) {
 	collection := r.database.Collection(database.USER.String())
-
 	cursor, err := collection.Find(c, bson.M{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch users: %w", err)
@@ -355,27 +365,96 @@ func (r *profileRepository) GetAllUsers(c context.Context) ([]feature.User, erro
 			}
 		}
 
-		user := feature.User{
-			// ID:           result["_id"].(primitive.ObjectID),
-			Id:         result["_id"].(primitive.ObjectID).Hex(),
-			Permission: result["permission"].(string),
-			Email:      result["email"].(string),
-			// UserName:     result["username"].(string),
-			WorkAt: result["workAt"].(string),
-			// IdInstituion: result["idInstituion"].(string),
-			Type:   result["type"].(string),
-			Wilaya: result["wilaya"].(string),
-			Phases: phases,
-			// PublicKey:    result["publicKey"].(string),
-			// CreateAt:     result["createAt"].(primitive.DateTime).Time(),
-			LastName:  result["last_name"].(string),
-			FirstName: result["first_name"].(string),
-			// Avatar:       avatar,
-			Status: result["status"].(bool),
+		// Handle potentially missing or nil fields with safe defaults
+		var avatar string
+		if result["avatar"] != nil {
+			avatar = result["avatar"].(string)
 		}
+
+		var publicKey string
+		if result["publicKey"] != nil {
+			publicKey = result["publicKey"].(string)
+		}
+
+		var idInstituion string
+		if result["idInstituion"] != nil {
+			idInstituion = result["idInstituion"].(string)
+		}
+
+		var createAt time.Time
+		if result["createAt"] != nil {
+			createAt = result["createAt"].(primitive.DateTime).Time()
+		}
+
+		// Handle required fields with safe defaults
+		var permission string
+		if result["permission"] != nil {
+			permission = result["permission"].(string)
+		}
+
+		var email string
+		if result["email"] != nil {
+			email = result["email"].(string)
+		}
+
+		var username string
+		if result["username"] != nil {
+			username = result["username"].(string)
+		}
+
+		var workAt string
+		if result["workAt"] != nil {
+			workAt = result["workAt"].(string)
+		}
+
+		var userType string
+		if result["type"] != nil {
+			userType = result["type"].(string)
+		}
+
+		var wilaya string
+		if result["wilaya"] != nil {
+			wilaya = result["wilaya"].(string)
+		}
+
+		var lastName string
+		if result["last_name"] != nil {
+			lastName = result["last_name"].(string)
+		}
+
+		var firstName string
+		if result["first_name"] != nil {
+			firstName = result["first_name"].(string)
+		}
+
+		var status bool
+		if result["status"] != nil {
+			status = result["status"].(bool)
+		}
+
+		user := feature.User{
+			ID:           result["_id"].(primitive.ObjectID),
+			Id:           result["_id"].(primitive.ObjectID).Hex(),
+			Permission:   permission,
+			Email:        email,
+			UserName:     username,
+			WorkAt:       workAt,
+			IdInstituion: idInstituion,
+			Type:         userType,
+			Wilaya:       wilaya,
+			Phases:       phases,
+			PublicKey:    publicKey,
+			CreateAt:     createAt,
+			LastName:     lastName,
+			FirstName:    firstName,
+			Avatar:       avatar,
+			Status:       status,
+		}
+		log.Printf("Processing user: %s (%s %s)", user.Id, user.FirstName, user.LastName)
 		users = append(users, user)
 	}
 
+	log.Printf("✅ Successfully fetched %d users", len(users))
 	if err := cursor.Err(); err != nil {
 		return nil, fmt.Errorf("cursor error: %w", err)
 	}
@@ -408,6 +487,30 @@ func (r *profileRepository) UpdateUser(userId string, newType string, status boo
 	if result.MatchedCount == 0 {
 		return fmt.Errorf("user not found")
 	}
+
+	// // Send email notification to user
+	// userEmail := result["email"].(string)
+	// firstName := result["first_name"].(string)
+	// lastName := result["last_name"].(string)
+
+	// // Prepare email content
+	// subject := "Mise à jour de votre compte"
+	// body := fmt.Sprintf(`
+	// 	Bonjour %s %s,
+
+	// 	Votre compte a été mis à jour avec succès.
+	// 	Nouveau type: %s
+	// 	Statut: %s
+
+	// 	Cordialement,
+	// 	L'équipe CNR
+	// `, firstName, lastName, newType, map[bool]string{true: "Actif", false: "Inactif"}[status])
+
+	// // Send email
+	// if err := email.SendEmail(userEmail, subject, body); err != nil {
+	// 	log.Printf("Failed to send email notification: %v", err)
+	// 	// Don't return error here as the update was successful
+	// }
 
 	return nil
 }

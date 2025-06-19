@@ -32,14 +32,14 @@ export const AccountPage: React.FC = () => {
   const { GetAllUsers, isAllUsersLoading, isAllError } =
     useProfileViewModel(profileUseCase);
   const { userSaved } = useUser();
-  const { users } = useListUsers();
+  const { all_users } = useListUsers();
 
   useEffect(() => {
     GetAllUsers({ permissions: userSaved.permission.toLowerCase() });
   }, [GetAllUsers, userSaved.permission]);
 
   // Filter users based on search query
-  const filteredUsers = users.filter(
+  const filteredUsers = all_users.filter(
     (user) =>
       user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -174,7 +174,7 @@ export const AccountPage: React.FC = () => {
                       }}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {user.username}
+                        {user.last_name}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {user.email}

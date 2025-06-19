@@ -415,7 +415,6 @@ export function useProfileViewModel(profileUseCase: PofileUseCase) {
             ? "Cannot connect to the server. Please check your internet or try again later."
             : err.message
           : "An unknown error occurred while fetching users.";
-
       error(errorMessage, "colored");
     },
   });

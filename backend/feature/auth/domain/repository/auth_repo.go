@@ -160,6 +160,7 @@ func (s *authRepository) CreateAccount(c context.Context, user *feature.User) (*
 		}
 		return nil, fmt.Errorf("erreur lors de la récupération du nouvel utilisateur")
 	}
+
 	return newUser, nil
 }
 

@@ -115,14 +115,14 @@ func (ic *AuthController) CreateAccountRequest(c *gin.Context) {
 	// }
 
 	// Send confirmation email
-	// var htmlMsg html.HtlmlMsg
-	// body := html.HtmlMessage(htmlMsg)
-	// err = email.SendEmail(u.Email, "Account Confirmation", body)
-	// if err != nil {
-	// 	log.Panicf(err.Error())
-	// 	c.JSON(500, model.ErrorResponse{Message: "Can't send confirmation code"})
-	// 	return
-	// }
+	var htmlMsg html.HtlmlMsg
+	body := html.HtmlMessage(htmlMsg)
+	err := email.SendEmail(u.Email, "Account Creation", body)
+	if err != nil {
+		log.Panicf(err.Error())
+		c.JSON(500, model.ErrorResponse{Message: "Can't send confirmation code"})
+		return
+	}
 
 	c.JSON(http.StatusOK, model.SuccessResponse{
 		Message: "ACCOUNT CREATED SUCCESSFULLY - PENDING ACTIVATION",

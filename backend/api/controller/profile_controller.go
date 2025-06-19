@@ -6,6 +6,9 @@ import (
 	"scps-backend/api/controller/model"
 	"scps-backend/core"
 	"scps-backend/fabric"
+	"scps-backend/feature"
+	"scps-backend/util/email"
+	"scps-backend/util/email/html"
 
 	"scps-backend/feature/home/profile/domain/entities"
 	"scps-backend/feature/home/profile/usecase"
@@ -260,6 +263,16 @@ func (ic *ProfileController) UpdateUserRequest(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Message: err.Error(),
 		})
+		return
+	}
+	u := result.Data.(*feature.User)
+
+	var htmlMsg html.HtlmlMsg
+	body := html.HtmlMessage(htmlMsg)
+	err := email.SendEmail(u.Email, "Account Confirmation", body)
+	if err != nil {
+		log.Panicf(err.Error())
+		c.JSON(500, model.ErrorResponse{Message: "Can't send confirmation code"})
 		return
 	}
 
