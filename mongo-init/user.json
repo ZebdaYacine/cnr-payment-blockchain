@@ -219,7 +219,7 @@
     "$oid": "67cea576602b7450f36e2bef"
   },
   "workAt": "DOF",
-  "email": "Lyna@gmail.com",
+  "email": "Lyna@@cnr-dz.com",
   "idInstituion": "67cea58a602b7450f36e2bf1",
   "password": "Azerty1234$",
   "permission": "USER",
@@ -241,7 +241,7 @@
   "_id": {
     "$oid": "67b240d0dc6f5a3abc9acb1b"
   },
-  "email": "a.zebda@edu.esss.dz",
+  "email": "taher@cnr-dz.com",
   "password": "1234",
   "permission": "USER",
   "username": "Taher",
